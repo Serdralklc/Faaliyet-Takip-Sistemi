@@ -149,17 +149,19 @@ export function Sidebar({ user }: { user: User }) {
     <aside className="w-64 flex flex-col h-full border-r"
       style={{ background: "var(--bg-sidebar)", borderColor: "var(--border)" }}>
       {/* Logo */}
-      <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+      <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border)" }}>
         <Link
           href={isAdmin || isTR ? "/panel/admin" : isBolge ? "/panel/bolge" : "/panel/il"}
-          className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
         >
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Shield size={16} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-sm font-bold leading-tight" style={{ color: "var(--text-primary)" }}>Faaliyet Takip</h1>
-            <p className="text-xs" style={{ color: "var(--text-muted)" }}>Serhendi Gençlik</p>
+          <img src="/logo.svg" alt="Serhendi Logo" className="w-10 h-10 flex-shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-sm font-bold leading-tight truncate" style={{ color: "var(--text-primary)" }}>
+              Faaliyet Takip Sistemi
+            </h1>
+            <p className="text-[11px] leading-tight truncate" style={{ color: "var(--text-muted)" }}>
+              Serhendi Vakfı Eğitim Birimi
+            </p>
           </div>
         </Link>
       </div>
