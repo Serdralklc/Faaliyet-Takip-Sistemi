@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 async function getStats() {
   const [toplamKullanici, bekleyenler, toplamIl, toplamFaaliyet] = await Promise.all([
@@ -23,25 +24,31 @@ export default async function AdminPage() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Genel Bakış</h1>
-        <p className="text-gray-500 mt-1">Türkiye geneli faaliyet özeti</p>
+        <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Genel Bakış</h1>
+        <p className="mt-1" style={{ color: "var(--text-muted)" }}>Türkiye geneli faaliyet özeti</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <StatCard label="Aktif Kullanıcı" value={stats.toplamKullanici} color="blue" />
-        <StatCard label="Bekleyen Başvuru" value={stats.bekleyenler} color="yellow" />
-        <StatCard label="Toplam İl" value={stats.toplamIl} color="green" />
-        <StatCard label="Faaliyet Kaydı" value={stats.toplamFaaliyet} color="purple" />
+        <StatCard label="Aktif Kullanıcı" value={stats.toplamKullanici} accent="#3b82f6" icon="👥" />
+        <StatCard label="Bekleyen Başvuru" value={stats.bekleyenler} accent="#f59e0b" icon="⏳" />
+        <StatCard label="Toplam İl" value={stats.toplamIl} accent="#10b981" icon="🗺️" />
+        <StatCard label="Faaliyet Kaydı" value={stats.toplamFaaliyet} accent="#8b5cf6" icon="📋" />
       </div>
 
       {stats.bekleyenler > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center gap-3">
-          <span className="text-yellow-600 text-xl">⚠️</span>
-          <div>
-            <p className="font-medium text-yellow-800">{stats.bekleyenler} bekleyen başvuru var</p>
-            <a href="/panel/admin/kullanicilar?tab=bekleyenler" className="text-yellow-700 text-sm underline">
+        <div className="rounded-xl border-l-4 border-yellow-400 p-4 flex items-center gap-3"
+          style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+          <div className="w-10 h-10 rounded-full bg-yellow-400/20 flex items-center justify-center flex-shrink-0">
+            <span className="text-yellow-400 text-lg">⚠️</span>
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold" style={{ color: "var(--text-primary)" }}>
+              {stats.bekleyenler} bekleyen başvuru var
+            </p>
+            <Link href="/panel/admin/kullanicilar?tab=bekleyenler"
+              className="text-sm text-yellow-500 hover:text-yellow-400 font-medium">
               İncele →
-            </a>
+            </Link>
           </div>
         </div>
       )}
@@ -49,17 +56,23 @@ export default async function AdminPage() {
   );
 }
 
-function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
-  const colors: Record<string, string> = {
-    blue: "bg-blue-50 text-blue-700 border-blue-200",
-    yellow: "bg-yellow-50 text-yellow-700 border-yellow-200",
-    green: "bg-green-50 text-green-700 border-green-200",
-    purple: "bg-purple-50 text-purple-700 border-purple-200",
-  };
+function StatCard({ label, value, accent, icon }: { label: string; value: number; accent: string; icon: string }) {
   return (
-    <div className={`rounded-xl border p-5 ${colors[color]}`}>
-      <p className="text-sm font-medium opacity-75">{label}</p>
-      <p className="text-3xl font-bold mt-1">{value}</p>
+    <div className="rounded-2xl border p-6 relative overflow-hidden"
+      style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+      {/* Renkli sol çizgi */}
+      <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl" style={{ background: accent }} />
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--text-muted)" }}>
+            {label}
+          </p>
+          <p className="text-4xl font-black" style={{ color: accent }}>
+            {value}
+          </p>
+        </div>
+        <span className="text-2xl opacity-40">{icon}</span>
+      </div>
     </div>
   );
 }

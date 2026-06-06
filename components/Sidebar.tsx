@@ -150,7 +150,10 @@ export function Sidebar({ user }: { user: User }) {
       style={{ background: "var(--bg-sidebar)", borderColor: "var(--border)" }}>
       {/* Logo */}
       <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
-        <div className="flex items-center gap-2.5">
+        <Link
+          href={isAdmin || isTR ? "/panel/admin" : isBolge ? "/panel/bolge" : "/panel/il"}
+          className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+        >
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <Shield size={16} className="text-white" />
           </div>
@@ -158,7 +161,7 @@ export function Sidebar({ user }: { user: User }) {
             <h1 className="text-sm font-bold leading-tight" style={{ color: "var(--text-primary)" }}>Faaliyet Takip</h1>
             <p className="text-xs" style={{ color: "var(--text-muted)" }}>Serhendi Gençlik</p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Nav */}
