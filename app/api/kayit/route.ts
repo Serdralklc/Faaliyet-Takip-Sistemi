@@ -1,29 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
+import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { ad, soyad, email, telefon, ilId, bolgeId } = body;
+  const { ad, soyad, email, telefon, sifre, gorev, bolgeId, ilId } = body;
 
-  if (!ad || !soyad || !email) {
-    return NextResponse.json({ error: "Ad, soyad ve e-posta zorunludur" }, { status: 400 });
+  if (!ad || !soyad || !email || !sifre) {
+    return NextResponse.json({ error: "Ad, soyad, e-posta ve şifre zorunludur" }, { status: 400 });
+  }
+  if (sifre.length < 8) {
+    return NextResponse.json({ error: "Şifre en az 8 karakter olmalıdır" }, { status: 400 });
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    return NextResponse.json({ error: "Bu e-posta zaten kayıtlı" }, { status: 400 });
+    return NextResponse.json({ error: "Bu e-posta adresi zaten kayıtlı" }, { status: 400 });
   }
+
+  const passwordHash = await bcrypt.hash(sifre, 12);
 
   const user = await prisma.user.create({
     data: {
-      ad, soyad, email, telefon,
+      ad,
+      soyad,
+      email,
+      telefon: telefon || null,
+      passwordHash,
       role: "BEKLEYEN",
       status: "BEKLEMEDE",
     },
   });
 
-  // Kayıt log — sistem adına
+  // Audit log
   const adminUser = await prisma.user.findFirst({ where: { role: "SISTEM_ADMIN" } });
   if (adminUser) {
     await createAuditLog({
@@ -31,9 +41,9 @@ export async function POST(req: NextRequest) {
       action: ACTIONS.USER_CREATED,
       entity: "User",
       entityId: user.id,
-      newValue: { email, ilId, bolgeId },
+      newValue: { email, gorev, bolgeId, ilId },
       ipAddress: req.headers.get("x-forwarded-for") ?? undefined,
-      description: `Kendi kaydını oluşturdu: ${ad} ${soyad}`,
+      description: `Kendi kaydını oluşturdu: ${ad} ${soyad} (${gorev ?? "belirtilmedi"})`,
     });
   }
 
