@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ROLE_LABELS } from "@/lib/auth";
-import { Role } from "@/app/generated/prisma/client";
+import { ROLE_LABELS } from "@/lib/constants";
+import type { Role } from "@/lib/constants";
 
 interface Kullanici {
   id: string;

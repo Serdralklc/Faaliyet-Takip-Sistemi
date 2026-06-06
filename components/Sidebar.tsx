@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { Role } from "@/app/generated/prisma/client";
-import { ROLE_LABELS } from "@/lib/auth";
+import type { Role } from "@/lib/constants";
+import { ROLE_LABELS } from "@/lib/constants";
 import {
   LayoutDashboard, Users, MapPin, FileText,
   ClipboardList, LogOut, ChevronRight,
