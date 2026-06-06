@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
   await createAuditLog({
     userId: session.user.id,
-    action: ACTIONS.KULLANICI_OLUSTURULDU,
+    action: ACTIONS.USER_CREATED,
     entity: "User",
     entityId: session.user.id,
     ipAddress: req.headers.get("x-forwarded-for") ?? undefined,
