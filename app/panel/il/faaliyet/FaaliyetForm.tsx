@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
@@ -60,14 +60,20 @@ const FIELDS: Record<Tab, { key: string; label: string; suffix?: string }[]> = {
 function NumberInput({ label, value, suffix, onChange }: {
   label: string; value: number; suffix?: string; onChange: (v: number) => void;
 }) {
+  const [focused, setFocused] = React.useState(false);
+  const displayValue = focused ? (value === 0 ? "" : String(value)) : String(value);
+
   return (
     <div className="group">
       <label className="block text-xs font-bold mb-1.5 uppercase tracking-wide"
         style={{ color: "var(--text-muted)" }}>{label}</label>
       <div className="relative">
         <input
-          type="number" min={0} value={value === 0 ? "" : value}
+          type="number" min={0}
+          value={displayValue}
           placeholder="0"
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           onChange={(e) => onChange(Number(e.target.value) || 0)}
           className="w-full rounded-xl px-4 py-3 text-sm font-bold border-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition pr-16"
           style={{
