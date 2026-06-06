@@ -14,7 +14,11 @@ import {
   Hotel, BarChart3, Settings, Shield,
 } from "lucide-react";
 
-interface User { id: string; ad: string; soyad: string; role: Role }
+interface User {
+  id: string; ad: string; soyad: string; role: Role;
+  activeIlAd?: string | null;
+  activeBolgeAd?: string | null;
+}
 
 interface NavGroup {
   label: string;
@@ -189,10 +193,16 @@ export function Sidebar({ user }: { user: User }) {
 
       {/* Footer */}
       <div className="p-3 border-t space-y-0.5" style={{ borderColor: "var(--border)" }}>
-        <div className="px-3 py-2">
+        <Link href="/panel/profil" className="block px-3 py-2 rounded-lg hover:bg-[color:var(--bg-hover)] transition">
           <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{user.ad} {user.soyad}</p>
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>{ROLE_LABELS[user.role]}</p>
-        </div>
+          <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+            {user.activeIlAd
+              ? `${user.activeIlAd} İl Sorumlusu`
+              : user.activeBolgeAd
+              ? `${user.activeBolgeAd} Bölge Sorumlusu`
+              : ROLE_LABELS[user.role]}
+          </p>
+        </Link>
         <ThemeToggle />
         <button onClick={() => signOut({ callbackUrl: "/giris" })}
           className="flex items-center gap-2 w-full px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition">
