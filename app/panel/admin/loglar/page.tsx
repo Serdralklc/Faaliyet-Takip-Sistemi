@@ -15,25 +15,31 @@ export default async function LoglarPage() {
   });
 
   const actionLabel: Record<string, string> = {
-    USER_REGISTERED: "Kayıt",
-    USER_APPROVED: "Onaylandı",
-    USER_REJECTED: "Reddedildi",
-    TASK_TRANSFERRED: "Görev Devri",
-    ACTIVITY_CREATED: "Faaliyet Eklendi",
-    ACTIVITY_UPDATED: "Faaliyet Güncellendi",
-    ACTIVITY_DELETED: "Faaliyet Silindi",
-    INVITATION_SENT: "Davet Gönderildi",
+    KULLANICI_OLUSTURULDU: "Kayıt",
+    KULLANICI_DAVET_EDILDI: "Davet Gönderildi",
+    KULLANICI_ONAYLANDI: "Onaylandı",
+    KULLANICI_REDDEDILDI: "Reddedildi",
+    SIFRE_OLUSTURULDU: "Şifre Oluşturuldu",
+    ROL_DEGISTIRILDI: "Rol Değiştirildi",
+    IL_ATANDI: "İl Atandı",
+    BOLGE_ATANDI: "Bölge Atandı",
+    GOREV_DEVRI_YAPILDI: "Görev Devri",
+    KULLANICI_PASIFLESTIRILDI: "Pasifleştirildi",
+    FAALIYET_OLUSTURULDU: "Faaliyet Eklendi",
+    FAALIYET_GUNCELLENDI: "Faaliyet Güncellendi",
+    FAALIYET_SILINDI: "Faaliyet Silindi",
   };
 
   const actionColor: Record<string, string> = {
-    USER_REGISTERED: "bg-blue-100 text-blue-700",
-    USER_APPROVED: "bg-green-100 text-green-700",
-    USER_REJECTED: "bg-red-100 text-red-700",
-    TASK_TRANSFERRED: "bg-purple-100 text-purple-700",
-    ACTIVITY_CREATED: "bg-emerald-100 text-emerald-700",
-    ACTIVITY_UPDATED: "bg-yellow-100 text-yellow-700",
-    ACTIVITY_DELETED: "bg-red-100 text-red-700",
-    INVITATION_SENT: "bg-indigo-100 text-indigo-700",
+    KULLANICI_OLUSTURULDU: "bg-blue-100 text-blue-700",
+    KULLANICI_DAVET_EDILDI: "bg-indigo-100 text-indigo-700",
+    KULLANICI_ONAYLANDI: "bg-green-100 text-green-700",
+    KULLANICI_REDDEDILDI: "bg-red-100 text-red-700",
+    GOREV_DEVRI_YAPILDI: "bg-purple-100 text-purple-700",
+    FAALIYET_OLUSTURULDU: "bg-emerald-100 text-emerald-700",
+    FAALIYET_GUNCELLENDI: "bg-yellow-100 text-yellow-700",
+    FAALIYET_SILINDI: "bg-red-100 text-red-700",
+    KULLANICI_PASIFLESTIRILDI: "bg-gray-100 text-gray-600",
   };
 
   return (

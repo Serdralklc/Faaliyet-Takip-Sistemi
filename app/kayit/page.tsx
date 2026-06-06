@@ -17,7 +17,7 @@ export default function KayitPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/bolgeler").then((r) => r.json()).then(setBolgeler);
+    fetch("/api/bolgeler?public=1").then((r) => r.json()).then(setBolgeler);
   }, []);
 
   const seciliBolge = bolgeler.find((b) => b.id === form.bolgeId);
