@@ -35,7 +35,13 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: "desc" },
   });
 
-  return NextResponse.json(users);
+  // passwordHash'i boolean'a çevir (güvenlik için hash değerini döndürme)
+  const safeUsers = users.map((u) => ({
+    ...u,
+    passwordHash: u.passwordHash ? "SET" : null,
+  }));
+
+  return NextResponse.json(safeUsers);
 }
 
 // POST: davet ile kullanıcı oluştur
