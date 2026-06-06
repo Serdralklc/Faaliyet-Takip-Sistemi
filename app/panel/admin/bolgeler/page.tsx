@@ -9,7 +9,7 @@ export default async function BolgelerPage() {
   if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"].includes(session.user.role)) redirect("/");
 
   const bolgeler = await prisma.bolge.findMany({
-    orderBy: { ad: "asc" },
+    orderBy: { no: "asc" },
     include: {
       iller: {
         include: {
