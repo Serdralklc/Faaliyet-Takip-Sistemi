@@ -77,18 +77,25 @@ function FieldGroup({ title, fields, form, onChange }: {
   onChange: (k: string, v: number) => void;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden mb-4">
+    <div className="rounded-xl border overflow-hidden mb-4"
+      style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
       <div className="bg-blue-700 px-5 py-3">
-        <h3 className="text-white font-semibold">{title}</h3>
+        <h3 className="text-white font-bold">{title}</h3>
       </div>
       <div className="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {fields.map((f) => (
           <div key={f.key}>
-            <label className="block text-xs font-medium text-gray-600 mb-1">{f.label}</label>
+            <label className="block text-sm font-bold mb-1.5"
+              style={{ color: "var(--text-secondary)" }}>{f.label}</label>
             <input
               type="number" min={0} value={form[f.key] ?? 0}
               onChange={(e) => onChange(f.key, Number(e.target.value))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border-2 rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{
+                background: "var(--bg-input)",
+                borderColor: "var(--border-input)",
+                color: "var(--text-primary)",
+              }}
             />
           </div>
         ))}
@@ -135,16 +142,18 @@ export default function FaaliyetGirPage() {
 
       <div className="flex gap-4 mb-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Yıl</label>
+          <label className="block text-sm font-bold mb-1.5" style={{ color: "var(--text-secondary)" }}>Yıl</label>
           <select value={yil} onChange={(e) => setYil(Number(e.target.value))}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            className="border-2 rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={{ background: "var(--bg-input)", borderColor: "var(--border-input)", color: "var(--text-primary)" }}>
             {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Dönem</label>
+          <label className="block text-sm font-bold mb-1.5" style={{ color: "var(--text-secondary)" }}>Dönem</label>
           <select value={donem} onChange={(e) => setDonem(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            className="border-2 rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={{ background: "var(--bg-input)", borderColor: "var(--border-input)", color: "var(--text-primary)" }}>
             {DONEMLER.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
           </select>
         </div>
