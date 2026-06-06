@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  SISTEM_ADMIN
+  GENEL_MERKEZ
+  TURKIYE_SORUMLUSU
+  BOLGE_SORUMLUSU
+  IL_SORUMLUSU
+  BEKLEYEN
+}
+
+enum UserStatus {
+  AKTIF
+  BEKLEMEDE
+  PASIF
+}
+
+enum AssignmentStatus {
+  AKTIF
+  TAMAMLANDI
+}
+
+enum Donem {
+  DONEM_1
+  DONEM_2
+  YAZ_DONEMI
+}
+
+model User {
+  id           String     @id @default(cuid())
+  ad           String
+  soyad        String
+  email        String     @unique
+  telefon      String?
+  passwordHash String?
+  role         Role       @default(BEKLEYEN)
+  status       UserStatus @default(BEKLEMEDE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  assignments       RoleAssignment[]
+  createdActivities Activity[]       @relation("CreatedBy")
+  updatedActivities Activity[]       @relation("UpdatedBy")
+  auditLogs         AuditLog[]       @relation("ActionBy")
+  invitations       Invitation[]     @relation("InvitedBy")
+}
+
+model Bolge {
+  id        String   @id @default(cuid())
+  no        Int      @unique
+  ad        String
+  createdAt DateTime @default(now())
+
+  iller       Il[]
+  assignments RoleAssignment[]
+}
+
+model Il {
+  id        String   @id @default(cuid())
+  ad        String
+  bolgeId   String
+  createdAt DateTime @default(now())
+
+  bolge       Bolge            @relation(fields: [bolgeId], references: [id])
+  assignments RoleAssignment[]
+  activities  Activity[]
+}
+
+model RoleAssignment {
+  id        String           @id @default(cuid())
+  userId    String
+  role      Role
+  bolgeId   String?
+  ilId      String?
+  status    AssignmentStatus @default(AKTIF)
+  startedAt DateTime         @default(now())
+  endedAt   DateTime?
+  endedById String?
+  note      String?
+
+  user  User   @relation(fields: [userId], references: [id])
+  bolge Bolge? @relation(fields: [bolgeId], references: [id])
+  il    Il?    @relation(fields: [ilId], references: [id])
+
+  @@index([userId])
+  @@index([ilId, status])
+  @@index([bolgeId, status])
+}
+
+model Invitation {
+  id          String    @id @default(cuid())
+  email       String
+  token       String    @unique @default(cuid())
+  role        Role
+  bolgeId     String?
+  ilId        String?
+  invitedById String
+  usedAt      DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  invitedBy User @relation("InvitedBy", fields: [invitedById], references: [id])
+}
+
+model Activity {
+  id    String @id @default(cuid())
+  ilId  String
+  yil   Int
+  donem Donem
+
+  // İlköğretim
+  ik_toplamDergah          Int @default(0)
+  ik_kursuYapilanDergah    Int @default(0)
+  ik_egitmenSayisi         Int @default(0)
+  ik_egitmenYardimciSayisi Int @default(0)
+  ik_elifBaOgrenci         Int @default(0)
+  ik_kuranOgrenci          Int @default(0)
+  ik_gecisOgrenci          Int @default(0)
+
+  // Lise
+  ls_toplamDergah       Int @default(0)
+  ls_ilimDersYeri       Int @default(0)
+  ls_ilimDersKatilim    Int @default(0)
+  ls_sabahNamaziSayisi  Int @default(0)
+  ls_sabahNamaziKatilim Int @default(0)
+  ls_kafileSayisi       Int @default(0)
+  ls_kafileOgrenci      Int @default(0)
+  ls_toplamFaaliyet     Int @default(0)
+  ls_yeniIntisap        Int @default(0)
+
+  // Üniversite
+  uni_toplamDergah      Int @default(0)
+  uni_ilimDersYeri      Int @default(0)
+  uni_ilimDersKatilim   Int @default(0)
+  uni_sabahNamaziSayisi Int @default(0)
+  uni_sabahNamaziKatilim Int @default(0)
+  uni_kafileSayisi      Int @default(0)
+  uni_kafileOgrenci     Int @default(0)
+  uni_toplamFaaliyet    Int @default(0)
+  uni_kykBulusmaSayisi  Int @default(0)
+  uni_kykKatilim        Int @default(0)
+  uni_yeniIntisap       Int @default(0)
+
+  // Ev/Apart/Yurt
+  eay_mevcutEv      Int @default(0)
+  eay_mevcutApart   Int @default(0)
+  eay_mevcutYurt    Int @default(0)
+  eay_acilacakEv    Int @default(0)
+  eay_acilacakApart Int @default(0)
+  eay_acilacakYurt  Int @default(0)
+  eay_kapanacakEv   Int @default(0)
+  eay_kapanacakApart Int @default(0)
+  eay_kapanacakYurt  Int @default(0)
+  eay_bursBalan     Int @default(0)
+  eay_iliskiKesme   Int @default(0)
+  eay_toplamZiyaret Int @default(0)
+
+  // Değişmez audit alanları
+  createdById      String
+  createdByName    String
+  createdByRole    Role
+  createdByIlId    String?
+  createdByBolgeId String?
+  createdAt        DateTime @default(now())
+
+  updatedById   String?
+  updatedByName String?
+  updatedAt     DateTime @updatedAt
+
+  il        Il    @relation(fields: [ilId], references: [id])
+  createdBy User  @relation("CreatedBy", fields: [createdById], references: [id])
+  updatedBy User? @relation("UpdatedBy", fields: [updatedById], references: [id])
+
+  @@unique([ilId, yil, donem])
+  @@index([ilId])
+  @@index([yil, donem])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String
+  entity      String
+  entityId    String?
+  oldValue    Json?
+  newValue    Json?
+  ipAddress   String?
+  description String?
+  createdAt   DateTime @default(now())
+
+  user User @relation("ActionBy", fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
