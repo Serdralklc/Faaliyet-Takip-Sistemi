@@ -5,11 +5,10 @@ import bcrypt from "bcryptjs";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
-  const inv = await prisma.invitation.findUnique({
-    where: { token: params.token },
-  });
+  const { token } = await params;
+  const inv = await prisma.invitation.findUnique({ where: { token } });
 
   if (!inv || inv.usedAt || inv.expiresAt < new Date()) {
     return NextResponse.json({ error: "Geçersiz veya süresi dolmuş bağlantı" }, { status: 400 });
@@ -20,13 +19,12 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
+  const { token } = await params;
   const { password } = await req.json();
 
-  const inv = await prisma.invitation.findUnique({
-    where: { token: params.token },
-  });
+  const inv = await prisma.invitation.findUnique({ where: { token } });
 
   if (!inv || inv.usedAt || inv.expiresAt < new Date()) {
     return NextResponse.json({ error: "Geçersiz veya süresi dolmuş bağlantı" }, { status: 400 });
@@ -39,9 +37,8 @@ export async function POST(
       where: { email: inv.email },
       data: { passwordHash: hash, status: "AKTIF" },
     });
-
     await tx.invitation.update({
-      where: { token: params.token },
+      where: { token },
       data: { usedAt: new Date() },
     });
   });

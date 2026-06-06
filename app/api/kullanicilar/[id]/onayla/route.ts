@@ -5,11 +5,11 @@ import { createAuditLog, ACTIONS } from "@/lib/audit";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-
   if (!["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(session.user.role)) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
@@ -17,37 +17,25 @@ export async function POST(
   const { action, ilId, bolgeId, role } = await req.json();
 
   if (action === "reddet") {
-    await prisma.user.update({
-      where: { id: params.id },
-      data: { status: "PASIF" },
-    });
-
+    await prisma.user.update({ where: { id }, data: { status: "PASIF" } });
     await createAuditLog({
       userId: session.user.id,
       action: ACTIONS.USER_REJECTED,
       entity: "User",
-      entityId: params.id,
+      entityId: id,
       ipAddress: req.headers.get("x-forwarded-for") ?? undefined,
     });
-
     return NextResponse.json({ success: true });
   }
 
-  // Onayla
   await prisma.$transaction(async (tx) => {
     await tx.user.update({
-      where: { id: params.id },
+      where: { id },
       data: { role: role || "IL_SORUMLUSU", status: "AKTIF" },
     });
-
     if (ilId || bolgeId) {
       await tx.roleAssignment.create({
-        data: {
-          userId: params.id,
-          role: role || "IL_SORUMLUSU",
-          ilId: ilId || null,
-          bolgeId: bolgeId || null,
-        },
+        data: { userId: id, role: role || "IL_SORUMLUSU", ilId: ilId || null, bolgeId: bolgeId || null },
       });
     }
   });
@@ -56,7 +44,7 @@ export async function POST(
     userId: session.user.id,
     action: ACTIONS.USER_APPROVED,
     entity: "User",
-    entityId: params.id,
+    entityId: id,
     ipAddress: req.headers.get("x-forwarded-for") ?? undefined,
   });
 
