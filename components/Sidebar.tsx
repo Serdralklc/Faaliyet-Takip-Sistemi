@@ -8,32 +8,62 @@ import { useEffect, useState } from "react";
 import type { Role } from "@/lib/constants";
 import { ROLE_LABELS } from "@/lib/constants";
 import {
-  LayoutDashboard, Users, MapPin, FileText,
-  ClipboardList, LogOut, ChevronRight, Sun, Moon,
+  LayoutDashboard, Users, MapPin, FileText, ClipboardList,
+  LogOut, Sun, Moon, ChevronDown, ChevronRight,
+  GraduationCap, School, BookOpen, Home, Building2,
+  Hotel, BarChart3, Settings, Shield,
 } from "lucide-react";
 
-interface User {
-  id: string;
-  ad: string;
-  soyad: string;
-  role: Role;
+interface User { id: string; ad: string; soyad: string; role: Role }
+
+interface NavGroup {
+  label: string;
+  icon: React.ElementType;
+  items: { href: string; label: string; icon?: React.ElementType }[];
 }
 
-function NavItem({ href, icon: Icon, label }: { href: string; icon: React.ElementType; label: string }) {
+function NavItem({ href, label, icon: Icon, exact }: { href: string; label: string; icon?: React.ElementType; exact?: boolean }) {
   const path = usePathname();
-  const active = path === href || (href !== "/panel/admin" && path.startsWith(href));
+  const active = exact ? path === href : path === href || path.startsWith(href + "/");
   return (
     <Link href={href}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all ${
         active
-          ? "bg-blue-600 text-white shadow-sm"
-          : "hover:bg-[color:var(--border)]"
+          ? "bg-blue-600 text-white font-semibold shadow-sm"
+          : "font-medium hover:bg-[color:var(--bg-hover)]"
       }`}
-      style={active ? {} : { color: "var(--text-secondary)" }}>
-      <Icon size={18} />
+      style={active ? {} : { color: "var(--text-muted)" }}>
+      {Icon && <Icon size={15} />}
       <span>{label}</span>
-      {active && <ChevronRight size={14} className="ml-auto" />}
     </Link>
+  );
+}
+
+function NavGroup({ group }: { group: NavGroup }) {
+  const path = usePathname();
+  const isAnyActive = group.items.some(i => path === i.href || path.startsWith(i.href + "/"));
+  const [open, setOpen] = useState(isAnyActive);
+  const Icon = group.icon;
+
+  return (
+    <div>
+      <button onClick={() => setOpen(!open)}
+        className={`flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
+          isAnyActive ? "text-blue-600" : "hover:bg-[color:var(--bg-hover)]"
+        }`}
+        style={isAnyActive ? {} : { color: "var(--text-secondary)" }}>
+        <Icon size={16} />
+        <span className="flex-1 text-left">{group.label}</span>
+        {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+      </button>
+      {open && (
+        <div className="ml-3 pl-3 border-l mt-0.5 space-y-0.5" style={{ borderColor: "var(--border)" }}>
+          {group.items.map(item => (
+            <NavItem key={item.href} href={item.href} label={item.label} icon={item.icon} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -42,16 +72,12 @@ function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
-
   const isDark = theme === "dark";
   return (
-    <button
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg transition hover:bg-[color:var(--border)]"
-      style={{ color: "var(--text-muted)" }}
-      title={isDark ? "Açık Tema" : "Koyu Tema"}
-    >
-      {isDark ? <Sun size={16} /> : <Moon size={16} />}
+    <button onClick={() => setTheme(isDark ? "light" : "dark")}
+      className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg transition hover:bg-[color:var(--bg-hover)]"
+      style={{ color: "var(--text-muted)" }}>
+      {isDark ? <Sun size={15} /> : <Moon size={15} />}
       <span>{isDark ? "Açık Tema" : "Koyu Tema"}</span>
     </button>
   );
@@ -63,52 +89,114 @@ export function Sidebar({ user }: { user: User }) {
   const isBolge = user.role === "BOLGE_SORUMLUSU";
   const isIl = user.role === "IL_SORUMLUSU";
 
+  const adminGroups: NavGroup[] = [
+    {
+      label: "Kullanıcı Yönetimi",
+      icon: Users,
+      items: [
+        { href: "/panel/admin/kullanicilar", label: "Kullanıcılar", icon: Users },
+      ],
+    },
+    {
+      label: "Coğrafi Yapı",
+      icon: MapPin,
+      items: [
+        { href: "/panel/admin/bolgeler", label: "Bölgeler & İller", icon: MapPin },
+      ],
+    },
+    {
+      label: "Raporlar",
+      icon: BarChart3,
+      items: [
+        { href: "/panel/admin/raporlar", label: "Türkiye Geneli", icon: BarChart3 },
+      ],
+    },
+  ];
+
+  const ilGroups: NavGroup[] = [
+    {
+      label: "Faaliyet Yönetimi",
+      icon: ClipboardList,
+      items: [
+        { href: "/panel/il/faaliyet/ilkogretim", label: "İlköğretim", icon: BookOpen },
+        { href: "/panel/il/faaliyet/lise", label: "Lise", icon: School },
+        { href: "/panel/il/faaliyet/universite", label: "Üniversite", icon: GraduationCap },
+      ],
+    },
+    {
+      label: "Barınma Yönetimi",
+      icon: Home,
+      items: [
+        { href: "/panel/il/barinma/evler", label: "Evler", icon: Home },
+        { href: "/panel/il/barinma/apartlar", label: "Apartlar", icon: Building2 },
+        { href: "/panel/il/barinma/yurtlar", label: "Yurtlar", icon: Hotel },
+      ],
+    },
+    {
+      label: "Raporlar",
+      icon: BarChart3,
+      items: [
+        { href: "/panel/il/raporlar", label: "İl Raporları", icon: BarChart3 },
+      ],
+    },
+  ];
+
   return (
     <aside className="w-64 flex flex-col h-full border-r"
       style={{ background: "var(--bg-sidebar)", borderColor: "var(--border)" }}>
-      <div className="p-5 border-b" style={{ borderColor: "var(--border)" }}>
-        <h1 className="text-lg font-bold leading-tight" style={{ color: "var(--accent)" }}>Faaliyet Takip</h1>
-        <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>Serhendi Gençlik</p>
+      {/* Logo */}
+      <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <Shield size={16} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-sm font-bold leading-tight" style={{ color: "var(--text-primary)" }}>Faaliyet Takip</h1>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>Serhendi Gençlik</p>
+          </div>
+        </div>
       </div>
 
+      {/* Nav */}
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        {/* Admin / TR / GM */}
         {(isAdmin || isTR) && (
           <>
-            <NavItem href="/panel/admin" icon={LayoutDashboard} label="Genel Bakış" />
-            <NavItem href="/panel/admin/kullanicilar" icon={Users} label="Kullanıcılar" />
-            <NavItem href="/panel/admin/bolgeler" icon={MapPin} label="Bölgeler & İller" />
-            <NavItem href="/panel/admin/raporlar" icon={FileText} label="Raporlar" />
-            {isAdmin && <NavItem href="/panel/admin/loglar" icon={ClipboardList} label="Denetim Logları" />}
+            <NavItem href="/panel/admin" label="Genel Bakış" icon={LayoutDashboard} exact />
+            {adminGroups.map(g => <NavGroup key={g.label} group={g} />)}
+            {isAdmin && <NavItem href="/panel/admin/loglar" label="Denetim Logları" icon={ClipboardList} />}
           </>
         )}
+
+        {/* Bölge */}
         {isBolge && (
           <>
-            <NavItem href="/panel/bolge" icon={LayoutDashboard} label="Bölge Özeti" />
-            <NavItem href="/panel/bolge/iller" icon={MapPin} label="İller" />
-            <NavItem href="/panel/bolge/raporlar" icon={FileText} label="Raporlar" />
+            <NavItem href="/panel/bolge" label="Dashboard" icon={LayoutDashboard} exact />
+            <NavItem href="/panel/bolge/iller" label="İller" icon={MapPin} />
+            <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
           </>
         )}
+
+        {/* İl */}
         {isIl && (
           <>
-            <NavItem href="/panel/il" icon={LayoutDashboard} label="İl Özeti" />
-            <NavItem href="/panel/il/faaliyet-gir" icon={ClipboardList} label="Faaliyet Gir" />
-            <NavItem href="/panel/il/raporlar" icon={FileText} label="Raporlar" />
+            <NavItem href="/panel/il" label="Dashboard" icon={LayoutDashboard} exact />
+            {ilGroups.map(g => <NavGroup key={g.label} group={g} />)}
+            <NavItem href="/panel/il/ayarlar" label="Ayarlar" icon={Settings} />
           </>
         )}
       </nav>
 
-      <div className="p-3 border-t space-y-1" style={{ borderColor: "var(--border)" }}>
-        <div className="px-3 py-2 mb-1">
-          <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{user.ad} {user.soyad}</p>
+      {/* Footer */}
+      <div className="p-3 border-t space-y-0.5" style={{ borderColor: "var(--border)" }}>
+        <div className="px-3 py-2">
+          <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{user.ad} {user.soyad}</p>
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>{ROLE_LABELS[user.role]}</p>
         </div>
         <ThemeToggle />
-        <button
-          onClick={() => signOut({ callbackUrl: "/giris" })}
-          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
-        >
-          <LogOut size={16} />
-          Çıkış Yap
+        <button onClick={() => signOut({ callbackUrl: "/giris" })}
+          className="flex items-center gap-2 w-full px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition">
+          <LogOut size={15} />Çıkış Yap
         </button>
       </div>
     </aside>

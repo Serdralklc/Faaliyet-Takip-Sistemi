@@ -40,6 +40,13 @@ export async function GET(req: NextRequest) {
     where.ilId = { in: iller.map((i) => i.id) };
   }
 
+  const single = searchParams.get("single") === "1";
+
+  if (single) {
+    const activity = await prisma.activity.findFirst({ where });
+    return NextResponse.json(activity ?? null);
+  }
+
   const activities = await prisma.activity.findMany({
     where,
     include: { il: { include: { bolge: true } } },
