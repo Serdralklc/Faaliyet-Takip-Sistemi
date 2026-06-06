@@ -57,13 +57,13 @@ export default async function RaporlarPage() {
 
                   const toplamlar = {
                     ik_toplamDergah: donemFaaliyetler.reduce((s, f) => s + (f.ik_toplamDergah ?? 0), 0),
-                    ik_toplamKisi: donemFaaliyetler.reduce((s, f) => s + (f.ik_toplamKisi ?? 0), 0),
-                    lise_toplamDergah: donemFaaliyetler.reduce((s, f) => s + (f.lise_toplamDergah ?? 0), 0),
-                    lise_toplamKisi: donemFaaliyetler.reduce((s, f) => s + (f.lise_toplamKisi ?? 0), 0),
+                    ik_toplamOgrenci: donemFaaliyetler.reduce((s, f) => s + (f.ik_elifBaOgrenci ?? 0) + (f.ik_kuranOgrenci ?? 0), 0),
+                    ls_toplamDergah: donemFaaliyetler.reduce((s, f) => s + (f.ls_toplamDergah ?? 0), 0),
+                    ls_toplamFaaliyet: donemFaaliyetler.reduce((s, f) => s + (f.ls_toplamFaaliyet ?? 0), 0),
                     uni_toplamDergah: donemFaaliyetler.reduce((s, f) => s + (f.uni_toplamDergah ?? 0), 0),
-                    uni_toplamKisi: donemFaaliyetler.reduce((s, f) => s + (f.uni_toplamKisi ?? 0), 0),
-                    ev_toplamHane: donemFaaliyetler.reduce((s, f) => s + (f.ev_toplamHane ?? 0), 0),
-                    ev_toplamKisi: donemFaaliyetler.reduce((s, f) => s + (f.ev_toplamKisi ?? 0), 0),
+                    uni_toplamFaaliyet: donemFaaliyetler.reduce((s, f) => s + (f.uni_toplamFaaliyet ?? 0), 0),
+                    eay_toplamEv: donemFaaliyetler.reduce((s, f) => s + (f.eay_mevcutEv ?? 0) + (f.eay_mevcutApart ?? 0) + (f.eay_mevcutYurt ?? 0), 0),
+                    eay_toplamZiyaret: donemFaaliyetler.reduce((s, f) => s + (f.eay_toplamZiyaret ?? 0), 0),
                   };
 
                   return (
@@ -78,22 +78,22 @@ export default async function RaporlarPage() {
                         <div className="text-center">
                           <p className="text-xs text-gray-400 mb-1">İlköğretim</p>
                           <p className="text-xl font-bold text-gray-800">{toplamlar.ik_toplamDergah}</p>
-                          <p className="text-xs text-gray-500">dergah / {toplamlar.ik_toplamKisi} kişi</p>
+                          <p className="text-xs text-gray-500">dergah / {toplamlar.ik_toplamOgrenci} öğrenci</p>
                         </div>
                         <div className="text-center">
                           <p className="text-xs text-gray-400 mb-1">Lise</p>
-                          <p className="text-xl font-bold text-gray-800">{toplamlar.lise_toplamDergah}</p>
-                          <p className="text-xs text-gray-500">dergah / {toplamlar.lise_toplamKisi} kişi</p>
+                          <p className="text-xl font-bold text-gray-800">{toplamlar.ls_toplamDergah}</p>
+                          <p className="text-xs text-gray-500">dergah / {toplamlar.ls_toplamFaaliyet} faaliyet</p>
                         </div>
                         <div className="text-center">
                           <p className="text-xs text-gray-400 mb-1">Üniversite</p>
                           <p className="text-xl font-bold text-gray-800">{toplamlar.uni_toplamDergah}</p>
-                          <p className="text-xs text-gray-500">dergah / {toplamlar.uni_toplamKisi} kişi</p>
+                          <p className="text-xs text-gray-500">dergah / {toplamlar.uni_toplamFaaliyet} faaliyet</p>
                         </div>
                         <div className="text-center">
                           <p className="text-xs text-gray-400 mb-1">Ev/Apart/Yurt</p>
-                          <p className="text-xl font-bold text-gray-800">{toplamlar.ev_toplamHane}</p>
-                          <p className="text-xs text-gray-500">hane / {toplamlar.ev_toplamKisi} kişi</p>
+                          <p className="text-xl font-bold text-gray-800">{toplamlar.eay_toplamEv}</p>
+                          <p className="text-xs text-gray-500">mevcut / {toplamlar.eay_toplamZiyaret} ziyaret</p>
                         </div>
                       </div>
 
@@ -103,13 +103,13 @@ export default async function RaporlarPage() {
                           <tr>
                             <th className="text-left px-4 py-2 text-xs font-medium text-gray-500">Bölge</th>
                             <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">İK Dergah</th>
-                            <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">İK Kişi</th>
+                            <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">İK Öğrenci</th>
                             <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">Lise Dergah</th>
-                            <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">Lise Kişi</th>
+                            <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">Lise Faaliyet</th>
                             <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">Üni Dergah</th>
-                            <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">Üni Kişi</th>
-                            <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">Ev Hane</th>
-                            <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">Ev Kişi</th>
+                            <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">Üni Faaliyet</th>
+                            <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">EAY Mevcut</th>
+                            <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">EAY Ziyaret</th>
                             <th className="text-center px-4 py-2 text-xs font-medium text-gray-500">Veri Giren</th>
                           </tr>
                         </thead>
@@ -123,13 +123,13 @@ export default async function RaporlarPage() {
                               <tr key={bolge.id} className="hover:bg-gray-50">
                                 <td className="px-4 py-2.5 font-medium text-gray-700">{bolge.ad}</td>
                                 <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.ik_toplamDergah ?? 0), 0)}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.ik_toplamKisi ?? 0), 0)}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.lise_toplamDergah ?? 0), 0)}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.lise_toplamKisi ?? 0), 0)}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.ik_elifBaOgrenci ?? 0) + (f.ik_kuranOgrenci ?? 0), 0)}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.ls_toplamDergah ?? 0), 0)}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.ls_toplamFaaliyet ?? 0), 0)}</td>
                                 <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.uni_toplamDergah ?? 0), 0)}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.uni_toplamKisi ?? 0), 0)}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.ev_toplamHane ?? 0), 0)}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.ev_toplamKisi ?? 0), 0)}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.uni_toplamFaaliyet ?? 0), 0)}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.eay_mevcutEv ?? 0) + (f.eay_mevcutApart ?? 0) + (f.eay_mevcutYurt ?? 0), 0)}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-600">{bolgeFaaliyetler.reduce((s, f) => s + (f.eay_toplamZiyaret ?? 0), 0)}</td>
                                 <td className="px-4 py-2.5 text-center text-gray-500 text-xs">{bolgeFaaliyetler.length} il</td>
                               </tr>
                             );
