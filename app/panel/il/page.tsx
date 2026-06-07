@@ -12,7 +12,7 @@ export default async function IlDashboard() {
   const ilId = session.user.activeIlId;
   if (!ilId) redirect("/panel/beklemede");
 
-  const [il, faaliyetler, evSayisi, apartSayisi, yurtSayisi, ziyaretSayisi] = await Promise.all([
+  const [il, faaliyetler, evSayisi, apartSayisi, yurtSayisi, ziyaretSayisi, ilHedefler] = await Promise.all([
     prisma.il.findUnique({ where: { id: ilId }, include: { bolge: true } }),
     prisma.activity.findMany({
       where: { ilId },
@@ -21,8 +21,10 @@ export default async function IlDashboard() {
     prisma.housingUnit.count({ where: { ilId, tip: "EV",    aktif: true } }),
     prisma.housingUnit.count({ where: { ilId, tip: "APART", aktif: true } }),
     prisma.housingUnit.count({ where: { ilId, tip: "YURT",  aktif: true } }),
-    prisma.housingVisit.count({
-      where: { housingUnit: { ilId } },
+    prisma.housingVisit.count({ where: { housingUnit: { ilId } } }),
+    prisma.ilHedef.findMany({
+      where: { ilId },
+      orderBy: [{ yil: "desc" }, { donem: "asc" }],
     }),
   ]);
 
@@ -36,6 +38,7 @@ export default async function IlDashboard() {
       apartSayisi={apartSayisi}
       yurtSayisi={yurtSayisi}
       ziyaretSayisi={ziyaretSayisi}
+      ilHedefler={ilHedefler}
     />
   );
 }

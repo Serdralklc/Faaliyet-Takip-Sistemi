@@ -60,6 +60,7 @@ model Bolge {
 
   iller       Il[]
   assignments RoleAssignment[]
+  hedefler    BolgeHedef[]
 }
 
 model Il {
@@ -72,6 +73,7 @@ model Il {
   assignments  RoleAssignment[]
   activities   Activity[]
   housingUnits HousingUnit[]
+  hedefler     IlHedef[]
 }
 
 model RoleAssignment {
@@ -231,6 +233,59 @@ model HousingVisit {
 
   @@index([housingUnitId])
   @@index([tarih])
+}
+
+// ── Hedef Yönetimi ──────────────────────────────────────────────
+
+// Genel Merkez tarafından bölgeye verilen hedefler
+model BolgeHedef {
+  id      String @id @default(cuid())
+  bolgeId String
+  yil     Int
+  donem   String // DONEM_1 | DONEM_2 | YAZ_DONEMI
+
+  yeniIntisap    Int @default(0)
+  sosyalFaaliyet Int @default(0)
+  kafile         Int @default(0)
+  sabahNamazi    Int @default(0)
+  ilimDersi      Int @default(0)
+  kykBulusma     Int @default(0)
+  ziyaret        Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bolge   Bolge     @relation(fields: [bolgeId], references: [id])
+  ilHedef IlHedef[]
+
+  @@unique([bolgeId, yil, donem])
+  @@index([yil, donem])
+}
+
+// Bölge sorumlusu tarafından ile verilen hedefler
+model IlHedef {
+  id           String @id @default(cuid())
+  ilId         String
+  bolgeHedefId String
+  yil          Int
+  donem        String
+
+  yeniIntisap    Int @default(0)
+  sosyalFaaliyet Int @default(0)
+  kafile         Int @default(0)
+  sabahNamazi    Int @default(0)
+  ilimDersi      Int @default(0)
+  kykBulusma     Int @default(0)
+  ziyaret        Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  il         Il         @relation(fields: [ilId], references: [id])
+  bolgeHedef BolgeHedef @relation(fields: [bolgeHedefId], references: [id], onDelete: Cascade)
+
+  @@unique([ilId, yil, donem])
+  @@index([ilId])
 }
 
 model AuditLog {

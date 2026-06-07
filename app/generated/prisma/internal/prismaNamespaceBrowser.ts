@@ -60,6 +60,8 @@ export const ModelName = {
   HousingUnit: 'HousingUnit',
   HousingStudent: 'HousingStudent',
   HousingVisit: 'HousingVisit',
+  BolgeHedef: 'BolgeHedef',
+  IlHedef: 'IlHedef',
   AuditLog: 'AuditLog'
 } as const
 
@@ -245,6 +247,45 @@ export const HousingVisitScalarFieldEnum = {
 } as const
 
 export type HousingVisitScalarFieldEnum = (typeof HousingVisitScalarFieldEnum)[keyof typeof HousingVisitScalarFieldEnum]
+
+
+export const BolgeHedefScalarFieldEnum = {
+  id: 'id',
+  bolgeId: 'bolgeId',
+  yil: 'yil',
+  donem: 'donem',
+  yeniIntisap: 'yeniIntisap',
+  sosyalFaaliyet: 'sosyalFaaliyet',
+  kafile: 'kafile',
+  sabahNamazi: 'sabahNamazi',
+  ilimDersi: 'ilimDersi',
+  kykBulusma: 'kykBulusma',
+  ziyaret: 'ziyaret',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BolgeHedefScalarFieldEnum = (typeof BolgeHedefScalarFieldEnum)[keyof typeof BolgeHedefScalarFieldEnum]
+
+
+export const IlHedefScalarFieldEnum = {
+  id: 'id',
+  ilId: 'ilId',
+  bolgeHedefId: 'bolgeHedefId',
+  yil: 'yil',
+  donem: 'donem',
+  yeniIntisap: 'yeniIntisap',
+  sosyalFaaliyet: 'sosyalFaaliyet',
+  kafile: 'kafile',
+  sabahNamazi: 'sabahNamazi',
+  ilimDersi: 'ilimDersi',
+  kykBulusma: 'kykBulusma',
+  ziyaret: 'ziyaret',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type IlHedefScalarFieldEnum = (typeof IlHedefScalarFieldEnum)[keyof typeof IlHedefScalarFieldEnum]
 
 
 export const AuditLogScalarFieldEnum = {

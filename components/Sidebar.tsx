@@ -11,7 +11,7 @@ import {
   LayoutDashboard, Users, MapPin, FileText, ClipboardList,
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
   GraduationCap, School, BookOpen, Home, Building2,
-  Hotel, BarChart3, Settings, UserCircle,
+  Hotel, BarChart3, Settings, UserCircle, Target, TrendingUp,
 } from "lucide-react";
 
 interface User {
@@ -119,6 +119,13 @@ export function Sidebar({ user }: { user: User }) {
         { href: "/panel/admin/raporlar", label: "Türkiye Geneli", icon: BarChart3 },
       ],
     },
+    {
+      label: "Hedef Yönetimi",
+      icon: Target,
+      items: [
+        { href: "/panel/admin/hedefler", label: "Bölge Hedefleri", icon: Target },
+      ],
+    },
   ];
 
   const ilGroups: NavGroupDef[] = [
@@ -145,6 +152,13 @@ export function Sidebar({ user }: { user: User }) {
       icon: BarChart3,
       items: [
         { href: "/panel/il/raporlar", label: "İl Raporları", icon: BarChart3 },
+      ],
+    },
+    {
+      label: "Hedef Takip",
+      icon: Target,
+      items: [
+        { href: "/panel/il/hedefler", label: "Hedef Takip Merkezi", icon: Target },
       ],
     },
   ];
@@ -201,6 +215,8 @@ export function Sidebar({ user }: { user: User }) {
             <NavItem href="/panel/bolge" label="Dashboard" icon={LayoutDashboard} exact />
             <NavItem href="/panel/bolge/iller" label="İller" icon={MapPin} />
             <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
+            <NavItem href="/panel/bolge/hedefler" label="Hedef Dağıtımı" icon={Target} />
+            <NavItem href="/panel/bolge/performans" label="Performans Paneli" icon={TrendingUp} />
           </>
         )}
 

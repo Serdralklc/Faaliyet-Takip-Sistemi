@@ -393,6 +393,8 @@ export const ModelName = {
   HousingUnit: 'HousingUnit',
   HousingStudent: 'HousingStudent',
   HousingVisit: 'HousingVisit',
+  BolgeHedef: 'BolgeHedef',
+  IlHedef: 'IlHedef',
   AuditLog: 'AuditLog'
 } as const
 
@@ -409,7 +411,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "bolge" | "il" | "roleAssignment" | "invitation" | "activity" | "housingUnit" | "housingStudent" | "housingVisit" | "auditLog"
+    modelProps: "user" | "bolge" | "il" | "roleAssignment" | "invitation" | "activity" | "housingUnit" | "housingStudent" | "housingVisit" | "bolgeHedef" | "ilHedef" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1079,6 +1081,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BolgeHedef: {
+      payload: Prisma.$BolgeHedefPayload<ExtArgs>
+      fields: Prisma.BolgeHedefFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BolgeHedefFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BolgeHedefPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BolgeHedefFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BolgeHedefPayload>
+        }
+        findFirst: {
+          args: Prisma.BolgeHedefFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BolgeHedefPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BolgeHedefFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BolgeHedefPayload>
+        }
+        findMany: {
+          args: Prisma.BolgeHedefFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BolgeHedefPayload>[]
+        }
+        create: {
+          args: Prisma.BolgeHedefCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BolgeHedefPayload>
+        }
+        createMany: {
+          args: Prisma.BolgeHedefCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BolgeHedefCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BolgeHedefPayload>[]
+        }
+        delete: {
+          args: Prisma.BolgeHedefDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BolgeHedefPayload>
+        }
+        update: {
+          args: Prisma.BolgeHedefUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BolgeHedefPayload>
+        }
+        deleteMany: {
+          args: Prisma.BolgeHedefDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BolgeHedefUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BolgeHedefUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BolgeHedefPayload>[]
+        }
+        upsert: {
+          args: Prisma.BolgeHedefUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BolgeHedefPayload>
+        }
+        aggregate: {
+          args: Prisma.BolgeHedefAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBolgeHedef>
+        }
+        groupBy: {
+          args: Prisma.BolgeHedefGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BolgeHedefGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BolgeHedefCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BolgeHedefCountAggregateOutputType> | number
+        }
+      }
+    }
+    IlHedef: {
+      payload: Prisma.$IlHedefPayload<ExtArgs>
+      fields: Prisma.IlHedefFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.IlHedefFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IlHedefPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.IlHedefFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IlHedefPayload>
+        }
+        findFirst: {
+          args: Prisma.IlHedefFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IlHedefPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.IlHedefFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IlHedefPayload>
+        }
+        findMany: {
+          args: Prisma.IlHedefFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IlHedefPayload>[]
+        }
+        create: {
+          args: Prisma.IlHedefCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IlHedefPayload>
+        }
+        createMany: {
+          args: Prisma.IlHedefCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.IlHedefCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IlHedefPayload>[]
+        }
+        delete: {
+          args: Prisma.IlHedefDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IlHedefPayload>
+        }
+        update: {
+          args: Prisma.IlHedefUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IlHedefPayload>
+        }
+        deleteMany: {
+          args: Prisma.IlHedefDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.IlHedefUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.IlHedefUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IlHedefPayload>[]
+        }
+        upsert: {
+          args: Prisma.IlHedefUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IlHedefPayload>
+        }
+        aggregate: {
+          args: Prisma.IlHedefAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateIlHedef>
+        }
+        groupBy: {
+          args: Prisma.IlHedefGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IlHedefGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.IlHedefCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IlHedefCountAggregateOutputType> | number
+        }
+      }
+    }
     AuditLog: {
       payload: Prisma.$AuditLogPayload<ExtArgs>
       fields: Prisma.AuditLogFieldRefs
@@ -1358,6 +1508,45 @@ export const HousingVisitScalarFieldEnum = {
 } as const
 
 export type HousingVisitScalarFieldEnum = (typeof HousingVisitScalarFieldEnum)[keyof typeof HousingVisitScalarFieldEnum]
+
+
+export const BolgeHedefScalarFieldEnum = {
+  id: 'id',
+  bolgeId: 'bolgeId',
+  yil: 'yil',
+  donem: 'donem',
+  yeniIntisap: 'yeniIntisap',
+  sosyalFaaliyet: 'sosyalFaaliyet',
+  kafile: 'kafile',
+  sabahNamazi: 'sabahNamazi',
+  ilimDersi: 'ilimDersi',
+  kykBulusma: 'kykBulusma',
+  ziyaret: 'ziyaret',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BolgeHedefScalarFieldEnum = (typeof BolgeHedefScalarFieldEnum)[keyof typeof BolgeHedefScalarFieldEnum]
+
+
+export const IlHedefScalarFieldEnum = {
+  id: 'id',
+  ilId: 'ilId',
+  bolgeHedefId: 'bolgeHedefId',
+  yil: 'yil',
+  donem: 'donem',
+  yeniIntisap: 'yeniIntisap',
+  sosyalFaaliyet: 'sosyalFaaliyet',
+  kafile: 'kafile',
+  sabahNamazi: 'sabahNamazi',
+  ilimDersi: 'ilimDersi',
+  kykBulusma: 'kykBulusma',
+  ziyaret: 'ziyaret',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type IlHedefScalarFieldEnum = (typeof IlHedefScalarFieldEnum)[keyof typeof IlHedefScalarFieldEnum]
 
 
 export const AuditLogScalarFieldEnum = {
@@ -1674,6 +1863,8 @@ export type GlobalOmitConfig = {
   housingUnit?: Prisma.HousingUnitOmit
   housingStudent?: Prisma.HousingStudentOmit
   housingVisit?: Prisma.HousingVisitOmit
+  bolgeHedef?: Prisma.BolgeHedefOmit
+  ilHedef?: Prisma.IlHedefOmit
   auditLog?: Prisma.AuditLogOmit
 }
 

@@ -210,6 +210,7 @@ export type BolgeWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Bolge"> | Date | string
   iller?: Prisma.IlListRelationFilter
   assignments?: Prisma.RoleAssignmentListRelationFilter
+  hedefler?: Prisma.BolgeHedefListRelationFilter
 }
 
 export type BolgeOrderByWithRelationInput = {
@@ -219,6 +220,7 @@ export type BolgeOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   iller?: Prisma.IlOrderByRelationAggregateInput
   assignments?: Prisma.RoleAssignmentOrderByRelationAggregateInput
+  hedefler?: Prisma.BolgeHedefOrderByRelationAggregateInput
 }
 
 export type BolgeWhereUniqueInput = Prisma.AtLeast<{
@@ -231,6 +233,7 @@ export type BolgeWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Bolge"> | Date | string
   iller?: Prisma.IlListRelationFilter
   assignments?: Prisma.RoleAssignmentListRelationFilter
+  hedefler?: Prisma.BolgeHedefListRelationFilter
 }, "id" | "no">
 
 export type BolgeOrderByWithAggregationInput = {
@@ -262,6 +265,7 @@ export type BolgeCreateInput = {
   createdAt?: Date | string
   iller?: Prisma.IlCreateNestedManyWithoutBolgeInput
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutBolgeInput
+  hedefler?: Prisma.BolgeHedefCreateNestedManyWithoutBolgeInput
 }
 
 export type BolgeUncheckedCreateInput = {
@@ -271,6 +275,7 @@ export type BolgeUncheckedCreateInput = {
   createdAt?: Date | string
   iller?: Prisma.IlUncheckedCreateNestedManyWithoutBolgeInput
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutBolgeInput
+  hedefler?: Prisma.BolgeHedefUncheckedCreateNestedManyWithoutBolgeInput
 }
 
 export type BolgeUpdateInput = {
@@ -280,6 +285,7 @@ export type BolgeUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   iller?: Prisma.IlUpdateManyWithoutBolgeNestedInput
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutBolgeNestedInput
+  hedefler?: Prisma.BolgeHedefUpdateManyWithoutBolgeNestedInput
 }
 
 export type BolgeUncheckedUpdateInput = {
@@ -289,6 +295,7 @@ export type BolgeUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   iller?: Prisma.IlUncheckedUpdateManyWithoutBolgeNestedInput
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutBolgeNestedInput
+  hedefler?: Prisma.BolgeHedefUncheckedUpdateManyWithoutBolgeNestedInput
 }
 
 export type BolgeCreateManyInput = {
@@ -389,12 +396,27 @@ export type BolgeUpdateOneWithoutAssignmentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BolgeUpdateToOneWithWhereWithoutAssignmentsInput, Prisma.BolgeUpdateWithoutAssignmentsInput>, Prisma.BolgeUncheckedUpdateWithoutAssignmentsInput>
 }
 
+export type BolgeCreateNestedOneWithoutHedeflerInput = {
+  create?: Prisma.XOR<Prisma.BolgeCreateWithoutHedeflerInput, Prisma.BolgeUncheckedCreateWithoutHedeflerInput>
+  connectOrCreate?: Prisma.BolgeCreateOrConnectWithoutHedeflerInput
+  connect?: Prisma.BolgeWhereUniqueInput
+}
+
+export type BolgeUpdateOneRequiredWithoutHedeflerNestedInput = {
+  create?: Prisma.XOR<Prisma.BolgeCreateWithoutHedeflerInput, Prisma.BolgeUncheckedCreateWithoutHedeflerInput>
+  connectOrCreate?: Prisma.BolgeCreateOrConnectWithoutHedeflerInput
+  upsert?: Prisma.BolgeUpsertWithoutHedeflerInput
+  connect?: Prisma.BolgeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BolgeUpdateToOneWithWhereWithoutHedeflerInput, Prisma.BolgeUpdateWithoutHedeflerInput>, Prisma.BolgeUncheckedUpdateWithoutHedeflerInput>
+}
+
 export type BolgeCreateWithoutIllerInput = {
   id?: string
   no: number
   ad: string
   createdAt?: Date | string
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutBolgeInput
+  hedefler?: Prisma.BolgeHedefCreateNestedManyWithoutBolgeInput
 }
 
 export type BolgeUncheckedCreateWithoutIllerInput = {
@@ -403,6 +425,7 @@ export type BolgeUncheckedCreateWithoutIllerInput = {
   ad: string
   createdAt?: Date | string
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutBolgeInput
+  hedefler?: Prisma.BolgeHedefUncheckedCreateNestedManyWithoutBolgeInput
 }
 
 export type BolgeCreateOrConnectWithoutIllerInput = {
@@ -427,6 +450,7 @@ export type BolgeUpdateWithoutIllerInput = {
   ad?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutBolgeNestedInput
+  hedefler?: Prisma.BolgeHedefUpdateManyWithoutBolgeNestedInput
 }
 
 export type BolgeUncheckedUpdateWithoutIllerInput = {
@@ -435,6 +459,7 @@ export type BolgeUncheckedUpdateWithoutIllerInput = {
   ad?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutBolgeNestedInput
+  hedefler?: Prisma.BolgeHedefUncheckedUpdateManyWithoutBolgeNestedInput
 }
 
 export type BolgeCreateWithoutAssignmentsInput = {
@@ -443,6 +468,7 @@ export type BolgeCreateWithoutAssignmentsInput = {
   ad: string
   createdAt?: Date | string
   iller?: Prisma.IlCreateNestedManyWithoutBolgeInput
+  hedefler?: Prisma.BolgeHedefCreateNestedManyWithoutBolgeInput
 }
 
 export type BolgeUncheckedCreateWithoutAssignmentsInput = {
@@ -451,6 +477,7 @@ export type BolgeUncheckedCreateWithoutAssignmentsInput = {
   ad: string
   createdAt?: Date | string
   iller?: Prisma.IlUncheckedCreateNestedManyWithoutBolgeInput
+  hedefler?: Prisma.BolgeHedefUncheckedCreateNestedManyWithoutBolgeInput
 }
 
 export type BolgeCreateOrConnectWithoutAssignmentsInput = {
@@ -475,6 +502,7 @@ export type BolgeUpdateWithoutAssignmentsInput = {
   ad?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   iller?: Prisma.IlUpdateManyWithoutBolgeNestedInput
+  hedefler?: Prisma.BolgeHedefUpdateManyWithoutBolgeNestedInput
 }
 
 export type BolgeUncheckedUpdateWithoutAssignmentsInput = {
@@ -483,6 +511,59 @@ export type BolgeUncheckedUpdateWithoutAssignmentsInput = {
   ad?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   iller?: Prisma.IlUncheckedUpdateManyWithoutBolgeNestedInput
+  hedefler?: Prisma.BolgeHedefUncheckedUpdateManyWithoutBolgeNestedInput
+}
+
+export type BolgeCreateWithoutHedeflerInput = {
+  id?: string
+  no: number
+  ad: string
+  createdAt?: Date | string
+  iller?: Prisma.IlCreateNestedManyWithoutBolgeInput
+  assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutBolgeInput
+}
+
+export type BolgeUncheckedCreateWithoutHedeflerInput = {
+  id?: string
+  no: number
+  ad: string
+  createdAt?: Date | string
+  iller?: Prisma.IlUncheckedCreateNestedManyWithoutBolgeInput
+  assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutBolgeInput
+}
+
+export type BolgeCreateOrConnectWithoutHedeflerInput = {
+  where: Prisma.BolgeWhereUniqueInput
+  create: Prisma.XOR<Prisma.BolgeCreateWithoutHedeflerInput, Prisma.BolgeUncheckedCreateWithoutHedeflerInput>
+}
+
+export type BolgeUpsertWithoutHedeflerInput = {
+  update: Prisma.XOR<Prisma.BolgeUpdateWithoutHedeflerInput, Prisma.BolgeUncheckedUpdateWithoutHedeflerInput>
+  create: Prisma.XOR<Prisma.BolgeCreateWithoutHedeflerInput, Prisma.BolgeUncheckedCreateWithoutHedeflerInput>
+  where?: Prisma.BolgeWhereInput
+}
+
+export type BolgeUpdateToOneWithWhereWithoutHedeflerInput = {
+  where?: Prisma.BolgeWhereInput
+  data: Prisma.XOR<Prisma.BolgeUpdateWithoutHedeflerInput, Prisma.BolgeUncheckedUpdateWithoutHedeflerInput>
+}
+
+export type BolgeUpdateWithoutHedeflerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  no?: Prisma.IntFieldUpdateOperationsInput | number
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  iller?: Prisma.IlUpdateManyWithoutBolgeNestedInput
+  assignments?: Prisma.RoleAssignmentUpdateManyWithoutBolgeNestedInput
+}
+
+export type BolgeUncheckedUpdateWithoutHedeflerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  no?: Prisma.IntFieldUpdateOperationsInput | number
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  iller?: Prisma.IlUncheckedUpdateManyWithoutBolgeNestedInput
+  assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutBolgeNestedInput
 }
 
 
@@ -493,11 +574,13 @@ export type BolgeUncheckedUpdateWithoutAssignmentsInput = {
 export type BolgeCountOutputType = {
   iller: number
   assignments: number
+  hedefler: number
 }
 
 export type BolgeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   iller?: boolean | BolgeCountOutputTypeCountIllerArgs
   assignments?: boolean | BolgeCountOutputTypeCountAssignmentsArgs
+  hedefler?: boolean | BolgeCountOutputTypeCountHedeflerArgs
 }
 
 /**
@@ -524,6 +607,13 @@ export type BolgeCountOutputTypeCountAssignmentsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.RoleAssignmentWhereInput
 }
 
+/**
+ * BolgeCountOutputType without action
+ */
+export type BolgeCountOutputTypeCountHedeflerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BolgeHedefWhereInput
+}
+
 
 export type BolgeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -532,6 +622,7 @@ export type BolgeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   createdAt?: boolean
   iller?: boolean | Prisma.Bolge$illerArgs<ExtArgs>
   assignments?: boolean | Prisma.Bolge$assignmentsArgs<ExtArgs>
+  hedefler?: boolean | Prisma.Bolge$hedeflerArgs<ExtArgs>
   _count?: boolean | Prisma.BolgeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["bolge"]>
 
@@ -560,6 +651,7 @@ export type BolgeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
 export type BolgeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   iller?: boolean | Prisma.Bolge$illerArgs<ExtArgs>
   assignments?: boolean | Prisma.Bolge$assignmentsArgs<ExtArgs>
+  hedefler?: boolean | Prisma.Bolge$hedeflerArgs<ExtArgs>
   _count?: boolean | Prisma.BolgeCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BolgeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -570,6 +662,7 @@ export type $BolgePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   objects: {
     iller: Prisma.$IlPayload<ExtArgs>[]
     assignments: Prisma.$RoleAssignmentPayload<ExtArgs>[]
+    hedefler: Prisma.$BolgeHedefPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -972,6 +1065,7 @@ export interface Prisma__BolgeClient<T, Null = never, ExtArgs extends runtime.Ty
   readonly [Symbol.toStringTag]: "PrismaPromise"
   iller<T extends Prisma.Bolge$illerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bolge$illerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IlPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignments<T extends Prisma.Bolge$assignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bolge$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RoleAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  hedefler<T extends Prisma.Bolge$hedeflerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bolge$hedeflerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BolgeHedefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1443,6 +1537,30 @@ export type Bolge$assignmentsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.RoleAssignmentScalarFieldEnum | Prisma.RoleAssignmentScalarFieldEnum[]
+}
+
+/**
+ * Bolge.hedefler
+ */
+export type Bolge$hedeflerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BolgeHedef
+   */
+  select?: Prisma.BolgeHedefSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BolgeHedef
+   */
+  omit?: Prisma.BolgeHedefOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BolgeHedefInclude<ExtArgs> | null
+  where?: Prisma.BolgeHedefWhereInput
+  orderBy?: Prisma.BolgeHedefOrderByWithRelationInput | Prisma.BolgeHedefOrderByWithRelationInput[]
+  cursor?: Prisma.BolgeHedefWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BolgeHedefScalarFieldEnum | Prisma.BolgeHedefScalarFieldEnum[]
 }
 
 /**

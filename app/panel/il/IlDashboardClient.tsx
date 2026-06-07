@@ -6,7 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, LineChart, Line,
 } from "recharts";
-import { Users, TrendingUp, Heart, Compass, Sun, Home, Building2, Hotel, Eye } from "lucide-react";
+import { Users, TrendingUp, Heart, Compass, Sun, Home, Building2, Hotel, Eye, Target } from "lucide-react";
 
 /* ─── Tipler ─── */
 interface Activity {
@@ -118,13 +118,38 @@ function PerfCard({ birim, color, pctVal, katilim, intisap, faaliyet }: {
   );
 }
 
+/* ─── Hedef Tipi ─── */
+interface IlHedef {
+  id: string; yil: number; donem: string;
+  yeniIntisap: number; sosyalFaaliyet: number; kafile: number;
+  sabahNamazi: number; ilimDersi: number; kykBulusma: number; ziyaret: number;
+}
+
+const HEDEF_LABELS = [
+  { key: "yeniIntisap",    label: "Yeni İntisap" },
+  { key: "sosyalFaaliyet", label: "Sosyal Faaliyet" },
+  { key: "kafile",         label: "Kafile" },
+  { key: "kykBulusma",     label: "KYK Buluşması" },
+] as const;
+
+function hedefGerceklesen(f: Activity, key: string): number {
+  const m: Record<string, number> = {
+    yeniIntisap:    n(f.ls_yeniIntisap) + n(f.uni_yeniIntisap),
+    sosyalFaaliyet: n(f.ls_toplamFaaliyet) + n(f.uni_toplamFaaliyet),
+    kafile:         n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi),
+    kykBulusma:     n(f.uni_kykBulusmaSayisi),
+  };
+  return m[key] ?? 0;
+}
+
 /* ─── Ana Client ─── */
 export default function IlDashboardClient({
-  il, faaliyetler, evSayisi, apartSayisi, yurtSayisi, ziyaretSayisi,
+  il, faaliyetler, evSayisi, apartSayisi, yurtSayisi, ziyaretSayisi, ilHedefler,
 }: {
   il: Il;
   faaliyetler: Activity[];
   evSayisi: number; apartSayisi: number; yurtSayisi: number; ziyaretSayisi: number;
+  ilHedefler: IlHedef[];
 }) {
   const son = faaliyetler[0] ?? null;
 
@@ -268,6 +293,60 @@ export default function IlDashboardClient({
           </div>
         </div>
       )}
+
+      {/* ── Hedef Takip Merkezi Widget ── */}
+      {ilHedefler.length > 0 && (() => {
+        const sonHedef = ilHedefler[0];
+        const sonF = faaliyetler.find(f => f.yil === sonHedef.yil && f.donem === sonHedef.donem);
+        return (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
+                Hedef Takip Merkezi — {sonHedef.yil} / {DONEM_LABEL[sonHedef.donem]}
+              </p>
+              <Link href="/panel/il/hedefler"
+                className="text-xs font-bold" style={{ color: "var(--green-primary)" }}>
+                Tümünü Gör →
+              </Link>
+            </div>
+            <div className="sv-section p-5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {HEDEF_LABELS.map(({ key, label }) => {
+                  const hedefVal = (sonHedef as any)[key] as number;
+                  const gerceklesVal = sonF ? hedefGerceklesen(sonF, key) : 0;
+                  const oran = hedefVal ? Math.round((gerceklesVal / hedefVal) * 100) : 0;
+                  const color = oran >= 90 ? "#059669" : oran >= 70 ? "#D9BC4B" : "#DC2626";
+                  const kalan = Math.max(0, hedefVal - gerceklesVal);
+                  return (
+                    <div key={key} className="text-center p-3 rounded-xl border"
+                      style={{ background: `${color}08`, borderColor: `${color}30` }}>
+                      <div className="flex items-center justify-center gap-1.5 mb-2">
+                        <Target size={12} style={{ color }} />
+                        <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
+                          {label}
+                        </p>
+                      </div>
+                      <p className="text-xl font-black" style={{ color }}>
+                        {sonF ? gerceklesVal : "—"}
+                        {hedefVal > 0 && <span className="text-xs font-bold ml-1" style={{ color: "var(--text-muted)" }}>/ {hedefVal}</span>}
+                      </p>
+                      {hedefVal > 0 && (
+                        <>
+                          <div className="h-1.5 rounded-full overflow-hidden mx-auto mt-2 mb-1" style={{ background: "var(--bg-hover)" }}>
+                            <div className="h-1.5 rounded-full" style={{ width: `${Math.min(100, oran)}%`, background: color }} />
+                          </div>
+                          <p className="text-[10px] font-bold" style={{ color }}>%{oran}</p>
+                          {kalan > 0 && sonF && <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>Kalan: {kalan}</p>}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {faaliyetler.length === 0 && (
         <div className="sv-section p-12 text-center">

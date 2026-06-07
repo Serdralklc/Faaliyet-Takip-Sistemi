@@ -63,6 +63,16 @@ export type HousingStudent = Prisma.HousingStudentModel
  */
 export type HousingVisit = Prisma.HousingVisitModel
 /**
+ * Model BolgeHedef
+ * 
+ */
+export type BolgeHedef = Prisma.BolgeHedefModel
+/**
+ * Model IlHedef
+ * 
+ */
+export type IlHedef = Prisma.IlHedefModel
+/**
  * Model AuditLog
  * 
  */
