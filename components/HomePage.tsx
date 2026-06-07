@@ -455,10 +455,9 @@ function Faaliyetler() {
 ════════════════════════════════════════ */
 function Projeler() {
   const projeler = [
-    { n: "01", t: "Faaliyet Takip Sistemi",  d: "81 ilde tüm faaliyetlerin anlık takibi, hedef yönetimi ve raporlama.",       r: "#0369A1", durum: "Aktif"        },
-    { n: "02", t: "Nesil Yetiştirilmesi",    d: "İlköğretimden üniversiteye sistematik eğitim — Türkiye geneli kapsam.",       r: C.green,   durum: "Devam Ediyor" },
-    { n: "03", t: "Öğrenci Barınma Ağı",     d: "Üniversite öğrencileri için değer odaklı güvenli barınma ortamları.",         r: "#5B21B6", durum: "Devam Ediyor" },
-    { n: "04", t: "Nezir Burs Programı",     d: "İhtiyaç sahibi öğrencilere burs desteği ile eğitimde fırsat eşitliği.",      r: C.goldDark, durum: "Devam Ediyor" },
+    { n: "01", t: "Nesil Yetiştirilmesi",    d: "İlköğretimden üniversiteye sistematik eğitim — Türkiye geneli kapsam.",       r: C.green,    durum: "Devam Ediyor" },
+    { n: "02", t: "Öğrenci Barınma Ağı",     d: "Üniversite öğrencileri için değer odaklı güvenli barınma ortamları.",         r: "#5B21B6",  durum: "Devam Ediyor" },
+    { n: "03", t: "Nezir Burs Programı",     d: "İhtiyaç sahibi öğrencilere burs desteği ile eğitimde fırsat eşitliği.",      r: C.goldDark, durum: "Devam Ediyor" },
   ];
 
   return (
