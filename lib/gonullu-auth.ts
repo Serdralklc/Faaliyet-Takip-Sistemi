@@ -1,7 +1,7 @@
 /**
  * Gönüllü JWT kimlik doğrulama yardımcıları
  * Cookie adı: gonullu-token
- * Payload: { id, adSoyad, telefon }
+ * Payload: { id, adSoyad, telefon, role }
  */
 
 import { SignJWT, jwtVerify } from "jose";
@@ -19,6 +19,8 @@ export interface GonulluPayload {
   id:      string;
   adSoyad: string;
   telefon: string;
+  /** "GONULLU" | "SISTEM_ADMIN" | "GENEL_MERKEZ" | diğer roller */
+  role:    string;
 }
 
 /** JWT oluştur ve cookie'ye yaz */

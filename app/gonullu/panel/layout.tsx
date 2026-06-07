@@ -32,17 +32,26 @@ const NAV_ITEMS = [
   { href: "/gonullu/panel/profil",         label: "Profilim",               icon: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 11a4 4 0 100-8 4 4 0 000 8z" },
 ];
 
+const ADMIN_NAV_ITEMS = [
+  { href: "/panel/admin/gonulluler", label: "Gönüllü Yönetimi",   icon: "M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2 M23 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75" },
+  { href: "/panel",                  label: "Görevli Paneli",      icon: "M4 6h16M4 10h16M4 14h16M4 18h16" },
+];
+
 export default function GonulluPanelLayout({ children }: { children: React.ReactNode }) {
   const router   = useRouter();
   const pathname = usePathname();
   const c = useColors();
-  const [adSoyad, setAdSoyad] = useState("");
+  const [adSoyad,  setAdSoyad]  = useState("");
+  const [isAdmin,  setIsAdmin]  = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/gonullu/me")
       .then(r => r.ok ? r.json() : Promise.reject())
-      .then(d => setAdSoyad(d.adSoyad))
+      .then(d => {
+        setAdSoyad(d.adSoyad);
+        setIsAdmin(d.isAdmin === true);
+      })
       .catch(() => router.replace("/gonullu/giris"));
   }, [router]);
 
@@ -74,12 +83,12 @@ export default function GonulluPanelLayout({ children }: { children: React.React
               <span style={{ color: BRAND.gold, fontWeight: 800, fontSize: "14px" }}>{adSoyad[0]}</span>
             </div>
             <p style={{ color: c.h, fontWeight: 600, fontSize: "13px" }}>{adSoyad}</p>
-            <p style={{ color: c.mu, fontSize: "11px" }}>Gönüllü</p>
+            <p style={{ color: c.mu, fontSize: "11px" }}>{isAdmin ? "Yönetici" : "Gönüllü"}</p>
           </div>
         </div>
       )}
 
-      {/* Nav */}
+      {/* Gönüllü Nav */}
       <nav style={{ flex: 1, padding: "12px 12px" }}>
         {NAV_ITEMS.map(item => {
           const active = pathname === item.href;
@@ -105,6 +114,39 @@ export default function GonulluPanelLayout({ children }: { children: React.React
             </Link>
           );
         })}
+
+        {/* Admin bölümü */}
+        {isAdmin && (
+          <>
+            <div style={{ margin: "12px 0 6px", padding: "0 12px" }}>
+              <p style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: c.mu }}>Yönetim</p>
+            </div>
+            {ADMIN_NAV_ITEMS.map(item => {
+              const active = pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "10px",
+                    padding: "10px 12px", borderRadius: "10px", marginBottom: "2px",
+                    background:  active ? (BRAND.gold + "25") : "transparent",
+                    color:       active ? "#92660A" : c.b,
+                    fontWeight:  active ? 700 : 500,
+                    fontSize:    "14px",
+                    textDecoration: "none",
+                  }}
+                >
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {item.icon.split(" M").map((d, i) => <path key={i} d={(i === 0 ? "" : "M") + d}/>)}
+                  </svg>
+                  {item.label}
+                </Link>
+              );
+            })}
+          </>
+        )}
       </nav>
 
       {/* Çıkış */}
