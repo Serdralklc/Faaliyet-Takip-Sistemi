@@ -11,7 +11,7 @@ import {
   LayoutDashboard, Users, MapPin, FileText, ClipboardList,
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
   GraduationCap, School, BookOpen, Home, Building2,
-  Hotel, BarChart3, Settings, Shield,
+  Hotel, BarChart3, Settings, UserCircle,
 } from "lucide-react";
 
 interface User {
@@ -20,30 +20,26 @@ interface User {
   activeBolgeAd?: string | null;
 }
 
-interface NavGroup {
+interface NavGroupDef {
   label: string;
   icon: React.ElementType;
   items: { href: string; label: string; icon?: React.ElementType }[];
 }
 
-function NavItem({ href, label, icon: Icon, exact }: { href: string; label: string; icon?: React.ElementType; exact?: boolean }) {
+function NavItem({ href, label, icon: Icon, exact }: {
+  href: string; label: string; icon?: React.ElementType; exact?: boolean;
+}) {
   const path = usePathname();
   const active = exact ? path === href : path === href || path.startsWith(href + "/");
   return (
-    <Link href={href}
-      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all ${
-        active
-          ? "bg-blue-600 text-white font-semibold shadow-sm"
-          : "font-medium hover:bg-[color:var(--bg-hover)]"
-      }`}
-      style={active ? {} : { color: "var(--text-muted)" }}>
-      {Icon && <Icon size={15} />}
+    <Link href={href} className={`sv-nav-item ${active ? "active" : ""}`}>
+      {Icon && <Icon size={16} strokeWidth={active ? 2.5 : 2} />}
       <span>{label}</span>
     </Link>
   );
 }
 
-function NavGroup({ group }: { group: NavGroup }) {
+function NavGroupComp({ group }: { group: NavGroupDef }) {
   const path = usePathname();
   const isAnyActive = group.items.some(i => path === i.href || path.startsWith(i.href + "/"));
   const [open, setOpen] = useState(isAnyActive);
@@ -51,17 +47,20 @@ function NavGroup({ group }: { group: NavGroup }) {
 
   return (
     <div>
-      <button onClick={() => setOpen(!open)}
-        className={`flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
-          isAnyActive ? "text-blue-600" : "hover:bg-[color:var(--bg-hover)]"
-        }`}
-        style={isAnyActive ? {} : { color: "var(--text-secondary)" }}>
-        <Icon size={16} />
+      <button
+        onClick={() => setOpen(!open)}
+        className="sv-nav-item w-full"
+        style={isAnyActive ? { color: "var(--green-primary)", fontWeight: 600 } : {}}
+      >
+        <Icon size={16} strokeWidth={2} />
         <span className="flex-1 text-left">{group.label}</span>
-        {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+        {open
+          ? <ChevronDown size={13} strokeWidth={2.5} />
+          : <ChevronRight size={13} strokeWidth={2.5} />}
       </button>
       {open && (
-        <div className="ml-3 pl-3 border-l mt-0.5 space-y-0.5" style={{ borderColor: "var(--border)" }}>
+        <div className="ml-2 pl-4 mt-0.5 space-y-0.5 border-l-2"
+          style={{ borderColor: "var(--green-muted)" }}>
           {group.items.map(item => (
             <NavItem key={item.href} href={item.href} label={item.label} icon={item.icon} />
           ))}
@@ -78,10 +77,13 @@ function ThemeToggle() {
   if (!mounted) return null;
   const isDark = theme === "dark";
   return (
-    <button onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg transition hover:bg-[color:var(--bg-hover)]"
-      style={{ color: "var(--text-muted)" }}>
-      {isDark ? <Sun size={15} /> : <Moon size={15} />}
+    <button
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      className="sv-nav-item"
+    >
+      {isDark
+        ? <Sun size={16} strokeWidth={2} />
+        : <Moon size={16} strokeWidth={2} />}
       <span>{isDark ? "Açık Tema" : "Koyu Tema"}</span>
     </button>
   );
@@ -93,7 +95,9 @@ export function Sidebar({ user }: { user: User }) {
   const isBolge = user.role === "BOLGE_SORUMLUSU";
   const isIl = user.role === "IL_SORUMLUSU";
 
-  const adminGroups: NavGroup[] = [
+  const dashHref = isAdmin || isTR ? "/panel/admin" : isBolge ? "/panel/bolge" : "/panel/il";
+
+  const adminGroups: NavGroupDef[] = [
     {
       label: "Kullanıcı Yönetimi",
       icon: Users,
@@ -117,7 +121,7 @@ export function Sidebar({ user }: { user: User }) {
     },
   ];
 
-  const ilGroups: NavGroup[] = [
+  const ilGroups: NavGroupDef[] = [
     {
       label: "Faaliyet Yönetimi",
       icon: ClipboardList,
@@ -145,35 +149,49 @@ export function Sidebar({ user }: { user: User }) {
     },
   ];
 
+  const locationLabel = user.activeIlAd
+    ? `${user.activeIlAd} İl Sorumlusu`
+    : user.activeBolgeAd
+    ? `${user.activeBolgeAd} Bölge Sorumlusu`
+    : ROLE_LABELS[user.role];
+
+  const initials = `${user.ad[0] ?? ""}${user.soyad[0] ?? ""}`.toUpperCase();
+
   return (
-    <aside className="w-64 flex flex-col h-full border-r"
-      style={{ background: "var(--bg-sidebar)", borderColor: "var(--border)" }}>
-      {/* Logo */}
-      <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border)" }}>
-        <Link
-          href={isAdmin || isTR ? "/panel/admin" : isBolge ? "/panel/bolge" : "/panel/il"}
-          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-        >
-          <img src="/logo.svg" alt="Serhendi Logo" className="w-10 h-10 flex-shrink-0" />
+    <aside className="flex flex-col h-full border-r"
+      style={{ width: 260, background: "var(--bg-sidebar)", borderColor: "var(--border)" }}>
+
+      {/* ── Logo ── */}
+      <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+        <Link href={dashHref} className="flex items-center gap-3 hover:opacity-85 transition-opacity">
+          <img src="/logo.svg" alt="Serhendi" className="w-9 h-9 flex-shrink-0" />
           <div className="min-w-0">
-            <h1 className="text-sm font-bold leading-tight truncate" style={{ color: "var(--text-primary)" }}>
+            <p className="text-[13px] font-bold leading-tight truncate" style={{ color: "var(--text-primary)" }}>
               Faaliyet Takip Sistemi
-            </h1>
-            <p className="text-[11px] leading-tight truncate" style={{ color: "var(--text-muted)" }}>
+            </p>
+            <p className="text-[10.5px] leading-tight truncate mt-0.5" style={{ color: "var(--text-muted)" }}>
               Serhendi Vakfı Eğitim Birimi
             </p>
           </div>
         </Link>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {/* Admin / TR / GM */}
+      {/* ── Nav ── */}
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+
+        {/* Ayırıcı etiket */}
+        <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+          Ana Menü
+        </p>
+
+        {/* Admin / TR */}
         {(isAdmin || isTR) && (
           <>
-            <NavItem href="/panel/admin" label="Genel Bakış" icon={LayoutDashboard} exact />
-            {adminGroups.map(g => <NavGroup key={g.label} group={g} />)}
-            {isAdmin && <NavItem href="/panel/admin/loglar" label="Denetim Logları" icon={ClipboardList} />}
+            <NavItem href="/panel/admin" label="Dashboard" icon={LayoutDashboard} exact />
+            {adminGroups.map(g => <NavGroupComp key={g.label} group={g} />)}
+            {isAdmin && (
+              <NavItem href="/panel/admin/loglar" label="Denetim Logları" icon={ClipboardList} />
+            )}
           </>
         )}
 
@@ -190,28 +208,38 @@ export function Sidebar({ user }: { user: User }) {
         {isIl && (
           <>
             <NavItem href="/panel/il" label="Dashboard" icon={LayoutDashboard} exact />
-            {ilGroups.map(g => <NavGroup key={g.label} group={g} />)}
-            <NavItem href="/panel/il/ayarlar" label="Ayarlar" icon={Settings} />
+            {ilGroups.map(g => <NavGroupComp key={g.label} group={g} />)}
           </>
         )}
       </nav>
 
-      {/* Footer */}
-      <div className="p-3 border-t space-y-0.5" style={{ borderColor: "var(--border)" }}>
-        <Link href="/panel/profil" className="block px-3 py-2 rounded-lg hover:bg-[color:var(--bg-hover)] transition">
-          <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{user.ad} {user.soyad}</p>
-          <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-            {user.activeIlAd
-              ? `${user.activeIlAd} İl Sorumlusu`
-              : user.activeBolgeAd
-              ? `${user.activeBolgeAd} Bölge Sorumlusu`
-              : ROLE_LABELS[user.role]}
-          </p>
+      {/* ── Footer ── */}
+      <div className="px-3 pb-3 pt-2 border-t space-y-1" style={{ borderColor: "var(--border)" }}>
+        {/* Profil */}
+        <Link href="/panel/profil"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[color:var(--bg-hover)] transition group">
+          {/* Avatar */}
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+            style={{ background: "var(--green-primary)" }}>
+            {initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold leading-tight truncate" style={{ color: "var(--text-primary)" }}>
+              {user.ad} {user.soyad}
+            </p>
+            <p className="text-[11px] leading-tight truncate mt-0.5" style={{ color: "var(--text-muted)" }}>
+              {locationLabel}
+            </p>
+          </div>
         </Link>
+
         <ThemeToggle />
+
         <button onClick={() => signOut({ callbackUrl: "/giris" })}
-          className="flex items-center gap-2 w-full px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition">
-          <LogOut size={15} />Çıkış Yap
+          className="sv-nav-item text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 w-full"
+          style={{ color: "#EF4444" }}>
+          <LogOut size={16} strokeWidth={2} />
+          <span>Çıkış Yap</span>
         </button>
       </div>
     </aside>
