@@ -39,15 +39,16 @@ export default function GonulluKayitPage() {
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
   const inputSt = {
-    background:  c.sr,
-    borderColor: c.br,
-    color:       c.h,
-    border:      "1px solid",
-    borderRadius: "0.75rem",
-    padding:     "0.625rem 1rem",
-    width:       "100%",
-    fontSize:    "14px",
-    outline:     "none",
+    background:       c.sr,
+    border:           `1px solid ${c.br}`,
+    borderRadius:     "0.75rem",
+    padding:          "0.625rem 1rem",
+    width:            "100%",
+    fontSize:         "14px",
+    color:            c.h,
+    outline:          "none",
+    WebkitBoxShadow:  `0 0 0 1000px ${c.sr} inset`,
+    WebkitTextFillColor: c.h,
   } as React.CSSProperties;
 
   const labelSt = { color: c.mu, fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: "6px" } as React.CSSProperties;
@@ -125,8 +126,8 @@ export default function GonulluKayitPage() {
               <label style={labelSt}>Ad Soyad *</label>
               <input type="text" required placeholder="Adınız Soyadınız" style={inputSt}
                 value={form.adSoyad} onChange={e => set("adSoyad", e.target.value)}
-                onFocus={e => (e.target.style.borderColor = BRAND.green)}
-                onBlur={e  => (e.target.style.borderColor = c.br)} />
+                onFocus={e => (e.target.style.border = `1px solid ${BRAND.green}`)}
+                onBlur={e  => (e.target.style.border = `1px solid ${c.br}`)} />
             </div>
 
             {/* Telefon */}
@@ -134,8 +135,8 @@ export default function GonulluKayitPage() {
               <label style={labelSt}>Telefon *</label>
               <input type="tel" required placeholder="05xx xxx xxxx" style={inputSt}
                 value={form.telefon} onChange={e => set("telefon", e.target.value)}
-                onFocus={e => (e.target.style.borderColor = BRAND.green)}
-                onBlur={e  => (e.target.style.borderColor = c.br)} />
+                onFocus={e => (e.target.style.border = `1px solid ${BRAND.green}`)}
+                onBlur={e  => (e.target.style.border = `1px solid ${c.br}`)} />
             </div>
 
             {/* E-posta */}
@@ -143,8 +144,8 @@ export default function GonulluKayitPage() {
               <label style={labelSt}>E-posta *</label>
               <input type="email" required placeholder="ornek@email.com" style={inputSt}
                 value={form.email} onChange={e => set("email", e.target.value)}
-                onFocus={e => (e.target.style.borderColor = BRAND.green)}
-                onBlur={e  => (e.target.style.borderColor = c.br)} />
+                onFocus={e => (e.target.style.border = `1px solid ${BRAND.green}`)}
+                onBlur={e  => (e.target.style.border = `1px solid ${c.br}`)} />
             </div>
 
             {/* Öğrenim Durumu */}
@@ -152,8 +153,8 @@ export default function GonulluKayitPage() {
               <label style={labelSt}>Öğrenim Durumu *</label>
               <select required style={{ ...inputSt, cursor: "pointer" }}
                 value={form.ogrenim} onChange={e => set("ogrenim", e.target.value)}
-                onFocus={e => (e.target.style.borderColor = BRAND.green)}
-                onBlur={e  => (e.target.style.borderColor = c.br)}>
+                onFocus={e => (e.target.style.border = `1px solid ${BRAND.green}`)}
+                onBlur={e  => (e.target.style.border = `1px solid ${c.br}`)}>
                 <option value="">Seçiniz...</option>
                 <option value="ILKOKUL">İlkokul</option>
                 <option value="ORTAOKUL">Ortaokul</option>
@@ -200,8 +201,8 @@ export default function GonulluKayitPage() {
               <label style={labelSt}>İkamet Edilen İl</label>
               <select style={{ ...inputSt, cursor: "pointer" }}
                 value={form.il} onChange={e => set("il", e.target.value)}
-                onFocus={e => (e.target.style.borderColor = BRAND.green)}
-                onBlur={e  => (e.target.style.borderColor = c.br)}>
+                onFocus={e => (e.target.style.border = `1px solid ${BRAND.green}`)}
+                onBlur={e  => (e.target.style.border = `1px solid ${c.br}`)}>
                 <option value="">Seçiniz...</option>
                 {ILLER.map(il => <option key={il} value={il}>{il}</option>)}
               </select>
