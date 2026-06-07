@@ -13,6 +13,23 @@ interface Student {
 
 const TIP_COLOR: Record<string, string> = { EV: "#006B3F", APART: "#0369A1", YURT: "#7C3AED" };
 
+const SINIF_SECENEKLERI = [
+  "", "Hazırlık", "1. Sınıf", "2. Sınıf", "3. Sınıf", "4. Sınıf", "Uzatma", "Yüksek Lisans",
+];
+
+function SinifSelect({ value, onChange, className, style }: {
+  value: string; onChange: (v: string) => void; className?: string; style?: React.CSSProperties;
+}) {
+  return (
+    <select value={value} onChange={e => onChange(e.target.value)} className={className} style={style}>
+      <option value="">Sınıf seçin</option>
+      {SINIF_SECENEKLERI.filter(Boolean).map(s => (
+        <option key={s} value={s}>{s}</option>
+      ))}
+    </select>
+  );
+}
+
 function StudentRow({ student, units, onSave, onDelete }: {
   student: Student;
   units: HousingUnit[];
@@ -51,7 +68,8 @@ function StudentRow({ student, units, onSave, onDelete }: {
             style={{ background: "var(--bg-input)", borderColor: "var(--border-input)", color: "var(--text-primary)" }} />
         </td>
         <td className="px-3 py-2">
-          <input value={form.sinif ?? ""} onChange={e => setForm(p => ({ ...p, sinif: e.target.value }))}
+          <SinifSelect value={form.sinif ?? ""}
+            onChange={v => setForm(p => ({ ...p, sinif: v }))}
             className="w-full text-xs border rounded px-2 py-1"
             style={{ background: "var(--bg-input)", borderColor: "var(--border-input)", color: "var(--text-primary)" }} />
         </td>
@@ -182,8 +200,9 @@ function AddStudentRow({ units, onAdd }: { units: HousingUnit[]; onAdd: (s: Stud
           style={{ background: "var(--bg-input)", borderColor: "var(--border-input)", color: "var(--text-primary)" }} />
       </td>
       <td className="px-3 py-2">
-        <input value={form.sinif} onChange={e => setForm(p => ({ ...p, sinif: e.target.value }))}
-          placeholder="Sınıf" className="w-full text-xs border rounded px-2 py-1"
+        <SinifSelect value={form.sinif}
+          onChange={v => setForm(p => ({ ...p, sinif: v }))}
+          className="w-full text-xs border rounded px-2 py-1"
           style={{ background: "var(--bg-input)", borderColor: "var(--border-input)", color: "var(--text-primary)" }} />
       </td>
       <td className="px-3 py-2 text-center">
@@ -296,7 +315,7 @@ export default function OgrenciBilgiPage() {
           <thead>
             <tr style={{ background: "var(--bg-th)" }}>
               {["Ev/Apart/Yurt", "Adı Soyadı", "Okuduğu Bölüm", "Sınıf",
-                "Nezir Bursu", "Disiplin Ceza", "İlişki Kesme", ""].map(h => (
+                "Nezir Bursu", "Disiplin Ceza", "İlişki Kesme Talebi", ""].map(h => (
                 <th key={h} className="px-3 py-2.5 text-left text-[11px] font-bold uppercase tracking-wide"
                   style={{ color: "var(--text-muted)" }}>{h}</th>
               ))}
