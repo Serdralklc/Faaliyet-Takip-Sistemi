@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { Role } from "@/app/generated/prisma/client";
+import { Role, Sistem } from "@/app/generated/prisma/client";
 
 declare module "next-auth" {
   interface Session {
@@ -13,6 +13,7 @@ declare module "next-auth" {
       ad: string;
       soyad: string;
       role: Role;
+      sistem: Sistem;
       activeIlId?: string | null;
       activeBolgeId?: string | null;
       activeIlAd?: string | null;
@@ -25,6 +26,7 @@ declare module "next-auth" {
     ad: string;
     soyad: string;
     role: Role;
+    sistem: Sistem;
     activeIlId?: string | null;
     activeBolgeId?: string | null;
     activeIlAd?: string | null;
@@ -36,6 +38,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role: Role;
+    sistem: Sistem;
     ad: string;
     soyad: string;
     activeIlId?: string | null;
@@ -68,8 +71,9 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        email: { label: "E-posta", type: "email" },
-        password: { label: "Şifre", type: "password" },
+        email:    { label: "E-posta", type: "email"    },
+        password: { label: "Sifre",   type: "password" },
+        sistem:   { label: "Sistem",  type: "text"     },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
@@ -80,16 +84,22 @@ export const authOptions: NextAuthOptions = {
         const valid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!valid) return null;
 
+        const requestedSistem = credentials.sistem as Sistem | undefined;
+        if (requestedSistem && user.sistem !== requestedSistem) {
+          throw new Error("SISTEM_UYUMSUZ");
+        }
+
         const a = user.assignments[0];
         return {
-          id: user.id,
-          email: user.email,
-          ad: user.ad,
-          soyad: user.soyad,
-          role: user.role,
-          activeIlId: a?.ilId ?? null,
-          activeBolgeId: a?.bolgeId ?? null,
-          activeIlAd: a?.il?.ad ?? null,
+          id:            user.id,
+          email:         user.email,
+          ad:            user.ad,
+          soyad:         user.soyad,
+          role:          user.role,
+          sistem:        user.sistem,
+          activeIlId:    a?.ilId      ?? null,
+          activeBolgeId: a?.bolgeId   ?? null,
+          activeIlAd:    a?.il?.ad    ?? null,
           activeBolgeAd: a?.bolge?.ad ?? null,
         };
       },
@@ -98,24 +108,23 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async signIn({ user, account }) {
-      // Google ile giriş
       if (account?.provider === "google") {
         const email = user.email!;
         const existing = await loadDbUser(email);
 
         if (!existing) {
-          // Yeni kullanıcı — Google'dan adı ayır
           const nameParts = (user.name ?? "").split(" ");
-          const ad = nameParts[0] ?? "Ad";
+          const ad    = nameParts[0]                ?? "Ad";
           const soyad = nameParts.slice(1).join(" ") || "Soyad";
 
           await prisma.user.create({
             data: {
               ad,
               soyad,
-              email: email.toLowerCase(),
-              role: "BEKLEYEN",
-              status: "BEKLEMEDE",
+              email:        email.toLowerCase(),
+              role:         "BEKLEYEN",
+              status:       "BEKLEMEDE",
+              sistem:       "EGITIMCI",
               passwordHash: null,
             },
           });
@@ -126,48 +135,48 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user, account }) {
-      // Credentials ile ilk giriş — user objesi gelir
       if (account?.provider === "credentials" && user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.ad = user.ad;
-        token.soyad = user.soyad;
-        token.activeIlId = user.activeIlId;
+        token.id            = user.id;
+        token.role          = user.role;
+        token.sistem        = user.sistem;
+        token.ad            = user.ad;
+        token.soyad         = user.soyad;
+        token.activeIlId    = user.activeIlId;
         token.activeBolgeId = user.activeBolgeId;
-        token.activeIlAd = user.activeIlAd;
+        token.activeIlAd    = user.activeIlAd;
         token.activeBolgeAd = user.activeBolgeAd;
         return token;
       }
 
-      // Google ile ilk giriş — DB'den yükle
       if (account?.provider === "google" && user?.email) {
         const dbUser = await loadDbUser(user.email);
         if (dbUser) {
           const a = dbUser.assignments[0];
-          token.id = dbUser.id;
-          token.role = dbUser.role;
-          token.ad = dbUser.ad;
-          token.soyad = dbUser.soyad;
-          token.activeIlId = a?.ilId ?? null;
-          token.activeBolgeId = a?.bolgeId ?? null;
-          token.activeIlAd = a?.il?.ad ?? null;
+          token.id            = dbUser.id;
+          token.role          = dbUser.role;
+          token.sistem        = dbUser.sistem;
+          token.ad            = dbUser.ad;
+          token.soyad         = dbUser.soyad;
+          token.activeIlId    = a?.ilId      ?? null;
+          token.activeBolgeId = a?.bolgeId   ?? null;
+          token.activeIlAd    = a?.il?.ad    ?? null;
           token.activeBolgeAd = a?.bolge?.ad ?? null;
         }
         return token;
       }
 
-      // Sonraki isteklerde token zaten dolu — olduğu gibi dön
       return token;
     },
 
     async session({ session, token }) {
-      session.user.id = token.id;
-      session.user.role = token.role;
-      session.user.ad = token.ad;
-      session.user.soyad = token.soyad;
-      session.user.activeIlId = token.activeIlId;
+      session.user.id            = token.id;
+      session.user.role          = token.role;
+      session.user.sistem        = token.sistem;
+      session.user.ad            = token.ad;
+      session.user.soyad         = token.soyad;
+      session.user.activeIlId    = token.activeIlId;
       session.user.activeBolgeId = token.activeBolgeId;
-      session.user.activeIlAd = token.activeIlAd;
+      session.user.activeIlAd    = token.activeIlAd;
       session.user.activeBolgeAd = token.activeBolgeAd;
       return session;
     },
@@ -176,8 +185,8 @@ export const authOptions: NextAuthOptions = {
   pages: { signIn: "/giris" },
 
   session: {
-    strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60,
+    strategy:  "jwt",
+    maxAge:    30 * 24 * 60 * 60,
     updateAge: 24 * 60 * 60,
   },
 
@@ -187,8 +196,8 @@ export const authOptions: NextAuthOptions = {
       options: {
         httpOnly: true,
         sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
+        path:     "/",
+        secure:   process.env.NODE_ENV === "production",
       },
     },
   },

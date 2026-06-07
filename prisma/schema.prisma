@@ -33,6 +33,14 @@ enum Donem {
   YAZ_DONEMI
 }
 
+// Her kullanıcı hangi faaliyet takip sistemine ait olduğunu belirtir.
+// Farklı sistemlere kayıtlı kullanıcılar birbirinin verilerini göremez.
+enum Sistem {
+  EGITIMCI   // Eğitimci Kadrosu — il/bölge sorumluları, yöneticiler
+  UNIVERSITE // Üniversite Gençlik faaliyet takip sistemi
+  LISE       // Lise Gençlik faaliyet takip sistemi
+}
+
 model User {
   id           String     @id @default(cuid())
   ad           String
@@ -42,6 +50,7 @@ model User {
   passwordHash String?
   role         Role       @default(BEKLEYEN)
   status       UserStatus @default(BEKLEMEDE)
+  sistem       Sistem     @default(EGITIMCI)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 

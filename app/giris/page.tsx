@@ -5,8 +5,14 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-/* ── Rol tanımları ── */
-type RoleKey = "egitimci" | "universite" | "lise";
+/* ── Rol → Sistem enum eşlemesi ── */
+const SISTEM_MAP = {
+  egitimci:   "EGITIMCI",
+  universite: "UNIVERSITE",
+  lise:       "LISE",
+} as const;
+
+type RoleKey = keyof typeof SISTEM_MAP;
 
 const ROLES: {
   key:   RoleKey;
@@ -191,9 +197,14 @@ function LoginForm({
     setError("");
     setLoading(true);
     try {
-      const res = await signIn("credentials", { email, password, redirect: false });
-      if (res?.error || !res?.ok) {
-        setError("E-posta veya şifre hatalı.");
+      const sistem = SISTEM_MAP[roleKey];
+      const res = await signIn("credentials", { email, password, sistem, redirect: false });
+      if (!res?.ok) {
+        if (res?.error === "SISTEM_UYUMSUZ") {
+          setError(`Bu hesap "${role.title}" sistemine kayıtlı değil. Lütfen doğru giriş kartını seçin.`);
+        } else {
+          setError("E-posta veya şifre hatalı.");
+        }
         setLoading(false);
       } else {
         router.push("/");
