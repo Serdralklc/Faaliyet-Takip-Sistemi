@@ -209,7 +209,7 @@ function Navbar() {
             </div>
             <div className="hidden sm:block leading-none">
               <p className="text-[12.5px] font-bold" style={{ color: "#064E2A" }}>Serhendi Gençlik</p>
-              <p className="text-[10px] mt-[3px]"    style={{ color: "#5A7A68" }}>Vakfı Eğitim Birimi</p>
+              <p className="text-[10px] mt-[3px]"    style={{ color: "#5A7A68" }}>Serhendi Vakfı - Eğitim Birimi</p>
             </div>
           </div>
         </Link>
@@ -343,11 +343,11 @@ function Navbar() {
 
 /* ─── GÖRSEL SLİDER ──────────────────────── */
 const SLIDES = [
-  { src: "https://picsum.photos/seed/mosque_youth_1/700/900",  caption: "Sabah Namazı Buluşmaları", sub: "Türkiye genelinde gençlik halkası"         },
-  { src: "https://picsum.photos/seed/classroom_study/700/900", caption: "İlim Dersleri",            sub: "Haftalık sistematik eğitim programı"      },
-  { src: "https://picsum.photos/seed/youth_camp_2024/700/900", caption: "Kafile Programları",       sub: "Gençleri birleştiren manevi yolculuklar"  },
-  { src: "https://picsum.photos/seed/university_dorm/700/900", caption: "Barınma Hizmetleri",       sub: "Güvenli ve değer odaklı yaşam ortamları"  },
-  { src: "https://picsum.photos/seed/quran_lesson_22/700/900", caption: "Kur'an-ı Kerim Eğitimi",   sub: "Elif-Ba'dan başlayan köklü yolculuk"      },
+  { src: "/images/faaliyet-1.jpg", caption: "Kafile Programları",          sub: "Gençleri birleştiren manevi yolculuklar"  },
+  { src: "/images/faaliyet-2.jpg", caption: "İlim Dersleri",               sub: "Haftalık sistematik eğitim programı"      },
+  { src: "/images/faaliyet-3.jpg", caption: "Sabah Namazı Buluşmaları",    sub: "Türkiye genelinde gençlik halkası"        },
+  { src: "/images/faaliyet-4.jpg", caption: "Gençlik Faaliyetleri",        sub: "Birlikte büyüyen, birlikte güçlenen nesil" },
+  { src: "/images/faaliyet-5.jpg", caption: "Kur'an-ı Kerim Eğitimi",      sub: "Elif-Ba'dan başlayan köklü yolculuk"     },
 ];
 
 function ImageSlider({ t }: { t: Tokens }) {

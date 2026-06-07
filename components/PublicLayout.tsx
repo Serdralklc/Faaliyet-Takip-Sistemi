@@ -140,7 +140,7 @@ function Navbar() {
             </div>
             <div className="hidden sm:block leading-none">
               <p className="text-[12.5px] font-bold" style={{ color: "#064E2A" }}>Serhendi Gençlik</p>
-              <p className="text-[10px] mt-[3px]"    style={{ color: "#5A7A68" }}>Vakfı Eğitim Birimi</p>
+              <p className="text-[10px] mt-[3px]"    style={{ color: "#5A7A68" }}>Serhendi Vakfı - Eğitim Birimi</p>
             </div>
           </div>
         </Link>
