@@ -11,7 +11,7 @@ import {
   LayoutDashboard, Users, MapPin, FileText, ClipboardList,
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
   GraduationCap, School, BookOpen, Home, Building2,
-  Hotel, BarChart3, Settings, UserCircle, Target, TrendingUp,
+  Hotel, BarChart3, Settings, UserCircle, Target, TrendingUp, X,
 } from "lucide-react";
 
 interface User {
@@ -89,7 +89,7 @@ function ThemeToggle() {
   );
 }
 
-export function Sidebar({ user }: { user: User }) {
+export function Sidebar({ user, onClose }: { user: User; onClose?: () => void }) {
   const isAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(user.role);
   const isTR = user.role === "TURKIYE_SORUMLUSU";
   const isBolge = user.role === "BOLGE_SORUMLUSU";
@@ -176,8 +176,8 @@ export function Sidebar({ user }: { user: User }) {
       style={{ width: 260, background: "var(--bg-sidebar)", borderColor: "var(--border)" }}>
 
       {/* ── Logo ── */}
-      <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
-        <Link href={dashHref} className="flex items-center gap-3 hover:opacity-85 transition-opacity">
+      <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
+        <Link href={dashHref} className="flex items-center gap-3 hover:opacity-85 transition-opacity min-w-0 flex-1">
           <img src="/logo.svg" alt="Serhendi" className="w-9 h-9 flex-shrink-0" />
           <div className="min-w-0">
             <p className="text-[13px] font-bold leading-tight truncate" style={{ color: "var(--text-primary)" }}>
@@ -188,6 +188,12 @@ export function Sidebar({ user }: { user: User }) {
             </p>
           </div>
         </Link>
+        {onClose && (
+          <button onClick={onClose} className="p-1.5 rounded-lg flex-shrink-0 ml-2"
+            style={{ background: "var(--bg-hover)" }}>
+            <X size={16} style={{ color: "var(--text-muted)" }} />
+          </button>
+        )}
       </div>
 
       {/* ── Nav ── */}

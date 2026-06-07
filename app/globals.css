@@ -252,3 +252,30 @@ h1, h2, h3, h4 { color: var(--text-primary) !important; }
 * {
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
+
+/* ══════════════════════════════════════
+   MOBİL UYUMLULUK
+══════════════════════════════════════ */
+@media (max-width: 1023px) {
+  /* Sayfa padding'leri küçülsün */
+  .p-6 { padding: 16px !important; }
+  .p-5 { padding: 14px !important; }
+  .max-w-5xl, .max-w-4xl, .max-w-6xl { max-width: 100% !important; }
+
+  /* Page header küçülsün */
+  .sv-page-header h1 { font-size: 18px !important; }
+  .sv-page-header { margin-bottom: 18px !important; }
+
+  /* Tablo scroll edilebilir olsun */
+  .overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 500px; }
+
+  /* Stat kart değerleri küçülsün */
+  .sv-stat-card .card-value { font-size: 28px !important; }
+}
+
+@media (max-width: 640px) {
+  .p-6 { padding: 12px !important; }
+  .sv-page-header h1 { font-size: 16px !important; }
+  .sv-stat-card .card-value { font-size: 24px !important; }
+}
