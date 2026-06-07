@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * Genel kurumsal sayfalar için paylaşılan layout:
- * Navbar (ana sayfayla aynı) + içerik alanı
+ * Genel kurumsal sayfalar için paylaşılan layout.
+ * Aynı token sistemi: LIGHT / DARK
  */
 
 import { useState, useEffect, useRef } from "react";
@@ -12,23 +12,45 @@ import { useTheme } from "next-themes";
 const BRAND = { green: "#0B6B3A", greenDark: "#064E2A", gold: "#D4AF37" };
 
 type Tokens = {
-  bg: string; navbar: string; border: string;
+  bg: string; navbar: string; border: string; borderSubtle: string;
   heading: string; body: string; muted: string;
-  accent: string; accentText: string; gold: string;
-  navLink: string; toggleBorder: string; toggleColor: string; toggleBg: string;
+  navLink: string; navLinkHover: string;
+  toggleBg: string; toggleBorder: string; toggleColor: string;
+  dropBg: string; dropSurface: string;
 };
 
 const LIGHT: Tokens = {
-  bg: "#EDE9DF", navbar: "#FFFFFF", border: "#D4C9B0",
-  heading: "#0A3520", body: "#1C5232", muted: "#38694E",
-  accent: BRAND.green, accentText: BRAND.gold, gold: BRAND.gold,
-  navLink: "#1C5232", toggleBorder: "#C8BFA8", toggleColor: "#1C5232", toggleBg: "rgba(255,255,255,0.60)",
+  bg:           "#F6F8F5",
+  navbar:       "#FFFFFF",
+  border:       "#E2E8F0",
+  borderSubtle: "#EEF2F7",
+  heading:      "#0F172A",
+  body:         "#475569",
+  muted:        "#64748B",
+  navLink:      "#374151",
+  navLinkHover: "#0F172A",
+  toggleBg:     "#F1F5F9",
+  toggleBorder: "#E2E8F0",
+  toggleColor:  "#475569",
+  dropBg:       "#FFFFFF",
+  dropSurface:  "#F8FAFC",
 };
+
 const DARK: Tokens = {
-  bg: "#081C15", navbar: "#10271F", border: "#1F3D31",
-  heading: "#F5F0E8", body: "#E8E2D6", muted: "#B8B0A0",
-  accent: "#22C55E", accentText: BRAND.gold, gold: BRAND.gold,
-  navLink: "#E8E2D6", toggleBorder: "rgba(255,255,255,0.15)", toggleColor: "#E8E2D6", toggleBg: "rgba(255,255,255,0.06)",
+  bg:           "#081C15",
+  navbar:       "#10271F",
+  border:       "#1F3D31",
+  borderSubtle: "#193328",
+  heading:      "#F8FAFC",
+  body:         "#CBD5E1",
+  muted:        "#94A3B8",
+  navLink:      "#CBD5E1",
+  navLinkHover: "#F8FAFC",
+  toggleBg:     "rgba(255,255,255,0.06)",
+  toggleBorder: "#1F3D31",
+  toggleColor:  "#CBD5E1",
+  dropBg:       "#142C22",
+  dropSurface:  "#1A3428",
 };
 
 function useTokens(): Tokens {
@@ -49,11 +71,19 @@ function ThemeBtn({ t }: { t: Tokens }) {
     <button
       onClick={() => setTheme(dark ? "light" : "dark")}
       className="w-9 h-9 flex items-center justify-center rounded-xl transition hover:opacity-80 active:scale-95"
-      style={{ border: `1px solid ${t.toggleBorder}`, color: t.toggleColor, background: t.toggleBg }}
+      style={{ background: t.toggleBg, border: `1px solid ${t.toggleBorder}`, color: t.toggleColor }}
     >
       {dark
-        ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
       }
     </button>
   );
@@ -69,7 +99,7 @@ const NAV_LINKS = [
 
 function Navbar() {
   const t = useTokens();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen,  setMenuOpen]  = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const loginRef = useRef<HTMLDivElement>(null);
 
@@ -84,41 +114,54 @@ function Navbar() {
   return (
     <nav
       className="sticky top-0 z-50 border-b"
-      style={{ background: t.navbar, borderColor: t.border, boxShadow: "0 1px 0 rgba(0,0,0,0.04)" }}
+      style={{
+        background: t.navbar,
+        borderColor: t.border,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+      }}
     >
       <div className="max-w-7xl mx-auto px-5 lg:px-10 h-[66px] flex items-center justify-between gap-6">
 
-        {/* Logo */}
+        {/* ── Logo ── */}
         <Link href="/" className="flex-shrink-0 group">
           <div
-            className="flex items-center gap-2.5 px-3 py-2 rounded-xl transition group-hover:shadow-md"
-            style={{ background: "#FFFFFF", border: "1px solid #D0E8DA", boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}
+            className="flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all group-hover:shadow-md"
+            style={{
+              background: "#FFFFFF",
+              border:     "1px solid #D1E8DA",
+              boxShadow:  "0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)",
+            }}
           >
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "#EAF5EE" }}>
+            <div
+              className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: "#EBF5EF" }}
+            >
               <img src="/logo.svg" alt="Serhendi" className="w-[17px] h-[17px]" />
             </div>
             <div className="hidden sm:block leading-none">
               <p className="text-[12.5px] font-bold" style={{ color: "#064E2A" }}>Serhendi Gençlik</p>
-              <p className="text-[10px] mt-0.5"      style={{ color: "#4A7A5A" }}>Vakfı Eğitim Birimi</p>
+              <p className="text-[10px] mt-[3px]"    style={{ color: "#5A7A68" }}>Vakfı Eğitim Birimi</p>
             </div>
           </div>
         </Link>
 
-        {/* Desktop links */}
-        <div className="hidden lg:flex items-center gap-0.5 flex-1 justify-center">
+        {/* ── Desktop links ── */}
+        <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
           {NAV_LINKS.map(l => (
             <Link
               key={l.href}
               href={l.href}
-              className="px-4 py-2 text-[13.5px] font-semibold rounded-lg transition hover:opacity-70"
+              className="px-4 py-2 text-[13.5px] font-semibold rounded-lg transition-colors"
               style={{ color: t.navLink }}
+              onMouseEnter={e => (e.currentTarget.style.color = t.navLinkHover)}
+              onMouseLeave={e => (e.currentTarget.style.color = t.navLink)}
             >
               {l.label}
             </Link>
           ))}
         </div>
 
-        {/* Sağ */}
+        {/* ── Desktop sağ ── */}
         <div className="hidden lg:flex items-center gap-2 flex-shrink-0" ref={loginRef}>
           <ThemeBtn t={t} />
           <div className="relative">
@@ -134,8 +177,8 @@ function Navbar() {
             </button>
             {loginOpen && (
               <div
-                className="absolute top-[calc(100%+10px)] right-0 w-[272px] rounded-2xl border overflow-hidden shadow-2xl"
-                style={{ background: t.navbar, borderColor: t.border }}
+                className="absolute top-[calc(100%+10px)] right-0 w-[272px] rounded-2xl overflow-hidden shadow-2xl"
+                style={{ background: t.dropBg, border: `1px solid ${t.border}` }}
               >
                 <div className="px-4 py-3 border-b" style={{ borderColor: t.border }}>
                   <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: t.muted }}>Giriş Türü</p>
@@ -144,21 +187,21 @@ function Navbar() {
                   href="/giris"
                   onClick={() => setLoginOpen(false)}
                   className="flex items-center gap-3.5 px-4 py-4 transition-colors"
-                  onMouseEnter={e => (e.currentTarget.style.background = LIGHT.bg)}
+                  onMouseEnter={e => (e.currentTarget.style.background = t.dropSurface)}
                   onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                 >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#E8F5EE" }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#E8F5EE" }}>
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={BRAND.green} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                     </svg>
                   </div>
                   <div>
                     <p className="text-[14px] font-bold" style={{ color: t.heading }}>Görevli Girişi</p>
-                    <p className="text-[12px] mt-0.5"   style={{ color: t.muted   }}>İl / Bölge Sorumlusu, Yönetici</p>
+                    <p className="text-[12px] mt-0.5"    style={{ color: t.muted   }}>İl / Bölge Sorumlusu, Yönetici</p>
                   </div>
                 </Link>
                 <div className="flex items-center gap-3.5 px-4 py-4 border-t" style={{ borderColor: t.border, opacity: 0.45 }}>
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#FEF9E7" }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#FEF9E7" }}>
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
                       <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
@@ -177,7 +220,7 @@ function Navbar() {
           </div>
         </div>
 
-        {/* Mobil */}
+        {/* ── Mobil ── */}
         <div className="lg:hidden flex items-center gap-2">
           <ThemeBtn t={t} />
           <button onClick={() => setMenuOpen(v => !v)} className="p-2 rounded-lg" style={{ color: t.navLink }}>
@@ -192,9 +235,13 @@ function Navbar() {
       {menuOpen && (
         <div className="lg:hidden px-5 py-5 border-t" style={{ background: t.navbar, borderColor: t.border }}>
           {NAV_LINKS.map(l => (
-            <Link key={l.href} href={l.href} onClick={() => setMenuOpen(false)}
+            <Link
+              key={l.href}
+              href={l.href}
+              onClick={() => setMenuOpen(false)}
               className="block py-3.5 text-[14px] font-semibold border-b last:border-0"
-              style={{ color: t.body, borderColor: t.border }}>
+              style={{ color: t.body, borderColor: t.borderSubtle }}
+            >
               {l.label}
             </Link>
           ))}

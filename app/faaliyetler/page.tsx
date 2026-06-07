@@ -2,25 +2,27 @@
 import { PublicLayout } from "@/components/PublicLayout";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
-import Link from "next/link";
 
 const BRAND = { green: "#0B6B3A", gold: "#D4AF37" };
 
-function useIsDark() {
+function useColors() {
   const { resolvedTheme } = useTheme();
   const [m, setM] = useState(false);
   useEffect(() => setM(true), []);
-  return m && resolvedTheme === "dark";
+  const dark = m && resolvedTheme === "dark";
+  return {
+    h:  dark ? "#F8FAFC" : "#0F172A",
+    b:  dark ? "#CBD5E1" : "#475569",
+    mu: dark ? "#94A3B8" : "#64748B",
+    bg: dark ? "#081C15" : "#F6F8F5",
+    sr: dark ? "#142C22" : "#FFFFFF",
+    br: dark ? "#1F3D31" : "#E2E8F0",
+    bs: dark ? "#193328" : "#EEF2F7",
+  };
 }
 
 export default function FaaliyetlerPage() {
-  const dark = useIsDark();
-  const h  = dark ? "#F5F0E8" : "#0A3520";
-  const b  = dark ? "#E8E2D6" : "#1C5232";
-  const mu = dark ? "#B8B0A0" : "#38694E";
-  const sr = dark ? "#0F241C" : "#FFFFFF";
-  const bg = dark ? "#081C15" : "#EDE9DF";
-  const br = dark ? "#1F3D31" : "#D4C9B0";
+  const c = useColors();
 
   const birimler = [
     {
@@ -51,35 +53,43 @@ export default function FaaliyetlerPage() {
 
         <div className="max-w-2xl mb-16">
           <div className="flex items-center gap-3 mb-6">
-            <span className="w-7 h-px" style={{ background: BRAND.gold }} />
-            <span className="text-[11px] font-black uppercase tracking-[0.20em]" style={{ color: BRAND.gold }}>Faaliyetler</span>
+            <span className="w-6 h-px" style={{ background: BRAND.gold }} />
+            <span className="text-[11px] font-black uppercase tracking-[0.22em]" style={{ color: BRAND.gold }}>Faaliyetler</span>
           </div>
-          <h1 className="font-black leading-[1.04] mb-5"
-            style={{ fontSize: "clamp(2rem, 4vw, 3rem)", color: h, letterSpacing: "-0.025em" }}>
-            Geniş Bir Hizmet Yelpazesi
+          <h1
+            className="font-extrabold leading-[1.06] mb-5"
+            style={{ fontSize: "clamp(2rem, 4vw, 3rem)", color: c.h, letterSpacing: "-0.025em" }}
+          >
+            Geniş Bir Hizmet Yelpazemiz
           </h1>
-          <p className="text-[16px] leading-[1.80]" style={{ color: b }}>
+          <p className="text-[16px] leading-[1.80]" style={{ color: c.b }}>
             İlköğretimden üniversiteye, barınmadan burs programlarına kadar gençliğin
             her ihtiyacına yanıt veren sistematik ve kararlı bir hizmet anlayışı.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-px mb-16" style={{ background: br }}>
+        {/* Birim kartları */}
+        <div className="grid md:grid-cols-2 gap-px mb-16" style={{ background: c.br }}>
           {birimler.map(bm => (
-            <div key={bm.no} className="p-8" style={{ background: sr }}>
+            <div key={bm.no} className="p-8" style={{ background: c.sr }}>
               <div className="flex items-center gap-3 mb-5">
                 <span className="text-[11px] font-black uppercase tracking-widest" style={{ color: bm.renk }}>{bm.no}</span>
-                <span className="flex-1 h-px" style={{ background: br }} />
+                <span className="flex-1 h-px" style={{ background: c.br }} />
               </div>
-              <h2 className="font-black text-[1.15rem] mb-3" style={{ color: h, letterSpacing: "-0.015em" }}>{bm.baslik}</h2>
-              <p className="text-[14px] leading-[1.65] mb-5" style={{ color: b }}>{bm.desc}</p>
+              <h2
+                className="font-bold text-[1.15rem] mb-3"
+                style={{ color: c.h, letterSpacing: "-0.015em" }}
+              >
+                {bm.baslik}
+              </h2>
+              <p className="text-[14px] leading-[1.70] mb-5" style={{ color: c.b }}>{bm.desc}</p>
               <div className="space-y-2">
                 {bm.liste.map(l => (
                   <div key={l} className="flex items-center gap-2">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
                       <path d="M2.5 8l4 4 7-7" stroke={bm.renk} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <span className="text-[13px] font-medium" style={{ color: mu }}>{l}</span>
+                    <span className="text-[13px] font-medium" style={{ color: c.b }}>{l}</span>
                   </div>
                 ))}
               </div>
@@ -88,10 +98,16 @@ export default function FaaliyetlerPage() {
           ))}
         </div>
 
+        {/* Etiketler */}
         <div className="flex flex-wrap gap-2">
           {["Nezir Burs Programı","Kafile Programları","Sabah Namazı Buluşmaları","Sosyal Faaliyetler","Eğitim Materyalleri","KYK Koordinasyonu"].map(e => (
-            <span key={e} className="px-4 py-2 text-[13px] font-medium rounded-lg border"
-              style={{ background: bg, borderColor: br, color: b }}>{e}</span>
+            <span
+              key={e}
+              className="px-4 py-2 text-[13px] font-medium rounded-lg border"
+              style={{ background: c.bg, borderColor: c.br, color: c.b }}
+            >
+              {e}
+            </span>
           ))}
         </div>
       </div>
