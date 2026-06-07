@@ -57,6 +57,9 @@ export const ModelName = {
   RoleAssignment: 'RoleAssignment',
   Invitation: 'Invitation',
   Activity: 'Activity',
+  HousingUnit: 'HousingUnit',
+  HousingStudent: 'HousingStudent',
+  HousingVisit: 'HousingVisit',
   AuditLog: 'AuditLog'
 } as const
 
@@ -200,6 +203,48 @@ export const ActivityScalarFieldEnum = {
 } as const
 
 export type ActivityScalarFieldEnum = (typeof ActivityScalarFieldEnum)[keyof typeof ActivityScalarFieldEnum]
+
+
+export const HousingUnitScalarFieldEnum = {
+  id: 'id',
+  ilId: 'ilId',
+  tip: 'tip',
+  ad: 'ad',
+  konum: 'konum',
+  aktif: 'aktif',
+  createdAt: 'createdAt'
+} as const
+
+export type HousingUnitScalarFieldEnum = (typeof HousingUnitScalarFieldEnum)[keyof typeof HousingUnitScalarFieldEnum]
+
+
+export const HousingStudentScalarFieldEnum = {
+  id: 'id',
+  housingUnitId: 'housingUnitId',
+  adSoyad: 'adSoyad',
+  bolum: 'bolum',
+  sinif: 'sinif',
+  bursMu: 'bursMu',
+  disiplinSayisi: 'disiplinSayisi',
+  iliskiKesme: 'iliskiKesme',
+  notlar: 'notlar',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HousingStudentScalarFieldEnum = (typeof HousingStudentScalarFieldEnum)[keyof typeof HousingStudentScalarFieldEnum]
+
+
+export const HousingVisitScalarFieldEnum = {
+  id: 'id',
+  housingUnitId: 'housingUnitId',
+  tarih: 'tarih',
+  ziyaretEden: 'ziyaretEden',
+  notlar: 'notlar',
+  createdAt: 'createdAt'
+} as const
+
+export type HousingVisitScalarFieldEnum = (typeof HousingVisitScalarFieldEnum)[keyof typeof HousingVisitScalarFieldEnum]
 
 
 export const AuditLogScalarFieldEnum = {

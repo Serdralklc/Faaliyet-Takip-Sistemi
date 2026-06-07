@@ -68,9 +68,10 @@ model Il {
   bolgeId   String
   createdAt DateTime @default(now())
 
-  bolge       Bolge            @relation(fields: [bolgeId], references: [id])
-  assignments RoleAssignment[]
-  activities  Activity[]
+  bolge        Bolge            @relation(fields: [bolgeId], references: [id])
+  assignments  RoleAssignment[]
+  activities   Activity[]
+  housingUnits HousingUnit[]
 }
 
 model RoleAssignment {
@@ -181,6 +182,55 @@ model Activity {
   @@unique([ilId, yil, donem])
   @@index([ilId])
   @@index([yil, donem])
+}
+
+// ── Barınma Birimleri ──────────────────────────────────────────
+model HousingUnit {
+  id        String   @id @default(cuid())
+  ilId      String
+  tip       String   // "EV" | "APART" | "YURT"
+  ad        String
+  konum     String?
+  aktif     Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  il         Il               @relation(fields: [ilId], references: [id])
+  ogrenciler HousingStudent[]
+  ziyaretler HousingVisit[]
+
+  @@index([ilId, tip])
+}
+
+model HousingStudent {
+  id             String   @id @default(cuid())
+  housingUnitId  String
+  adSoyad        String
+  bolum          String?
+  sinif          String?
+  bursMu         Boolean  @default(false)
+  disiplinSayisi Int      @default(0)
+  iliskiKesme    Boolean  @default(false)
+  notlar         String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  housingUnit HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
+
+  @@index([housingUnitId])
+}
+
+model HousingVisit {
+  id            String   @id @default(cuid())
+  housingUnitId String
+  tarih         DateTime
+  ziyaretEden   String
+  notlar        String?
+  createdAt     DateTime @default(now())
+
+  housingUnit HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
+
+  @@index([housingUnitId])
+  @@index([tarih])
 }
 
 model AuditLog {

@@ -390,6 +390,9 @@ export const ModelName = {
   RoleAssignment: 'RoleAssignment',
   Invitation: 'Invitation',
   Activity: 'Activity',
+  HousingUnit: 'HousingUnit',
+  HousingStudent: 'HousingStudent',
+  HousingVisit: 'HousingVisit',
   AuditLog: 'AuditLog'
 } as const
 
@@ -406,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "bolge" | "il" | "roleAssignment" | "invitation" | "activity" | "auditLog"
+    modelProps: "user" | "bolge" | "il" | "roleAssignment" | "invitation" | "activity" | "housingUnit" | "housingStudent" | "housingVisit" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -854,6 +857,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    HousingUnit: {
+      payload: Prisma.$HousingUnitPayload<ExtArgs>
+      fields: Prisma.HousingUnitFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.HousingUnitFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingUnitPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.HousingUnitFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingUnitPayload>
+        }
+        findFirst: {
+          args: Prisma.HousingUnitFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingUnitPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.HousingUnitFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingUnitPayload>
+        }
+        findMany: {
+          args: Prisma.HousingUnitFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingUnitPayload>[]
+        }
+        create: {
+          args: Prisma.HousingUnitCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingUnitPayload>
+        }
+        createMany: {
+          args: Prisma.HousingUnitCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.HousingUnitCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingUnitPayload>[]
+        }
+        delete: {
+          args: Prisma.HousingUnitDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingUnitPayload>
+        }
+        update: {
+          args: Prisma.HousingUnitUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingUnitPayload>
+        }
+        deleteMany: {
+          args: Prisma.HousingUnitDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.HousingUnitUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.HousingUnitUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingUnitPayload>[]
+        }
+        upsert: {
+          args: Prisma.HousingUnitUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingUnitPayload>
+        }
+        aggregate: {
+          args: Prisma.HousingUnitAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateHousingUnit>
+        }
+        groupBy: {
+          args: Prisma.HousingUnitGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HousingUnitGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.HousingUnitCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HousingUnitCountAggregateOutputType> | number
+        }
+      }
+    }
+    HousingStudent: {
+      payload: Prisma.$HousingStudentPayload<ExtArgs>
+      fields: Prisma.HousingStudentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.HousingStudentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingStudentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.HousingStudentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingStudentPayload>
+        }
+        findFirst: {
+          args: Prisma.HousingStudentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingStudentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.HousingStudentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingStudentPayload>
+        }
+        findMany: {
+          args: Prisma.HousingStudentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingStudentPayload>[]
+        }
+        create: {
+          args: Prisma.HousingStudentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingStudentPayload>
+        }
+        createMany: {
+          args: Prisma.HousingStudentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.HousingStudentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingStudentPayload>[]
+        }
+        delete: {
+          args: Prisma.HousingStudentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingStudentPayload>
+        }
+        update: {
+          args: Prisma.HousingStudentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingStudentPayload>
+        }
+        deleteMany: {
+          args: Prisma.HousingStudentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.HousingStudentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.HousingStudentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingStudentPayload>[]
+        }
+        upsert: {
+          args: Prisma.HousingStudentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingStudentPayload>
+        }
+        aggregate: {
+          args: Prisma.HousingStudentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateHousingStudent>
+        }
+        groupBy: {
+          args: Prisma.HousingStudentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HousingStudentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.HousingStudentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HousingStudentCountAggregateOutputType> | number
+        }
+      }
+    }
+    HousingVisit: {
+      payload: Prisma.$HousingVisitPayload<ExtArgs>
+      fields: Prisma.HousingVisitFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.HousingVisitFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingVisitPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.HousingVisitFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingVisitPayload>
+        }
+        findFirst: {
+          args: Prisma.HousingVisitFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingVisitPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.HousingVisitFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingVisitPayload>
+        }
+        findMany: {
+          args: Prisma.HousingVisitFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingVisitPayload>[]
+        }
+        create: {
+          args: Prisma.HousingVisitCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingVisitPayload>
+        }
+        createMany: {
+          args: Prisma.HousingVisitCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.HousingVisitCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingVisitPayload>[]
+        }
+        delete: {
+          args: Prisma.HousingVisitDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingVisitPayload>
+        }
+        update: {
+          args: Prisma.HousingVisitUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingVisitPayload>
+        }
+        deleteMany: {
+          args: Prisma.HousingVisitDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.HousingVisitUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.HousingVisitUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingVisitPayload>[]
+        }
+        upsert: {
+          args: Prisma.HousingVisitUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HousingVisitPayload>
+        }
+        aggregate: {
+          args: Prisma.HousingVisitAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateHousingVisit>
+        }
+        groupBy: {
+          args: Prisma.HousingVisitGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HousingVisitGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.HousingVisitCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HousingVisitCountAggregateOutputType> | number
+        }
+      }
+    }
     AuditLog: {
       payload: Prisma.$AuditLogPayload<ExtArgs>
       fields: Prisma.AuditLogFieldRefs
@@ -1093,6 +1318,48 @@ export const ActivityScalarFieldEnum = {
 export type ActivityScalarFieldEnum = (typeof ActivityScalarFieldEnum)[keyof typeof ActivityScalarFieldEnum]
 
 
+export const HousingUnitScalarFieldEnum = {
+  id: 'id',
+  ilId: 'ilId',
+  tip: 'tip',
+  ad: 'ad',
+  konum: 'konum',
+  aktif: 'aktif',
+  createdAt: 'createdAt'
+} as const
+
+export type HousingUnitScalarFieldEnum = (typeof HousingUnitScalarFieldEnum)[keyof typeof HousingUnitScalarFieldEnum]
+
+
+export const HousingStudentScalarFieldEnum = {
+  id: 'id',
+  housingUnitId: 'housingUnitId',
+  adSoyad: 'adSoyad',
+  bolum: 'bolum',
+  sinif: 'sinif',
+  bursMu: 'bursMu',
+  disiplinSayisi: 'disiplinSayisi',
+  iliskiKesme: 'iliskiKesme',
+  notlar: 'notlar',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HousingStudentScalarFieldEnum = (typeof HousingStudentScalarFieldEnum)[keyof typeof HousingStudentScalarFieldEnum]
+
+
+export const HousingVisitScalarFieldEnum = {
+  id: 'id',
+  housingUnitId: 'housingUnitId',
+  tarih: 'tarih',
+  ziyaretEden: 'ziyaretEden',
+  notlar: 'notlar',
+  createdAt: 'createdAt'
+} as const
+
+export type HousingVisitScalarFieldEnum = (typeof HousingVisitScalarFieldEnum)[keyof typeof HousingVisitScalarFieldEnum]
+
+
 export const AuditLogScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -1255,6 +1522,13 @@ export type ListEnumDonemFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
  * Reference to a field of type 'Json'
  */
 export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
@@ -1397,6 +1671,9 @@ export type GlobalOmitConfig = {
   roleAssignment?: Prisma.RoleAssignmentOmit
   invitation?: Prisma.InvitationOmit
   activity?: Prisma.ActivityOmit
+  housingUnit?: Prisma.HousingUnitOmit
+  housingStudent?: Prisma.HousingStudentOmit
+  housingVisit?: Prisma.HousingVisitOmit
   auditLog?: Prisma.AuditLogOmit
 }
 

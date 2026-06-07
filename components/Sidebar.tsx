@@ -135,9 +135,9 @@ export function Sidebar({ user }: { user: User }) {
       label: "Barınma Yönetimi",
       icon: Home,
       items: [
-        { href: "/panel/il/barinma/evler", label: "Evler", icon: Home },
-        { href: "/panel/il/barinma/apartlar", label: "Apartlar", icon: Building2 },
-        { href: "/panel/il/barinma/yurtlar", label: "Yurtlar", icon: Hotel },
+        { href: "/panel/il/barinma", label: "Ev / Apart / Yurt", icon: Home },
+        { href: "/panel/il/barinma/ogrenci", label: "Öğrenci Bilgi Sistemi", icon: Users },
+        { href: "/panel/il/barinma/ziyaret", label: "Ziyaret Kayıtları", icon: ClipboardList },
       ],
     },
     {

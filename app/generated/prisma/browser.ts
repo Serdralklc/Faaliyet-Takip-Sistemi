@@ -48,6 +48,21 @@ export type Invitation = Prisma.InvitationModel
  */
 export type Activity = Prisma.ActivityModel
 /**
+ * Model HousingUnit
+ * 
+ */
+export type HousingUnit = Prisma.HousingUnitModel
+/**
+ * Model HousingStudent
+ * 
+ */
+export type HousingStudent = Prisma.HousingStudentModel
+/**
+ * Model HousingVisit
+ * 
+ */
+export type HousingVisit = Prisma.HousingVisitModel
+/**
  * Model AuditLog
  * 
  */
