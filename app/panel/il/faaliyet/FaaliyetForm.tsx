@@ -24,7 +24,29 @@ const DONEMLER: Record<Tab, { value: string; label: string }[]> = {
   ],
 };
 
-const FIELDS: Record<Tab, { key: string; label: string; suffix?: string }[]> = {
+/* ─── Alan tanımları ─── */
+type NormalField = {
+  type?: "normal";
+  key: string;
+  label: string;
+  suffix?: string;
+};
+
+type SelectGroupField = {
+  type: "select-group";
+  label: string;
+  suffix?: string;
+  /* Her seçenek hangi key'e yazılacak */
+  options: { label: string; key: string }[];
+  /* Seçili option değişince ek alanlar göster */
+  extraKeys?: {
+    [optionKey: string]: { key: string; label: string; suffix?: string }[];
+  };
+};
+
+type Field = NormalField | SelectGroupField;
+
+const FIELDS: Record<Tab, Field[]> = {
   ilkogretim: [
     { key: "ik_toplamDergah",          label: "Toplam Dergah Sayısı",                   suffix: "dergah"   },
     { key: "ik_kursuYapilanDergah",    label: "Hafta Sonu Kursu Yapılan Dergah",        suffix: "dergah"   },
@@ -38,21 +60,85 @@ const FIELDS: Record<Tab, { key: string; label: string; suffix?: string }[]> = {
     { key: "ls_toplamDergah",       label: "Toplam Dergah Sayısı",              suffix: "dergah"   },
     { key: "ls_ilimDersYeri",       label: "İlim Dersleri Yapılan Yer Sayısı",  suffix: "yer"      },
     { key: "ls_ilimDersKatilim",    label: "İlim Derslerine Katılan Öğrenci",   suffix: "öğrenci"  },
-    { key: "ls_sabahNamaziSayisi",  label: "Lise Sabah Namazı Buluşma",         suffix: "buluşma"  },
-    { key: "ls_sabahNamaziKatilim", label: "Sabah Namazına Katılan Liseli",     suffix: "öğrenci"  },
-    { key: "ls_kafileSayisi",       label: "Lise Kafile Sayısı",                suffix: "kafile"   },
-    { key: "ls_kafileOgrenci",      label: "Kafile ile Giden Liseli Öğrenci",   suffix: "öğrenci"  },
-    { key: "ls_toplamFaaliyet",     label: "Toplam Faaliyet Sayısı",            suffix: "faaliyet" },
-    { key: "ls_yeniIntisap",        label: "Yeni İntisap Sayısı",               suffix: "kişi"     },
+    {
+      type: "select-group",
+      label: "Sabah Namazı Buluşma",
+      suffix: "buluşma",
+      options: [
+        { label: "Lise Sabah Namazı",  key: "ls_sabahNamaziSayisi"     },
+        { label: "Ortak Sabah Namazı", key: "ortakSabahNamaziSayisi"   },
+      ],
+      extraKeys: {
+        ls_sabahNamaziSayisi: [
+          { key: "ls_sabahNamaziKatilim", label: "Katılan Liseli", suffix: "öğrenci" },
+        ],
+        ortakSabahNamaziSayisi: [
+          { key: "ortakSabahNamaziLiseKatilim", label: "Katılan Liseli",       suffix: "öğrenci" },
+          { key: "ortakSabahNamaziUniKatilim",  label: "Katılan Üniversiteli", suffix: "öğrenci" },
+        ],
+      },
+    },
+    {
+      type: "select-group",
+      label: "Kafile",
+      suffix: "kafile",
+      options: [
+        { label: "Lise Kafilesi",  key: "ls_kafileSayisi"     },
+        { label: "Ortak Kafile",   key: "ortakKafileSayisi"   },
+      ],
+      extraKeys: {
+        ls_kafileSayisi: [
+          { key: "ls_kafileOgrenci", label: "Kafile ile Giden Liseli", suffix: "öğrenci" },
+        ],
+        ortakKafileSayisi: [
+          { key: "ortakKafileLiseKatilim", label: "Katılan Liseli",       suffix: "öğrenci" },
+          { key: "ortakKafileUniKatilim",  label: "Katılan Üniversiteli", suffix: "öğrenci" },
+        ],
+      },
+    },
+    { key: "ls_toplamFaaliyet",     label: "Toplam Faaliyet Sayısı",  suffix: "faaliyet" },
+    { key: "ls_yeniIntisap",        label: "Yeni İntisap Sayısı",     suffix: "kişi"     },
   ],
   universite: [
     { key: "uni_toplamDergah",       label: "Toplam Dergah Sayısı",                     suffix: "dergah"   },
     { key: "uni_ilimDersYeri",       label: "İlim Dersleri Yapılan Yer Sayısı",         suffix: "yer"      },
     { key: "uni_ilimDersKatilim",    label: "İlim Derslerine Katılan Öğrenci",          suffix: "öğrenci"  },
-    { key: "uni_sabahNamaziSayisi",  label: "Üniversite Sabah Namazı Buluşma",          suffix: "buluşma"  },
-    { key: "uni_sabahNamaziKatilim", label: "Sabah Namazına Katılan Üniversiteli",      suffix: "öğrenci"  },
-    { key: "uni_kafileSayisi",       label: "Üniversite Kafile Sayısı",                 suffix: "kafile"   },
-    { key: "uni_kafileOgrenci",      label: "Kafile ile Giden Üniversiteli",            suffix: "öğrenci"  },
+    {
+      type: "select-group",
+      label: "Sabah Namazı Buluşma",
+      suffix: "buluşma",
+      options: [
+        { label: "Üniversite Sabah Namazı", key: "uni_sabahNamaziSayisi"    },
+        { label: "Ortak Sabah Namazı",      key: "ortakSabahNamaziSayisi"   },
+      ],
+      extraKeys: {
+        uni_sabahNamaziSayisi: [
+          { key: "uni_sabahNamaziKatilim", label: "Katılan Üniversiteli", suffix: "öğrenci" },
+        ],
+        ortakSabahNamaziSayisi: [
+          { key: "ortakSabahNamaziLiseKatilim", label: "Katılan Liseli",       suffix: "öğrenci" },
+          { key: "ortakSabahNamaziUniKatilim",  label: "Katılan Üniversiteli", suffix: "öğrenci" },
+        ],
+      },
+    },
+    {
+      type: "select-group",
+      label: "Kafile",
+      suffix: "kafile",
+      options: [
+        { label: "Üniversite Kafilesi", key: "uni_kafileSayisi"     },
+        { label: "Ortak Kafile",        key: "ortakKafileSayisi"    },
+      ],
+      extraKeys: {
+        uni_kafileSayisi: [
+          { key: "uni_kafileOgrenci", label: "Kafile ile Giden Üniversiteli", suffix: "öğrenci" },
+        ],
+        ortakKafileSayisi: [
+          { key: "ortakKafileLiseKatilim", label: "Katılan Liseli",       suffix: "öğrenci" },
+          { key: "ortakKafileUniKatilim",  label: "Katılan Üniversiteli", suffix: "öğrenci" },
+        ],
+      },
+    },
     { key: "uni_toplamFaaliyet",     label: "Toplam Faaliyet Sayısı",                   suffix: "faaliyet" },
     { key: "uni_kykBulusmaSayisi",   label: "KYK Buluşma Sayısı",                      suffix: "buluşma"  },
     { key: "uni_kykKatilim",         label: "KYK Buluşmalarına Katılan Öğrenci",        suffix: "öğrenci"  },
@@ -60,47 +146,46 @@ const FIELDS: Record<Tab, { key: string; label: string; suffix?: string }[]> = {
   ],
 };
 
-// Ortak faaliyet alanları — her iki birimde de gösterilir, aynı Activity kaydına yazılır
-const ORTAK_KAFILE_FIELDS = [
-  { key: "ortakKafileSayisi",      label: "Ortak Kafile Sayısı",             suffix: "kafile"  },
-  { key: "ortakKafileLiseKatilim", label: "Ortak Kafileye Katılan Liseli",   suffix: "öğrenci" },
-  { key: "ortakKafileUniKatilim",  label: "Ortak Kafileye Katılan Üniv.",    suffix: "öğrenci" },
-];
-
-const ORTAK_SABAH_FIELDS = [
-  { key: "ortakSabahNamaziSayisi",      label: "Ortak Sabah Namazı Buluşma",        suffix: "buluşma"  },
-  { key: "ortakSabahNamaziLiseKatilim", label: "Katılan Liseli",                    suffix: "öğrenci" },
-  { key: "ortakSabahNamaziUniKatilim",  label: "Katılan Üniversiteli",              suffix: "öğrenci" },
-];
-
-const ALL_ORTAK_KEYS = [
-  ...ORTAK_KAFILE_FIELDS.map(f => f.key),
-  ...ORTAK_SABAH_FIELDS.map(f => f.key),
-];
-
 const HEADER: Record<Tab, { label: string; color: string }> = {
   ilkogretim: { label: "İlköğretim Birimi", color: "#006B3F" },
   lise:        { label: "Lise Birimi",       color: "#0369A1" },
   universite:  { label: "Üniversite Birimi", color: "#7C3AED" },
 };
 
-function NumberInput({ label, value, suffix, onChange, accent }: {
+/* ─── Tüm select-group alanlarından key listesi çıkar (fetch için) ─── */
+function getAllKeys(tab: Tab): string[] {
+  const keys: string[] = [];
+  for (const f of FIELDS[tab]) {
+    if (!f.type || f.type === "normal") {
+      keys.push((f as NormalField).key);
+    } else {
+      for (const opt of (f as SelectGroupField).options) keys.push(opt.key);
+      for (const extras of Object.values((f as SelectGroupField).extraKeys ?? {})) {
+        for (const e of extras) keys.push(e.key);
+      }
+    }
+  }
+  return [...new Set(keys)];
+}
+
+/* ─── Sayı Input ─── */
+function NumberInput({ label, value, suffix, onChange, accent, compact }: {
   label: string; value: number; suffix?: string;
-  onChange: (v: number) => void; accent?: string;
+  onChange: (v: number) => void; accent?: string; compact?: boolean;
 }) {
   const [focused, setFocused] = React.useState(false);
-  const displayValue = focused ? (value === 0 ? "" : String(value)) : String(value);
+  const display = focused ? (value === 0 ? "" : String(value)) : String(value);
 
   return (
-    <div>
-      <label className="block text-xs font-bold mb-1.5 uppercase tracking-wide"
-        style={{ color: "var(--text-muted)" }}>
-        {label}
-      </label>
+    <div className={compact ? "" : ""}>
+      {!compact && (
+        <label className="block text-xs font-bold mb-1.5 uppercase tracking-wide"
+          style={{ color: "var(--text-muted)" }}>{label}</label>
+      )}
       <div className="relative">
         <input
           type="number" min={0}
-          value={displayValue}
+          value={display}
           placeholder="0"
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
@@ -114,15 +199,126 @@ function NumberInput({ label, value, suffix, onChange, accent }: {
         />
         {suffix && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold pointer-events-none"
-            style={{ color: "var(--text-muted)" }}>
-            {suffix}
-          </span>
+            style={{ color: "var(--text-muted)" }}>{suffix}</span>
         )}
       </div>
     </div>
   );
 }
 
+/* ─── Select-Group Input ─── */
+function SelectGroupInput({
+  field, form, onChange, accent,
+}: {
+  field: SelectGroupField;
+  form: Record<string, number>;
+  onChange: (key: string, val: number) => void;
+  accent: string;
+}) {
+  /* Hangi option seçili? Değeri sıfırdan büyük olan onu seç, yoksa ilk seçenek */
+  const activeOption = field.options.find(o => (form[o.key] ?? 0) > 0) ?? field.options[0];
+  const [selected, setSelected] = React.useState(activeOption.key);
+
+  React.useEffect(() => {
+    const active = field.options.find(o => (form[o.key] ?? 0) > 0);
+    if (active) setSelected(active.key);
+  }, [form]);
+
+  function handleSelectChange(newKey: string) {
+    // Eski key'in değerini sıfırla, ekstra keylerini de sıfırla
+    const old = field.options.find(o => o.key === selected);
+    if (old) {
+      onChange(old.key, 0);
+      for (const e of field.extraKeys?.[old.key] ?? []) onChange(e.key, 0);
+    }
+    setSelected(newKey);
+  }
+
+  const extras = field.extraKeys?.[selected] ?? [];
+
+  return (
+    <div className="col-span-1 sm:col-span-2 lg:col-span-3">
+      <label className="block text-xs font-bold mb-1.5 uppercase tracking-wide"
+        style={{ color: "var(--text-muted)" }}>{field.label}</label>
+      <div className="flex flex-wrap gap-3 items-start">
+        {/* Dropdown */}
+        <div className="flex-shrink-0">
+          <select
+            value={selected}
+            onChange={e => handleSelectChange(e.target.value)}
+            className="border-2 rounded-xl px-3 py-3 text-sm font-bold focus:outline-none transition"
+            style={{
+              background: "var(--bg-input)",
+              borderColor: "var(--border-input)",
+              color: "var(--text-primary)",
+              minWidth: 180,
+            }}
+          >
+            {field.options.map(o => (
+              <option key={o.key} value={o.key}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Ana sayı */}
+        <div className="w-36">
+          <div className="relative">
+            <input
+              type="number" min={0}
+              value={(() => {
+                const v = form[selected] ?? 0;
+                return v === 0 ? "" : String(v);
+              })()}
+              placeholder="0"
+              onChange={e => onChange(selected, Number(e.target.value) || 0)}
+              className="w-full rounded-xl px-4 py-3 text-sm font-bold border-2 focus:outline-none transition"
+              style={{
+                background: "var(--bg-input)",
+                borderColor: accent,
+                color: "var(--text-primary)",
+              }}
+            />
+            {field.suffix && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold pointer-events-none"
+                style={{ color: "var(--text-muted)" }}>{field.suffix}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Ek alanlar (katılımcı sayıları) */}
+        {extras.map(e => (
+          <div key={e.key} className="flex flex-col gap-1">
+            <label className="text-[10px] font-bold uppercase tracking-wide"
+              style={{ color: "var(--text-muted)" }}>{e.label}</label>
+            <div className="relative w-32">
+              <input
+                type="number" min={0}
+                value={(() => {
+                  const v = form[e.key] ?? 0;
+                  return v === 0 ? "" : String(v);
+                })()}
+                placeholder="0"
+                onChange={ev => onChange(e.key, Number(ev.target.value) || 0)}
+                className="w-full rounded-xl px-3 py-3 text-sm font-bold border-2 focus:outline-none transition"
+                style={{
+                  background: "var(--bg-input)",
+                  borderColor: "var(--border-input)",
+                  color: "var(--text-primary)",
+                }}
+              />
+              {e.suffix && (
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-semibold pointer-events-none"
+                  style={{ color: "var(--text-muted)" }}>{e.suffix}</span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Ana Form ─── */
 export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
   const { data: session } = useSession();
   const [yil, setYil] = useState(THIS_YEAR);
@@ -134,7 +330,6 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
   const fields = FIELDS[activeTab];
   const donemler = DONEMLER[activeTab];
   const header = HEADER[activeTab];
-  const showOrtak = activeTab === "lise" || activeTab === "universite";
 
   useEffect(() => {
     const valid = donemler.some(d => d.value === donem);
@@ -148,10 +343,7 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         const vals: Record<string, number> = {};
-        fields.forEach(f => { vals[f.key] = data?.[f.key] ?? 0; });
-        if (showOrtak) {
-          ALL_ORTAK_KEYS.forEach(k => { vals[k] = data?.[k] ?? 0; });
-        }
+        getAllKeys(activeTab).forEach(k => { vals[k] = data?.[k] ?? 0; });
         setForm(vals);
         setLoaded(true);
       });
@@ -173,8 +365,6 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
     setStatus(res.ok ? "success" : "error");
     setTimeout(() => setStatus("idle"), 3000);
   }
-
-  const ortakAcent = "#EA580C"; // turuncu — ortak bölüm rengi
 
   return (
     <div className="p-6 max-w-5xl">
@@ -222,93 +412,43 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Ana alanlar */}
-        <div className="sv-section overflow-hidden">
+      <form onSubmit={handleSubmit}>
+        <div className="sv-section mb-6 overflow-hidden">
           <div className="px-6 py-4" style={{ background: header.color }}>
             <h2 className="text-white font-bold text-base">{header.label}</h2>
             <p className="text-white/60 text-xs mt-0.5">
-              {fields.length} alan · {yil} / {donemler.find(d => d.value === donem)?.label}
+              {yil} / {donemler.find(d => d.value === donem)?.label}
             </p>
           </div>
+
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {fields.map(f => (
-              <NumberInput
-                key={f.key}
-                label={f.label}
-                suffix={f.suffix}
-                value={form[f.key] ?? 0}
-                onChange={v => handleChange(f.key, v)}
-                accent={header.color}
-              />
-            ))}
+            {fields.map((f, i) => {
+              if (f.type === "select-group") {
+                return (
+                  <SelectGroupInput
+                    key={i}
+                    field={f as SelectGroupField}
+                    form={form}
+                    onChange={handleChange}
+                    accent={header.color}
+                  />
+                );
+              }
+              const nf = f as NormalField;
+              return (
+                <NumberInput
+                  key={nf.key}
+                  label={nf.label}
+                  suffix={nf.suffix}
+                  value={form[nf.key] ?? 0}
+                  onChange={v => handleChange(nf.key, v)}
+                  accent={header.color}
+                />
+              );
+            })}
           </div>
         </div>
 
-        {/* Ortak Kafile bölümü (Lise + Üniversite) */}
-        {showOrtak && (
-          <div className="sv-section overflow-hidden">
-            <div className="px-6 py-4" style={{ background: ortakAcent }}>
-              <h2 className="text-white font-bold text-base">🤝 Ortak Kafile</h2>
-              <p className="text-white/70 text-xs mt-0.5">
-                Lise ve üniversite öğrencilerinin birlikte katıldığı kafileler buraya girilir.
-                Çift sayımı önlemek için bu alana girilir — birim alanlarına tekrar girilmez.
-              </p>
-            </div>
-            <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-5">
-              {ORTAK_KAFILE_FIELDS.map(f => (
-                <NumberInput
-                  key={f.key}
-                  label={f.label}
-                  suffix={f.suffix}
-                  value={form[f.key] ?? 0}
-                  onChange={v => handleChange(f.key, v)}
-                  accent={ortakAcent}
-                />
-              ))}
-            </div>
-            <div className="px-6 pb-4">
-              <p className="text-xs rounded-xl px-3 py-2 inline-block font-semibold"
-                style={{ background: "#EA580C15", color: "#EA580C" }}>
-                Toplam kafile = Lise kafilesi + Üniversite kafilesi + Ortak kafile
-                ({(form["ls_kafileSayisi"] ?? 0) + (form["uni_kafileSayisi"] ?? 0) + (form["ortakKafileSayisi"] ?? 0)} toplam)
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Ortak Sabah Namazı bölümü */}
-        {showOrtak && (
-          <div className="sv-section overflow-hidden">
-            <div className="px-6 py-4" style={{ background: "#6366F1" }}>
-              <h2 className="text-white font-bold text-base">🤝 Ortak Sabah Namazı</h2>
-              <p className="text-white/70 text-xs mt-0.5">
-                Lise ve üniversite öğrencilerinin birlikte katıldığı sabah namazı buluşmaları.
-              </p>
-            </div>
-            <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-5">
-              {ORTAK_SABAH_FIELDS.map(f => (
-                <NumberInput
-                  key={f.key}
-                  label={f.label}
-                  suffix={f.suffix}
-                  value={form[f.key] ?? 0}
-                  onChange={v => handleChange(f.key, v)}
-                  accent="#6366F1"
-                />
-              ))}
-            </div>
-            <div className="px-6 pb-4">
-              <p className="text-xs rounded-xl px-3 py-2 inline-block font-semibold"
-                style={{ background: "#6366F115", color: "#6366F1" }}>
-                Toplam sabah namazı = Lise + Üniversite + Ortak
-                ({(form["ls_sabahNamaziSayisi"] ?? 0) + (form["uni_sabahNamaziSayisi"] ?? 0) + (form["ortakSabahNamaziSayisi"] ?? 0)} toplam)
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Kaydet butonu */}
         <div className="flex items-center gap-4">
           <button type="submit" disabled={status === "loading"}
             className="flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm transition shadow-sm text-white"
