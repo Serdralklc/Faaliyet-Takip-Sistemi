@@ -62,6 +62,9 @@ export const ModelName = {
   HousingVisit: 'HousingVisit',
   BolgeHedef: 'BolgeHedef',
   IlHedef: 'IlHedef',
+  Volunteer: 'Volunteer',
+  BursBasvuru: 'BursBasvuru',
+  GeriBildirim: 'GeriBildirim',
   AuditLog: 'AuditLog'
 } as const
 
@@ -90,6 +93,7 @@ export const UserScalarFieldEnum = {
   passwordHash: 'passwordHash',
   role: 'role',
   status: 'status',
+  sistem: 'sistem',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -292,6 +296,59 @@ export const IlHedefScalarFieldEnum = {
 } as const
 
 export type IlHedefScalarFieldEnum = (typeof IlHedefScalarFieldEnum)[keyof typeof IlHedefScalarFieldEnum]
+
+
+export const VolunteerScalarFieldEnum = {
+  id: 'id',
+  adSoyad: 'adSoyad',
+  telefon: 'telefon',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  ogrenim: 'ogrenim',
+  ogrenimTuru: 'ogrenimTuru',
+  bolum: 'bolum',
+  okul: 'okul',
+  il: 'il',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VolunteerScalarFieldEnum = (typeof VolunteerScalarFieldEnum)[keyof typeof VolunteerScalarFieldEnum]
+
+
+export const BursBasvuruScalarFieldEnum = {
+  id: 'id',
+  volunteerId: 'volunteerId',
+  adSoyad: 'adSoyad',
+  telefon: 'telefon',
+  email: 'email',
+  universite: 'universite',
+  fakulteBolum: 'fakulteBolum',
+  sinif: 'sinif',
+  il: 'il',
+  madiDurum: 'madiDurum',
+  aciklama: 'aciklama',
+  belgeler: 'belgeler',
+  durum: 'durum',
+  yoneticiNotu: 'yoneticiNotu',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BursBasvuruScalarFieldEnum = (typeof BursBasvuruScalarFieldEnum)[keyof typeof BursBasvuruScalarFieldEnum]
+
+
+export const GeriBildirimScalarFieldEnum = {
+  id: 'id',
+  volunteerId: 'volunteerId',
+  konu: 'konu',
+  mesaj: 'mesaj',
+  durum: 'durum',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GeriBildirimScalarFieldEnum = (typeof GeriBildirimScalarFieldEnum)[keyof typeof GeriBildirimScalarFieldEnum]
 
 
 export const AuditLogScalarFieldEnum = {

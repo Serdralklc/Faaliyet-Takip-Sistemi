@@ -395,6 +395,9 @@ export const ModelName = {
   HousingVisit: 'HousingVisit',
   BolgeHedef: 'BolgeHedef',
   IlHedef: 'IlHedef',
+  Volunteer: 'Volunteer',
+  BursBasvuru: 'BursBasvuru',
+  GeriBildirim: 'GeriBildirim',
   AuditLog: 'AuditLog'
 } as const
 
@@ -411,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "bolge" | "il" | "roleAssignment" | "invitation" | "activity" | "housingUnit" | "housingStudent" | "housingVisit" | "bolgeHedef" | "ilHedef" | "auditLog"
+    modelProps: "user" | "bolge" | "il" | "roleAssignment" | "invitation" | "activity" | "housingUnit" | "housingStudent" | "housingVisit" | "bolgeHedef" | "ilHedef" | "volunteer" | "bursBasvuru" | "geriBildirim" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1229,6 +1232,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Volunteer: {
+      payload: Prisma.$VolunteerPayload<ExtArgs>
+      fields: Prisma.VolunteerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VolunteerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VolunteerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VolunteerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VolunteerPayload>
+        }
+        findFirst: {
+          args: Prisma.VolunteerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VolunteerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VolunteerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VolunteerPayload>
+        }
+        findMany: {
+          args: Prisma.VolunteerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VolunteerPayload>[]
+        }
+        create: {
+          args: Prisma.VolunteerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VolunteerPayload>
+        }
+        createMany: {
+          args: Prisma.VolunteerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VolunteerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VolunteerPayload>[]
+        }
+        delete: {
+          args: Prisma.VolunteerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VolunteerPayload>
+        }
+        update: {
+          args: Prisma.VolunteerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VolunteerPayload>
+        }
+        deleteMany: {
+          args: Prisma.VolunteerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VolunteerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VolunteerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VolunteerPayload>[]
+        }
+        upsert: {
+          args: Prisma.VolunteerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VolunteerPayload>
+        }
+        aggregate: {
+          args: Prisma.VolunteerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVolunteer>
+        }
+        groupBy: {
+          args: Prisma.VolunteerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VolunteerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VolunteerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VolunteerCountAggregateOutputType> | number
+        }
+      }
+    }
+    BursBasvuru: {
+      payload: Prisma.$BursBasvuruPayload<ExtArgs>
+      fields: Prisma.BursBasvuruFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BursBasvuruFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BursBasvuruPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BursBasvuruFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BursBasvuruPayload>
+        }
+        findFirst: {
+          args: Prisma.BursBasvuruFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BursBasvuruPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BursBasvuruFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BursBasvuruPayload>
+        }
+        findMany: {
+          args: Prisma.BursBasvuruFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BursBasvuruPayload>[]
+        }
+        create: {
+          args: Prisma.BursBasvuruCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BursBasvuruPayload>
+        }
+        createMany: {
+          args: Prisma.BursBasvuruCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BursBasvuruCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BursBasvuruPayload>[]
+        }
+        delete: {
+          args: Prisma.BursBasvuruDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BursBasvuruPayload>
+        }
+        update: {
+          args: Prisma.BursBasvuruUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BursBasvuruPayload>
+        }
+        deleteMany: {
+          args: Prisma.BursBasvuruDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BursBasvuruUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BursBasvuruUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BursBasvuruPayload>[]
+        }
+        upsert: {
+          args: Prisma.BursBasvuruUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BursBasvuruPayload>
+        }
+        aggregate: {
+          args: Prisma.BursBasvuruAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBursBasvuru>
+        }
+        groupBy: {
+          args: Prisma.BursBasvuruGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BursBasvuruGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BursBasvuruCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BursBasvuruCountAggregateOutputType> | number
+        }
+      }
+    }
+    GeriBildirim: {
+      payload: Prisma.$GeriBildirimPayload<ExtArgs>
+      fields: Prisma.GeriBildirimFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GeriBildirimFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeriBildirimPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GeriBildirimFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeriBildirimPayload>
+        }
+        findFirst: {
+          args: Prisma.GeriBildirimFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeriBildirimPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GeriBildirimFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeriBildirimPayload>
+        }
+        findMany: {
+          args: Prisma.GeriBildirimFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeriBildirimPayload>[]
+        }
+        create: {
+          args: Prisma.GeriBildirimCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeriBildirimPayload>
+        }
+        createMany: {
+          args: Prisma.GeriBildirimCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GeriBildirimCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeriBildirimPayload>[]
+        }
+        delete: {
+          args: Prisma.GeriBildirimDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeriBildirimPayload>
+        }
+        update: {
+          args: Prisma.GeriBildirimUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeriBildirimPayload>
+        }
+        deleteMany: {
+          args: Prisma.GeriBildirimDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GeriBildirimUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GeriBildirimUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeriBildirimPayload>[]
+        }
+        upsert: {
+          args: Prisma.GeriBildirimUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeriBildirimPayload>
+        }
+        aggregate: {
+          args: Prisma.GeriBildirimAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGeriBildirim>
+        }
+        groupBy: {
+          args: Prisma.GeriBildirimGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GeriBildirimGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GeriBildirimCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GeriBildirimCountAggregateOutputType> | number
+        }
+      }
+    }
     AuditLog: {
       payload: Prisma.$AuditLogPayload<ExtArgs>
       fields: Prisma.AuditLogFieldRefs
@@ -1351,6 +1576,7 @@ export const UserScalarFieldEnum = {
   passwordHash: 'passwordHash',
   role: 'role',
   status: 'status',
+  sistem: 'sistem',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1555,6 +1781,59 @@ export const IlHedefScalarFieldEnum = {
 export type IlHedefScalarFieldEnum = (typeof IlHedefScalarFieldEnum)[keyof typeof IlHedefScalarFieldEnum]
 
 
+export const VolunteerScalarFieldEnum = {
+  id: 'id',
+  adSoyad: 'adSoyad',
+  telefon: 'telefon',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  ogrenim: 'ogrenim',
+  ogrenimTuru: 'ogrenimTuru',
+  bolum: 'bolum',
+  okul: 'okul',
+  il: 'il',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VolunteerScalarFieldEnum = (typeof VolunteerScalarFieldEnum)[keyof typeof VolunteerScalarFieldEnum]
+
+
+export const BursBasvuruScalarFieldEnum = {
+  id: 'id',
+  volunteerId: 'volunteerId',
+  adSoyad: 'adSoyad',
+  telefon: 'telefon',
+  email: 'email',
+  universite: 'universite',
+  fakulteBolum: 'fakulteBolum',
+  sinif: 'sinif',
+  il: 'il',
+  madiDurum: 'madiDurum',
+  aciklama: 'aciklama',
+  belgeler: 'belgeler',
+  durum: 'durum',
+  yoneticiNotu: 'yoneticiNotu',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BursBasvuruScalarFieldEnum = (typeof BursBasvuruScalarFieldEnum)[keyof typeof BursBasvuruScalarFieldEnum]
+
+
+export const GeriBildirimScalarFieldEnum = {
+  id: 'id',
+  volunteerId: 'volunteerId',
+  konu: 'konu',
+  mesaj: 'mesaj',
+  durum: 'durum',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GeriBildirimScalarFieldEnum = (typeof GeriBildirimScalarFieldEnum)[keyof typeof GeriBildirimScalarFieldEnum]
+
+
 export const AuditLogScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -1661,6 +1940,20 @@ export type ListEnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
+ * Reference to a field of type 'Sistem'
+ */
+export type EnumSistemFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Sistem'>
+    
+
+
+/**
+ * Reference to a field of type 'Sistem[]'
+ */
+export type ListEnumSistemFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Sistem[]'>
+    
+
+
+/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -1720,6 +2013,76 @@ export type ListEnumDonemFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'OgrenimDurum'
+ */
+export type EnumOgrenimDurumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OgrenimDurum'>
+    
+
+
+/**
+ * Reference to a field of type 'OgrenimDurum[]'
+ */
+export type ListEnumOgrenimDurumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OgrenimDurum[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OgrenimTuru'
+ */
+export type EnumOgrenimTuruFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OgrenimTuru'>
+    
+
+
+/**
+ * Reference to a field of type 'OgrenimTuru[]'
+ */
+export type ListEnumOgrenimTuruFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OgrenimTuru[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BursBasvuruDurum'
+ */
+export type EnumBursBasvuruDurumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BursBasvuruDurum'>
+    
+
+
+/**
+ * Reference to a field of type 'BursBasvuruDurum[]'
+ */
+export type ListEnumBursBasvuruDurumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BursBasvuruDurum[]'>
+    
+
+
+/**
+ * Reference to a field of type 'GeriBildirimKonu'
+ */
+export type EnumGeriBildirimKonuFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GeriBildirimKonu'>
+    
+
+
+/**
+ * Reference to a field of type 'GeriBildirimKonu[]'
+ */
+export type ListEnumGeriBildirimKonuFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GeriBildirimKonu[]'>
+    
+
+
+/**
+ * Reference to a field of type 'GeriBildirimDurum'
+ */
+export type EnumGeriBildirimDurumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GeriBildirimDurum'>
+    
+
+
+/**
+ * Reference to a field of type 'GeriBildirimDurum[]'
+ */
+export type ListEnumGeriBildirimDurumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GeriBildirimDurum[]'>
     
 
 
@@ -1871,6 +2234,9 @@ export type GlobalOmitConfig = {
   housingVisit?: Prisma.HousingVisitOmit
   bolgeHedef?: Prisma.BolgeHedefOmit
   ilHedef?: Prisma.IlHedefOmit
+  volunteer?: Prisma.VolunteerOmit
+  bursBasvuru?: Prisma.BursBasvuruOmit
+  geriBildirim?: Prisma.GeriBildirimOmit
   auditLog?: Prisma.AuditLogOmit
 }
 

@@ -45,3 +45,62 @@ export const Donem = {
 } as const
 
 export type Donem = (typeof Donem)[keyof typeof Donem]
+
+
+export const Sistem = {
+  EGITIMCI: 'EGITIMCI',
+  UNIVERSITE: 'UNIVERSITE',
+  LISE: 'LISE'
+} as const
+
+export type Sistem = (typeof Sistem)[keyof typeof Sistem]
+
+
+export const OgrenimDurum = {
+  ILKOKUL: 'ILKOKUL',
+  ORTAOKUL: 'ORTAOKUL',
+  LISE: 'LISE',
+  UNIVERSITE: 'UNIVERSITE'
+} as const
+
+export type OgrenimDurum = (typeof OgrenimDurum)[keyof typeof OgrenimDurum]
+
+
+export const OgrenimTuru = {
+  ONLISANS: 'ONLISANS',
+  LISANS: 'LISANS',
+  YUKSEK_LISANS: 'YUKSEK_LISANS',
+  DOKTORA: 'DOKTORA'
+} as const
+
+export type OgrenimTuru = (typeof OgrenimTuru)[keyof typeof OgrenimTuru]
+
+
+export const BursBasvuruDurum = {
+  BEKLEMEDE: 'BEKLEMEDE',
+  INCELENIYOR: 'INCELENIYOR',
+  ONAYLANDI: 'ONAYLANDI',
+  REDDEDILDI: 'REDDEDILDI'
+} as const
+
+export type BursBasvuruDurum = (typeof BursBasvuruDurum)[keyof typeof BursBasvuruDurum]
+
+
+export const GeriBildirimKonu = {
+  ONERI: 'ONERI',
+  TALEP: 'TALEP',
+  TEKNIK_SORUN: 'TEKNIK_SORUN',
+  DIGER: 'DIGER'
+} as const
+
+export type GeriBildirimKonu = (typeof GeriBildirimKonu)[keyof typeof GeriBildirimKonu]
+
+
+export const GeriBildirimDurum = {
+  YENI: 'YENI',
+  INCELENIYOR: 'INCELENIYOR',
+  COZULDU: 'COZULDU',
+  KAPATILDI: 'KAPATILDI'
+} as const
+
+export type GeriBildirimDurum = (typeof GeriBildirimDurum)[keyof typeof GeriBildirimDurum]

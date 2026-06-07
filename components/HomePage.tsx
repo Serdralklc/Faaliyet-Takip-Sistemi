@@ -273,7 +273,14 @@ function Navbar() {
                   </div>
                 </Link>
 
-                <div className="flex items-center gap-3.5 px-4 py-4 border-t" style={{ borderColor: t.border, opacity: 0.45 }}>
+                <Link
+                  href="/gonullu/giris"
+                  onClick={() => setLoginOpen(false)}
+                  className="flex items-center gap-3.5 px-4 py-4 border-t transition-colors"
+                  style={{ borderColor: t.border }}
+                  onMouseEnter={e => (e.currentTarget.style.background = t.dropSurface)}
+                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                >
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#FEF9E7" }}>
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
@@ -281,13 +288,10 @@ function Navbar() {
                     </svg>
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-[14px] font-bold" style={{ color: t.heading }}>Gönüllü Girişi</p>
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: "#FEF3C7", color: "#92400E" }}>Yakında</span>
-                    </div>
+                    <p className="text-[14px] font-bold" style={{ color: t.heading }}>Gönüllü Girişi</p>
                     <p className="text-[12px] mt-0.5" style={{ color: t.muted }}>Gönüllü katılımcılar</p>
                   </div>
-                </div>
+                </Link>
               </div>
             )}
           </div>

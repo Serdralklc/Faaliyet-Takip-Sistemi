@@ -305,6 +305,102 @@ model IlHedef {
   @@index([ilId])
 }
 
+// ── Gönüllü Sistemi ────────────────────────────────────────────
+
+enum OgrenimDurum {
+  ILKOKUL
+  ORTAOKUL
+  LISE
+  UNIVERSITE
+}
+
+enum OgrenimTuru {
+  ONLISANS
+  LISANS
+  YUKSEK_LISANS
+  DOKTORA
+}
+
+enum BursBasvuruDurum {
+  BEKLEMEDE
+  INCELENIYOR
+  ONAYLANDI
+  REDDEDILDI
+}
+
+enum GeriBildirimKonu {
+  ONERI
+  TALEP
+  TEKNIK_SORUN
+  DIGER
+}
+
+enum GeriBildirimDurum {
+  YENI
+  INCELENIYOR
+  COZULDU
+  KAPATILDI
+}
+
+model Volunteer {
+  id           String       @id @default(cuid())
+  adSoyad      String
+  telefon      String       @unique
+  email        String?      @unique
+  passwordHash String
+  ogrenim      OgrenimDurum
+  ogrenimTuru  OgrenimTuru?
+  bolum        String?
+  okul         String?
+  il           String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  bursBasvurulari BursBasvuru[]
+  geriBildirimler GeriBildirim[]
+}
+
+model BursBasvuru {
+  id           String           @id @default(cuid())
+  volunteerId  String
+  adSoyad      String
+  telefon      String
+  email        String?
+  universite   String
+  fakulteBolum String
+  sinif        String
+  il           String
+  madiDurum    String
+  aciklama     String
+  belgeler     String[]
+  durum        BursBasvuruDurum @default(BEKLEMEDE)
+  yoneticiNotu String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  volunteer Volunteer @relation(fields: [volunteerId], references: [id])
+
+  @@index([volunteerId])
+  @@index([durum])
+  @@index([createdAt])
+}
+
+model GeriBildirim {
+  id          String            @id @default(cuid())
+  volunteerId String
+  konu        GeriBildirimKonu
+  mesaj       String
+  durum       GeriBildirimDurum @default(YENI)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  volunteer Volunteer @relation(fields: [volunteerId], references: [id])
+
+  @@index([volunteerId])
+  @@index([durum])
+  @@index([createdAt])
+}
+
 model AuditLog {
   id          String   @id @default(cuid())
   userId      String

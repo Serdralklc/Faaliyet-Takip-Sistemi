@@ -97,6 +97,21 @@ export type BolgeHedef = Prisma.BolgeHedefModel
  */
 export type IlHedef = Prisma.IlHedefModel
 /**
+ * Model Volunteer
+ * 
+ */
+export type Volunteer = Prisma.VolunteerModel
+/**
+ * Model BursBasvuru
+ * 
+ */
+export type BursBasvuru = Prisma.BursBasvuruModel
+/**
+ * Model GeriBildirim
+ * 
+ */
+export type GeriBildirim = Prisma.GeriBildirimModel
+/**
  * Model AuditLog
  * 
  */
