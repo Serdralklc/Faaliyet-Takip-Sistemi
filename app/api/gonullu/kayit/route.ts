@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { adSoyad, telefon, email, sifre, ogrenim, ogrenimTuru, bolum, okul, il } = body;
 
-    if (!adSoyad || !telefon || !sifre || !ogrenim) {
-      return NextResponse.json({ error: "Ad Soyad, telefon, şifre ve öğrenim durumu zorunludur." }, { status: 400 });
+    if (!adSoyad || !telefon || !email || !sifre || !ogrenim) {
+      return NextResponse.json({ error: "Ad Soyad, telefon, e-posta, şifre ve öğrenim durumu zorunludur." }, { status: 400 });
     }
 
     if (!VALID_OGRENIM.includes(ogrenim)) {
@@ -37,11 +37,9 @@ export async function POST(req: NextRequest) {
     }
 
     // E-posta tekrar kontrolü
-    if (email) {
-      const existingEmail = await prisma.volunteer.findUnique({ where: { email } });
-      if (existingEmail) {
-        return NextResponse.json({ error: "Bu e-posta adresi zaten kayıtlı." }, { status: 409 });
-      }
+    const existingEmail = await prisma.volunteer.findUnique({ where: { email: email.trim().toLowerCase() } });
+    if (existingEmail) {
+      return NextResponse.json({ error: "Bu e-posta adresi zaten kayıtlı." }, { status: 409 });
     }
 
     const passwordHash = await bcrypt.hash(sifre, 12);
@@ -50,7 +48,7 @@ export async function POST(req: NextRequest) {
       data: {
         adSoyad:     adSoyad.trim(),
         telefon:     telefon.trim(),
-        email:       email?.trim() || null,
+        email:       email.trim().toLowerCase(),
         passwordHash,
         ogrenim:     ogrenim as OgrenimDurum,
         ogrenimTuru: (ogrenim === "UNIVERSITE" && ogrenimTuru) ? ogrenimTuru as OgrenimTuru : null,

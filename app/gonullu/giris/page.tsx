@@ -24,7 +24,7 @@ function useColors() {
 export default function GonulluGirisPage() {
   const router = useRouter();
   const c = useColors();
-  const [telefon, setTelefon] = useState("");
+  const [email,   setEmail]   = useState("");
   const [sifre,   setSifre]   = useState("");
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
@@ -42,7 +42,7 @@ export default function GonulluGirisPage() {
       const res = await fetch("/api/gonullu/giris", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ telefon, sifre }),
+        body: JSON.stringify({ email, sifre }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Giriş başarısız."); return; }
@@ -78,10 +78,10 @@ export default function GonulluGirisPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label style={{ color: c.mu, fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: "6px" }}>
-              Telefon Numarası
+              E-posta
             </label>
-            <input type="tel" required placeholder="05xx xxx xxxx" style={inputSt}
-              value={telefon} onChange={e => setTelefon(e.target.value)}
+            <input type="email" required placeholder="ornek@email.com" style={inputSt}
+              value={email} onChange={e => setEmail(e.target.value)}
               onFocus={e => (e.target.style.borderColor = BRAND.green)}
               onBlur={e  => (e.target.style.borderColor = c.br)} />
           </div>

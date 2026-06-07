@@ -64,7 +64,7 @@ export default function GonulluKayitPage() {
         body: JSON.stringify({
           adSoyad:    form.adSoyad,
           telefon:    form.telefon,
-          email:      form.email || undefined,
+          email:      form.email,
           sifre:      form.sifre,
           ogrenim:    form.ogrenim,
           ogrenimTuru: form.ogrenimTuru || undefined,
@@ -140,8 +140,8 @@ export default function GonulluKayitPage() {
 
             {/* E-posta */}
             <div>
-              <label style={labelSt}>E-posta <span style={{ color: c.mu, textTransform: "none", fontSize: "11px" }}>(isteğe bağlı)</span></label>
-              <input type="email" placeholder="ornek@email.com" style={inputSt}
+              <label style={labelSt}>E-posta *</label>
+              <input type="email" required placeholder="ornek@email.com" style={inputSt}
                 value={form.email} onChange={e => set("email", e.target.value)}
                 onFocus={e => (e.target.style.borderColor = BRAND.green)}
                 onBlur={e  => (e.target.style.borderColor = c.br)} />
