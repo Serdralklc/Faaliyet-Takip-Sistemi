@@ -85,7 +85,9 @@ export const authOptions: NextAuthOptions = {
         if (!valid) return null;
 
         const requestedSistem = credentials.sistem as Sistem | undefined;
-        if (requestedSistem && user.sistem !== requestedSistem) {
+        // SISTEM_ADMIN tüm sistemlere girebilir — sistem kontrolü atlanır
+        const isSuperAdmin = user.role === "SISTEM_ADMIN";
+        if (!isSuperAdmin && requestedSistem && user.sistem !== requestedSistem) {
           throw new Error("SISTEM_UYUMSUZ");
         }
 
