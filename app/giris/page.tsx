@@ -183,10 +183,11 @@ function LoginForm({
   roleKey: RoleKey;
   onBack: () => void;
 }) {
-  const router       = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo   = searchParams.get("redirect") ?? "/";
-  const role         = ROLES.find(r => r.key === roleKey)!;
+  const router          = useRouter();
+  const searchParams    = useSearchParams();
+  const redirectTo      = searchParams.get("redirect") ?? "/";
+  const gonulluRedirect = searchParams.get("gonullu_redirect") === "1";
+  const role            = ROLES.find(r => r.key === roleKey)!;
 
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
@@ -209,8 +210,13 @@ function LoginForm({
         }
         setLoading(false);
       } else {
-        router.push(redirectTo);
-        router.refresh();
+        if (gonulluRedirect) {
+          // Gönüllü paneli için gelindi → staff-giris üzerinden cookie kur
+          window.location.href = "/api/gonullu/staff-giris";
+        } else {
+          router.push(redirectTo);
+          router.refresh();
+        }
       }
     } catch {
       setError("Bağlantı hatası. Lütfen tekrar deneyin.");
