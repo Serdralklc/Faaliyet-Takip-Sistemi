@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { ROLE_LABELS } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 
+type TabKey = "egitim" | "universite" | "lise" | "gonullu" | "bekleyen";
+
 interface Assignment {
   id: string;
   role: Role;
@@ -24,28 +26,66 @@ interface Kullanici {
   assignments: Assignment[];
 }
 
+interface Gonullu {
+  id: string;
+  adSoyad: string;
+  telefon: string;
+  email?: string;
+  ogrenim: string;
+  ogrenimTuru?: string;
+  okul?: string;
+  bolum?: string;
+  il?: string;
+  createdAt: string;
+  _count: { bursBasvurulari: number; geriBildirimler: number };
+}
+
 interface Il { id: string; ad: string }
 interface Bolge { id: string; no: number; ad: string; iller: Il[] }
 
 const inputCls = "w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white";
 
+const TAB_CONFIG: { key: TabKey; label: string }[] = [
+  { key: "egitim",     label: "Eğitim Sistemi" },
+  { key: "universite", label: "Üniversite Gençlik" },
+  { key: "lise",       label: "Lise Gençlik" },
+  { key: "gonullu",    label: "Gönüllüler" },
+  { key: "bekleyen",   label: "Bekleyenler" },
+];
+
+const OGRENIM_LABELS: Record<string, string> = {
+  ILKOKUL:    "İlkokul",
+  ORTAOKUL:   "Ortaokul",
+  LISE:       "Lise",
+  UNIVERSITE: "Üniversite",
+};
+
 export default function KullanicilarPage() {
-  const [tab, setTab] = useState<"aktif" | "bekleyen">("aktif");
+  const [tab, setTab] = useState<TabKey>("egitim");
+
+  // Data per tab
   const [kullanicilar, setKullanicilar] = useState<Kullanici[]>([]);
+  const [gonulluler, setGonulluler]     = useState<Gonullu[]>([]);
+
+  const [counts, setCounts] = useState<Record<TabKey, number>>({
+    egitim: 0, universite: 0, lise: 0, gonullu: 0, bekleyen: 0,
+  });
+
   const [bolgeler, setBolgeler] = useState<Bolge[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState("");
+  const [loading, setLoading]   = useState(false);
+  const [toast, setToast]       = useState("");
 
   // Modals
-  const [showDavetModal, setShowDavetModal] = useState(false);
-  const [showOnayModal, setShowOnayModal] = useState<Kullanici | null>(null);
-  const [showYetkiKalModal, setShowYetkiKalModal] = useState<Kullanici | null>(null);
-  const [showSifreModal, setShowSifreModal] = useState<Kullanici | null>(null);
-  const [yeniSifre, setYeniSifre] = useState("");
+  const [showDavetModal,     setShowDavetModal]     = useState(false);
+  const [showOnayModal,      setShowOnayModal]      = useState<Kullanici | null>(null);
+  const [showYetkiKalModal,  setShowYetkiKalModal]  = useState<Kullanici | null>(null);
+  const [showSifreModal,     setShowSifreModal]     = useState<Kullanici | null>(null);
+  const [yeniSifre,          setYeniSifre]          = useState("");
 
   const [davetForm, setDavetForm] = useState({
     ad: "", soyad: "", email: "", telefon: "",
     userRole: "IL_SORUMLUSU" as Role, bolgeId: "", ilId: "",
+    sistem: "EGITIMCI",
   });
   const [onayForm, setOnayForm] = useState({ ilId: "", bolgeId: "", role: "IL_SORUMLUSU" as Role });
 
@@ -54,30 +94,51 @@ export default function KullanicilarPage() {
     setTimeout(() => setToast(""), 3000);
   };
 
-  const fetchKullanicilar = useCallback(() => {
-    const status = tab === "aktif" ? "AKTIF" : "BEKLEMEDE";
-    fetch(`/api/kullanicilar?status=${status}`)
-      .then((r) => r.json())
-      .then(setKullanicilar);
+  const fetchKullanicilar = useCallback(async () => {
+    setLoading(true);
+    try {
+      if (tab === "gonullu") {
+        const res = await fetch("/api/admin/gonulluler");
+        const data: Gonullu[] = await res.json();
+        setGonulluler(data);
+        setCounts(prev => ({ ...prev, gonullu: data.length }));
+      } else {
+        let url = "";
+        if (tab === "egitim")     url = "/api/kullanicilar?sistem=EGITIMCI&status=AKTIF";
+        if (tab === "universite") url = "/api/kullanicilar?sistem=UNIVERSITE&status=AKTIF";
+        if (tab === "lise")       url = "/api/kullanicilar?sistem=LISE&status=AKTIF";
+        if (tab === "bekleyen")   url = "/api/kullanicilar?status=BEKLEMEDE";
+
+        const res = await fetch(url);
+        const data: Kullanici[] = await res.json();
+        setKullanicilar(data);
+        setCounts(prev => ({ ...prev, [tab]: data.length }));
+      }
+    } finally {
+      setLoading(false);
+    }
   }, [tab]);
 
-  useEffect(() => { fetch("/api/bolgeler").then((r) => r.json()).then(setBolgeler); }, []);
+  useEffect(() => {
+    fetch("/api/bolgeler").then(r => r.json()).then(setBolgeler);
+  }, []);
+
   useEffect(() => { fetchKullanicilar(); }, [fetchKullanicilar]);
 
-  // Bölge bazlı gruplama
-  const grouped = bolgeler.map((b) => ({
+  // Bölge bazlı gruplama (egitim/universite/lise tabs)
+  const grouped = bolgeler.map(b => ({
     bolge: b,
-    kullanicilar: kullanicilar.filter((k) =>
-      k.assignments.some((a) => a.bolge?.id === b.id || a.il && b.iller.some((il) => il.id === a.il?.id))
+    kullanicilar: kullanicilar.filter(k =>
+      k.assignments.some(a => a.bolge?.id === b.id || (a.il && b.iller.some(il => il.id === a.il?.id)))
     ),
-  })).filter((g) => g.kullanicilar.length > 0);
+  })).filter(g => g.kullanicilar.length > 0);
 
-  const bolgesiz = kullanicilar.filter((k) =>
-    k.assignments.length === 0 || !k.assignments.some((a) => a.bolge || a.il)
+  const bolgesiz = kullanicilar.filter(k =>
+    k.assignments.length === 0 || !k.assignments.some(a => a.bolge || a.il)
   );
 
-  const seciliBolge = bolgeler.find((b) => b.id === davetForm.bolgeId);
-  const onayBolge = bolgeler.find((b) => b.id === onayForm.bolgeId);
+  const seciliBolge = bolgeler.find(b => b.id === davetForm.bolgeId);
+  const onayBolge   = bolgeler.find(b => b.id === onayForm.bolgeId);
 
   async function handleDavet(e: React.FormEvent) {
     e.preventDefault();
@@ -90,8 +151,8 @@ export default function KullanicilarPage() {
     setLoading(false);
     if (res.ok) {
       setShowDavetModal(false);
-      setDavetForm({ ad: "", soyad: "", email: "", telefon: "", userRole: "IL_SORUMLUSU", bolgeId: "", ilId: "" });
-      showToast("Kullanıcı davet edildi ✓");
+      setDavetForm({ ad: "", soyad: "", email: "", telefon: "", userRole: "IL_SORUMLUSU", bolgeId: "", ilId: "", sistem: "EGITIMCI" });
+      showToast("Kullanıcı davet edildi");
       fetchKullanicilar();
     } else {
       const d = await res.json();
@@ -109,7 +170,7 @@ export default function KullanicilarPage() {
     });
     setLoading(false);
     setShowOnayModal(null);
-    showToast(action === "onayla" ? "Kullanıcı onaylandı ✓" : "Başvuru reddedildi");
+    showToast(action === "onayla" ? "Kullanıcı onaylandı" : "Başvuru reddedildi");
     fetchKullanicilar();
   }
 
@@ -135,7 +196,7 @@ export default function KullanicilarPage() {
     if (res.ok) {
       setShowSifreModal(null);
       setYeniSifre("");
-      showToast("Şifre atandı ✓");
+      showToast("Şifre atandı");
       fetchKullanicilar();
     } else {
       const d = await res.json();
@@ -144,8 +205,8 @@ export default function KullanicilarPage() {
   }
 
   function KullaniciSatir({ k }: { k: Kullanici }) {
-    const atama = k.assignments[0];
-    const konum = atama?.il?.ad || atama?.bolge?.ad || "—";
+    const atama    = k.assignments[0];
+    const konum    = atama?.il?.ad || atama?.bolge?.ad || "—";
     const atamaRol = atama?.role ? ROLE_LABELS[atama.role] : ROLE_LABELS[k.role];
     const sifresiVar = !!k.passwordHash;
 
@@ -158,11 +219,11 @@ export default function KullanicilarPage() {
         </td>
         <td className="px-4 py-3">
           <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
-            k.role === "SISTEM_ADMIN" ? "bg-red-100 text-red-700" :
-            k.role === "GENEL_MERKEZ" ? "bg-purple-100 text-purple-700" :
-            k.role === "TURKIYE_SORUMLUSU" ? "bg-indigo-100 text-indigo-700" :
-            k.role === "BOLGE_SORUMLUSU" ? "bg-blue-100 text-blue-700" :
-            k.role === "IL_SORUMLUSU" ? "bg-green-100 text-green-700" :
+            k.role === "SISTEM_ADMIN"       ? "bg-red-100 text-red-700" :
+            k.role === "GENEL_MERKEZ"       ? "bg-purple-100 text-purple-700" :
+            k.role === "TURKIYE_SORUMLUSU"  ? "bg-indigo-100 text-indigo-700" :
+            k.role === "BOLGE_SORUMLUSU"    ? "bg-blue-100 text-blue-700" :
+            k.role === "IL_SORUMLUSU"       ? "bg-green-100 text-green-700" :
             "bg-gray-100 text-gray-600"
           }`}>
             {atamaRol}
@@ -171,23 +232,35 @@ export default function KullanicilarPage() {
         <td className="px-4 py-3 text-sm text-gray-700 font-medium">{konum}</td>
         <td className="px-4 py-3">
           {sifresiVar
-            ? <span className="text-xs text-green-600 font-medium">✓ Şifreli</span>
-            : <span className="text-xs text-red-500 font-medium">⚠ Şifresiz</span>}
+            ? <span className="text-xs text-green-600 font-medium">Sifreli</span>
+            : <span className="text-xs text-red-500 font-medium">Sifresiz</span>}
         </td>
         <td className="px-4 py-3 text-xs text-gray-400">
           {new Date(k.createdAt).toLocaleDateString("tr-TR")}
         </td>
         <td className="px-4 py-3">
           {tab === "bekleyen" ? (
-            <button onClick={() => { setShowOnayModal(k); setOnayForm({ ilId: "", bolgeId: "", role: "IL_SORUMLUSU" }); }}
-              className="text-blue-600 hover:underline text-xs font-semibold">İncele</button>
+            <button
+              onClick={() => { setShowOnayModal(k); setOnayForm({ ilId: "", bolgeId: "", role: "IL_SORUMLUSU" }); }}
+              className="text-blue-600 hover:underline text-xs font-semibold"
+            >
+              Incele
+            </button>
           ) : (
             <div className="flex gap-2">
-              <button onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}
-                className="text-xs text-blue-600 hover:underline font-medium">Şifre Ata</button>
+              <button
+                onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}
+                className="text-xs text-blue-600 hover:underline font-medium"
+              >
+                Sifre Ata
+              </button>
               {!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"].includes(k.role) && (
-                <button onClick={() => setShowYetkiKalModal(k)}
-                  className="text-xs text-red-500 hover:underline font-medium">Yetkiyi Al</button>
+                <button
+                  onClick={() => setShowYetkiKalModal(k)}
+                  className="text-xs text-red-500 hover:underline font-medium"
+                >
+                  Yetkiyi Al
+                </button>
               )}
             </div>
           )}
@@ -199,15 +272,31 @@ export default function KullanicilarPage() {
   const tableHead = (
     <thead className="bg-gray-50 border-b border-gray-200">
       <tr>
-        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Kullanıcı</th>
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Kullanici</th>
         <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Rol</th>
         <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Konum</th>
-        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Şifre</th>
-        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Kayıt</th>
-        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">İşlem</th>
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Sifre</th>
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Kayit</th>
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Islem</th>
       </tr>
     </thead>
   );
+
+  const gonulluTableHead = (
+    <thead className="bg-gray-50 border-b border-gray-200">
+      <tr>
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Ad Soyad</th>
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Ogrenim</th>
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Okul</th>
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Il</th>
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Burs</th>
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Kayit</th>
+      </tr>
+    </thead>
+  );
+
+  const showDavetBtn = ["egitim", "universite", "lise"].includes(tab);
+  const currentCount = counts[tab];
 
   return (
     <div className="p-8">
@@ -218,127 +307,197 @@ export default function KullanicilarPage() {
         </div>
       )}
 
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Kullanıcılar</h1>
-          <p className="text-gray-500 text-sm mt-1">Toplam {kullanicilar.length} kullanıcı</p>
+          <h1 className="text-2xl font-bold text-gray-900">Kullanici Yonetimi</h1>
+          <p className="text-gray-500 text-sm mt-1">
+            {TAB_CONFIG.find(t => t.key === tab)?.label} — {currentCount} kayit
+          </p>
         </div>
-        <button onClick={() => setShowDavetModal(true)}
-          className="bg-blue-700 text-white px-4 py-2.5 rounded-lg hover:bg-blue-800 text-sm font-semibold shadow-sm">
-          + Kullanıcı Davet Et
-        </button>
+        {showDavetBtn && (
+          <button
+            onClick={() => setShowDavetModal(true)}
+            className="bg-blue-700 text-white px-4 py-2.5 rounded-lg hover:bg-blue-800 text-sm font-semibold shadow-sm"
+          >
+            + Kullanici Davet Et
+          </button>
+        )}
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit mb-6">
-        {(["aktif", "bekleyen"] as const).map((t) => (
-          <button key={t} onClick={() => setTab(t)}
-            className={`px-5 py-2 rounded-lg text-sm font-semibold transition ${
-              tab === t ? "bg-white shadow text-blue-700" : "text-gray-500 hover:text-gray-800"
+      {/* Tab bar */}
+      <div className="flex gap-1 overflow-x-auto pb-1 mb-6">
+        {TAB_CONFIG.map(t => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition ${
+              tab === t.key
+                ? "bg-blue-700 text-white shadow"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            {t.label}
+            <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
+              tab === t.key ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-600"
             }`}>
-            {t === "aktif" ? "Aktif Kullanıcılar" : `Bekleyenler`}
+              {counts[t.key]}
+            </span>
           </button>
         ))}
       </div>
 
-      {/* Aktif kullanıcılar — bölge gruplu */}
-      {tab === "aktif" ? (
+      {/* Content */}
+      {loading ? (
+        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400">
+          Yukleniyor...
+        </div>
+      ) : tab === "gonullu" ? (
+        /* Gonullu tab */
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <table className="w-full text-sm">
+            {gonulluTableHead}
+            <tbody>
+              {gonulluler.map(g => (
+                <tr key={g.id} className="hover:bg-gray-50 border-b border-gray-100 last:border-0">
+                  <td className="px-4 py-3">
+                    <div className="font-semibold text-gray-900 text-sm">{g.adSoyad}</div>
+                    {g.email && <div className="text-xs text-gray-500">{g.email}</div>}
+                    <div className="text-xs text-gray-400">{g.telefon}</div>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {OGRENIM_LABELS[g.ogrenim] ?? g.ogrenim}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{g.okul ?? "—"}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{g.il ?? "—"}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700 font-semibold">
+                    {g._count.bursBasvurulari}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-400">
+                    {new Date(g.createdAt).toLocaleDateString("tr-TR")}
+                  </td>
+                </tr>
+              ))}
+              {gonulluler.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
+                    Gonullu bulunamadi
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      ) : tab === "bekleyen" ? (
+        /* Bekleyen tab — duz tablo */
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <table className="w-full text-sm">
+            {tableHead}
+            <tbody>
+              {kullanicilar.map(k => <KullaniciSatir key={k.id} k={k} />)}
+              {kullanicilar.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
+                    Bekleyen basvuru yok
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        /* egitim / universite / lise tabs — bolge gruplu */
         <div className="space-y-6">
           {grouped.map(({ bolge, kullanicilar: ks }) => (
             <div key={bolge.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               <div className="bg-blue-50 border-b border-blue-100 px-5 py-3 flex items-center justify-between">
                 <h2 className="font-bold text-blue-800 text-sm">{bolge.ad}</h2>
-                <span className="text-xs text-blue-500 font-medium">{ks.length} kullanıcı</span>
+                <span className="text-xs text-blue-500 font-medium">{ks.length} kullanici</span>
               </div>
               <table className="w-full text-sm">
                 {tableHead}
-                <tbody>{ks.map((k) => <KullaniciSatir key={k.id} k={k} />)}</tbody>
+                <tbody>{ks.map(k => <KullaniciSatir key={k.id} k={k} />)}</tbody>
               </table>
             </div>
           ))}
 
-          {/* Bölge/il ataması olmayanlar */}
           {bolgesiz.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               <div className="bg-gray-50 border-b border-gray-200 px-5 py-3">
-                <h2 className="font-bold text-gray-600 text-sm">Genel / Atanmamış</h2>
+                <h2 className="font-bold text-gray-600 text-sm">Genel / Atanmamis</h2>
               </div>
               <table className="w-full text-sm">
                 {tableHead}
-                <tbody>{bolgesiz.map((k) => <KullaniciSatir key={k.id} k={k} />)}</tbody>
+                <tbody>{bolgesiz.map(k => <KullaniciSatir key={k.id} k={k} />)}</tbody>
               </table>
             </div>
           )}
 
           {kullanicilar.length === 0 && (
             <div className="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400">
-              Aktif kullanıcı bulunamadı
+              Bu sistemde aktif kullanici bulunamadi
             </div>
           )}
         </div>
-      ) : (
-        /* Bekleyenler — düz tablo */
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <table className="w-full text-sm">
-            {tableHead}
-            <tbody>
-              {kullanicilar.map((k) => <KullaniciSatir key={k.id} k={k} />)}
-              {kullanicilar.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-400">Bekleyen başvuru yok</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
       )}
 
-      {/* ─── DAVET MODAL ─── */}
+      {/* DAVET MODAL */}
       {showDavetModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Kullanıcı Davet Et</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Kullanici Davet Et</h2>
             <form onSubmit={handleDavet} className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
                 <input required placeholder="Ad" value={davetForm.ad}
-                  onChange={(e) => setDavetForm({ ...davetForm, ad: e.target.value })}
+                  onChange={e => setDavetForm({ ...davetForm, ad: e.target.value })}
                   className={inputCls} />
                 <input required placeholder="Soyad" value={davetForm.soyad}
-                  onChange={(e) => setDavetForm({ ...davetForm, soyad: e.target.value })}
+                  onChange={e => setDavetForm({ ...davetForm, soyad: e.target.value })}
                   className={inputCls} />
               </div>
               <input required type="email" placeholder="E-posta" value={davetForm.email}
-                onChange={(e) => setDavetForm({ ...davetForm, email: e.target.value })}
+                onChange={e => setDavetForm({ ...davetForm, email: e.target.value })}
                 className={inputCls} />
               <input placeholder="Telefon" value={davetForm.telefon}
-                onChange={(e) => setDavetForm({ ...davetForm, telefon: e.target.value })}
+                onChange={e => setDavetForm({ ...davetForm, telefon: e.target.value })}
                 className={inputCls} />
-              <select value={davetForm.userRole}
-                onChange={(e) => setDavetForm({ ...davetForm, userRole: e.target.value as Role })}
+              <select value={davetForm.sistem}
+                onChange={e => setDavetForm({ ...davetForm, sistem: e.target.value })}
                 className={inputCls}>
-                <option value="IL_SORUMLUSU">İl Sorumlusu</option>
-                <option value="BOLGE_SORUMLUSU">Bölge Sorumlusu</option>
-                <option value="TURKIYE_SORUMLUSU">Türkiye Sorumlusu</option>
+                <option value="EGITIMCI">Egitim Sistemi</option>
+                <option value="UNIVERSITE">Universite Gencligi</option>
+                <option value="LISE">Lise Gencligi</option>
+              </select>
+              <select value={davetForm.userRole}
+                onChange={e => setDavetForm({ ...davetForm, userRole: e.target.value as Role })}
+                className={inputCls}>
+                <option value="IL_SORUMLUSU">Il Sorumlusu</option>
+                <option value="BOLGE_SORUMLUSU">Bolge Sorumlusu</option>
+                <option value="TURKIYE_SORUMLUSU">Turkiye Sorumlusu</option>
                 <option value="GENEL_MERKEZ">Genel Merkez</option>
               </select>
               <select value={davetForm.bolgeId}
-                onChange={(e) => setDavetForm({ ...davetForm, bolgeId: e.target.value, ilId: "" })}
+                onChange={e => setDavetForm({ ...davetForm, bolgeId: e.target.value, ilId: "" })}
                 className={inputCls}>
-                <option value="">Bölge Seç</option>
-                {bolgeler.map((b) => <option key={b.id} value={b.id}>{b.ad}</option>)}
+                <option value="">Bolge Sec</option>
+                {bolgeler.map(b => <option key={b.id} value={b.id}>{b.ad}</option>)}
               </select>
-              {seciliBolge && ["IL_SORUMLUSU"].includes(davetForm.userRole) && (
+              {seciliBolge && davetForm.userRole === "IL_SORUMLUSU" && (
                 <select value={davetForm.ilId}
-                  onChange={(e) => setDavetForm({ ...davetForm, ilId: e.target.value })}
+                  onChange={e => setDavetForm({ ...davetForm, ilId: e.target.value })}
                   className={inputCls}>
-                  <option value="">İl Seç</option>
-                  {seciliBolge.iller.map((il) => <option key={il.id} value={il.id}>{il.ad}</option>)}
+                  <option value="">Il Sec</option>
+                  {seciliBolge.iller.map(il => <option key={il.id} value={il.id}>{il.ad}</option>)}
                 </select>
               )}
               <div className="flex gap-2 pt-2">
                 <button type="button" onClick={() => setShowDavetModal(false)}
-                  className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">İptal</button>
+                  className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                  Iptal
+                </button>
                 <button type="submit" disabled={loading}
                   className="flex-1 bg-blue-700 text-white rounded-lg py-2.5 text-sm font-bold hover:bg-blue-800 disabled:opacity-50">
-                  {loading ? "Gönderiliyor..." : "Davet Et"}
+                  {loading ? "Gonderiliyor..." : "Davet Et"}
                 </button>
               </div>
             </form>
@@ -346,11 +505,11 @@ export default function KullanicilarPage() {
         </div>
       )}
 
-      {/* ─── ONAY MODAL ─── */}
+      {/* ONAY MODAL */}
       {showOnayModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">Başvuruyu İncele</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-1">Basvuruyu Incele</h2>
             <div className="bg-gray-50 rounded-lg p-3 mb-4 text-sm">
               <p className="font-semibold text-gray-800">{showOnayModal.ad} {showOnayModal.soyad}</p>
               <p className="text-gray-500">{showOnayModal.email}</p>
@@ -360,31 +519,31 @@ export default function KullanicilarPage() {
               <div>
                 <label className="block text-xs font-bold text-gray-600 mb-1">Atanacak Rol</label>
                 <select value={onayForm.role}
-                  onChange={(e) => setOnayForm({ ...onayForm, role: e.target.value as Role })}
+                  onChange={e => setOnayForm({ ...onayForm, role: e.target.value as Role })}
                   className={inputCls}>
-                  <option value="IL_SORUMLUSU">İl Sorumlusu</option>
-                  <option value="BOLGE_SORUMLUSU">Bölge Sorumlusu</option>
-                  <option value="TURKIYE_SORUMLUSU">Türkiye Sorumlusu</option>
+                  <option value="IL_SORUMLUSU">Il Sorumlusu</option>
+                  <option value="BOLGE_SORUMLUSU">Bolge Sorumlusu</option>
+                  <option value="TURKIYE_SORUMLUSU">Turkiye Sorumlusu</option>
                   <option value="GENEL_MERKEZ">Genel Merkez</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-600 mb-1">Bölge</label>
+                <label className="block text-xs font-bold text-gray-600 mb-1">Bolge</label>
                 <select value={onayForm.bolgeId}
-                  onChange={(e) => setOnayForm({ ...onayForm, bolgeId: e.target.value, ilId: "" })}
+                  onChange={e => setOnayForm({ ...onayForm, bolgeId: e.target.value, ilId: "" })}
                   className={inputCls}>
-                  <option value="">Seçiniz</option>
-                  {bolgeler.map((b) => <option key={b.id} value={b.id}>{b.ad}</option>)}
+                  <option value="">Seciniz</option>
+                  {bolgeler.map(b => <option key={b.id} value={b.id}>{b.ad}</option>)}
                 </select>
               </div>
               {onayBolge && onayForm.role === "IL_SORUMLUSU" && (
                 <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">İl</label>
+                  <label className="block text-xs font-bold text-gray-600 mb-1">Il</label>
                   <select value={onayForm.ilId}
-                    onChange={(e) => setOnayForm({ ...onayForm, ilId: e.target.value })}
+                    onChange={e => setOnayForm({ ...onayForm, ilId: e.target.value })}
                     className={inputCls}>
-                    <option value="">Seçiniz</option>
-                    {onayBolge.iller.map((il) => <option key={il.id} value={il.id}>{il.ad}</option>)}
+                    <option value="">Seciniz</option>
+                    {onayBolge.iller.map(il => <option key={il.id} value={il.id}>{il.ad}</option>)}
                   </select>
                 </div>
               )}
@@ -395,7 +554,9 @@ export default function KullanicilarPage() {
                 Reddet
               </button>
               <button onClick={() => setShowOnayModal(null)}
-                className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">İptal</button>
+                className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                Iptal
+              </button>
               <button onClick={() => handleOnay("onayla")} disabled={loading}
                 className="flex-1 bg-green-600 text-white rounded-lg py-2.5 text-sm font-bold hover:bg-green-700 disabled:opacity-50">
                 {loading ? "..." : "Onayla"}
@@ -405,22 +566,28 @@ export default function KullanicilarPage() {
         </div>
       )}
 
-      {/* ─── YETKİ AL MODAL ─── */}
+      {/* YETKİ AL MODAL */}
       {showYetkiKalModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm text-center">
             <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-7 h-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <h2 className="text-lg font-bold text-gray-900 mb-2">Yetkiyi Al</h2>
             <p className="text-gray-500 text-sm mb-5">
-              <span className="font-semibold text-gray-800">{showYetkiKalModal.ad} {showYetkiKalModal.soyad}</span> kullanıcısının yetkisi alınacak ve hesabı beklemeye alınacak. Emin misiniz?
+              <span className="font-semibold text-gray-800">
+                {showYetkiKalModal.ad} {showYetkiKalModal.soyad}
+              </span>{" "}
+              kullanıcısının yetkisi alınacak ve hesabı beklemeye alınacak. Emin misiniz?
             </p>
             <div className="flex gap-2">
               <button onClick={() => setShowYetkiKalModal(null)}
-                className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">İptal</button>
+                className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                Iptal
+              </button>
               <button onClick={handleYetkiKal} disabled={loading}
                 className="flex-1 bg-red-600 text-white rounded-lg py-2.5 text-sm font-bold hover:bg-red-700 disabled:opacity-50">
                 {loading ? "..." : "Evet, Al"}
@@ -430,21 +597,25 @@ export default function KullanicilarPage() {
         </div>
       )}
 
-      {/* ─── ŞİFRE ATA MODAL ─── */}
+      {/* SIFRE ATA MODAL */}
       {showSifreModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">Şifre Ata</h2>
-            <p className="text-gray-500 text-sm mb-4">{showSifreModal.ad} {showSifreModal.soyad} için yeni şifre</p>
+            <h2 className="text-lg font-bold text-gray-900 mb-1">Sifre Ata</h2>
+            <p className="text-gray-500 text-sm mb-4">
+              {showSifreModal.ad} {showSifreModal.soyad} icin yeni sifre
+            </p>
             <input
               type="text" value={yeniSifre}
-              onChange={(e) => setYeniSifre(e.target.value)}
-              placeholder="Yeni şifre (min 6 karakter)"
+              onChange={e => setYeniSifre(e.target.value)}
+              placeholder="Yeni sifre (min 6 karakter)"
               className={inputCls + " mb-4"}
             />
             <div className="flex gap-2">
               <button onClick={() => setShowSifreModal(null)}
-                className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">İptal</button>
+                className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                Iptal
+              </button>
               <button onClick={handleSifreAta} disabled={loading || yeniSifre.length < 6}
                 className="flex-1 bg-blue-700 text-white rounded-lg py-2.5 text-sm font-bold hover:bg-blue-800 disabled:opacity-50">
                 {loading ? "..." : "Kaydet"}

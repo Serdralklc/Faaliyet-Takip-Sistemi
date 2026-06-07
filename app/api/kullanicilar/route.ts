@@ -19,15 +19,21 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const status    = searchParams.get("status");
   const rolFilter = searchParams.get("role") as Role | null;
+  const sistemParam = searchParams.get("sistem") as Sistem | null;
 
-  // Session'dan sistem filtresi — SISTEM_ADMIN hangi karttan girdiyse o sistemi görür
-  const sessionSistem = session.user.sistem as Sistem | undefined;
+  const isSuperAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(role);
+
+  // For super admins: use sistem param if provided, otherwise no filter (show all)
+  // For others: filter by their own sistem
+  const sistemFilter = isSuperAdmin
+    ? (sistemParam ? { sistem: sistemParam } : {})
+    : { sistem: session.user.sistem as Sistem };
 
   const users = await prisma.user.findMany({
     where: {
-      ...(status      ? { status: status as never } : {}),
-      ...(rolFilter   ? { role: rolFilter }         : {}),
-      ...(sessionSistem ? { sistem: sessionSistem } : {}),
+      ...sistemFilter,
+      ...(status    ? { status: status as never } : {}),
+      ...(rolFilter ? { role: rolFilter }         : {}),
     },
     include: {
       assignments: {
@@ -59,7 +65,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { ad, soyad, email, telefon, userRole, bolgeId, ilId } = body;
+  const { ad, soyad, email, telefon, userRole, bolgeId, ilId, sistem } = body;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -74,7 +80,7 @@ export async function POST(req: NextRequest) {
         ad, soyad, email, telefon,
         role:   userRole as Role,
         status: "AKTIF",
-        sistem: (session.user.sistem as Sistem) ?? "EGITIMCI",
+        sistem: (sistem as Sistem) ?? (session.user.sistem as Sistem) ?? "EGITIMCI",
       },
     });
 

@@ -97,7 +97,40 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
 
   const dashHref = isAdmin || isTR ? "/panel/admin" : isBolge ? "/panel/bolge" : "/panel/il";
 
-  const adminGroups: NavGroupDef[] = [
+  const adminSystemGroups: NavGroupDef[] = [
+    {
+      label: "Eğitim Sistemi",
+      icon: BookOpen,
+      items: [
+        { href: "/panel/admin/raporlar?sistem=EGITIMCI", label: "Raporlar", icon: BarChart3 },
+        { href: "/panel/admin/hedefler", label: "Hedef Yönetimi", icon: Target },
+      ],
+    },
+    {
+      label: "Üniversite Gençlik",
+      icon: GraduationCap,
+      items: [
+        { href: "/panel/admin/raporlar?sistem=UNIVERSITE", label: "Raporlar", icon: BarChart3 },
+      ],
+    },
+    {
+      label: "Lise Gençlik",
+      icon: School,
+      items: [
+        { href: "/panel/admin/raporlar?sistem=LISE", label: "Raporlar", icon: BarChart3 },
+      ],
+    },
+    {
+      label: "Gönüllü Sistemi",
+      icon: Users,
+      items: [
+        { href: "/panel/admin/gonulluler", label: "Gönüllüler", icon: Users },
+        { href: "/panel/admin/gonulluler", label: "Burs Başvuruları", icon: FileText },
+      ],
+    },
+  ];
+
+  const trAdminGroups: NavGroupDef[] = [
     {
       label: "Kullanıcı Yönetimi",
       icon: Users,
@@ -200,25 +233,42 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
       {/* ── Nav ── */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
 
-        {/* Ayırıcı etiket */}
-        <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
-          Ana Menü
-        </p>
-
-        {/* Admin / TR */}
-        {(isAdmin || isTR) && (
+        {/* SISTEM_ADMIN / GENEL_MERKEZ — Yönetim Merkezi yapısı */}
+        {isAdmin && (
           <>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+              Yönetim Merkezi
+            </p>
+
             <NavItem href="/panel/admin" label="Dashboard" icon={LayoutDashboard} exact />
-            {adminGroups.map(g => <NavGroupComp key={g.label} group={g} />)}
-            {isAdmin && (
-              <NavItem href="/panel/admin/loglar" label="Denetim Logları" icon={ClipboardList} />
-            )}
+
+            {adminSystemGroups.map(g => <NavGroupComp key={g.label} group={g} />)}
+
+            <NavItem href="/panel/admin/hedefler" label="Hedef Yönetimi" icon={Target} />
+            <NavItem href="/panel/admin/raporlar" label="Türkiye Analizleri" icon={BarChart3} />
+            <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={Users} />
+            <NavItem href="/panel/admin/bolgeler" label="Coğrafi Yapı" icon={MapPin} />
+            <NavItem href="/panel/admin/loglar" label="Denetim Logları" icon={ClipboardList} />
+          </>
+        )}
+
+        {/* TURKIYE_SORUMLUSU */}
+        {isTR && (
+          <>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+              Ana Menü
+            </p>
+            <NavItem href="/panel/admin" label="Dashboard" icon={LayoutDashboard} exact />
+            {trAdminGroups.map(g => <NavGroupComp key={g.label} group={g} />)}
           </>
         )}
 
         {/* Bölge */}
         {isBolge && (
           <>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+              Ana Menü
+            </p>
             <NavItem href="/panel/bolge" label="Dashboard" icon={LayoutDashboard} exact />
             <NavItem href="/panel/bolge/iller" label="İller" icon={MapPin} />
             <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
@@ -230,6 +280,9 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
         {/* İl */}
         {isIl && (
           <>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+              Ana Menü
+            </p>
             <NavItem href="/panel/il" label="Dashboard" icon={LayoutDashboard} exact />
             {ilGroups.map(g => <NavGroupComp key={g.label} group={g} />)}
           </>
