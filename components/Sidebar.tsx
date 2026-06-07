@@ -136,6 +136,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
         { href: "/panel/il/faaliyet/ilkogretim", label: "İlköğretim", icon: BookOpen },
         { href: "/panel/il/faaliyet/lise", label: "Lise", icon: School },
         { href: "/panel/il/faaliyet/universite", label: "Üniversite", icon: GraduationCap },
+        { href: "/panel/il/faaliyet/ortak", label: "Ortak Faaliyetler", icon: Users },
       ],
     },
     {
