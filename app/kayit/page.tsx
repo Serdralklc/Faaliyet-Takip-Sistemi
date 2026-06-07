@@ -1,17 +1,55 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
-interface Il { id: string; ad: string }
+interface Il    { id: string; ad: string }
 interface Bolge { id: string; no: number; ad: string; iller: Il[] }
 
-const inputClass = "w-full border-2 rounded-lg px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-  + " bg-white border-gray-300 text-gray-900 placeholder-gray-500";
+/* ── Sistem → etiket eşlemesi ── */
+type SistemKey = "EGITIMCI" | "UNIVERSITE" | "LISE";
 
-const labelClass = "block text-sm font-semibold mb-1.5 text-gray-800";
+const SISTEM_LABELS: Record<SistemKey, { bolge: string; il: string; baslik: string; renk: string }> = {
+  EGITIMCI:   {
+    bolge:  "Bölge Eğitimcisi",
+    il:     "İl Eğitimcisi",
+    baslik: "Eğitimci Kadrosu Başvurusu",
+    renk:   "#0B6B3A",
+  },
+  UNIVERSITE: {
+    bolge:  "Bölge Üniversite Gençlik Sorumlusu",
+    il:     "İl Üniversite Gençlik Sorumlusu",
+    baslik: "Üniversite Gençlik Başvurusu",
+    renk:   "#1D4ED8",
+  },
+  LISE: {
+    bolge:  "Bölge Lise Gençlik Sorumlusu",
+    il:     "İl Lise Gençlik Sorumlusu",
+    baslik: "Lise Gençlik Başvurusu",
+    renk:   "#7C3AED",
+  },
+};
 
-export default function KayitPage() {
+/* ── Query param'dan sistem oku ── */
+function getSistem(raw: string | null): SistemKey {
+  const map: Record<string, SistemKey> = {
+    egitimci:   "EGITIMCI",
+    universite: "UNIVERSITE",
+    lise:       "LISE",
+    EGITIMCI:   "EGITIMCI",
+    UNIVERSITE: "UNIVERSITE",
+    LISE:       "LISE",
+  };
+  return map[raw ?? ""] ?? "EGITIMCI";
+}
+
+/* ── Ana form bileşeni ── */
+function KayitForm() {
+  const params     = useSearchParams();
+  const sistemKey  = getSistem(params.get("sistem"));
+  const sl         = SISTEM_LABELS[sistemKey];
+
   const [bolgeler, setBolgeler] = useState<Bolge[]>([]);
   const [form, setForm] = useState({
     ad: "", soyad: "", email: "", telefon: "",
@@ -21,77 +59,67 @@ export default function KayitPage() {
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
+  const [error,   setError]   = useState("");
   const [showPass, setShowPass] = useState(false);
 
   useEffect(() => {
-    fetch("/api/bolgeler?public=1").then((r) => r.json()).then(setBolgeler);
+    fetch("/api/bolgeler?public=1").then(r => r.json()).then(setBolgeler);
   }, []);
 
-  const seciliBolge = bolgeler.find((b) => b.id === form.bolgeId);
+  const seciliBolge = bolgeler.find(b => b.id === form.bolgeId);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-
-    if (form.sifre.length < 8) {
-      setError("Şifre en az 8 karakter olmalıdır.");
-      return;
-    }
-    if (form.sifre !== form.sifreTekrar) {
-      setError("Şifreler eşleşmiyor.");
-      return;
-    }
-    if (!form.gorev) {
-      setError("Başvurulan görevi seçiniz.");
-      return;
-    }
-    if (!form.bolgeId) {
-      setError("Bölge seçiniz.");
-      return;
-    }
-    if (form.gorev === "IL_SORUMLUSU" && !form.ilId) {
-      setError("İl seçiniz.");
-      return;
-    }
+    if (form.sifre.length < 8)              { setError("Şifre en az 8 karakter olmalıdır."); return; }
+    if (form.sifre !== form.sifreTekrar)    { setError("Şifreler eşleşmiyor."); return; }
+    if (!form.gorev)                         { setError("Başvurulan görevi seçiniz."); return; }
+    if (!form.bolgeId)                       { setError("Bölge seçiniz."); return; }
+    if (form.gorev === "IL_SORUMLUSU" && !form.ilId) { setError("İl seçiniz."); return; }
 
     setLoading(true);
     const res = await fetch("/api/kayit", {
-      method: "POST",
+      method:  "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        ad: form.ad,
-        soyad: form.soyad,
-        email: form.email,
+        ad:      form.ad,
+        soyad:   form.soyad,
+        email:   form.email,
         telefon: form.telefon,
-        sifre: form.sifre,
-        gorev: form.gorev,
+        sifre:   form.sifre,
+        gorev:   form.gorev,
         bolgeId: form.bolgeId,
-        ilId: form.gorev === "IL_SORUMLUSU" ? form.ilId : undefined,
+        ilId:    form.gorev === "IL_SORUMLUSU" ? form.ilId : undefined,
+        sistem:  sistemKey,
       }),
     });
     const data = await res.json();
     setLoading(false);
-
     if (!res.ok) setError(data.error || "Hata oluştu.");
     else setSuccess(true);
   }
 
+  /* ── Başarı ekranı ── */
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="bg-white rounded-2xl shadow-xl p-10 max-w-md w-full text-center border border-gray-200">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#F6F8F5" }}>
+        <div className="bg-white rounded-2xl shadow-xl p-10 max-w-md w-full text-center border" style={{ borderColor: "#E2E8F0" }}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: sl.renk + "15" }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={sl.renk} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6 9 17l-5-5"/>
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Başvurunuz Alındı</h2>
-          <p className="text-gray-600 text-sm leading-relaxed">
-            Hesabınız oluşturuldu. Yönetici onayı sonrasında sisteme giriş yapabilirsiniz.
+          <h2 className="text-[20px] font-black mb-2" style={{ color: "#0F172A" }}>Başvurunuz Alındı</h2>
+          <p className="text-[14px] leading-[1.65]" style={{ color: "#64748B" }}>
+            Hesabınız oluşturuldu. Yönetici onayı sonrasında{" "}
+            <span className="font-semibold" style={{ color: sl.renk }}>{sl.baslik.replace(" Başvurusu", "")}</span>{" "}
+            sistemine giriş yapabilirsiniz.
           </p>
-          <Link href="/giris"
-            className="inline-block mt-6 bg-blue-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition">
+          <Link
+            href={`/giris?sistem=${sistemKey.toLowerCase()}`}
+            className="inline-block mt-6 px-6 py-2.5 rounded-xl text-[14px] font-bold text-white transition hover:opacity-90"
+            style={{ background: sl.renk }}
+          >
             Giriş Sayfasına Dön
           </Link>
         </div>
@@ -99,169 +127,256 @@ export default function KayitPage() {
     );
   }
 
+  const inputCls = "w-full border-2 rounded-xl px-4 py-3 text-[14px] font-medium focus:outline-none transition bg-white"
+    + " border-[#E2E8F0] text-[#0F172A] placeholder-[#94A3B8]";
+  const labelCls = "block text-[12px] font-bold mb-1.5 uppercase tracking-wide text-[#64748B]";
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-10 px-4">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-        {/* Header */}
-        <div className="bg-blue-700 px-8 py-6">
-          <h1 className="text-2xl font-bold text-white">Başvuru Oluştur</h1>
-          <p className="text-blue-200 text-sm mt-1">Serhendi Gençlik Faaliyet Takip Sistemi</p>
+    <div className="min-h-screen flex flex-col" style={{ background: "#F6F8F5" }}>
+      {/* Üst bar */}
+      <header
+        className="w-full border-b px-5 py-3 flex items-center justify-between"
+        style={{ background: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)", borderColor: "#E2E8F0" }}
+      >
+        <Link href={`/giris?sistem=${sistemKey.toLowerCase()}`} className="flex items-center gap-2 hover:opacity-75 transition">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0B6B3A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+          <span className="text-[13px] font-semibold" style={{ color: "#0B6B3A" }}>Geri Dön</span>
+        </Link>
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "#EAF5EE" }}>
+            <img src="/logo.svg" alt="Serhendi" className="w-4 h-4" />
+          </div>
+          <div className="hidden sm:block leading-none">
+            <p className="text-[12px] font-bold" style={{ color: "#064E2A" }}>Serhendi Gençlik</p>
+            <p className="text-[10px] mt-0.5" style={{ color: "#64748B" }}>Faaliyet Takip Sistemi</p>
+          </div>
         </div>
+      </header>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-5">
-          {/* Ad Soyad */}
-          <div className="grid grid-cols-2 gap-4">
+      {/* Form */}
+      <div className="flex-1 flex items-start justify-center px-4 py-10">
+        <div
+          className="w-full max-w-lg rounded-3xl overflow-hidden shadow-xl border"
+          style={{ background: "#fff", borderColor: "#E2E8F0" }}
+        >
+          {/* Header */}
+          <div
+            className="px-8 py-7"
+            style={{ background: `linear-gradient(135deg, ${sl.renk}E8, ${sl.renk})` }}
+          >
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] mb-1" style={{ color: "rgba(255,255,255,0.65)" }}>
+              Başvuru Formu
+            </p>
+            <h1 className="text-[20px] font-black text-white" style={{ letterSpacing: "-0.02em" }}>
+              {sl.baslik}
+            </h1>
+          </div>
+
+          <form onSubmit={handleSubmit} className="px-8 py-7 space-y-5">
+            {/* Ad Soyad */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>Ad <span className="text-red-500">*</span></label>
+                <input
+                  required value={form.ad}
+                  onChange={e => setForm({ ...form, ad: e.target.value })}
+                  className={inputCls} placeholder="Adınız"
+                  onFocus={e => (e.target.style.borderColor = sl.renk)}
+                  onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Soyad <span className="text-red-500">*</span></label>
+                <input
+                  required value={form.soyad}
+                  onChange={e => setForm({ ...form, soyad: e.target.value })}
+                  className={inputCls} placeholder="Soyadınız"
+                  onFocus={e => (e.target.style.borderColor = sl.renk)}
+                  onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
+                />
+              </div>
+            </div>
+
+            {/* E-posta */}
             <div>
-              <label className={labelClass}>Ad <span className="text-red-500">*</span></label>
+              <label className={labelCls}>E-posta <span className="text-red-500">*</span></label>
               <input
-                required value={form.ad}
-                onChange={(e) => setForm({ ...form, ad: e.target.value })}
-                className={inputClass} placeholder="Adınız"
+                type="email" required value={form.email}
+                onChange={e => setForm({ ...form, email: e.target.value })}
+                className={inputCls} placeholder="ornek@email.com"
+                autoComplete="email"
+                onFocus={e => (e.target.style.borderColor = sl.renk)}
+                onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
               />
             </div>
+
+            {/* Telefon */}
             <div>
-              <label className={labelClass}>Soyad <span className="text-red-500">*</span></label>
+              <label className={labelCls}>Telefon <span className="text-red-500">*</span></label>
               <input
-                required value={form.soyad}
-                onChange={(e) => setForm({ ...form, soyad: e.target.value })}
-                className={inputClass} placeholder="Soyadınız"
+                type="tel" required value={form.telefon}
+                onChange={e => setForm({ ...form, telefon: e.target.value })}
+                className={inputCls} placeholder="05xx xxx xx xx"
+                onFocus={e => (e.target.style.borderColor = sl.renk)}
+                onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
               />
             </div>
-          </div>
 
-          {/* E-posta */}
-          <div>
-            <label className={labelClass}>E-posta <span className="text-red-500">*</span></label>
-            <input
-              type="email" required value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className={inputClass} placeholder="ornek@email.com"
-              autoComplete="email"
-            />
-          </div>
-
-          {/* Telefon */}
-          <div>
-            <label className={labelClass}>Telefon <span className="text-red-500">*</span></label>
-            <input
-              type="tel" required value={form.telefon}
-              onChange={(e) => setForm({ ...form, telefon: e.target.value })}
-              className={inputClass} placeholder="05xx xxx xx xx"
-            />
-          </div>
-
-          {/* Şifre */}
-          <div>
-            <label className={labelClass}>Şifre <span className="text-red-500">*</span></label>
-            <div className="relative">
-              <input
-                type={showPass ? "text" : "password"}
-                required value={form.sifre}
-                onChange={(e) => setForm({ ...form, sifre: e.target.value })}
-                className={inputClass + " pr-12"} placeholder="En az 8 karakter"
-                autoComplete="new-password"
-              />
-              <button type="button" onClick={() => setShowPass(!showPass)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 text-xs font-medium">
-                {showPass ? "Gizle" : "Göster"}
-              </button>
+            {/* Şifre */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>Şifre <span className="text-red-500">*</span></label>
+                <div className="relative">
+                  <input
+                    type={showPass ? "text" : "password"}
+                    required value={form.sifre}
+                    onChange={e => setForm({ ...form, sifre: e.target.value })}
+                    className={inputCls + " pr-16"} placeholder="En az 8 karakter"
+                    autoComplete="new-password"
+                    onFocus={e => (e.target.style.borderColor = sl.renk)}
+                    onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
+                  />
+                  <button type="button" onClick={() => setShowPass(!showPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-bold"
+                    style={{ color: sl.renk }}>
+                    {showPass ? "Gizle" : "Göster"}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className={labelCls}>Şifre Tekrar <span className="text-red-500">*</span></label>
+                <input
+                  type={showPass ? "text" : "password"}
+                  required value={form.sifreTekrar}
+                  onChange={e => setForm({ ...form, sifreTekrar: e.target.value })}
+                  className={inputCls} placeholder="Tekrar girin"
+                  autoComplete="new-password"
+                  onFocus={e => (e.target.style.borderColor = sl.renk)}
+                  onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Şifre Tekrar */}
-          <div>
-            <label className={labelClass}>Şifre Tekrar <span className="text-red-500">*</span></label>
-            <input
-              type={showPass ? "text" : "password"}
-              required value={form.sifreTekrar}
-              onChange={(e) => setForm({ ...form, sifreTekrar: e.target.value })}
-              className={inputClass} placeholder="Şifrenizi tekrar girin"
-              autoComplete="new-password"
-            />
-          </div>
+            {/* ── Başvurulan Görev — Bölge SOL / İl SAĞ ── */}
+            <div className="border-t pt-5" style={{ borderColor: "#E2E8F0" }}>
+              <p className="text-[11px] font-black uppercase tracking-widest mb-4" style={{ color: "#94A3B8" }}>
+                Başvurulan Görev
+              </p>
 
-          <div className="border-t border-gray-200 pt-5">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Başvuru Bilgileri</p>
-
-            {/* Görev Seçimi */}
-            <div className="mb-4">
-              <label className={labelClass}>Başvurulan Görev <span className="text-red-500">*</span></label>
               <div className="grid grid-cols-2 gap-3">
+                {/* Sol — Bölge */}
                 {[
-                  { val: "IL_SORUMLUSU", label: "İl Sorumlusu" },
-                  { val: "BOLGE_SORUMLUSU", label: "Bölge Sorumlusu" },
-                ].map(({ val, label }) => (
-                  <label key={val}
-                    className={`flex items-center gap-3 border-2 rounded-lg px-4 py-3 cursor-pointer transition font-medium text-sm ${
-                      form.gorev === val
-                        ? "border-blue-600 bg-blue-50 text-blue-800"
-                        : "border-gray-300 text-gray-700 hover:border-gray-400"
-                    }`}>
-                    <input type="radio" name="gorev" value={val}
+                  { val: "BOLGE_SORUMLUSU", label: sl.bolge, side: "Bölge Yetkilisi" },
+                  { val: "IL_SORUMLUSU",    label: sl.il,    side: "İl Yetkilisi"    },
+                ].map(({ val, label, side }) => (
+                  <label
+                    key={val}
+                    className="relative flex flex-col gap-1.5 border-2 rounded-2xl px-4 py-4 cursor-pointer transition"
+                    style={{
+                      borderColor: form.gorev === val ? sl.renk : "#E2E8F0",
+                      background:  form.gorev === val ? sl.renk + "08" : "#fff",
+                    }}
+                  >
+                    <input
+                      type="radio" name="gorev" value={val}
                       checked={form.gorev === val}
-                      onChange={() => setForm({ ...form, gorev: val as typeof form.gorev, bolgeId: "", ilId: "" })}
-                      className="accent-blue-600"
+                      onChange={() => setForm(p => ({ ...p, gorev: val as typeof form.gorev, bolgeId: "", ilId: "" }))}
+                      className="sr-only"
                     />
-                    {label}
+                    {/* Seçim göstergesi */}
+                    <div
+                      className="absolute top-3 right-3 w-4 h-4 rounded-full border-2 flex items-center justify-center transition"
+                      style={{
+                        borderColor:  form.gorev === val ? sl.renk : "#CBD5E1",
+                        background:   form.gorev === val ? sl.renk : "transparent",
+                      }}
+                    >
+                      {form.gorev === val && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                      )}
+                    </div>
+
+                    <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: form.gorev === val ? sl.renk : "#94A3B8" }}>
+                      {side}
+                    </span>
+                    <span className="text-[13px] font-bold leading-tight pr-4" style={{ color: form.gorev === val ? "#0F172A" : "#475569" }}>
+                      {label}
+                    </span>
                   </label>
                 ))}
               </div>
             </div>
 
-            {/* Bölge */}
+            {/* Bölge seçimi */}
             {form.gorev && (
-              <div className="mb-4">
-                <label className={labelClass}>Bölge <span className="text-red-500">*</span></label>
+              <div>
+                <label className={labelCls}>Bölge <span className="text-red-500">*</span></label>
                 <select
                   value={form.bolgeId}
-                  onChange={(e) => setForm({ ...form, bolgeId: e.target.value, ilId: "" })}
-                  className={inputClass}
+                  onChange={e => setForm({ ...form, bolgeId: e.target.value, ilId: "" })}
+                  className={inputCls}
+                  style={{ borderColor: "#E2E8F0" }}
+                  onFocus={e => (e.target.style.borderColor = sl.renk)}
+                  onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
                 >
                   <option value="">Bölge seçiniz</option>
-                  {bolgeler.map((b) => (
-                    <option key={b.id} value={b.id}>{b.ad}</option>
-                  ))}
+                  {bolgeler.map(b => <option key={b.id} value={b.id}>{b.ad}</option>)}
                 </select>
               </div>
             )}
 
-            {/* İl — sadece İl Sorumlusu için */}
+            {/* İl seçimi */}
             {form.gorev === "IL_SORUMLUSU" && seciliBolge && (
               <div>
-                <label className={labelClass}>İl <span className="text-red-500">*</span></label>
+                <label className={labelCls}>İl <span className="text-red-500">*</span></label>
                 <select
                   value={form.ilId}
-                  onChange={(e) => setForm({ ...form, ilId: e.target.value })}
-                  className={inputClass}
+                  onChange={e => setForm({ ...form, ilId: e.target.value })}
+                  className={inputCls}
+                  style={{ borderColor: "#E2E8F0" }}
+                  onFocus={e => (e.target.style.borderColor = sl.renk)}
+                  onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
                 >
                   <option value="">İl seçiniz</option>
-                  {seciliBolge.iller.map((il) => (
-                    <option key={il.id} value={il.id}>{il.ad}</option>
-                  ))}
+                  {seciliBolge.iller.map(il => <option key={il.id} value={il.id}>{il.ad}</option>)}
                 </select>
               </div>
             )}
-          </div>
 
-          {error && (
-            <div className="bg-red-50 border-2 border-red-400 rounded-lg px-4 py-3">
-              <p className="text-red-700 text-sm font-semibold">{error}</p>
-            </div>
-          )}
+            {error && (
+              <div className="rounded-xl px-4 py-3 border" style={{ background: "#FEF2F2", borderColor: "#FCA5A5" }}>
+                <p className="text-[13px] font-bold text-red-600">{error}</p>
+              </div>
+            )}
 
-          <button
-            type="submit" disabled={loading}
-            className="w-full bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-bold py-3 rounded-lg transition text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-          >
-            {loading ? "Gönderiliyor..." : "Başvuruyu Gönder"}
-          </button>
+            <button
+              type="submit" disabled={loading}
+              className="w-full py-3.5 rounded-xl text-[14px] font-black text-white transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+              style={{ background: sl.renk }}
+            >
+              {loading ? "Gönderiliyor..." : "Başvuruyu Gönder"}
+            </button>
 
-          <p className="text-center text-sm text-gray-600">
-            Hesabınız var mı?{" "}
-            <Link href="/giris" className="text-blue-700 font-bold hover:underline">Giriş Yap</Link>
-          </p>
-        </form>
+            <p className="text-center text-[13px]" style={{ color: "#64748B" }}>
+              Hesabınız var mı?{" "}
+              <Link href={`/giris?sistem=${sistemKey.toLowerCase()}`} className="font-bold hover:underline" style={{ color: sl.renk }}>
+                Giriş Yap
+              </Link>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
+  );
+}
+
+/* Suspense wrapper — useSearchParams için zorunlu */
+export default function KayitPage() {
+  return (
+    <Suspense fallback={null}>
+      <KayitForm />
+    </Suspense>
   );
 }

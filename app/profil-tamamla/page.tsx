@@ -4,8 +4,31 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-interface Il { id: string; ad: string }
+interface Il    { id: string; ad: string }
 interface Bolge { id: string; no: number; ad: string; iller: Il[] }
+
+type SistemKey = "EGITIMCI" | "UNIVERSITE" | "LISE";
+
+const SISTEM_LABELS: Record<SistemKey, { bolge: string; il: string; baslik: string; renk: string }> = {
+  EGITIMCI:   {
+    bolge:  "Bölge Eğitimcisi",
+    il:     "İl Eğitimcisi",
+    baslik: "Eğitimci Kadrosu",
+    renk:   "#0B6B3A",
+  },
+  UNIVERSITE: {
+    bolge:  "Bölge Üniversite Gençlik Sorumlusu",
+    il:     "İl Üniversite Gençlik Sorumlusu",
+    baslik: "Üniversite Gençlik",
+    renk:   "#1D4ED8",
+  },
+  LISE: {
+    bolge:  "Bölge Lise Gençlik Sorumlusu",
+    il:     "İl Lise Gençlik Sorumlusu",
+    baslik: "Lise Gençlik",
+    renk:   "#7C3AED",
+  },
+};
 
 export default function ProfilTamamlaPage() {
   const { data: session, status } = useSession();
@@ -13,19 +36,16 @@ export default function ProfilTamamlaPage() {
   const [bolgeler, setBolgeler] = useState<Bolge[]>([]);
   const [form, setForm] = useState({
     gorev: "" as "" | "IL_SORUMLUSU" | "BOLGE_SORUMLUSU",
-    bolgeId: "",
-    ilId: "",
-    telefon: "",
+    bolgeId: "", ilId: "", telefon: "",
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
+  const [error,   setError]   = useState("");
 
   useEffect(() => {
     fetch("/api/bolgeler?public=1").then(r => r.json()).then(setBolgeler);
   }, []);
 
-  // Zaten aktif kullanıcı ise yönlendir
   useEffect(() => {
     if (status === "authenticated" && session?.user?.role !== "BEKLEYEN") {
       router.push("/");
@@ -33,23 +53,22 @@ export default function ProfilTamamlaPage() {
   }, [status, session, router]);
 
   if (status === "loading") return null;
-  if (!session?.user) {
-    router.push("/giris");
-    return null;
-  }
+  if (!session?.user) { router.push("/giris"); return null; }
 
+  const sistemKey = (session.user.sistem ?? "EGITIMCI") as SistemKey;
+  const sl        = SISTEM_LABELS[sistemKey] ?? SISTEM_LABELS.EGITIMCI;
   const seciliBolge = bolgeler.find(b => b.id === form.bolgeId);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (!form.gorev) { setError("Başvurulan görevi seçiniz."); return; }
-    if (!form.bolgeId) { setError("Bölge seçiniz."); return; }
-    if (form.gorev === "IL_SORUMLUSU" && !form.ilId) { setError("İl seçiniz."); return; }
+    if (!form.gorev)                                          { setError("Başvurulan görevi seçiniz."); return; }
+    if (!form.bolgeId)                                        { setError("Bölge seçiniz."); return; }
+    if (form.gorev === "IL_SORUMLUSU" && !form.ilId)          { setError("İl seçiniz."); return; }
 
     setLoading(true);
-    const res = await fetch("/api/profil-tamamla", {
-      method: "POST",
+    const res  = await fetch("/api/profil-tamamla", {
+      method:  "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
@@ -59,22 +78,27 @@ export default function ProfilTamamlaPage() {
     else setError(data.error || "Hata oluştu.");
   }
 
+  /* ── Başarı ── */
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-10 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#F6F8F5" }}>
+        <div className="bg-white rounded-2xl shadow-xl p-10 max-w-md w-full text-center border" style={{ borderColor: "#E2E8F0" }}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: sl.renk + "15" }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={sl.renk} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6 9 17l-5-5"/>
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Başvurunuz Alındı!</h2>
-          <p className="text-gray-600 text-sm leading-relaxed">
-            Yönetici inceleyip onayladıktan sonra sisteme giriş yapabilirsiniz.
-            Onay sonrasında aynı Google hesabınızla veya belirlenecek şifrenizle giriş yapın.
+          <h2 className="text-[20px] font-black mb-2" style={{ color: "#0F172A" }}>Başvurunuz Alındı!</h2>
+          <p className="text-[14px] leading-[1.65]" style={{ color: "#64748B" }}>
+            Yönetici inceleyip onayladıktan sonra{" "}
+            <span className="font-semibold" style={{ color: sl.renk }}>{sl.baslik}</span>{" "}
+            sistemine giriş yapabilirsiniz.
           </p>
-          <button onClick={() => signOut({ callbackUrl: "/giris" })}
-            className="mt-6 text-sm text-blue-600 hover:underline font-semibold">
+          <button
+            onClick={() => signOut({ callbackUrl: "/giris" })}
+            className="mt-6 text-[13px] font-bold hover:underline"
+            style={{ color: sl.renk }}
+          >
             Giriş sayfasına dön
           </button>
         </div>
@@ -82,17 +106,34 @@ export default function ProfilTamamlaPage() {
     );
   }
 
+  const inputCls = "w-full border-2 rounded-xl px-4 py-3 text-[14px] font-medium focus:outline-none transition bg-white"
+    + " border-[#E2E8F0] text-[#0F172A] placeholder-[#94A3B8]";
+  const labelCls = "block text-[12px] font-bold mb-1.5 uppercase tracking-wide text-[#64748B]";
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-10 px-4">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center py-10 px-4" style={{ background: "#F6F8F5" }}>
+      <div
+        className="w-full max-w-lg rounded-3xl overflow-hidden shadow-xl border"
+        style={{ background: "#fff", borderColor: "#E2E8F0" }}
+      >
         {/* Header */}
-        <div className="bg-blue-700 px-8 py-6">
-          <h1 className="text-xl font-bold text-white">Başvuru Bilgilerini Tamamla</h1>
-          <p className="text-blue-200 text-sm mt-1">Hoş geldin, <span className="font-semibold">{session.user.ad} {session.user.soyad}</span></p>
+        <div
+          className="px-8 py-7"
+          style={{ background: `linear-gradient(135deg, ${sl.renk}E8, ${sl.renk})` }}
+        >
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] mb-1" style={{ color: "rgba(255,255,255,0.65)" }}>
+            {sl.baslik} · Başvuru
+          </p>
+          <h1 className="text-[20px] font-black text-white" style={{ letterSpacing: "-0.02em" }}>
+            Başvuru Bilgilerini Tamamla
+          </h1>
+          <p className="text-[13px] mt-1.5" style={{ color: "rgba(255,255,255,0.70)" }}>
+            Hoş geldin, <span className="font-bold">{session.user.ad} {session.user.soyad}</span>
+          </p>
         </div>
 
-        <div className="px-8 py-6">
-          <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+        <div className="px-8 py-7">
+          <p className="text-[13px] leading-[1.65] mb-6" style={{ color: "#64748B" }}>
             Google hesabınızla kaydoldunuz. Hangi görev için başvurduğunuzu seçin.
             Yönetici onayından sonra sisteme erişebilirsiniz.
           </p>
@@ -100,39 +141,58 @@ export default function ProfilTamamlaPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Telefon */}
             <div>
-              <label className="block text-sm font-bold mb-1.5 text-gray-800">
-                Telefon <span className="font-normal text-gray-400">(opsiyonel)</span>
+              <label className={labelCls}>
+                Telefon <span className="font-normal normal-case tracking-normal text-[#94A3B8]">(opsiyonel)</span>
               </label>
               <input
                 type="tel" value={form.telefon}
                 onChange={e => setForm(p => ({ ...p, telefon: e.target.value }))}
                 placeholder="05xx xxx xx xx"
-                className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+                className={inputCls}
+                onFocus={e => (e.target.style.borderColor = sl.renk)}
+                onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
               />
             </div>
 
-            {/* Görev seçimi */}
+            {/* ── Görev seçimi — Bölge SOL / İl SAĞ ── */}
             <div>
-              <label className="block text-sm font-bold mb-2 text-gray-800">
+              <label className={labelCls}>
                 Başvurulan Görev <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { val: "IL_SORUMLUSU", label: "İl Sorumlusu" },
-                  { val: "BOLGE_SORUMLUSU", label: "Bölge Sorumlusu" },
-                ].map(({ val, label }) => (
-                  <label key={val}
-                    className={`flex items-center gap-3 border-2 rounded-xl px-4 py-3 cursor-pointer transition font-semibold text-sm ${
-                      form.gorev === val
-                        ? "border-blue-600 bg-blue-50 text-blue-800"
-                        : "border-gray-300 text-gray-700 hover:border-gray-400"
-                    }`}>
-                    <input type="radio" name="gorev" value={val}
+                  { val: "BOLGE_SORUMLUSU", label: sl.bolge, side: "Bölge Yetkilisi" },
+                  { val: "IL_SORUMLUSU",    label: sl.il,    side: "İl Yetkilisi"    },
+                ].map(({ val, label, side }) => (
+                  <label
+                    key={val}
+                    className="relative flex flex-col gap-1.5 border-2 rounded-2xl px-4 py-4 cursor-pointer transition"
+                    style={{
+                      borderColor: form.gorev === val ? sl.renk : "#E2E8F0",
+                      background:  form.gorev === val ? sl.renk + "08" : "#fff",
+                    }}
+                  >
+                    <input
+                      type="radio" name="gorev" value={val}
                       checked={form.gorev === val}
                       onChange={() => setForm(p => ({ ...p, gorev: val as typeof form.gorev, bolgeId: "", ilId: "" }))}
-                      className="accent-blue-600"
+                      className="sr-only"
                     />
-                    {label}
+                    <div
+                      className="absolute top-3 right-3 w-4 h-4 rounded-full border-2 flex items-center justify-center transition"
+                      style={{
+                        borderColor: form.gorev === val ? sl.renk : "#CBD5E1",
+                        background:  form.gorev === val ? sl.renk : "transparent",
+                      }}
+                    >
+                      {form.gorev === val && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: form.gorev === val ? sl.renk : "#94A3B8" }}>
+                      {side}
+                    </span>
+                    <span className="text-[13px] font-bold leading-tight pr-4" style={{ color: form.gorev === val ? "#0F172A" : "#475569" }}>
+                      {label}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -141,13 +201,13 @@ export default function ProfilTamamlaPage() {
             {/* Bölge */}
             {form.gorev && (
               <div>
-                <label className="block text-sm font-bold mb-1.5 text-gray-800">
-                  Bölge <span className="text-red-500">*</span>
-                </label>
+                <label className={labelCls}>Bölge <span className="text-red-500">*</span></label>
                 <select
                   value={form.bolgeId}
                   onChange={e => setForm(p => ({ ...p, bolgeId: e.target.value, ilId: "" }))}
-                  className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputCls}
+                  onFocus={e => (e.target.style.borderColor = sl.renk)}
+                  onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
                 >
                   <option value="">Bölge seçiniz</option>
                   {bolgeler.map(b => <option key={b.id} value={b.id}>{b.ad}</option>)}
@@ -155,16 +215,16 @@ export default function ProfilTamamlaPage() {
               </div>
             )}
 
-            {/* İl — sadece İl Sorumlusu */}
+            {/* İl */}
             {form.gorev === "IL_SORUMLUSU" && seciliBolge && (
               <div>
-                <label className="block text-sm font-bold mb-1.5 text-gray-800">
-                  İl <span className="text-red-500">*</span>
-                </label>
+                <label className={labelCls}>İl <span className="text-red-500">*</span></label>
                 <select
                   value={form.ilId}
                   onChange={e => setForm(p => ({ ...p, ilId: e.target.value }))}
-                  className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputCls}
+                  onFocus={e => (e.target.style.borderColor = sl.renk)}
+                  onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
                 >
                   <option value="">İl seçiniz</option>
                   {seciliBolge.iller.map(il => <option key={il.id} value={il.id}>{il.ad}</option>)}
@@ -173,13 +233,16 @@ export default function ProfilTamamlaPage() {
             )}
 
             {error && (
-              <div className="bg-red-50 border-2 border-red-400 rounded-xl px-4 py-3">
-                <p className="text-red-700 text-sm font-bold">{error}</p>
+              <div className="rounded-xl px-4 py-3 border" style={{ background: "#FEF2F2", borderColor: "#FCA5A5" }}>
+                <p className="text-[13px] font-bold text-red-600">{error}</p>
               </div>
             )}
 
-            <button type="submit" disabled={loading}
-              className="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-xl transition text-sm disabled:opacity-50 shadow-sm">
+            <button
+              type="submit" disabled={loading}
+              className="w-full py-3.5 rounded-xl text-[14px] font-black text-white transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+              style={{ background: sl.renk }}
+            >
               {loading ? "Gönderiliyor..." : "Başvuruyu Gönder"}
             </button>
           </form>

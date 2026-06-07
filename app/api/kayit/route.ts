@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import bcrypt from "bcryptjs";
+import { Sistem } from "@/app/generated/prisma/client";
+
+const VALID_SISTEM: Sistem[] = ["EGITIMCI", "UNIVERSITE", "LISE"];
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { ad, soyad, email, telefon, sifre, gorev, bolgeId, ilId } = body;
+  const { ad, soyad, email, telefon, sifre, gorev, bolgeId, ilId, sistem } = body;
 
   if (!ad || !soyad || !email || !sifre) {
     return NextResponse.json({ error: "Ad, soyad, e-posta ve şifre zorunludur" }, { status: 400 });
@@ -20,6 +23,7 @@ export async function POST(req: NextRequest) {
   }
 
   const passwordHash = await bcrypt.hash(sifre, 12);
+  const sistemValue: Sistem = VALID_SISTEM.includes(sistem) ? sistem : "EGITIMCI";
 
   const user = await prisma.user.create({
     data: {
@@ -28,22 +32,22 @@ export async function POST(req: NextRequest) {
       email,
       telefon: telefon || null,
       passwordHash,
-      role: "BEKLEYEN",
+      role:   "BEKLEYEN",
       status: "BEKLEMEDE",
+      sistem: sistemValue,
     },
   });
 
-  // Audit log
   const adminUser = await prisma.user.findFirst({ where: { role: "SISTEM_ADMIN" } });
   if (adminUser) {
     await createAuditLog({
-      userId: adminUser.id,
-      action: ACTIONS.USER_CREATED,
-      entity: "User",
-      entityId: user.id,
-      newValue: { email, gorev, bolgeId, ilId },
-      ipAddress: req.headers.get("x-forwarded-for") ?? undefined,
-      description: `Kendi kaydını oluşturdu: ${ad} ${soyad} (${gorev ?? "belirtilmedi"})`,
+      userId:      adminUser.id,
+      action:      ACTIONS.USER_CREATED,
+      entity:      "User",
+      entityId:    user.id,
+      newValue:    { email, gorev, bolgeId, ilId, sistem: sistemValue },
+      ipAddress:   req.headers.get("x-forwarded-for") ?? undefined,
+      description: `Kendi kaydını oluşturdu: ${ad} ${soyad} (${gorev ?? "belirtilmedi"}) [${sistemValue}]`,
     });
   }
 

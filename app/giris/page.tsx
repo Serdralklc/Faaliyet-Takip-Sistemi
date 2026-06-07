@@ -373,7 +373,7 @@ function LoginForm({
 
           <p className="text-center text-[13px]" style={{ color: "#64748B" }}>
             Hesabınız yok mu?{" "}
-            <Link href="/kayit" className="font-bold hover:underline" style={{ color: role.color }}>
+            <Link href={`/kayit?sistem=${roleKey}`} className="font-bold hover:underline" style={{ color: role.color }}>
               Başvuru Oluştur
             </Link>
           </p>
