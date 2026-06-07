@@ -91,6 +91,9 @@ export const authOptions: NextAuthOptions = {
           throw new Error("SISTEM_UYUMSUZ");
         }
 
+        // SISTEM_ADMIN: seçilen kartın sistemi session'a yazılır → her kart farklı veri gösterir
+        const sessionSistem = isSuperAdmin && requestedSistem ? requestedSistem : user.sistem;
+
         const a = user.assignments[0];
         return {
           id:            user.id,
@@ -98,7 +101,7 @@ export const authOptions: NextAuthOptions = {
           ad:            user.ad,
           soyad:         user.soyad,
           role:          user.role,
-          sistem:        user.sistem,
+          sistem:        sessionSistem,
           activeIlId:    a?.ilId      ?? null,
           activeBolgeId: a?.bolgeId   ?? null,
           activeIlAd:    a?.il?.ad    ?? null,

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { sendInvitationEmail } from "@/lib/mail";
 import bcrypt from "bcryptjs";
-import { Role } from "@/app/generated/prisma/client";
+import { Role, Sistem } from "@/app/generated/prisma/client";
 
 // GET: kullanıcı listesi
 export async function GET(req: NextRequest) {
@@ -17,13 +17,17 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status");
+  const status    = searchParams.get("status");
   const rolFilter = searchParams.get("role") as Role | null;
+
+  // Session'dan sistem filtresi — SISTEM_ADMIN hangi karttan girdiyse o sistemi görür
+  const sessionSistem = session.user.sistem as Sistem | undefined;
 
   const users = await prisma.user.findMany({
     where: {
-      ...(status ? { status: status as never } : {}),
-      ...(rolFilter ? { role: rolFilter } : {}),
+      ...(status      ? { status: status as never } : {}),
+      ...(rolFilter   ? { role: rolFilter }         : {}),
+      ...(sessionSistem ? { sistem: sessionSistem } : {}),
     },
     include: {
       assignments: {
@@ -68,8 +72,9 @@ export async function POST(req: NextRequest) {
     const newUser = await tx.user.create({
       data: {
         ad, soyad, email, telefon,
-        role: userRole as Role,
+        role:   userRole as Role,
         status: "AKTIF",
+        sistem: (session.user.sistem as Sistem) ?? "EGITIMCI",
       },
     });
 
