@@ -1,0 +1,404 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+
+/* ─── Tipler ─── */
+interface Activity {
+  id: string; yil: number; donem: string;
+  ik_toplamDergah: number | null; ik_kursuYapilanDergah: number | null;
+  ik_elifBaOgrenci: number | null; ik_kuranOgrenci: number | null; ik_gecisOgrenci: number | null;
+  ls_toplamDergah: number | null; ls_ilimDersYeri: number | null;
+  ls_ilimDersKatilim: number | null; ls_sabahNamaziSayisi: number | null;
+  ls_sabahNamaziKatilim: number | null;
+  ls_kafileSayisi: number | null; ls_kafileOgrenci: number | null;
+  ls_toplamFaaliyet: number | null; ls_yeniIntisap: number | null;
+  uni_toplamDergah: number | null; uni_ilimDersYeri: number | null;
+  uni_ilimDersKatilim: number | null; uni_sabahNamaziSayisi: number | null;
+  uni_sabahNamaziKatilim: number | null;
+  uni_kafileSayisi: number | null; uni_kafileOgrenci: number | null;
+  uni_kykBulusmaSayisi: number | null; uni_kykKatilim: number | null;
+  uni_toplamFaaliyet: number | null; uni_yeniIntisap: number | null;
+}
+
+/* ─── Yardımcılar ─── */
+const n = (v: number | null | undefined) => v ?? 0;
+const pct = (pay: number, payda: number) =>
+  payda ? Math.round((pay / payda) * 100) : 0;
+
+const DONEM_LABEL: Record<string, string> = {
+  DONEM_1: "1. Dönem", DONEM_2: "2. Dönem", YAZ_DONEMI: "Yaz Dönemi",
+};
+
+/* ─── Yüzde Gösterge Çubuğu ─── */
+function ProgressBar({ value, color }: { value: number; color: string }) {
+  const safe = Math.min(100, Math.max(0, value));
+  const barColor = safe >= 70 ? "#059669" : safe >= 40 ? "#D9BC4B" : "#DC2626";
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "var(--bg-hover)" }}>
+        <div className="h-2 rounded-full transition-all" style={{ width: `${safe}%`, background: color ?? barColor }} />
+      </div>
+      <span className="text-xs font-bold w-9 text-right" style={{ color: color ?? barColor }}>%{value}</span>
+    </div>
+  );
+}
+
+/* ─── Metrik Satırı ─── */
+function MetrikRow({ label, value, suffix = "", sub, bold }: {
+  label: string; value: string | number; suffix?: string; sub?: string; bold?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between py-2.5 border-b last:border-0"
+      style={{ borderColor: "var(--border)" }}>
+      <span className="text-sm" style={{ color: "var(--text-secondary)", fontWeight: bold ? 700 : 500 }}>
+        {label}
+      </span>
+      <div className="text-right">
+        <span className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
+          {value}{suffix}
+        </span>
+        {sub && <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>{sub}</p>}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Karşılaştırma ─── */
+function Delta({ prev, curr, label }: { prev: number; curr: number; label: string }) {
+  if (!prev && !curr) return null;
+  const diff = curr - prev;
+  const pctDiff = prev ? Math.round((diff / prev) * 100) : null;
+
+  const Icon = diff > 0 ? TrendingUp : diff < 0 ? TrendingDown : Minus;
+  const color = diff > 0 ? "#059669" : diff < 0 ? "#DC2626" : "var(--text-muted)";
+
+  return (
+    <div className="flex items-center justify-between py-2 border-b last:border-0"
+      style={{ borderColor: "var(--border)" }}>
+      <span className="text-xs" style={{ color: "var(--text-muted)" }}>{label}</span>
+      <div className="flex items-center gap-2">
+        <span className="text-xs" style={{ color: "var(--text-muted)" }}>{prev} → {curr}</span>
+        <div className="flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full"
+          style={{ background: `${color}18`, color }}>
+          <Icon size={11} />
+          {diff > 0 ? "+" : ""}{diff}
+          {pctDiff !== null && ` (%${Math.abs(pctDiff)})`}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Birim Bölümü ─── */
+function BirimSection({ title, color, children }: {
+  title: string; color: string; children: React.ReactNode;
+}) {
+  return (
+    <div className="sv-section overflow-hidden">
+      <div className="px-5 py-3 flex items-center gap-2 border-b"
+        style={{ background: color, borderColor: "transparent" }}>
+        <h3 className="font-bold text-sm text-white">{title}</h3>
+      </div>
+      <div className="p-5">{children}</div>
+    </div>
+  );
+}
+
+/* ─── Ana Client ─── */
+export default function RaporlarClient({
+  faaliyetler, ilAd, bolgeAd,
+}: {
+  faaliyetler: Activity[]; ilAd: string; bolgeAd: string;
+}) {
+  const yillar = useMemo(() =>
+    [...new Set(faaliyetler.map(f => f.yil))].sort((a, b) => b - a)
+  , [faaliyetler]);
+
+  const [selectedYil, setSelectedYil] = useState<number>(yillar[0] ?? new Date().getFullYear());
+  const [tab, setTab] = useState<"tek" | "karsilastir">("tek");
+  const [selectedDonem, setSelectedDonem] = useState("DONEM_1");
+
+  const donemMap = useMemo(() => {
+    const m = new Map<string, Activity>();
+    for (const f of faaliyetler) m.set(`${f.yil}-${f.donem}`, f);
+    return m;
+  }, [faaliyetler]);
+
+  const f = donemMap.get(`${selectedYil}-${selectedDonem}`);
+
+  /* Karşılaştırma için dönem listesi */
+  const donemler = useMemo(() => {
+    const year = faaliyetler.filter(x => x.yil === selectedYil);
+    return year.map(x => x.donem);
+  }, [faaliyetler, selectedYil]);
+
+  /* ── Render ── */
+  return (
+    <div className="p-6 max-w-5xl space-y-6">
+
+      {/* Başlık */}
+      <div className="sv-page-header">
+        <h1>Analitik Raporlar</h1>
+        <p>{ilAd} · {bolgeAd} · {faaliyetler.length} dönem kaydı</p>
+      </div>
+
+      {faaliyetler.length === 0 && (
+        <div className="sv-section p-12 text-center">
+          <p className="font-semibold" style={{ color: "var(--text-muted)" }}>
+            Henüz faaliyet kaydı yok. Faaliyet girdikten sonra raporlar burada görünecek.
+          </p>
+        </div>
+      )}
+
+      {faaliyetler.length > 0 && (
+        <>
+          {/* Mod seçici */}
+          <div className="flex gap-2">
+            {[
+              { key: "tek",         label: "Dönem Analizi" },
+              { key: "karsilastir", label: "Dönem Karşılaştırması" },
+            ].map(({ key, label }) => (
+              <button key={key}
+                onClick={() => setTab(key as any)}
+                className="px-4 py-2 rounded-xl text-sm font-bold border transition"
+                style={tab === key
+                  ? { background: "var(--green-primary)", color: "#fff", borderColor: "transparent" }
+                  : { background: "var(--bg-card)", color: "var(--text-secondary)", borderColor: "var(--border)" }
+                }>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Filtreler */}
+          <div className="flex flex-wrap gap-3 items-center">
+            {/* Yıl */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: "var(--text-muted)" }}>Yıl</label>
+              <select value={selectedYil} onChange={e => setSelectedYil(+e.target.value)}
+                className="border-2 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none"
+                style={{ background: "var(--bg-input)", borderColor: "var(--border-input)", color: "var(--text-primary)" }}>
+                {yillar.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </div>
+
+            {/* Dönem (sadece tek modda) */}
+            {tab === "tek" && (
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wide mb-1" style={{ color: "var(--text-muted)" }}>Dönem</label>
+                <div className="flex gap-1">
+                  {["DONEM_1", "DONEM_2", "YAZ_DONEMI"].map(d => {
+                    const has = donemMap.has(`${selectedYil}-${d}`);
+                    return (
+                      <button key={d}
+                        disabled={!has}
+                        onClick={() => setSelectedDonem(d)}
+                        className="px-3 py-2 rounded-xl text-xs font-bold border transition"
+                        style={selectedDonem === d && has
+                          ? { background: "var(--green-primary)", color: "#fff", borderColor: "transparent" }
+                          : has
+                          ? { background: "var(--bg-card)", color: "var(--text-secondary)", borderColor: "var(--border)" }
+                          : { background: "var(--bg-hover)", color: "var(--text-muted)", borderColor: "var(--border)", opacity: 0.4 }
+                        }>
+                        {DONEM_LABEL[d]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ══ TEK DÖNEM ANALİZİ ══ */}
+          {tab === "tek" && (
+            <>
+              {!f ? (
+                <div className="sv-section p-10 text-center">
+                  <p style={{ color: "var(--text-muted)" }}>Bu dönem için veri girilmemiş.</p>
+                </div>
+              ) : (
+                <div className="space-y-5">
+
+                  {/* İLKÖĞRETİM */}
+                  <BirimSection title="📚 İlköğretim Birimi" color="#006B3F">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>Dergah</p>
+                        <MetrikRow label="Toplam Dergah" value={n(f.ik_toplamDergah)} bold />
+                        <MetrikRow label="Hafta Sonu Kursu Yapılan" value={n(f.ik_kursuYapilanDergah)} />
+                        <div className="mt-2">
+                          <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Kurs Yaygınlığı</p>
+                          <ProgressBar value={pct(n(f.ik_kursuYapilanDergah), n(f.ik_toplamDergah))} color="#006B3F" />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>Öğrenci</p>
+                        <MetrikRow label="Elif-Ba ile Başlayan" value={n(f.ik_elifBaOgrenci)} />
+                        <MetrikRow label="Kur'an-ı Kerim ile Başlayan" value={n(f.ik_kuranOgrenci)} />
+                        <MetrikRow label="Toplam Öğrenci"
+                          value={n(f.ik_elifBaOgrenci) + n(f.ik_kuranOgrenci)} bold />
+                        <MetrikRow label="Kur'an'a Geçen" value={n(f.ik_gecisOgrenci)} />
+                        <div className="mt-2">
+                          <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Kur'an'a Geçiş Başarısı</p>
+                          <ProgressBar
+                            value={pct(n(f.ik_gecisOgrenci), n(f.ik_elifBaOgrenci) + n(f.ik_kuranOgrenci))}
+                            color="#006B3F"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </BirimSection>
+
+                  {/* LİSE */}
+                  <BirimSection title="🎓 Lise Birimi" color="#0369A1">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>İlim Dersi</p>
+                        <MetrikRow label="Toplam Dergah" value={n(f.ls_toplamDergah)} bold />
+                        <MetrikRow label="İlim Dersi Yapılan" value={n(f.ls_ilimDersYeri)} />
+                        <div className="mt-2">
+                          <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>İlim Dersi Yaygınlığı</p>
+                          <ProgressBar value={pct(n(f.ls_ilimDersYeri), n(f.ls_toplamDergah))} color="#0369A1" />
+                        </div>
+                        <MetrikRow label="Toplam Katılımcı" value={n(f.ls_ilimDersKatilim)} bold />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>Etkinlikler</p>
+                        <MetrikRow label="Sabah Namazı Buluşması"
+                          value={n(f.ls_sabahNamaziSayisi)}
+                          sub={`${n(f.ls_sabahNamaziKatilim)} katılım`} />
+                        <MetrikRow label="Kafile"
+                          value={n(f.ls_kafileSayisi)}
+                          sub={`${n(f.ls_kafileOgrenci)} öğrenci`} />
+                        <MetrikRow label="Sosyal Faaliyet" value={n(f.ls_toplamFaaliyet)} />
+                        <MetrikRow label="Yeni İntisap" value={n(f.ls_yeniIntisap)} bold />
+                      </div>
+                    </div>
+                  </BirimSection>
+
+                  {/* ÜNİVERSİTE */}
+                  <BirimSection title="🎯 Üniversite Birimi" color="#7C3AED">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>İlim Dersi</p>
+                        <MetrikRow label="Toplam Dergah" value={n(f.uni_toplamDergah)} bold />
+                        <MetrikRow label="İlim Dersi Yapılan" value={n(f.uni_ilimDersYeri)} />
+                        <div className="mt-2">
+                          <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>İlim Dersi Yaygınlığı</p>
+                          <ProgressBar value={pct(n(f.uni_ilimDersYeri), n(f.uni_toplamDergah))} color="#7C3AED" />
+                        </div>
+                        <MetrikRow label="Toplam Katılımcı" value={n(f.uni_ilimDersKatilim)} bold />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>Etkinlikler</p>
+                        <MetrikRow label="Sabah Namazı Buluşması"
+                          value={n(f.uni_sabahNamaziSayisi)}
+                          sub={`${n(f.uni_sabahNamaziKatilim)} katılım`} />
+                        <MetrikRow label="Kafile"
+                          value={n(f.uni_kafileSayisi)}
+                          sub={`${n(f.uni_kafileOgrenci)} öğrenci`} />
+                        <MetrikRow label="KYK Buluşması"
+                          value={n(f.uni_kykBulusmaSayisi)}
+                          sub={`${n(f.uni_kykKatilim)} katılım`} />
+                        <MetrikRow label="Sosyal Faaliyet" value={n(f.uni_toplamFaaliyet)} />
+                        <MetrikRow label="Yeni İntisap" value={n(f.uni_yeniIntisap)} bold />
+                      </div>
+                    </div>
+                  </BirimSection>
+
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ══ DÖNEM KARŞILAŞTIRMASI ══ */}
+          {tab === "karsilastir" && (
+            <div className="space-y-5">
+              {donemler.length < 2 ? (
+                <div className="sv-section p-10 text-center">
+                  <p style={{ color: "var(--text-muted)" }}>
+                    Karşılaştırma için {selectedYil} yılına ait en az 2 dönem verisi gereklidir.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Dönem çiftleri */}
+                  {donemler.slice(0, -1).map((d, i) => {
+                    const d1 = donemMap.get(`${selectedYil}-${d}`)!;
+                    const d2 = donemMap.get(`${selectedYil}-${donemler[i + 1]}`)!;
+                    return (
+                      <div key={d} className="sv-section overflow-hidden">
+                        <div className="px-5 py-3 flex items-center gap-3 border-b"
+                          style={{ background: "var(--bg-th)", borderColor: "var(--border)" }}>
+                          <span className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
+                            {DONEM_LABEL[d]} → {DONEM_LABEL[donemler[i + 1]]}
+                          </span>
+                        </div>
+                        <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                          {/* İlköğretim */}
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#006B3F" }}>
+                              📚 İlköğretim
+                            </p>
+                            <Delta
+                              label="Kurs Yaygınlığı %"
+                              prev={pct(n(d1.ik_kursuYapilanDergah), n(d1.ik_toplamDergah))}
+                              curr={pct(n(d2.ik_kursuYapilanDergah), n(d2.ik_toplamDergah))}
+                            />
+                            <Delta
+                              label="Toplam Öğrenci"
+                              prev={n(d1.ik_elifBaOgrenci) + n(d1.ik_kuranOgrenci)}
+                              curr={n(d2.ik_elifBaOgrenci) + n(d2.ik_kuranOgrenci)}
+                            />
+                            <Delta
+                              label="Kur'an'a Geçen"
+                              prev={n(d1.ik_gecisOgrenci)}
+                              curr={n(d2.ik_gecisOgrenci)}
+                            />
+                          </div>
+
+                          {/* Lise */}
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#0369A1" }}>
+                              🎓 Lise
+                            </p>
+                            <Delta
+                              label="İlim Yaygınlığı %"
+                              prev={pct(n(d1.ls_ilimDersYeri), n(d1.ls_toplamDergah))}
+                              curr={pct(n(d2.ls_ilimDersYeri), n(d2.ls_toplamDergah))}
+                            />
+                            <Delta label="Katılımcı"  prev={n(d1.ls_ilimDersKatilim)} curr={n(d2.ls_ilimDersKatilim)} />
+                            <Delta label="Kafile"     prev={n(d1.ls_kafileSayisi)}    curr={n(d2.ls_kafileSayisi)} />
+                            <Delta label="Yeni İntisap" prev={n(d1.ls_yeniIntisap)}  curr={n(d2.ls_yeniIntisap)} />
+                          </div>
+
+                          {/* Üniversite */}
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: "#7C3AED" }}>
+                              🎯 Üniversite
+                            </p>
+                            <Delta
+                              label="İlim Yaygınlığı %"
+                              prev={pct(n(d1.uni_ilimDersYeri), n(d1.uni_toplamDergah))}
+                              curr={pct(n(d2.uni_ilimDersYeri), n(d2.uni_toplamDergah))}
+                            />
+                            <Delta label="Katılımcı"  prev={n(d1.uni_ilimDersKatilim)} curr={n(d2.uni_ilimDersKatilim)} />
+                            <Delta label="KYK Buluşma" prev={n(d1.uni_kykBulusmaSayisi)} curr={n(d2.uni_kykBulusmaSayisi)} />
+                            <Delta label="Yeni İntisap" prev={n(d1.uni_yeniIntisap)}  curr={n(d2.uni_yeniIntisap)} />
+                          </div>
+
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
