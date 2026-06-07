@@ -24,7 +24,7 @@ function useColors() {
   };
 }
 
-const NAV_ITEMS = [
+const GONULLU_NAV = [
   { href: "/gonullu/panel",                label: "Ana Sayfa",              icon: "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" },
   { href: "/gonullu/panel/burs-basvurusu", label: "Nezir Bursu Başvurusu", icon: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" },
   { href: "/gonullu/panel/basvurularim",   label: "Başvurularım",           icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
@@ -32,9 +32,11 @@ const NAV_ITEMS = [
   { href: "/gonullu/panel/profil",         label: "Profilim",               icon: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 11a4 4 0 100-8 4 4 0 000 8z" },
 ];
 
-const ADMIN_NAV_ITEMS = [
-  { href: "/panel/admin/gonulluler", label: "Gönüllü Yönetimi",   icon: "M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2 M23 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75" },
-  { href: "/panel",                  label: "Görevli Paneli",      icon: "M4 6h16M4 10h16M4 14h16M4 18h16" },
+const ADMIN_NAV = [
+  { href: "/gonullu/panel",               label: "Ana Sayfa",            icon: "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" },
+  { href: "/gonullu/panel/burs-paneli",   label: "Burs Başvuru Paneli",  icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+  { href: "/gonullu/panel/bildirimler",   label: "Geri Bildirimler",     icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" },
+  { href: "/gonullu/panel/profil",        label: "Profilim",             icon: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 11a4 4 0 100-8 4 4 0 000 8z" },
 ];
 
 export default function GonulluPanelLayout({ children }: { children: React.ReactNode }) {
@@ -88,10 +90,12 @@ export default function GonulluPanelLayout({ children }: { children: React.React
         </div>
       )}
 
-      {/* Gönüllü Nav */}
+      {/* Nav */}
       <nav style={{ flex: 1, padding: "12px 12px" }}>
-        {NAV_ITEMS.map(item => {
-          const active = pathname === item.href;
+        {(isAdmin ? ADMIN_NAV : GONULLU_NAV).map(item => {
+          const active = item.href === "/gonullu/panel"
+            ? pathname === item.href
+            : pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}
@@ -114,39 +118,6 @@ export default function GonulluPanelLayout({ children }: { children: React.React
             </Link>
           );
         })}
-
-        {/* Admin bölümü */}
-        {isAdmin && (
-          <>
-            <div style={{ margin: "12px 0 6px", padding: "0 12px" }}>
-              <p style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: c.mu }}>Yönetim</p>
-            </div>
-            {ADMIN_NAV_ITEMS.map(item => {
-              const active = pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMenuOpen(false)}
-                  style={{
-                    display: "flex", alignItems: "center", gap: "10px",
-                    padding: "10px 12px", borderRadius: "10px", marginBottom: "2px",
-                    background:  active ? (BRAND.gold + "25") : "transparent",
-                    color:       active ? "#92660A" : c.b,
-                    fontWeight:  active ? 700 : 500,
-                    fontSize:    "14px",
-                    textDecoration: "none",
-                  }}
-                >
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    {item.icon.split(" M").map((d, i) => <path key={i} d={(i === 0 ? "" : "M") + d}/>)}
-                  </svg>
-                  {item.label}
-                </Link>
-              );
-            })}
-          </>
-        )}
       </nav>
 
       {/* Çıkış */}
