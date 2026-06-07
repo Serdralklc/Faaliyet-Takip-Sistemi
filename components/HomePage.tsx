@@ -440,7 +440,7 @@ function Hero() {
       />
 
       <div className="relative z-10 flex-1 max-w-7xl mx-auto w-full px-5 lg:px-10 flex items-center pt-[66px]">
-        <div className="w-full grid lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_460px] gap-10 lg:gap-16 items-center py-14 lg:py-0 lg:min-h-[calc(100dvh-66px)]">
+        <div className="w-full grid lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_400px] gap-10 lg:gap-14 items-center py-14 lg:py-0 lg:min-h-[calc(100dvh-66px)]">
 
           {/* ── Sol: metin ── */}
           <div className="flex flex-col justify-center">
@@ -520,10 +520,10 @@ function Hero() {
           </div>
 
           {/* ── Sağ: slider ── */}
-          <div className="relative hidden lg:block self-stretch py-10">
+          <div className="relative hidden lg:flex lg:items-center lg:justify-center py-10">
             <div
-              className="relative h-full min-h-[480px] overflow-hidden rounded-2xl"
-              style={{ border: `1px solid ${t.heroBorder}` }}
+              className="relative w-full overflow-hidden rounded-2xl"
+              style={{ border: `1px solid ${t.heroBorder}`, aspectRatio: "1 / 1", maxHeight: "480px" }}
             >
               <ImageSlider t={t} />
             </div>
