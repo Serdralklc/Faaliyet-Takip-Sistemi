@@ -8,7 +8,6 @@ export type Tab = "ilkogretim" | "lise" | "universite";
 const THIS_YEAR = new Date().getFullYear();
 const YEARS = [THIS_YEAR, THIS_YEAR - 1, THIS_YEAR - 2];
 
-// İlköğretimde yaz dönemi var, lise ve üniversitede yok
 const DONEMLER: Record<Tab, { value: string; label: string }[]> = {
   ilkogretim: [
     { value: "DONEM_1",    label: "1. Dönem" },
@@ -39,9 +38,9 @@ const FIELDS: Record<Tab, { key: string; label: string; suffix?: string }[]> = {
     { key: "ls_toplamDergah",       label: "Toplam Dergah Sayısı",              suffix: "dergah"   },
     { key: "ls_ilimDersYeri",       label: "İlim Dersleri Yapılan Yer Sayısı",  suffix: "yer"      },
     { key: "ls_ilimDersKatilim",    label: "İlim Derslerine Katılan Öğrenci",   suffix: "öğrenci"  },
-    { key: "ls_sabahNamaziSayisi",  label: "Sabah Namazı Buluşma Sayısı",       suffix: "buluşma"  },
+    { key: "ls_sabahNamaziSayisi",  label: "Lise Sabah Namazı Buluşma",         suffix: "buluşma"  },
     { key: "ls_sabahNamaziKatilim", label: "Sabah Namazına Katılan Liseli",     suffix: "öğrenci"  },
-    { key: "ls_kafileSayisi",       label: "Yapılan Kafile Sayısı",             suffix: "kafile"   },
+    { key: "ls_kafileSayisi",       label: "Lise Kafile Sayısı",                suffix: "kafile"   },
     { key: "ls_kafileOgrenci",      label: "Kafile ile Giden Liseli Öğrenci",   suffix: "öğrenci"  },
     { key: "ls_toplamFaaliyet",     label: "Toplam Faaliyet Sayısı",            suffix: "faaliyet" },
     { key: "ls_yeniIntisap",        label: "Yeni İntisap Sayısı",               suffix: "kişi"     },
@@ -50,7 +49,7 @@ const FIELDS: Record<Tab, { key: string; label: string; suffix?: string }[]> = {
     { key: "uni_toplamDergah",       label: "Toplam Dergah Sayısı",                     suffix: "dergah"   },
     { key: "uni_ilimDersYeri",       label: "İlim Dersleri Yapılan Yer Sayısı",         suffix: "yer"      },
     { key: "uni_ilimDersKatilim",    label: "İlim Derslerine Katılan Öğrenci",          suffix: "öğrenci"  },
-    { key: "uni_sabahNamaziSayisi",  label: "Sabah Namazı Buluşma Sayısı",              suffix: "buluşma"  },
+    { key: "uni_sabahNamaziSayisi",  label: "Üniversite Sabah Namazı Buluşma",          suffix: "buluşma"  },
     { key: "uni_sabahNamaziKatilim", label: "Sabah Namazına Katılan Üniversiteli",      suffix: "öğrenci"  },
     { key: "uni_kafileSayisi",       label: "Üniversite Kafile Sayısı",                 suffix: "kafile"   },
     { key: "uni_kafileOgrenci",      label: "Kafile ile Giden Üniversiteli",            suffix: "öğrenci"  },
@@ -61,14 +60,33 @@ const FIELDS: Record<Tab, { key: string; label: string; suffix?: string }[]> = {
   ],
 };
 
+// Ortak faaliyet alanları — her iki birimde de gösterilir, aynı Activity kaydına yazılır
+const ORTAK_KAFILE_FIELDS = [
+  { key: "ortakKafileSayisi",      label: "Ortak Kafile Sayısı",             suffix: "kafile"  },
+  { key: "ortakKafileLiseKatilim", label: "Ortak Kafileye Katılan Liseli",   suffix: "öğrenci" },
+  { key: "ortakKafileUniKatilim",  label: "Ortak Kafileye Katılan Üniv.",    suffix: "öğrenci" },
+];
+
+const ORTAK_SABAH_FIELDS = [
+  { key: "ortakSabahNamaziSayisi",      label: "Ortak Sabah Namazı Buluşma",        suffix: "buluşma"  },
+  { key: "ortakSabahNamaziLiseKatilim", label: "Katılan Liseli",                    suffix: "öğrenci" },
+  { key: "ortakSabahNamaziUniKatilim",  label: "Katılan Üniversiteli",              suffix: "öğrenci" },
+];
+
+const ALL_ORTAK_KEYS = [
+  ...ORTAK_KAFILE_FIELDS.map(f => f.key),
+  ...ORTAK_SABAH_FIELDS.map(f => f.key),
+];
+
 const HEADER: Record<Tab, { label: string; color: string }> = {
   ilkogretim: { label: "İlköğretim Birimi", color: "#006B3F" },
   lise:        { label: "Lise Birimi",       color: "#0369A1" },
   universite:  { label: "Üniversite Birimi", color: "#7C3AED" },
 };
 
-function NumberInput({ label, value, suffix, onChange }: {
-  label: string; value: number; suffix?: string; onChange: (v: number) => void;
+function NumberInput({ label, value, suffix, onChange, accent }: {
+  label: string; value: number; suffix?: string;
+  onChange: (v: number) => void; accent?: string;
 }) {
   const [focused, setFocused] = React.useState(false);
   const displayValue = focused ? (value === 0 ? "" : String(value)) : String(value);
@@ -90,7 +108,7 @@ function NumberInput({ label, value, suffix, onChange }: {
           className="w-full rounded-xl px-4 py-3 text-sm font-bold border-2 focus:outline-none transition"
           style={{
             background: "var(--bg-input)",
-            borderColor: "var(--border-input)",
+            borderColor: focused && accent ? accent : "var(--border-input)",
             color: "var(--text-primary)",
           }}
         />
@@ -116,14 +134,13 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
   const fields = FIELDS[activeTab];
   const donemler = DONEMLER[activeTab];
   const header = HEADER[activeTab];
+  const showOrtak = activeTab === "lise" || activeTab === "universite";
 
-  // Sekme değişince dönem sıfırla (yaz dönemi seçiliyken liseye geçince)
   useEffect(() => {
     const valid = donemler.some(d => d.value === donem);
     if (!valid) setDonem("DONEM_1");
   }, [activeTab]);
 
-  // Mevcut veriyi çek
   useEffect(() => {
     if (!session?.user?.activeIlId) return;
     setLoaded(false);
@@ -132,6 +149,9 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
       .then(data => {
         const vals: Record<string, number> = {};
         fields.forEach(f => { vals[f.key] = data?.[f.key] ?? 0; });
+        if (showOrtak) {
+          ALL_ORTAK_KEYS.forEach(k => { vals[k] = data?.[k] ?? 0; });
+        }
         setForm(vals);
         setLoaded(true);
       });
@@ -154,10 +174,10 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
     setTimeout(() => setStatus("idle"), 3000);
   }
 
+  const ortakAcent = "#EA580C"; // turuncu — ortak bölüm rengi
+
   return (
     <div className="p-6 max-w-5xl">
-
-      {/* Sayfa başlığı */}
       <div className="sv-page-header">
         <h1>{header.label}</h1>
         <p>Dönem bazında faaliyet verilerini girin ve kaydedin</p>
@@ -166,19 +186,15 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
       {/* Yıl + Dönem seçici */}
       <div className="flex flex-wrap gap-4 mb-6 p-4 rounded-2xl border"
         style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
-
-        {/* Yıl */}
         <div>
           <label className="block text-xs font-bold mb-1.5 uppercase tracking-wide"
             style={{ color: "var(--text-muted)" }}>Yıl</label>
           <select value={yil} onChange={e => setYil(Number(e.target.value))}
-            className="border-2 rounded-xl px-4 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 transition"
+            className="border-2 rounded-xl px-4 py-2.5 text-sm font-bold focus:outline-none transition"
             style={{ background: "var(--bg-input)", borderColor: "var(--border-input)", color: "var(--text-primary)" }}>
             {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>
-
-        {/* Dönem — radio butonlar */}
         <div>
           <label className="block text-xs font-bold mb-1.5 uppercase tracking-wide"
             style={{ color: "var(--text-muted)" }}>Dönem</label>
@@ -196,8 +212,6 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
             ))}
           </div>
         </div>
-
-        {/* Mevcut seçim etiketi */}
         {loaded && (
           <div className="flex items-end">
             <span className="text-xs font-semibold px-3 py-1.5 rounded-full"
@@ -208,17 +222,15 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
         )}
       </div>
 
-      {/* Form alanları */}
-      <form onSubmit={handleSubmit}>
-        <div className="sv-section mb-6 overflow-hidden">
-          {/* Renkli başlık */}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Ana alanlar */}
+        <div className="sv-section overflow-hidden">
           <div className="px-6 py-4" style={{ background: header.color }}>
             <h2 className="text-white font-bold text-base">{header.label}</h2>
             <p className="text-white/60 text-xs mt-0.5">
-              {fields.length} alan &middot; {yil} / {donemler.find(d => d.value === donem)?.label}
+              {fields.length} alan · {yil} / {donemler.find(d => d.value === donem)?.label}
             </p>
           </div>
-
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {fields.map(f => (
               <NumberInput
@@ -227,10 +239,74 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
                 suffix={f.suffix}
                 value={form[f.key] ?? 0}
                 onChange={v => handleChange(f.key, v)}
+                accent={header.color}
               />
             ))}
           </div>
         </div>
+
+        {/* Ortak Kafile bölümü (Lise + Üniversite) */}
+        {showOrtak && (
+          <div className="sv-section overflow-hidden">
+            <div className="px-6 py-4" style={{ background: ortakAcent }}>
+              <h2 className="text-white font-bold text-base">🤝 Ortak Kafile</h2>
+              <p className="text-white/70 text-xs mt-0.5">
+                Lise ve üniversite öğrencilerinin birlikte katıldığı kafileler buraya girilir.
+                Çift sayımı önlemek için bu alana girilir — birim alanlarına tekrar girilmez.
+              </p>
+            </div>
+            <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {ORTAK_KAFILE_FIELDS.map(f => (
+                <NumberInput
+                  key={f.key}
+                  label={f.label}
+                  suffix={f.suffix}
+                  value={form[f.key] ?? 0}
+                  onChange={v => handleChange(f.key, v)}
+                  accent={ortakAcent}
+                />
+              ))}
+            </div>
+            <div className="px-6 pb-4">
+              <p className="text-xs rounded-xl px-3 py-2 inline-block font-semibold"
+                style={{ background: "#EA580C15", color: "#EA580C" }}>
+                Toplam kafile = Lise kafilesi + Üniversite kafilesi + Ortak kafile
+                ({(form["ls_kafileSayisi"] ?? 0) + (form["uni_kafileSayisi"] ?? 0) + (form["ortakKafileSayisi"] ?? 0)} toplam)
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Ortak Sabah Namazı bölümü */}
+        {showOrtak && (
+          <div className="sv-section overflow-hidden">
+            <div className="px-6 py-4" style={{ background: "#6366F1" }}>
+              <h2 className="text-white font-bold text-base">🤝 Ortak Sabah Namazı</h2>
+              <p className="text-white/70 text-xs mt-0.5">
+                Lise ve üniversite öğrencilerinin birlikte katıldığı sabah namazı buluşmaları.
+              </p>
+            </div>
+            <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {ORTAK_SABAH_FIELDS.map(f => (
+                <NumberInput
+                  key={f.key}
+                  label={f.label}
+                  suffix={f.suffix}
+                  value={form[f.key] ?? 0}
+                  onChange={v => handleChange(f.key, v)}
+                  accent="#6366F1"
+                />
+              ))}
+            </div>
+            <div className="px-6 pb-4">
+              <p className="text-xs rounded-xl px-3 py-2 inline-block font-semibold"
+                style={{ background: "#6366F115", color: "#6366F1" }}>
+                Toplam sabah namazı = Lise + Üniversite + Ortak
+                ({(form["ls_sabahNamaziSayisi"] ?? 0) + (form["uni_sabahNamaziSayisi"] ?? 0) + (form["ortakSabahNamaziSayisi"] ?? 0)} toplam)
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Kaydet butonu */}
         <div className="flex items-center gap-4">
@@ -253,7 +329,6 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
             {status === "success" && "✓ Kaydedildi"}
             {status === "error"   && "✕ Hata oluştu"}
           </button>
-
           {status === "success" && (
             <p className="text-sm font-semibold" style={{ color: "#059669" }}>Veriler başarıyla kaydedildi.</p>
           )}

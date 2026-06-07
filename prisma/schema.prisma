@@ -151,6 +151,14 @@ model Activity {
   uni_kykKatilim        Int @default(0)
   uni_yeniIntisap       Int @default(0)
 
+  // Ortak Faaliyet (Lise + Üniversite birlikte — çift sayım önleme)
+  ortakKafileSayisi           Int @default(0)
+  ortakKafileLiseKatilim      Int @default(0)
+  ortakKafileUniKatilim       Int @default(0)
+  ortakSabahNamaziSayisi      Int @default(0)
+  ortakSabahNamaziLiseKatilim Int @default(0)
+  ortakSabahNamaziUniKatilim  Int @default(0)
+
   // Ev/Apart/Yurt
   eay_mevcutEv      Int @default(0)
   eay_mevcutApart   Int @default(0)

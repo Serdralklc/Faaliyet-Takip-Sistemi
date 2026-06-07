@@ -12,7 +12,8 @@ export default async function IlDashboard() {
   const ilId = session.user.activeIlId;
   if (!ilId) redirect("/panel/beklemede");
 
-  const [il, faaliyetler, evSayisi, apartSayisi, yurtSayisi, ziyaretSayisi, ilHedefler] = await Promise.all([
+  const [il, faaliyetler, evSayisi, apartSayisi, yurtSayisi, ziyaretSayisi, ilHedefler,
+    toplamOgrenci, nezirBursu] = await Promise.all([
     prisma.il.findUnique({ where: { id: ilId }, include: { bolge: true } }),
     prisma.activity.findMany({
       where: { ilId },
@@ -26,6 +27,8 @@ export default async function IlDashboard() {
       where: { ilId },
       orderBy: [{ yil: "desc" }, { donem: "asc" }],
     }),
+    prisma.housingStudent.count({ where: { housingUnit: { ilId } } }),
+    prisma.housingStudent.count({ where: { housingUnit: { ilId }, bursMu: true } }),
   ]);
 
   if (!il) redirect("/panel/beklemede");
@@ -39,6 +42,8 @@ export default async function IlDashboard() {
       yurtSayisi={yurtSayisi}
       ziyaretSayisi={ziyaretSayisi}
       ilHedefler={ilHedefler}
+      toplamOgrenciBarinma={toplamOgrenci}
+      nezirBursuSayisi={nezirBursu}
     />
   );
 }

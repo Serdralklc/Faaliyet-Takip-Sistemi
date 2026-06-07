@@ -6,7 +6,10 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, LineChart, Line,
 } from "recharts";
-import { Users, TrendingUp, Heart, Compass, Sun, Home, Building2, Hotel, Eye, Target } from "lucide-react";
+import {
+  Users, TrendingUp, Heart, Compass, Sun, Home,
+  Building2, Hotel, Eye, Target, GraduationCap, School, BookOpen, UserCheck,
+} from "lucide-react";
 
 /* ─── Tipler ─── */
 interface Activity {
@@ -20,8 +23,15 @@ interface Activity {
   uni_ilimDersKatilim: number | null; uni_sabahNamaziSayisi: number | null;
   uni_kafileSayisi: number | null; uni_kykBulusmaSayisi: number | null;
   uni_toplamFaaliyet: number | null; uni_yeniIntisap: number | null;
+  ortakKafileSayisi: number | null;
+  ortakSabahNamaziSayisi: number | null;
 }
 interface Il { ad: string; bolge: { ad: string } }
+interface IlHedef {
+  id: string; yil: number; donem: string;
+  yeniIntisap: number; sosyalFaaliyet: number; kafile: number;
+  sabahNamazi: number; ilimDersi: number; kykBulusma: number; ziyaret: number;
+}
 
 /* ─── Yardımcılar ─── */
 const n = (v: number | null | undefined) => v ?? 0;
@@ -30,18 +40,17 @@ const pct = (pay: number, payda: number) => payda ? Math.round((pay / payda) * 1
 const DONEM_LABEL: Record<string, string> = {
   DONEM_1: "1. Dönem", DONEM_2: "2. Dönem", YAZ_DONEMI: "Yaz Dönemi",
 };
-
 const DONEM_SHORT: Record<string, string> = {
   DONEM_1: "D1", DONEM_2: "D2", YAZ_DONEMI: "Yaz",
 };
 
-/* ─── Yüzde Göstergesi ─── */
+/* ─── Yüzde Halkası ─── */
 function PctRing({ value, size = 64, stroke = 6, color }: {
   value: number; size?: number; stroke?: number; color: string;
 }) {
   const r = (size - stroke) / 2;
   const circ = 2 * Math.PI * r;
-  const filled = (value / 100) * circ;
+  const filled = (Math.min(100, value) / 100) * circ;
   return (
     <svg width={size} height={size} className="rotate-[-90deg]">
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--bg-hover)" strokeWidth={stroke} />
@@ -79,50 +88,34 @@ function MiniCard({ label, value, icon: Icon, color, sub, href }: {
 }
 
 /* ─── Performans Kartı ─── */
-function PerfCard({ birim, color, pctVal, katilim, intisap, faaliyet }: {
-  birim: string; color: string; pctVal: number;
-  katilim: number; intisap: number; faaliyet: number;
+function PerfCard({ birim, color, children }: {
+  birim: string; color: string; children: React.ReactNode;
 }) {
   return (
-    <div className="sv-section p-5 space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>{birim}</h3>
-        <span className="text-xs font-bold px-2 py-1 rounded-full"
-          style={{ background: `${color}18`, color }}>
-          {pctVal}% yaygınlık
-        </span>
-      </div>
-      <div className="flex items-center gap-4">
-        <div className="relative flex-shrink-0">
-          <PctRing value={pctVal} size={72} stroke={7} color={color} />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-sm font-black" style={{ color }}>%{pctVal}</span>
-          </div>
-        </div>
-        <div className="space-y-1.5 flex-1">
-          <div className="flex justify-between items-center">
-            <span className="text-xs" style={{ color: "var(--text-muted)" }}>Katılımcı</span>
-            <span className="text-xs font-bold" style={{ color: "var(--text-primary)" }}>{katilim}</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-xs" style={{ color: "var(--text-muted)" }}>Yeni İntisap</span>
-            <span className="text-xs font-bold" style={{ color: "var(--green-primary)" }}>{intisap}</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-xs" style={{ color: "var(--text-muted)" }}>Faaliyet</span>
-            <span className="text-xs font-bold" style={{ color: "var(--text-primary)" }}>{faaliyet}</span>
-          </div>
-        </div>
-      </div>
+    <div className="sv-section p-5 space-y-3">
+      <h3 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>{birim}</h3>
+      {children}
     </div>
   );
 }
 
-/* ─── Hedef Tipi ─── */
-interface IlHedef {
-  id: string; yil: number; donem: string;
-  yeniIntisap: number; sosyalFaaliyet: number; kafile: number;
-  sabahNamazi: number; ilimDersi: number; kykBulusma: number; ziyaret: number;
+function PerfRow({ label, value, color }: { label: string; value: string | number; color?: string }) {
+  return (
+    <div className="flex items-center justify-between py-1.5 border-b last:border-0"
+      style={{ borderColor: "var(--border)" }}>
+      <span className="text-xs" style={{ color: "var(--text-muted)" }}>{label}</span>
+      <span className="text-sm font-bold" style={{ color: color ?? "var(--text-primary)" }}>{value}</span>
+    </div>
+  );
+}
+
+function PctBadge({ value, color }: { value: number; color: string }) {
+  return (
+    <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+      style={{ background: `${color}18`, color }}>
+      %{value}
+    </span>
+  );
 }
 
 const HEDEF_LABELS = [
@@ -136,7 +129,7 @@ function hedefGerceklesen(f: Activity, key: string): number {
   const m: Record<string, number> = {
     yeniIntisap:    n(f.ls_yeniIntisap) + n(f.uni_yeniIntisap),
     sosyalFaaliyet: n(f.ls_toplamFaaliyet) + n(f.uni_toplamFaaliyet),
-    kafile:         n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi),
+    kafile:         n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi) + n(f.ortakKafileSayisi),
     kykBulusma:     n(f.uni_kykBulusmaSayisi),
   };
   return m[key] ?? 0;
@@ -144,28 +137,32 @@ function hedefGerceklesen(f: Activity, key: string): number {
 
 /* ─── Ana Client ─── */
 export default function IlDashboardClient({
-  il, faaliyetler, evSayisi, apartSayisi, yurtSayisi, ziyaretSayisi, ilHedefler,
+  il, faaliyetler, evSayisi, apartSayisi, yurtSayisi, ziyaretSayisi,
+  ilHedefler, toplamOgrenciBarinma, nezirBursuSayisi,
 }: {
   il: Il;
   faaliyetler: Activity[];
   evSayisi: number; apartSayisi: number; yurtSayisi: number; ziyaretSayisi: number;
   ilHedefler: IlHedef[];
+  toplamOgrenciBarinma: number;
+  nezirBursuSayisi: number;
 }) {
   const son = faaliyetler[0] ?? null;
 
   /* Tüm dönemlerin toplamları */
   const totals = useMemo(() => {
-    let toplamOgrenci = 0, toplamIntisap = 0, toplamFaaliyet = 0,
-      toplamKafile = 0, toplamSabah = 0;
+    let ikOgrenci = 0, lsOgrenci = 0, uniOgrenci = 0;
+    let toplamIntisap = 0, toplamFaaliyet = 0, toplamKafile = 0, toplamSabah = 0;
     for (const f of faaliyetler) {
-      toplamOgrenci   += n(f.ik_elifBaOgrenci) + n(f.ik_kuranOgrenci)
-        + n(f.ls_ilimDersKatilim) + n(f.uni_ilimDersKatilim);
+      ikOgrenci    += n(f.ik_elifBaOgrenci) + n(f.ik_kuranOgrenci);
+      lsOgrenci    += n(f.ls_ilimDersKatilim);
+      uniOgrenci   += n(f.uni_ilimDersKatilim);
       toplamIntisap   += n(f.ls_yeniIntisap) + n(f.uni_yeniIntisap);
       toplamFaaliyet  += n(f.ls_toplamFaaliyet) + n(f.uni_toplamFaaliyet);
-      toplamKafile    += n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi);
-      toplamSabah     += n(f.ls_sabahNamaziSayisi) + n(f.uni_sabahNamaziSayisi);
+      toplamKafile    += n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi) + n(f.ortakKafileSayisi);
+      toplamSabah     += n(f.ls_sabahNamaziSayisi) + n(f.uni_sabahNamaziSayisi) + n(f.ortakSabahNamaziSayisi);
     }
-    return { toplamOgrenci, toplamIntisap, toplamFaaliyet, toplamKafile, toplamSabah };
+    return { ikOgrenci, lsOgrenci, uniOgrenci, toplamIntisap, toplamFaaliyet, toplamKafile, toplamSabah };
   }, [faaliyetler]);
 
   /* Grafik verisi */
@@ -173,20 +170,22 @@ export default function IlDashboardClient({
     faaliyetler.slice().reverse().map(f => ({
       name: `${f.yil} ${DONEM_SHORT[f.donem]}`,
       "Yeni İntisap": n(f.ls_yeniIntisap) + n(f.uni_yeniIntisap),
-      "Öğrenci": n(f.ik_elifBaOgrenci) + n(f.ik_kuranOgrenci),
+      "Öğrenci (İK)": n(f.ik_elifBaOgrenci) + n(f.ik_kuranOgrenci),
       "Faaliyet": n(f.ls_toplamFaaliyet) + n(f.uni_toplamFaaliyet),
     }))
   , [faaliyetler]);
 
-  /* Son dönem performans */
+  /* Son dönem hesapları */
   const ikPct  = son ? pct(n(son.ik_kursuYapilanDergah),  n(son.ik_toplamDergah))  : 0;
   const lsPct  = son ? pct(n(son.ls_ilimDersYeri),  n(son.ls_toplamDergah))  : 0;
   const uniPct = son ? pct(n(son.uni_ilimDersYeri), n(son.uni_toplamDergah)) : 0;
+  const ikGecis = son ? pct(n(son.ik_gecisOgrenci), n(son.ik_elifBaOgrenci) + n(son.ik_kuranOgrenci)) : 0;
+  const sonLabel = son ? `${son.yil} / ${DONEM_LABEL[son.donem]}` : "";
 
   return (
     <div className="p-6 max-w-6xl space-y-7">
 
-      {/* ── Başlık ── */}
+      {/* Başlık */}
       <div className="sv-page-header">
         <div>
           <h1>{il.ad} İl Paneli</h1>
@@ -199,57 +198,107 @@ export default function IlDashboardClient({
         </Link>
       </div>
 
-      {/* ── Özet mini kartlar ── */}
+      {/* ── Öğrenci Özeti ── */}
       <div>
         <p className="text-[11px] font-bold uppercase tracking-widest mb-3"
-          style={{ color: "var(--text-muted)" }}>Genel Özet (Tüm Dönemler)</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          <MiniCard label="Toplam Öğrenci"    value={totals.toplamOgrenci}  icon={Users}    color="#006B3F" />
-          <MiniCard label="Yeni İntisap"      value={totals.toplamIntisap}  icon={Heart}    color="#D9BC4B" />
-          <MiniCard label="Sosyal Faaliyet"   value={totals.toplamFaaliyet} icon={TrendingUp} color="#0369A1" />
-          <MiniCard label="Toplam Kafile"     value={totals.toplamKafile}   icon={Compass}  color="#7C3AED" />
-          <MiniCard label="Sabah Namazı"      value={totals.toplamSabah}    icon={Sun}      color="#EA580C" />
+          style={{ color: "var(--text-muted)" }}>Öğrenci Özeti (Tüm Dönemler)</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <MiniCard label="İlköğretim Öğrenci"  value={totals.ikOgrenci}   icon={BookOpen}      color="#006B3F" href="/panel/il/faaliyet/ilkogretim" />
+          <MiniCard label="Lise Öğrenci"         value={totals.lsOgrenci}   icon={School}        color="#0369A1" href="/panel/il/faaliyet/lise" />
+          <MiniCard label="Üniversite Öğrenci"   value={totals.uniOgrenci}  icon={GraduationCap} color="#7C3AED" href="/panel/il/faaliyet/universite" />
         </div>
       </div>
 
-      {/* ── Barınma & Ziyaret ── */}
+      {/* ── Faaliyet Özeti ── */}
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-widest mb-3"
+          style={{ color: "var(--text-muted)" }}>Faaliyet Özeti (Tüm Dönemler)</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <MiniCard label="Yeni İntisap"    value={totals.toplamIntisap}  icon={Heart}     color="#D9BC4B" />
+          <MiniCard label="Sosyal Faaliyet" value={totals.toplamFaaliyet} icon={TrendingUp} color="#0369A1" />
+          <MiniCard label="Toplam Kafile"   value={totals.toplamKafile}   icon={Compass}   color="#7C3AED" />
+          <MiniCard label="Sabah Namazı"    value={totals.toplamSabah}    icon={Sun}       color="#EA580C" />
+        </div>
+      </div>
+
+      {/* ── Barınma ── */}
       <div>
         <p className="text-[11px] font-bold uppercase tracking-widest mb-3"
           style={{ color: "var(--text-muted)" }}>Barınma</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <MiniCard label="Aktif Ev"     value={evSayisi}     icon={Home}      color="#006B3F" href="/panel/il/barinma" />
-          <MiniCard label="Aktif Apart"  value={apartSayisi}  icon={Building2} color="#0369A1" href="/panel/il/barinma" />
-          <MiniCard label="Aktif Yurt"   value={yurtSayisi}   icon={Hotel}     color="#7C3AED" href="/panel/il/barinma" />
-          <MiniCard label="Toplam Ziyaret" value={ziyaretSayisi} icon={Eye}   color="#EA580C" href="/panel/il/barinma/ziyaret" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <MiniCard label="Aktif Ev"          value={evSayisi}              icon={Home}      color="#006B3F" href="/panel/il/barinma" />
+          <MiniCard label="Aktif Apart"       value={apartSayisi}           icon={Building2} color="#0369A1" href="/panel/il/barinma" />
+          <MiniCard label="Aktif Yurt"        value={yurtSayisi}            icon={Hotel}     color="#7C3AED" href="/panel/il/barinma" />
+          <MiniCard label="Toplam Ziyaret"    value={ziyaretSayisi}         icon={Eye}       color="#EA580C" href="/panel/il/barinma/ziyaret" />
+          <MiniCard label="Barınan Öğrenci"   value={toplamOgrenciBarinma}  icon={Users}     color="#059669" href="/panel/il/barinma/ogrenci" />
+          <MiniCard label="Nezir Bursu Alan"  value={nezirBursuSayisi}      icon={UserCheck} color="#D9BC4B" href="/panel/il/barinma/ogrenci" />
         </div>
       </div>
 
-      {/* ── Son dönem performans kartları ── */}
+      {/* ── Son dönem performans ── */}
       {son && (
         <div>
           <p className="text-[11px] font-bold uppercase tracking-widest mb-3"
-            style={{ color: "var(--text-muted)" }}>
-            Son Dönem Performansı — {son.yil} / {DONEM_LABEL[son.donem]}
-          </p>
+            style={{ color: "var(--text-muted)" }}>Son Dönem — {sonLabel}</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <PerfCard
-              birim="İlköğretim Birimi" color="#006B3F" pctVal={ikPct}
-              katilim={n(son.ik_elifBaOgrenci) + n(son.ik_kuranOgrenci)}
-              intisap={0}
-              faaliyet={n(son.ik_kursuYapilanDergah)}
-            />
-            <PerfCard
-              birim="Lise Birimi" color="#0369A1" pctVal={lsPct}
-              katilim={n(son.ls_ilimDersKatilim)}
-              intisap={n(son.ls_yeniIntisap)}
-              faaliyet={n(son.ls_toplamFaaliyet)}
-            />
-            <PerfCard
-              birim="Üniversite Birimi" color="#7C3AED" pctVal={uniPct}
-              katilim={n(son.uni_ilimDersKatilim)}
-              intisap={n(son.uni_yeniIntisap)}
-              faaliyet={n(son.uni_toplamFaaliyet)}
-            />
+
+            {/* İlköğretim */}
+            <PerfCard birim="📚 İlköğretim" color="#006B3F">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="relative flex-shrink-0">
+                  <PctRing value={ikPct} size={60} stroke={6} color="#006B3F" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-black" style={{ color: "#006B3F" }}>%{ikPct}</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase" style={{ color: "var(--text-muted)" }}>Kurs Yaygınlığı</p>
+                  <PctBadge value={ikPct} color="#006B3F" />
+                </div>
+              </div>
+              <PerfRow label="Toplam Öğrenci" value={n(son.ik_elifBaOgrenci) + n(son.ik_kuranOgrenci)} />
+              <PerfRow label="Kur'an'a Geçen" value={n(son.ik_gecisOgrenci)} color="#006B3F" />
+              <PerfRow label="Geçiş Başarısı" value={`%${ikGecis}`} color={ikGecis >= 70 ? "#059669" : "#D9BC4B"} />
+            </PerfCard>
+
+            {/* Lise */}
+            <PerfCard birim="🎓 Lise" color="#0369A1">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="relative flex-shrink-0">
+                  <PctRing value={lsPct} size={60} stroke={6} color="#0369A1" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-black" style={{ color: "#0369A1" }}>%{lsPct}</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase" style={{ color: "var(--text-muted)" }}>İlim Yaygınlığı</p>
+                  <PctBadge value={lsPct} color="#0369A1" />
+                </div>
+              </div>
+              <PerfRow label="Toplam Katılımcı" value={n(son.ls_ilimDersKatilim)} />
+              <PerfRow label="Yeni İntisap" value={n(son.ls_yeniIntisap)} color="#059669" />
+              <PerfRow label="Toplam Faaliyet" value={n(son.ls_toplamFaaliyet)} />
+            </PerfCard>
+
+            {/* Üniversite */}
+            <PerfCard birim="🎯 Üniversite" color="#7C3AED">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="relative flex-shrink-0">
+                  <PctRing value={uniPct} size={60} stroke={6} color="#7C3AED" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-black" style={{ color: "#7C3AED" }}>%{uniPct}</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase" style={{ color: "var(--text-muted)" }}>İlim Yaygınlığı</p>
+                  <PctBadge value={uniPct} color="#7C3AED" />
+                </div>
+              </div>
+              <PerfRow label="Toplam Katılımcı" value={n(son.uni_ilimDersKatilim)} />
+              <PerfRow label="Yeni İntisap" value={n(son.uni_yeniIntisap)} color="#059669" />
+              <PerfRow label="Toplam Faaliyet" value={n(son.uni_toplamFaaliyet)} />
+            </PerfCard>
+
           </div>
         </div>
       )}
@@ -257,12 +306,8 @@ export default function IlDashboardClient({
       {/* ── Grafikler ── */}
       {chartData.length > 1 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-
-          {/* İntisap trendi */}
           <div className="sv-section p-5">
-            <h3 className="font-bold text-sm mb-4" style={{ color: "var(--text-primary)" }}>
-              Yeni İntisap Trendi
-            </h3>
+            <h3 className="font-bold text-sm mb-4" style={{ color: "var(--text-primary)" }}>Yeni İntisap</h3>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={chartData} barSize={20}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -273,12 +318,8 @@ export default function IlDashboardClient({
               </BarChart>
             </ResponsiveContainer>
           </div>
-
-          {/* Öğrenci & Faaliyet trendi */}
           <div className="sv-section p-5">
-            <h3 className="font-bold text-sm mb-4" style={{ color: "var(--text-primary)" }}>
-              Öğrenci & Faaliyet Trendi
-            </h3>
+            <h3 className="font-bold text-sm mb-4" style={{ color: "var(--text-primary)" }}>Öğrenci & Faaliyet</h3>
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -286,7 +327,7 @@ export default function IlDashboardClient({
                 <YAxis tick={{ fontSize: 11 }} stroke="var(--text-muted)" allowDecimals={false} />
                 <Tooltip contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10 }} />
                 <Legend />
-                <Line type="monotone" dataKey="Öğrenci" stroke="#006B3F" strokeWidth={2} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="Öğrenci (İK)" stroke="#006B3F" strokeWidth={2} dot={{ r: 4 }} />
                 <Line type="monotone" dataKey="Faaliyet" stroke="#0369A1" strokeWidth={2} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
@@ -294,7 +335,7 @@ export default function IlDashboardClient({
         </div>
       )}
 
-      {/* ── Hedef Takip Merkezi Widget ── */}
+      {/* ── Hedef Takip Widget ── */}
       {ilHedefler.length > 0 && (() => {
         const sonHedef = ilHedefler[0];
         const sonF = faaliyetler.find(f => f.yil === sonHedef.yil && f.donem === sonHedef.donem);
@@ -302,10 +343,9 @@ export default function IlDashboardClient({
           <div>
             <div className="flex items-center justify-between mb-3">
               <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
-                Hedef Takip Merkezi — {sonHedef.yil} / {DONEM_LABEL[sonHedef.donem]}
+                Hedef Takip — {sonHedef.yil} / {DONEM_LABEL[sonHedef.donem]}
               </p>
-              <Link href="/panel/il/hedefler"
-                className="text-xs font-bold" style={{ color: "var(--green-primary)" }}>
+              <Link href="/panel/il/hedefler" className="text-xs font-bold" style={{ color: "var(--green-primary)" }}>
                 Tümünü Gör →
               </Link>
             </div>
