@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 /* ── Rol → Sistem enum eşlemesi ── */
@@ -183,8 +183,10 @@ function LoginForm({
   roleKey: RoleKey;
   onBack: () => void;
 }) {
-  const router   = useRouter();
-  const role     = ROLES.find(r => r.key === roleKey)!;
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo   = searchParams.get("redirect") ?? "/";
+  const role         = ROLES.find(r => r.key === roleKey)!;
 
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
@@ -207,7 +209,7 @@ function LoginForm({
         }
         setLoading(false);
       } else {
-        router.push("/");
+        router.push(redirectTo);
         router.refresh();
       }
     } catch {
