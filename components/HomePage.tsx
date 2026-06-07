@@ -45,10 +45,10 @@ const LIGHT: Tokens = {
   heroBorder:    "#1A3D28",
   statsBg:       "#0A1A10",
   statsText:     "#FFFFFF",
-  statsMuted:    "#5A8066",
+  statsMuted:    "#7AAA8A",
   footerBg:      "#080F0A",
   footerHeading: "#C8DDD0",
-  footerText:    "#4E7057",
+  footerText:    "#5A7F66",
 } as const;
 
 const DARK: Tokens = {
@@ -59,23 +59,23 @@ const DARK: Tokens = {
   borderSubtle:  "#243328",
   heading:       "#EBF2EC",
   body:          "#7DAB88",
-  muted:         "#4D6B56",
+  muted:         "#7A9E85",   /* brightened — was #4D6B56 */
   accent:        "#00A85E",
   accentText:    "#FFFFFF",
   gold:          "#D4AC30",
   goldBg:        "#1E1A00",
   heroText:      "#FFFFFF",
-  heroSub:       "#A8C8B4",
-  heroBody:      "#6B9478",
+  heroSub:       "#C0D8C8",   /* brightened — was #A8C8B4 */
+  heroBody:      "#9BBFAA",   /* brightened — was #6B9478 */
   heroBg:        "#020806",
   heroSurface:   "#0A1A10",
   heroBorder:    "#152A1C",
   statsBg:       "#000000",
   statsText:     "#FFFFFF",
-  statsMuted:    "#3A5C42",
+  statsMuted:    "#6A9478",   /* brightened — was #3A5C42 */
   footerBg:      "#000000",
-  footerHeading: "#B8D0BC",
-  footerText:    "#3A5C42",
+  footerHeading: "#C8DDD0",   /* brightened — was #B8D0BC */
+  footerText:    "#5E8468",   /* brightened — was #3A5C42 */
 } as const;
 
 
