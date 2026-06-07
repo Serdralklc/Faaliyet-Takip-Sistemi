@@ -16,7 +16,15 @@ import { useTheme } from "next-themes";
 /* ════════════════════════════════════════
    TOKEN SYSTEM — light / dark
 ════════════════════════════════════════ */
-const LIGHT = {
+type Tokens = {
+  bg: string; surface: string; surfaceAlt: string; border: string; borderSubtle: string;
+  heading: string; body: string; muted: string; accent: string; accentText: string;
+  gold: string; goldBg: string; heroText: string; heroSub: string; heroBody: string;
+  heroBg: string; heroSurface: string; heroBorder: string; statsBg: string; statsText: string;
+  statsMuted: string; footerBg: string; footerHeading: string; footerText: string;
+};
+
+const LIGHT: Tokens = {
   bg:            "#F5F7F3",
   surface:       "#FFFFFF",
   surfaceAlt:    "#EEF2EC",
@@ -43,7 +51,7 @@ const LIGHT = {
   footerText:    "#4E7057",
 } as const;
 
-const DARK = {
+const DARK: Tokens = {
   bg:            "#080F0A",
   surface:       "#0F1A12",
   surfaceAlt:    "#162019",
@@ -70,7 +78,7 @@ const DARK = {
   footerText:    "#3A5C42",
 } as const;
 
-type Tokens = typeof LIGHT;
+
 
 function useTokens(): Tokens {
   const { resolvedTheme } = useTheme();
