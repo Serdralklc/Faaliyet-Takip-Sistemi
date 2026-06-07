@@ -342,12 +342,13 @@ function Navbar() {
 }
 
 /* ─── GÖRSEL SLİDER ──────────────────────── */
+// Gerçek görseller: public/images/ klasörüne faaliyet-1.jpg ... faaliyet-5.jpg olarak ekleyin
 const SLIDES = [
-  { src: "/images/faaliyet-1.jpg", caption: "Kafile Programları",          sub: "Gençleri birleştiren manevi yolculuklar"  },
-  { src: "/images/faaliyet-2.jpg", caption: "İlim Dersleri",               sub: "Haftalık sistematik eğitim programı"      },
-  { src: "/images/faaliyet-3.jpg", caption: "Sabah Namazı Buluşmaları",    sub: "Türkiye genelinde gençlik halkası"        },
-  { src: "/images/faaliyet-4.jpg", caption: "Gençlik Faaliyetleri",        sub: "Birlikte büyüyen, birlikte güçlenen nesil" },
-  { src: "/images/faaliyet-5.jpg", caption: "Kur'an-ı Kerim Eğitimi",      sub: "Elif-Ba'dan başlayan köklü yolculuk"     },
+  { src: "/images/faaliyet-1.jpg", caption: "Kafile Programları",       sub: "Gençleri birleştiren manevi yolculuklar"   },
+  { src: "/images/faaliyet-2.jpg", caption: "İlim Dersleri",            sub: "Haftalık sistematik eğitim programı"       },
+  { src: "/images/faaliyet-3.jpg", caption: "Sabah Namazı Buluşmaları", sub: "Türkiye genelinde gençlik halkası"         },
+  { src: "/images/faaliyet-4.jpg", caption: "Gençlik Faaliyetleri",     sub: "Birlikte büyüyen, birlikte güçlenen nesil" },
+  { src: "/images/faaliyet-5.jpg", caption: "Kur'an-ı Kerim Eğitimi",   sub: "Elif-Ba'dan başlayan köklü yolculuk"      },
 ];
 
 function ImageSlider({ t }: { t: Tokens }) {
