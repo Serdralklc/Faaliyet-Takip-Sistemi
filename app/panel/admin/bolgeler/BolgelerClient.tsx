@@ -10,7 +10,7 @@ interface Sorumlu {
 
 interface SonFaaliyet {
   yil: number;
-  donem: number;
+  donem: string;
   createdAt: string;
 }
 
@@ -200,7 +200,7 @@ export function BolgelerClient({ sistemVerileri }: { sistemVerileri: SistemVeri[
                               {il.sonFaaliyet ? (
                                 <div>
                                   <div className="font-semibold text-sm" style={{ color: "var(--text-secondary)" }}>
-                                    {il.sonFaaliyet.yil} / {il.sonFaaliyet.donem}. Dönem
+                                    {il.sonFaaliyet.yil} / {il.sonFaaliyet.donem}
                                   </div>
                                   <div>{timeAgo(il.sonFaaliyet.createdAt)}</div>
                                 </div>
