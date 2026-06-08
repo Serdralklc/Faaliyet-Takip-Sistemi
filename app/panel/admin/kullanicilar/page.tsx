@@ -367,6 +367,7 @@ export default function KullanicilarPage() {
                 role:    (k.basvuruGorev as Role) || "IL_SORUMLUSU",
                 bolgeId: k.basvuruBolgeId || "",
                 ilId:    k.basvuruIlId    || "",
+                sistem:  k.sistem || "",
               });
             }}
             className="text-blue-600 hover:underline text-xs font-semibold"
