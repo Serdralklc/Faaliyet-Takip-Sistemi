@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 function isAdmin(session: { user?: { role?: string } } | null) {
   if (!session?.user) return false;
-  return ["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(session.user.role ?? "");
+  return ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(session.user.role ?? "");
 }
 
 export async function GET(req: NextRequest) {

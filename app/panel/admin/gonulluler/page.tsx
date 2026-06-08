@@ -1,4 +1,4 @@
-import { getServerSession } from "next-auth";
+﻿import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { redirect } from "next/navigation";
@@ -11,7 +11,7 @@ export default async function AdminGonullulerPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/giris");
   const role = session.user.role ?? "";
-  if (!["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(role)) redirect("/panel");
+  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(role)) redirect("/panel");
 
   const [gonulluler, bursBasvurulari, geriBildirimler] = await Promise.all([
     prisma.volunteer.findMany({
