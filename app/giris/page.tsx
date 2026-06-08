@@ -215,6 +215,8 @@ function LoginForm({
           setError(`Bu hesap "${role.title}" sistemine kayıtlı değil. Lütfen doğru giriş kartını seçin.`);
         } else if (res?.error === "YONETICI_YETKISIZ") {
           setError("Bu hesabın Yönetici Paneli yetkisi bulunmuyor. Lütfen sistem kartlarından birini kullanın.");
+        } else if (res?.error === "SADECE_YONETICI_KARTI") {
+          setError("Bu hesap sadece Yönetici Paneli kartından giriş yapabilir.");
         } else {
           setError("E-posta veya şifre hatalı.");
         }

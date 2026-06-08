@@ -103,6 +103,13 @@ export const authOptions: NextAuthOptions = {
         }
 
         const sistemEnum = requestedSistem as Sistem | undefined;
+
+        // Yönetici rolleri sadece YONETICI kartından girebilir
+        const YONETICI_ROLLERI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"];
+        if (YONETICI_ROLLERI.includes(user.role)) {
+          throw new Error("SADECE_YONETICI_KARTI");
+        }
+
         // SISTEM_ADMIN tüm sistemlere girebilir — sistem kontrolü atlanır
         const isSuperAdmin = user.role === "SISTEM_ADMIN";
         if (!isSuperAdmin && sistemEnum && user.sistem !== sistemEnum) {
