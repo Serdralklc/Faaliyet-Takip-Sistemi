@@ -17,6 +17,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Şifre en az 8 karakter olmalıdır" }, { status: 400 });
   }
 
+  // Yönetici başvurusu: bolge/il zorunlu değil
+  const YONETICI_GOREVCLER = ["TURKIYE_SORUMLUSU", "GENEL_MERKEZ"];
+  const isYoneticiBasvuru = YONETICI_GOREVCLER.includes(gorev ?? "")
+    && !bolgeId && !ilId;
+
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     return NextResponse.json({ error: "Bu e-posta adresi zaten kayıtlı" }, { status: 400 });
@@ -35,6 +40,9 @@ export async function POST(req: NextRequest) {
       role:   "BEKLEYEN",
       status: "BEKLEMEDE",
       sistem: sistemValue,
+      basvuruGorev:   gorev   || null,
+      basvuruBolgeId: bolgeId || null,
+      basvuruIlId:    ilId    || null,
     },
   });
 

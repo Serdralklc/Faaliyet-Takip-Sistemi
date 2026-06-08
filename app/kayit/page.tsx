@@ -31,15 +31,25 @@ const SISTEM_LABELS: Record<SistemKey, { bolge: string; il: string; baslik: stri
   },
 };
 
+/* ── Yönetici başvuru rolleri ── */
+const YONETICI_ROLLER = [
+  { label: "Türkiye Eğitim Sorumlusu",            gorev: "TURKIYE_SORUMLUSU", sistem: "EGITIMCI"   },
+  { label: "Merkez Ekibi",                         gorev: "GENEL_MERKEZ",      sistem: "EGITIMCI"   },
+  { label: "Türkiye Üniversite Gençlik Sorumlusu", gorev: "TURKIYE_SORUMLUSU", sistem: "UNIVERSITE" },
+  { label: "Türkiye Lise Gençlik Sorumlusu",       gorev: "TURKIYE_SORUMLUSU", sistem: "LISE"       },
+] as const;
+
 /* ── Query param'dan sistem oku ── */
-function getSistem(raw: string | null): SistemKey {
-  const map: Record<string, SistemKey> = {
+function getSistem(raw: string | null): SistemKey | "YONETICI" {
+  const map: Record<string, SistemKey | "YONETICI"> = {
     egitimci:   "EGITIMCI",
     universite: "UNIVERSITE",
     lise:       "LISE",
+    yonetici:   "YONETICI",
     EGITIMCI:   "EGITIMCI",
     UNIVERSITE: "UNIVERSITE",
     LISE:       "LISE",
+    YONETICI:   "YONETICI",
   };
   return map[raw ?? ""] ?? "EGITIMCI";
 }
@@ -48,7 +58,10 @@ function getSistem(raw: string | null): SistemKey {
 function KayitForm() {
   const params     = useSearchParams();
   const sistemKey  = getSistem(params.get("sistem"));
-  const sl         = SISTEM_LABELS[sistemKey];
+  const isYonetici = sistemKey === "YONETICI";
+  const sl = isYonetici
+    ? { bolge: "", il: "", baslik: "Yönetici Başvurusu", renk: "#92400E" }
+    : SISTEM_LABELS[sistemKey as SistemKey];
 
   const [bolgeler, setBolgeler] = useState<Bolge[]>([]);
   const [form, setForm] = useState({
@@ -56,6 +69,8 @@ function KayitForm() {
     sifre: "", sifreTekrar: "",
     gorev: "" as "" | "IL_SORUMLUSU" | "BOLGE_SORUMLUSU",
     bolgeId: "", ilId: "",
+    // Yönetici modunda seçilen rol index'i
+    yoneticiRolIdx: -1,
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -63,35 +78,47 @@ function KayitForm() {
   const [showPass, setShowPass] = useState(false);
 
   useEffect(() => {
-    fetch("/api/bolgeler?public=1").then(r => r.json()).then(setBolgeler);
-  }, []);
+    if (!isYonetici) {
+      fetch("/api/bolgeler?public=1").then(r => r.json()).then(setBolgeler);
+    }
+  }, [isYonetici]);
 
   const seciliBolge = bolgeler.find(b => b.id === form.bolgeId);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (form.sifre.length < 8)              { setError("Şifre en az 8 karakter olmalıdır."); return; }
-    if (form.sifre !== form.sifreTekrar)    { setError("Şifreler eşleşmiyor."); return; }
-    if (!form.gorev)                         { setError("Başvurulan görevi seçiniz."); return; }
-    if (!form.bolgeId)                       { setError("Bölge seçiniz."); return; }
-    if (form.gorev === "IL_SORUMLUSU" && !form.ilId) { setError("İl seçiniz."); return; }
+    if (form.sifre.length < 8)           { setError("Şifre en az 8 karakter olmalıdır."); return; }
+    if (form.sifre !== form.sifreTekrar) { setError("Şifreler eşleşmiyor."); return; }
+
+    let payload: Record<string, unknown>;
+
+    if (isYonetici) {
+      if (form.yoneticiRolIdx < 0) { setError("Başvurulan rolü seçiniz."); return; }
+      const secilen = YONETICI_ROLLER[form.yoneticiRolIdx];
+      payload = {
+        ad: form.ad, soyad: form.soyad, email: form.email,
+        telefon: form.telefon, sifre: form.sifre,
+        gorev:  secilen.gorev,
+        sistem: secilen.sistem,
+      };
+    } else {
+      if (!form.gorev)   { setError("Başvurulan görevi seçiniz."); return; }
+      if (!form.bolgeId) { setError("Bölge seçiniz."); return; }
+      if (form.gorev === "IL_SORUMLUSU" && !form.ilId) { setError("İl seçiniz."); return; }
+      payload = {
+        ad: form.ad, soyad: form.soyad, email: form.email,
+        telefon: form.telefon, sifre: form.sifre,
+        gorev: form.gorev, bolgeId: form.bolgeId,
+        ilId: form.gorev === "IL_SORUMLUSU" ? form.ilId : undefined,
+        sistem: sistemKey,
+      };
+    }
 
     setLoading(true);
     const res = await fetch("/api/kayit", {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ad:      form.ad,
-        soyad:   form.soyad,
-        email:   form.email,
-        telefon: form.telefon,
-        sifre:   form.sifre,
-        gorev:   form.gorev,
-        bolgeId: form.bolgeId,
-        ilId:    form.gorev === "IL_SORUMLUSU" ? form.ilId : undefined,
-        sistem:  sistemKey,
-      }),
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     setLoading(false);
@@ -111,12 +138,13 @@ function KayitForm() {
           </div>
           <h2 className="text-[20px] font-black mb-2" style={{ color: "#0F172A" }}>Başvurunuz Alındı</h2>
           <p className="text-[14px] leading-[1.65]" style={{ color: "#64748B" }}>
-            Hesabınız oluşturuldu. Yönetici onayı sonrasında{" "}
-            <span className="font-semibold" style={{ color: sl.renk }}>{sl.baslik.replace(" Başvurusu", "")}</span>{" "}
-            sistemine giriş yapabilirsiniz.
+            {isYonetici
+              ? "Başvurunuz alındı. Admin onayı sonrasında Yönetici Paneli'nden giriş yapabilirsiniz."
+              : `Hesabınız oluşturuldu. Yönetici onayı sonrasında ${sl.baslik.replace(" Başvurusu", "")} sistemine giriş yapabilirsiniz.`
+            }
           </p>
           <Link
-            href={`/giris?sistem=${sistemKey.toLowerCase()}`}
+            href="/giris"
             className="inline-block mt-6 px-6 py-2.5 rounded-xl text-[14px] font-bold text-white transition hover:opacity-90"
             style={{ background: sl.renk }}
           >
@@ -259,91 +287,120 @@ function KayitForm() {
               </div>
             </div>
 
-            {/* ── Başvurulan Görev — Bölge SOL / İl SAĞ ── */}
+            {/* ── Başvurulan Görev ── */}
             <div className="border-t pt-5" style={{ borderColor: "#E2E8F0" }}>
               <p className="text-[11px] font-black uppercase tracking-widest mb-4" style={{ color: "#94A3B8" }}>
                 Başvurulan Görev
               </p>
 
-              <div className="grid grid-cols-2 gap-3">
-                {/* Sol — Bölge */}
-                {[
-                  { val: "BOLGE_SORUMLUSU", label: sl.bolge, side: "Bölge Yetkilisi" },
-                  { val: "IL_SORUMLUSU",    label: sl.il,    side: "İl Yetkilisi"    },
-                ].map(({ val, label, side }) => (
-                  <label
-                    key={val}
-                    className="relative flex flex-col gap-1.5 border-2 rounded-2xl px-4 py-4 cursor-pointer transition"
-                    style={{
-                      borderColor: form.gorev === val ? sl.renk : "#E2E8F0",
-                      background:  form.gorev === val ? sl.renk + "08" : "#fff",
-                    }}
-                  >
-                    <input
-                      type="radio" name="gorev" value={val}
-                      checked={form.gorev === val}
-                      onChange={() => setForm(p => ({ ...p, gorev: val as typeof form.gorev, bolgeId: "", ilId: "" }))}
-                      className="sr-only"
-                    />
-                    {/* Seçim göstergesi */}
-                    <div
-                      className="absolute top-3 right-3 w-4 h-4 rounded-full border-2 flex items-center justify-center transition"
+              {isYonetici ? (
+                /* Yönetici modunda 4 rol seçeneği */
+                <div className="grid grid-cols-1 gap-2">
+                  {YONETICI_ROLLER.map((rol, idx) => (
+                    <label
+                      key={idx}
+                      className="relative flex items-center gap-3 border-2 rounded-xl px-4 py-3 cursor-pointer transition"
                       style={{
-                        borderColor:  form.gorev === val ? sl.renk : "#CBD5E1",
-                        background:   form.gorev === val ? sl.renk : "transparent",
+                        borderColor: form.yoneticiRolIdx === idx ? sl.renk : "#E2E8F0",
+                        background:  form.yoneticiRolIdx === idx ? sl.renk + "08" : "#fff",
                       }}
                     >
-                      {form.gorev === val && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                      )}
+                      <input
+                        type="radio" name="yoneticiRol"
+                        checked={form.yoneticiRolIdx === idx}
+                        onChange={() => setForm(p => ({ ...p, yoneticiRolIdx: idx }))}
+                        className="sr-only"
+                      />
+                      <div
+                        className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition"
+                        style={{
+                          borderColor: form.yoneticiRolIdx === idx ? sl.renk : "#CBD5E1",
+                          background:  form.yoneticiRolIdx === idx ? sl.renk : "transparent",
+                        }}
+                      >
+                        {form.yoneticiRolIdx === idx && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      </div>
+                      <span className="text-[14px] font-semibold" style={{ color: form.yoneticiRolIdx === idx ? "#0F172A" : "#475569" }}>
+                        {rol.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                /* Normal mod — Bölge / İl seçimi */
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { val: "BOLGE_SORUMLUSU", label: sl.bolge, side: "Bölge Yetkilisi" },
+                      { val: "IL_SORUMLUSU",    label: sl.il,    side: "İl Yetkilisi"    },
+                    ].map(({ val, label, side }) => (
+                      <label
+                        key={val}
+                        className="relative flex flex-col gap-1.5 border-2 rounded-2xl px-4 py-4 cursor-pointer transition"
+                        style={{
+                          borderColor: form.gorev === val ? sl.renk : "#E2E8F0",
+                          background:  form.gorev === val ? sl.renk + "08" : "#fff",
+                        }}
+                      >
+                        <input
+                          type="radio" name="gorev" value={val}
+                          checked={form.gorev === val}
+                          onChange={() => setForm(p => ({ ...p, gorev: val as typeof form.gorev, bolgeId: "", ilId: "" }))}
+                          className="sr-only"
+                        />
+                        <div
+                          className="absolute top-3 right-3 w-4 h-4 rounded-full border-2 flex items-center justify-center transition"
+                          style={{
+                            borderColor: form.gorev === val ? sl.renk : "#CBD5E1",
+                            background:  form.gorev === val ? sl.renk : "transparent",
+                          }}
+                        >
+                          {form.gorev === val && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: form.gorev === val ? sl.renk : "#94A3B8" }}>
+                          {side}
+                        </span>
+                        <span className="text-[13px] font-bold leading-tight pr-4" style={{ color: form.gorev === val ? "#0F172A" : "#475569" }}>
+                          {label}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {form.gorev && (
+                    <div className="mt-4">
+                      <label className={labelCls}>Bölge <span className="text-red-500">*</span></label>
+                      <select
+                        value={form.bolgeId}
+                        onChange={e => setForm({ ...form, bolgeId: e.target.value, ilId: "" })}
+                        className={inputCls} style={{ borderColor: "#E2E8F0" }}
+                        onFocus={e => (e.target.style.borderColor = sl.renk)}
+                        onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
+                      >
+                        <option value="">Bölge seçiniz</option>
+                        {bolgeler.map(b => <option key={b.id} value={b.id}>{b.ad}</option>)}
+                      </select>
                     </div>
+                  )}
 
-                    <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: form.gorev === val ? sl.renk : "#94A3B8" }}>
-                      {side}
-                    </span>
-                    <span className="text-[13px] font-bold leading-tight pr-4" style={{ color: form.gorev === val ? "#0F172A" : "#475569" }}>
-                      {label}
-                    </span>
-                  </label>
-                ))}
-              </div>
+                  {form.gorev === "IL_SORUMLUSU" && seciliBolge && (
+                    <div className="mt-4">
+                      <label className={labelCls}>İl <span className="text-red-500">*</span></label>
+                      <select
+                        value={form.ilId}
+                        onChange={e => setForm({ ...form, ilId: e.target.value })}
+                        className={inputCls} style={{ borderColor: "#E2E8F0" }}
+                        onFocus={e => (e.target.style.borderColor = sl.renk)}
+                        onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
+                      >
+                        <option value="">İl seçiniz</option>
+                        {seciliBolge.iller.map(il => <option key={il.id} value={il.id}>{il.ad}</option>)}
+                      </select>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
-
-            {/* Bölge seçimi */}
-            {form.gorev && (
-              <div>
-                <label className={labelCls}>Bölge <span className="text-red-500">*</span></label>
-                <select
-                  value={form.bolgeId}
-                  onChange={e => setForm({ ...form, bolgeId: e.target.value, ilId: "" })}
-                  className={inputCls}
-                  style={{ borderColor: "#E2E8F0" }}
-                  onFocus={e => (e.target.style.borderColor = sl.renk)}
-                  onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
-                >
-                  <option value="">Bölge seçiniz</option>
-                  {bolgeler.map(b => <option key={b.id} value={b.id}>{b.ad}</option>)}
-                </select>
-              </div>
-            )}
-
-            {/* İl seçimi */}
-            {form.gorev === "IL_SORUMLUSU" && seciliBolge && (
-              <div>
-                <label className={labelCls}>İl <span className="text-red-500">*</span></label>
-                <select
-                  value={form.ilId}
-                  onChange={e => setForm({ ...form, ilId: e.target.value })}
-                  className={inputCls}
-                  style={{ borderColor: "#E2E8F0" }}
-                  onFocus={e => (e.target.style.borderColor = sl.renk)}
-                  onBlur={e  => (e.target.style.borderColor = "#E2E8F0")}
-                >
-                  <option value="">İl seçiniz</option>
-                  {seciliBolge.iller.map(il => <option key={il.id} value={il.id}>{il.ad}</option>)}
-                </select>
-              </div>
-            )}
 
             {error && (
               <div className="rounded-xl px-4 py-3 border" style={{ background: "#FEF2F2", borderColor: "#FCA5A5" }}>

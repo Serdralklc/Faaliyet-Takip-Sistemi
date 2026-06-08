@@ -34,6 +34,9 @@ export type UserMinAggregateOutputType = {
   role: $Enums.Role | null
   status: $Enums.UserStatus | null
   sistem: $Enums.Sistem | null
+  basvuruGorev: string | null
+  basvuruBolgeId: string | null
+  basvuruIlId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,6 +51,9 @@ export type UserMaxAggregateOutputType = {
   role: $Enums.Role | null
   status: $Enums.UserStatus | null
   sistem: $Enums.Sistem | null
+  basvuruGorev: string | null
+  basvuruBolgeId: string | null
+  basvuruIlId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +68,9 @@ export type UserCountAggregateOutputType = {
   role: number
   status: number
   sistem: number
+  basvuruGorev: number
+  basvuruBolgeId: number
+  basvuruIlId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -78,6 +87,9 @@ export type UserMinAggregateInputType = {
   role?: true
   status?: true
   sistem?: true
+  basvuruGorev?: true
+  basvuruBolgeId?: true
+  basvuruIlId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -92,6 +104,9 @@ export type UserMaxAggregateInputType = {
   role?: true
   status?: true
   sistem?: true
+  basvuruGorev?: true
+  basvuruBolgeId?: true
+  basvuruIlId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -106,6 +121,9 @@ export type UserCountAggregateInputType = {
   role?: true
   status?: true
   sistem?: true
+  basvuruGorev?: true
+  basvuruBolgeId?: true
+  basvuruIlId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -193,6 +211,9 @@ export type UserGroupByOutputType = {
   role: $Enums.Role
   status: $Enums.UserStatus
   sistem: $Enums.Sistem
+  basvuruGorev: string | null
+  basvuruBolgeId: string | null
+  basvuruIlId: string | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -228,6 +249,9 @@ export type UserWhereInput = {
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFilter<"User"> | $Enums.Sistem
+  basvuruGorev?: Prisma.StringNullableFilter<"User"> | string | null
+  basvuruBolgeId?: Prisma.StringNullableFilter<"User"> | string | null
+  basvuruIlId?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   assignments?: Prisma.RoleAssignmentListRelationFilter
@@ -247,6 +271,9 @@ export type UserOrderByWithRelationInput = {
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sistem?: Prisma.SortOrder
+  basvuruGorev?: Prisma.SortOrderInput | Prisma.SortOrder
+  basvuruBolgeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  basvuruIlId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   assignments?: Prisma.RoleAssignmentOrderByRelationAggregateInput
@@ -269,6 +296,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFilter<"User"> | $Enums.Sistem
+  basvuruGorev?: Prisma.StringNullableFilter<"User"> | string | null
+  basvuruBolgeId?: Prisma.StringNullableFilter<"User"> | string | null
+  basvuruIlId?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   assignments?: Prisma.RoleAssignmentListRelationFilter
@@ -288,6 +318,9 @@ export type UserOrderByWithAggregationInput = {
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sistem?: Prisma.SortOrder
+  basvuruGorev?: Prisma.SortOrderInput | Prisma.SortOrder
+  basvuruBolgeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  basvuruIlId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -308,6 +341,9 @@ export type UserScalarWhereWithAggregatesInput = {
   role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
   status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
   sistem?: Prisma.EnumSistemWithAggregatesFilter<"User"> | $Enums.Sistem
+  basvuruGorev?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  basvuruBolgeId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  basvuruIlId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -322,6 +358,9 @@ export type UserCreateInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
@@ -341,6 +380,9 @@ export type UserUncheckedCreateInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
@@ -360,6 +402,9 @@ export type UserUpdateInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
@@ -379,6 +424,9 @@ export type UserUncheckedUpdateInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
@@ -398,6 +446,9 @@ export type UserCreateManyInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -412,6 +463,9 @@ export type UserUpdateManyMutationInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -426,6 +480,9 @@ export type UserUncheckedUpdateManyInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -440,6 +497,9 @@ export type UserCountOrderByAggregateInput = {
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sistem?: Prisma.SortOrder
+  basvuruGorev?: Prisma.SortOrder
+  basvuruBolgeId?: Prisma.SortOrder
+  basvuruIlId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -454,6 +514,9 @@ export type UserMaxOrderByAggregateInput = {
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sistem?: Prisma.SortOrder
+  basvuruGorev?: Prisma.SortOrder
+  basvuruBolgeId?: Prisma.SortOrder
+  basvuruIlId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -468,6 +531,9 @@ export type UserMinOrderByAggregateInput = {
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sistem?: Prisma.SortOrder
+  basvuruGorev?: Prisma.SortOrder
+  basvuruBolgeId?: Prisma.SortOrder
+  basvuruIlId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -588,6 +654,9 @@ export type UserCreateWithoutAssignmentsInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdActivities?: Prisma.ActivityCreateNestedManyWithoutCreatedByInput
@@ -606,6 +675,9 @@ export type UserUncheckedCreateWithoutAssignmentsInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCreatedByInput
@@ -640,6 +712,9 @@ export type UserUpdateWithoutAssignmentsInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdActivities?: Prisma.ActivityUpdateManyWithoutCreatedByNestedInput
@@ -658,6 +733,9 @@ export type UserUncheckedUpdateWithoutAssignmentsInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdActivities?: Prisma.ActivityUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -676,6 +754,9 @@ export type UserCreateWithoutInvitationsInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
@@ -694,6 +775,9 @@ export type UserUncheckedCreateWithoutInvitationsInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
@@ -728,6 +812,9 @@ export type UserUpdateWithoutInvitationsInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
@@ -746,6 +833,9 @@ export type UserUncheckedUpdateWithoutInvitationsInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
@@ -764,6 +854,9 @@ export type UserCreateWithoutCreatedActivitiesInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
@@ -782,6 +875,9 @@ export type UserUncheckedCreateWithoutCreatedActivitiesInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
@@ -805,6 +901,9 @@ export type UserCreateWithoutUpdatedActivitiesInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
@@ -823,6 +922,9 @@ export type UserUncheckedCreateWithoutUpdatedActivitiesInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
@@ -857,6 +959,9 @@ export type UserUpdateWithoutCreatedActivitiesInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
@@ -875,6 +980,9 @@ export type UserUncheckedUpdateWithoutCreatedActivitiesInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
@@ -904,6 +1012,9 @@ export type UserUpdateWithoutUpdatedActivitiesInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
@@ -922,6 +1033,9 @@ export type UserUncheckedUpdateWithoutUpdatedActivitiesInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
@@ -940,6 +1054,9 @@ export type UserCreateWithoutAuditLogsInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
@@ -958,6 +1075,9 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   role?: $Enums.Role
   status?: $Enums.UserStatus
   sistem?: $Enums.Sistem
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
@@ -992,6 +1112,9 @@ export type UserUpdateWithoutAuditLogsInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
@@ -1010,6 +1133,9 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
   sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
@@ -1095,6 +1221,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   role?: boolean
   status?: boolean
   sistem?: boolean
+  basvuruGorev?: boolean
+  basvuruBolgeId?: boolean
+  basvuruIlId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   assignments?: boolean | Prisma.User$assignmentsArgs<ExtArgs>
@@ -1115,6 +1244,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   status?: boolean
   sistem?: boolean
+  basvuruGorev?: boolean
+  basvuruBolgeId?: boolean
+  basvuruIlId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1129,6 +1261,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   status?: boolean
   sistem?: boolean
+  basvuruGorev?: boolean
+  basvuruBolgeId?: boolean
+  basvuruIlId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1143,11 +1278,14 @@ export type UserSelectScalar = {
   role?: boolean
   status?: boolean
   sistem?: boolean
+  basvuruGorev?: boolean
+  basvuruBolgeId?: boolean
+  basvuruIlId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ad" | "soyad" | "email" | "telefon" | "passwordHash" | "role" | "status" | "sistem" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ad" | "soyad" | "email" | "telefon" | "passwordHash" | "role" | "status" | "sistem" | "basvuruGorev" | "basvuruBolgeId" | "basvuruIlId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignments?: boolean | Prisma.User$assignmentsArgs<ExtArgs>
   createdActivities?: boolean | Prisma.User$createdActivitiesArgs<ExtArgs>
@@ -1178,6 +1316,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     role: $Enums.Role
     status: $Enums.UserStatus
     sistem: $Enums.Sistem
+    basvuruGorev: string | null
+    basvuruBolgeId: string | null
+    basvuruIlId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1617,6 +1758,9 @@ export interface UserFieldRefs {
   readonly role: Prisma.FieldRef<"User", 'Role'>
   readonly status: Prisma.FieldRef<"User", 'UserStatus'>
   readonly sistem: Prisma.FieldRef<"User", 'Sistem'>
+  readonly basvuruGorev: Prisma.FieldRef<"User", 'String'>
+  readonly basvuruBolgeId: Prisma.FieldRef<"User", 'String'>
+  readonly basvuruIlId: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

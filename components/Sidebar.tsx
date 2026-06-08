@@ -16,6 +16,7 @@ import {
 
 interface User {
   id: string; ad: string; soyad: string; role: Role;
+  sistem?: string | null;
   activeIlAd?: string | null;
   activeBolgeAd?: string | null;
 }
@@ -90,76 +91,63 @@ function ThemeToggle() {
 }
 
 export function Sidebar({ user, onClose }: { user: User; onClose?: () => void }) {
-  const isAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(user.role);
-  const isTR = user.role === "TURKIYE_SORUMLUSU";
-  const isBolge = user.role === "BOLGE_SORUMLUSU";
-  const isIl = user.role === "IL_SORUMLUSU";
+  const isFullAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(user.role)
+    || (user.role === "TURKIYE_SORUMLUSU" && user.sistem === "EGITIMCI");
+  const isTRUni  = user.role === "TURKIYE_SORUMLUSU" && user.sistem === "UNIVERSITE";
+  const isTRLise = user.role === "TURKIYE_SORUMLUSU" && user.sistem === "LISE";
+  const isBolge  = user.role === "BOLGE_SORUMLUSU";
+  const isIl     = user.role === "IL_SORUMLUSU";
 
-  const dashHref = isAdmin || isTR ? "/panel/admin" : isBolge ? "/panel/bolge" : "/panel/il";
+  const dashHref = (isFullAdmin || isTRUni || isTRLise) ? "/panel/admin" : isBolge ? "/panel/bolge" : "/panel/il";
 
-  const adminSystemGroups: NavGroupDef[] = [
-    {
-      label: "Eğitim Sistemi",
-      icon: BookOpen,
-      items: [
-        { href: "/panel/admin/raporlar?sistem=EGITIMCI", label: "Raporlar", icon: BarChart3 },
-        { href: "/panel/admin/hedefler", label: "Hedef Yönetimi", icon: Target },
-      ],
-    },
-    {
-      label: "Üniversite Gençlik",
-      icon: GraduationCap,
-      items: [
-        { href: "/panel/admin/raporlar?sistem=UNIVERSITE", label: "Raporlar", icon: BarChart3 },
-      ],
-    },
-    {
-      label: "Lise Gençlik",
-      icon: School,
-      items: [
-        { href: "/panel/admin/raporlar?sistem=LISE", label: "Raporlar", icon: BarChart3 },
-      ],
-    },
-    {
-      label: "Gönüllü Sistemi",
-      icon: Users,
-      items: [
-        { href: "/panel/admin/gonulluler", label: "Gönüllüler", icon: Users },
-        { href: "/panel/admin/gonulluler", label: "Burs Başvuruları", icon: FileText },
-      ],
-    },
-  ];
+  // ── Tam yetkili admin sidebar grupları ────────────────────────────────
+  const faaliyetGroup: NavGroupDef = {
+    label: "Faaliyet Takip Sistemi",
+    icon: ClipboardList,
+    items: [
+      { href: "/panel/admin/raporlar?sistem=EGITIMCI",   label: "Eğitimci",          icon: BookOpen },
+      { href: "/panel/admin/raporlar?sistem=UNIVERSITE", label: "Üniversite Gençlik", icon: GraduationCap },
+      { href: "/panel/admin/raporlar?sistem=LISE",       label: "Lise Gençlik",       icon: School },
+    ],
+  };
 
-  const trAdminGroups: NavGroupDef[] = [
-    {
-      label: "Kullanıcı Yönetimi",
-      icon: Users,
-      items: [
-        { href: "/panel/admin/kullanicilar", label: "Kullanıcılar", icon: Users },
-      ],
-    },
-    {
-      label: "Coğrafi Yapı",
-      icon: MapPin,
-      items: [
-        { href: "/panel/admin/bolgeler", label: "Bölgeler & İller", icon: MapPin },
-      ],
-    },
-    {
-      label: "Raporlar",
-      icon: BarChart3,
-      items: [
-        { href: "/panel/admin/raporlar", label: "Türkiye Geneli", icon: BarChart3 },
-      ],
-    },
-    {
-      label: "Hedef Yönetimi",
-      icon: Target,
-      items: [
-        { href: "/panel/admin/hedefler", label: "Bölge Hedefleri", icon: Target },
-      ],
-    },
-  ];
+  const gonulluGroup: NavGroupDef = {
+    label: "Gönüllü Sistemi",
+    icon: Users,
+    items: [
+      { href: "/panel/admin/gonulluler",       label: "Gönüllüler",          icon: Users },
+      { href: "/panel/admin/burs-basvurulari", label: "Nezir Burs Başvuruları", icon: FileText },
+    ],
+  };
+
+  const kullaniciGroup: NavGroupDef = {
+    label: "Kullanıcı Yönetimi",
+    icon: UserCircle,
+    items: [
+      { href: "/panel/admin/kullanicilar?sistem=EGITIMCI",   label: "Eğitimci",          icon: BookOpen },
+      { href: "/panel/admin/kullanicilar?sistem=UNIVERSITE", label: "Üniversite Gençlik", icon: GraduationCap },
+      { href: "/panel/admin/kullanicilar?sistem=LISE",       label: "Lise Gençlik",       icon: School },
+      { href: "/panel/admin/kullanicilar?sistem=GONULLU",    label: "Gönüllüler",         icon: Users },
+    ],
+  };
+
+  // ── Türkiye Üniversite sorumlusu grupları ─────────────────────────────
+  const uniOnlyFaaliyet: NavGroupDef = {
+    label: "Faaliyet Takip Sistemi",
+    icon: ClipboardList,
+    items: [
+      { href: "/panel/admin/raporlar?sistem=UNIVERSITE", label: "Üniversite Gençlik", icon: GraduationCap },
+    ],
+  };
+
+  // ── Türkiye Lise sorumlusu grupları ───────────────────────────────────
+  const liseOnlyFaaliyet: NavGroupDef = {
+    label: "Faaliyet Takip Sistemi",
+    icon: ClipboardList,
+    items: [
+      { href: "/panel/admin/raporlar?sistem=LISE", label: "Lise Gençlik", icon: School },
+    ],
+  };
 
   const ilGroups: NavGroupDef[] = [
     {
@@ -233,8 +221,8 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
       {/* ── Nav ── */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
 
-        {/* SISTEM_ADMIN / GENEL_MERKEZ — Yönetim Merkezi yapısı */}
-        {isAdmin && (
+        {/* ── FULL ADMIN (SISTEM_ADMIN / GENEL_MERKEZ / TURKIYE+EGİTİMCİ) ── */}
+        {isFullAdmin && (
           <>
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
               Yönetim Merkezi
@@ -242,24 +230,45 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
 
             <NavItem href="/panel/admin" label="Dashboard" icon={LayoutDashboard} exact />
 
-            {adminSystemGroups.map(g => <NavGroupComp key={g.label} group={g} />)}
+            <NavGroupComp group={faaliyetGroup} />
+            <NavGroupComp group={gonulluGroup} />
 
             <NavItem href="/panel/admin/hedefler" label="Hedef Yönetimi" icon={Target} />
-            <NavItem href="/panel/admin/raporlar" label="Türkiye Analizleri" icon={BarChart3} />
-            <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={Users} />
+
+            <NavGroupComp group={kullaniciGroup} />
+
             <NavItem href="/panel/admin/bolgeler" label="Coğrafi Yapı" icon={MapPin} />
-            <NavItem href="/panel/admin/loglar" label="Denetim Logları" icon={ClipboardList} />
+            <NavItem href="/panel/admin/loglar"   label="Denetim Logları" icon={ClipboardList} />
           </>
         )}
 
-        {/* TURKIYE_SORUMLUSU */}
-        {isTR && (
+        {/* ── TÜRKİYE ÜNİVERSİTE SORUMLUSU ── */}
+        {isTRUni && (
           <>
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
-              Ana Menü
+              Üniversite Gençlik
             </p>
             <NavItem href="/panel/admin" label="Dashboard" icon={LayoutDashboard} exact />
-            {trAdminGroups.map(g => <NavGroupComp key={g.label} group={g} />)}
+            <NavGroupComp group={uniOnlyFaaliyet} />
+            <NavItem href="/panel/admin/hedefler"     label="Hedef Yönetimi"  icon={Target} />
+            <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Paneli" icon={UserCircle} />
+            <NavItem href="/panel/admin/bolgeler"     label="Coğrafi Yapı"    icon={MapPin} />
+            <NavItem href="/panel/admin/loglar"       label="Denetim Logları" icon={ClipboardList} />
+          </>
+        )}
+
+        {/* ── TÜRKİYE LİSE SORUMLUSU ── */}
+        {isTRLise && (
+          <>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+              Lise Gençlik
+            </p>
+            <NavItem href="/panel/admin" label="Dashboard" icon={LayoutDashboard} exact />
+            <NavGroupComp group={liseOnlyFaaliyet} />
+            <NavItem href="/panel/admin/hedefler"     label="Hedef Yönetimi"  icon={Target} />
+            <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Paneli" icon={UserCircle} />
+            <NavItem href="/panel/admin/bolgeler"     label="Coğrafi Yapı"    icon={MapPin} />
+            <NavItem href="/panel/admin/loglar"       label="Denetim Logları" icon={ClipboardList} />
           </>
         )}
 

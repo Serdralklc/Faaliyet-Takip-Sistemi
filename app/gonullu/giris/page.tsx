@@ -24,11 +24,10 @@ function useColors() {
 export default function GonulluGirisPage() {
   const router = useRouter();
   const c = useColors();
-  const [email,         setEmail]         = useState("");
-  const [sifre,         setSifre]         = useState("");
-  const [loading,       setLoading]       = useState(false);
-  const [staffLoading,  setStaffLoading]  = useState(false);
-  const [error,         setError]         = useState("");
+  const [email,   setEmail]   = useState("");
+  const [sifre,   setSifre]   = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error,   setError]   = useState("");
 
   const inputSt = {
     background:          c.sr,
@@ -42,26 +41,6 @@ export default function GonulluGirisPage() {
     WebkitBoxShadow:     `0 0 0 1000px ${c.sr} inset`,
     WebkitTextFillColor: c.h,
   } as React.CSSProperties;
-
-  async function handleStaffGiris() {
-    setStaffLoading(true);
-    try {
-      // NextAuth oturumu var mı kontrol et
-      const sessionRes = await fetch("/api/auth/session");
-      const session    = await sessionRes.json();
-
-      if (session?.user?.id) {
-        // Oturum var → gönüllü cookie kur, panele yönlendir
-        window.location.href = "/api/gonullu/staff-giris";
-      } else {
-        // Oturum yok → görevli giriş sayfasına git, dönüş adresi bu endpoint
-        window.location.href = "/giris?gonullu_redirect=1";
-      }
-    } catch {
-      setStaffLoading(false);
-      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
-    }
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -131,30 +110,6 @@ export default function GonulluGirisPage() {
             {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
           </button>
         </form>
-
-        {/* Görevli ile giriş */}
-        <div style={{ margin: "16px 0", display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={{ flex: 1, height: 1, background: c.br }} />
-          <span style={{ color: c.mu, fontSize: "12px", whiteSpace: "nowrap" }}>veya</span>
-          <div style={{ flex: 1, height: 1, background: c.br }} />
-        </div>
-
-        <button
-          onClick={handleStaffGiris}
-          disabled={staffLoading}
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-            width: "100%", padding: "11px", borderRadius: "0.75rem",
-            border: `1px solid ${c.br}`, background: c.sr,
-            color: c.h, fontWeight: 600, fontSize: "14px",
-            cursor: staffLoading ? "wait" : "pointer",
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: BRAND.green }}>
-            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
-          {staffLoading ? "Yönlendiriliyor..." : "Görevli hesabımla giriş yap"}
-        </button>
 
         <div style={{ borderTop: `1px solid ${c.br}`, marginTop: "20px", paddingTop: "16px" }} className="text-center space-y-2">
           <p style={{ color: c.mu, fontSize: "13px" }}>

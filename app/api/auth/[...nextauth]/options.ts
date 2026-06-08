@@ -84,15 +84,33 @@ export const authOptions: NextAuthOptions = {
         const valid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!valid) return null;
 
-        const requestedSistem = credentials.sistem as Sistem | undefined;
+        const requestedSistem = credentials.sistem as string | undefined;
+
+        // Yönetici kartından giriş: SISTEM_ADMIN, GENEL_MERKEZ, TURKIYE_SORUMLUSU olmalı
+        if (requestedSistem === "YONETICI") {
+          const adminRoles = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"];
+          if (!adminRoles.includes(user.role)) {
+            throw new Error("YONETICI_YETKISIZ");
+          }
+          // Session sistemi DB'deki sistem değeri olarak kalır
+          const a = user.assignments[0];
+          return {
+            id: user.id, email: user.email, ad: user.ad, soyad: user.soyad,
+            role: user.role, sistem: user.sistem,
+            activeIlId: a?.ilId ?? null, activeBolgeId: a?.bolgeId ?? null,
+            activeIlAd: a?.il?.ad ?? null, activeBolgeAd: a?.bolge?.ad ?? null,
+          };
+        }
+
+        const sistemEnum = requestedSistem as Sistem | undefined;
         // SISTEM_ADMIN tüm sistemlere girebilir — sistem kontrolü atlanır
         const isSuperAdmin = user.role === "SISTEM_ADMIN";
-        if (!isSuperAdmin && requestedSistem && user.sistem !== requestedSistem) {
+        if (!isSuperAdmin && sistemEnum && user.sistem !== sistemEnum) {
           throw new Error("SISTEM_UYUMSUZ");
         }
 
         // SISTEM_ADMIN: seçilen kartın sistemi session'a yazılır → her kart farklı veri gösterir
-        const sessionSistem = isSuperAdmin && requestedSistem ? requestedSistem : user.sistem;
+        const sessionSistem = isSuperAdmin && sistemEnum ? sistemEnum : user.sistem;
 
         const a = user.assignments[0];
         return {

@@ -8,6 +8,7 @@ import type { Role } from "@/lib/constants";
 
 interface User {
   id: string; ad: string; soyad: string; role: Role;
+  sistem?: string | null;
   activeIlAd?: string | null;
   activeBolgeAd?: string | null;
 }
