@@ -328,7 +328,10 @@ export default function KullanicilarPage() {
           {k.basvuruGorev ? (
             <div className="flex flex-wrap gap-1.5">
               <span className="text-xs px-2 py-1 rounded-full font-semibold bg-blue-100 text-blue-700">
-                {ROLE_LABELS[k.basvuruGorev as Role] ?? k.basvuruGorev}
+                {k.basvuruGorev === "TURKIYE_SORUMLUSU" && k.sistem === "EGITIMCI"    ? "Türkiye Eğitim Sorumlusu" :
+                 k.basvuruGorev === "TURKIYE_SORUMLUSU" && k.sistem === "UNIVERSITE"  ? "Türkiye Üniversite Gençlik Sorumlusu" :
+                 k.basvuruGorev === "TURKIYE_SORUMLUSU" && k.sistem === "LISE"        ? "Türkiye Lise Gençlik Sorumlusu" :
+                 ROLE_LABELS[k.basvuruGorev as Role] ?? k.basvuruGorev}
               </span>
               {basvuruBolge && (
                 <span className="text-xs px-2 py-1 rounded-full font-semibold bg-indigo-50 text-indigo-700">

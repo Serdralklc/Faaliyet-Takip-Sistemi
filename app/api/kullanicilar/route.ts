@@ -53,6 +53,10 @@ export async function GET(req: NextRequest) {
       ...sistemFilter,
       // Yönetici rolleri normal sistem sekmelerinde görünmez
       role: { notIn: YONETICI_ROLLERI as Role[] },
+      // Bekleyenler içinde yönetici görevi başvuranlar normal sekmelerde gözükmez
+      ...(status === "BEKLEMEDE"
+        ? { basvuruGorev: { notIn: YONETICI_BASVURU_GOREVLER } }
+        : {}),
       ...(status    ? { status: status as never } : {}),
       ...(rolFilter ? { role: rolFilter }         : {}),
     };
