@@ -12,9 +12,9 @@ export default async function BolgelerPage() {
   const { role, sistem: userSistem } = session.user;
   if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"].includes(role)) redirect("/");
 
-  const TURKIYE_ROLLERI = ["TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
-  // Türkiye sorumluları yalnızca kendi sistemini görür
-  const SISTEMLER: Sistem[] = TURKIYE_ROLLERI.includes(role) && userSistem
+  const SISTEM_KISITLI = ["TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+  // Sistem kısıtlı roller yalnızca kendi sistemini görür
+  const SISTEMLER: Sistem[] = SISTEM_KISITLI.includes(role) && userSistem
     ? [userSistem as Sistem]
     : ["EGITIMCI", "UNIVERSITE", "LISE"];
 
@@ -71,5 +71,5 @@ export default async function BolgelerPage() {
     })
   );
 
-  return <BolgelerClient sistemVerileri={sistemVerileri} lockedSistem={TURKIYE_ROLLERI.includes(role) ? userSistem as Sistem ?? null : null} />;
+  return <BolgelerClient sistemVerileri={sistemVerileri} lockedSistem={SISTEM_KISITLI.includes(role) ? userSistem as Sistem ?? null : null} />;
 }

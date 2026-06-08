@@ -11,9 +11,9 @@ export default async function LoglarPage() {
   const YETKILI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
   if (!YETKILI.includes(role)) redirect("/");
 
-  const TURKIYE_ROLLERI = ["TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
-  // Türkiye sorumluları yalnızca kendi sistemindeki kullanıcıların loglarını görür
-  const sistemFilter = (TURKIYE_ROLLERI.includes(role) && sistem)
+  const SISTEM_KISITLI = ["TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+  // Sistem kısıtlı roller yalnızca kendi sistemindeki kullanıcıların loglarını görür
+  const sistemFilter = (SISTEM_KISITLI.includes(role) && sistem)
     ? { user: { sistem: sistem as never } }
     : {};
 

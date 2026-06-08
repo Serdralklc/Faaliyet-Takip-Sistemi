@@ -28,11 +28,24 @@ export const YONETICI_ROLLERI: Role[] = [
   "TURKIYE_LISE_SORUMLUSU",
 ];
 
-// Türkiye sorumlusu rolleri (yönetici başvuru görevleri)
+// Tüm Türkiye sorumlusu rolleri (başvuru/yönetici listesi için)
 export const TURKIYE_ROLLERI: Role[] = [
   "TURKIYE_EGITIM_SORUMLUSU",
   "TURKIYE_UNIVERSITE_SORUMLUSU",
   "TURKIYE_LISE_SORUMLUSU",
+];
+
+// Sistem bazlı kısıtlı roller (yalnızca kendi sistemi görür)
+export const SISTEM_KISITLI_ROLLERI: Role[] = [
+  "TURKIYE_UNIVERSITE_SORUMLUSU",
+  "TURKIYE_LISE_SORUMLUSU",
+];
+
+// Tam erişimli roller (admin gibi tüm sistemi görür)
+export const SUPER_ADMIN_ROLLERI: Role[] = [
+  "SISTEM_ADMIN",
+  "GENEL_MERKEZ",
+  "TURKIYE_EGITIM_SORUMLUSU",
 ];
 
 export const ADMIN_ROLES: Role[] = ["SISTEM_ADMIN", "GENEL_MERKEZ"];

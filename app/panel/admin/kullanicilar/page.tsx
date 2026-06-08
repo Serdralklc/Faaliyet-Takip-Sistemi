@@ -45,6 +45,11 @@ const TURKIYE_ROLLERI = [
   "TURKIYE_UNIVERSITE_SORUMLUSU",
   "TURKIYE_LISE_SORUMLUSU",
 ];
+// Yalnızca kendi sistemini yöneten roller
+const SISTEM_KISITLI_ROLLER = [
+  "TURKIYE_UNIVERSITE_SORUMLUSU",
+  "TURKIYE_LISE_SORUMLUSU",
+];
 
 const SISTEM_TABS: { key: SistemKey; label: string; color: string; enum?: string }[] = [
   { key: "yetkili",    label: "Yetkili Girişi",     color: "#92400E", enum: "YONETICI" },
@@ -105,8 +110,8 @@ export default function KullanicilarPage() {
 
   const sessionRole   = session?.user?.role ?? "";
   const sessionSistem = session?.user?.sistem ?? "";
-  // Türkiye sorumluları yalnızca kendi sistemini yönetir
-  const isTuriyeSorumlusu = TURKIYE_ROLLERI.includes(sessionRole);
+  // Sistem kısıtlı roller yalnızca kendi sistemini yönetir
+  const isTuriyeSorumlusu = SISTEM_KISITLI_ROLLER.includes(sessionRole);
 
   // TURKIYE_SORUMLUSU kendi sisteminde başlar
   const initTab: SistemKey = (() => {

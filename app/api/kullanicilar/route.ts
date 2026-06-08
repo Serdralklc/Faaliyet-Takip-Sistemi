@@ -24,9 +24,9 @@ export async function GET(req: NextRequest) {
 
   const isSuperAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(role);
 
-  const TURKIYE_ROLLERI = ["TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
-  // Türkiye sorumluları yalnızca kendi sistemini sorgulayabilir
-  const effectiveSistem = TURKIYE_ROLLERI.includes(role)
+  const SISTEM_KISITLI = ["TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+  // Sistem kısıtlı roller yalnızca kendi sistemini sorgulayabilir
+  const effectiveSistem = SISTEM_KISITLI.includes(role)
     ? (userSistem as Sistem)
     : sistemParam;
 
