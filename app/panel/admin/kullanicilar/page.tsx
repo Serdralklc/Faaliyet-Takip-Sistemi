@@ -684,7 +684,6 @@ export default function KullanicilarPage() {
                 onChange={e => setDavetForm({ ...davetForm, userRole: e.target.value as Role })} className={inputCls}>
                 <option value="IL_SORUMLUSU">İl Eğitimcisi</option>
                 <option value="BOLGE_SORUMLUSU">Bölge Eğitimcisi</option>
-                <option value="TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU">Türkiye Sorumlusu</option>
                 <option value="GENEL_MERKEZ">Genel Merkez</option>
               </select>
               <select value={davetForm.bolgeId}
