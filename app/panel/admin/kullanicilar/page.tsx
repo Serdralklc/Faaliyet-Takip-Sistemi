@@ -721,7 +721,10 @@ export default function KullanicilarPage() {
                 <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-1.5">Başvurulan Görev</p>
                 <div className="flex flex-wrap gap-2">
                   <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-semibold">
-                    {ROLE_LABELS[showOnayModal.basvuruGorev as Role] ?? showOnayModal.basvuruGorev}
+                    {showOnayModal.basvuruGorev === "TURKIYE_SORUMLUSU" && showOnayModal.sistem === "EGITIMCI"    ? "Türkiye Eğitim Sorumlusu" :
+                     showOnayModal.basvuruGorev === "TURKIYE_SORUMLUSU" && showOnayModal.sistem === "UNIVERSITE"  ? "Türkiye Üniversite Gençlik Sorumlusu" :
+                     showOnayModal.basvuruGorev === "TURKIYE_SORUMLUSU" && showOnayModal.sistem === "LISE"        ? "Türkiye Lise Gençlik Sorumlusu" :
+                     ROLE_LABELS[showOnayModal.basvuruGorev as Role] ?? showOnayModal.basvuruGorev}
                   </span>
                   {showOnayModal.basvuruBolgeId && (
                     <span className="bg-indigo-100 text-indigo-800 text-xs px-2.5 py-1 rounded-full font-semibold">
