@@ -8,7 +8,7 @@ import type { Role } from "@/lib/constants";
 // ──────────────────────────────────────────────
 // Tipler
 // ──────────────────────────────────────────────
-type SistemKey = "egitimci" | "universite" | "lise" | "gonullu";
+type SistemKey = "yetkili" | "egitimci" | "universite" | "lise" | "gonullu";
 type SubTab    = "aktif" | "bekleyen";
 
 interface Assignment {
@@ -40,10 +40,11 @@ interface Bolge { id: string; no: number; ad: string; iller: Il[] }
 // Sabitler
 // ──────────────────────────────────────────────
 const SISTEM_TABS: { key: SistemKey; label: string; color: string; enum?: string }[] = [
-  { key: "egitimci",   label: "Eğitimci",          color: "#0B6B3A", enum: "EGITIMCI" },
-  { key: "universite", label: "Üniversite Gençlik", color: "#1D4ED8", enum: "UNIVERSITE" },
-  { key: "lise",       label: "Lise Gençlik",       color: "#7C3AED", enum: "LISE" },
-  { key: "gonullu",    label: "Gönüllüler",          color: "#B45309" },
+  { key: "yetkili",    label: "Yetkili Girişi",     color: "#92400E", enum: "YONETICI" },
+  { key: "egitimci",   label: "Eğitimci",           color: "#0B6B3A", enum: "EGITIMCI" },
+  { key: "universite", label: "Üniversite Gençlik",  color: "#1D4ED8", enum: "UNIVERSITE" },
+  { key: "lise",       label: "Lise Gençlik",        color: "#7C3AED", enum: "LISE" },
+  { key: "gonullu",    label: "Gönüllüler",           color: "#B45309" },
 ];
 
 const OGRENIM_LABELS: Record<string, string> = {
@@ -79,6 +80,7 @@ export default function KullanicilarPage() {
 
   // Aktif ana sekme (query param'dan başla)
   const initTab: SistemKey = (() => {
+    if (sistemParam === "YONETICI")   return "yetkili";
     if (sistemParam === "UNIVERSITE") return "universite";
     if (sistemParam === "LISE")       return "lise";
     if (sistemParam === "GONULLU")    return "gonullu";
@@ -97,6 +99,7 @@ export default function KullanicilarPage() {
 
   // Counts per tab
   const [counts, setCounts] = useState<Record<SistemKey, { aktif: number; bekleyen: number }>>({
+    yetkili:    { aktif: 0, bekleyen: 0 },
     egitimci:   { aktif: 0, bekleyen: 0 },
     universite: { aktif: 0, bekleyen: 0 },
     lise:       { aktif: 0, bekleyen: 0 },
@@ -150,6 +153,7 @@ export default function KullanicilarPage() {
       setLoading(false);
     }
   }, [tab]);
+
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -332,6 +336,7 @@ export default function KullanicilarPage() {
   );
 
   const tabInfo = SISTEM_TABS.find(t => t.key === tab)!;
+  const isNoSub = tab === "gonullu"; // alt sekme gösterme
   const seciliBolge = bolgeler.find(b => b.id === davetForm.bolgeId);
   const onayBolge   = bolgeler.find(b => b.id === onayForm.bolgeId);
 
@@ -350,7 +355,7 @@ export default function KullanicilarPage() {
           <h1 className="text-2xl font-bold text-gray-900">Kullanıcı Yönetimi</h1>
           <p className="text-gray-500 text-sm mt-1">Sistemlere göre kullanıcıları yönetin</p>
         </div>
-        {tab !== "gonullu" && (
+        {tab !== "gonullu" && tab !== "yetkili" && (
           <button
             onClick={() => { setShowDavetModal(true); setDavetForm(f => ({ ...f, sistem: tabInfo.enum! })); }}
             className="text-white px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm"
@@ -402,7 +407,7 @@ export default function KullanicilarPage() {
       <div className="bg-white rounded-b-xl rounded-tr-xl border border-gray-200 p-0 overflow-hidden">
 
         {/* Alt sekmeler (Aktif / Bekleyenler) — gonullu hariç */}
-        {tab !== "gonullu" && (
+        {!isNoSub && (
           <div className="flex border-b border-gray-200 px-5 pt-3 gap-4">
             <button
               onClick={() => setSubTab("aktif")}
@@ -412,7 +417,7 @@ export default function KullanicilarPage() {
                 borderColor: subTab === "aktif" ? tabInfo.color : "transparent",
               }}
             >
-              {tabInfo.label} Sistemi
+              {tab === "yetkili" ? "Yetkili Kullanıcılar" : tabInfo.label + " Sistemi"}
               <span className="ml-2 text-xs px-1.5 py-0.5 rounded-full font-bold"
                 style={{
                   background: subTab === "aktif" ? tabInfo.color + "15" : "#F1F5F9",
@@ -442,7 +447,7 @@ export default function KullanicilarPage() {
         {/* İçerik */}
         {loading ? (
           <div className="p-12 text-center text-gray-400">Yükleniyor...</div>
-        ) : tab === "gonullu" ? (
+        ) : isNoSub ? (
           /* Gönüllüler listesi */
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
@@ -472,6 +477,50 @@ export default function KullanicilarPage() {
               ))}
               {gonulluler.length === 0 && (
                 <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-400">Gönüllü bulunamadı</td></tr>
+              )}
+            </tbody>
+          </table>
+        ) : tab === "yetkili" && subTab === "aktif" ? (
+          /* Yetkili aktif kullanıcılar — düz liste */
+          <table className="w-full text-sm">
+            <thead className="bg-amber-50 border-b border-amber-100">
+              <tr>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold text-amber-800 uppercase tracking-wide">Kullanıcı</th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold text-amber-800 uppercase tracking-wide">Rol</th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold text-amber-800 uppercase tracking-wide">Sistem</th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold text-amber-800 uppercase tracking-wide">Şifre</th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold text-amber-800 uppercase tracking-wide">Kayıt</th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold text-amber-800 uppercase tracking-wide">İşlem</th>
+              </tr>
+            </thead>
+            <tbody>
+              {aktifList.map(k => (
+                <tr key={k.id} className="hover:bg-gray-50 border-b border-gray-100 last:border-0">
+                  <td className="px-4 py-3">
+                    <div className="font-semibold text-gray-900 text-sm">{k.ad} {k.soyad}</div>
+                    <div className="text-xs text-gray-500">{k.email}</div>
+                    {k.telefon && <div className="text-xs text-gray-400">{k.telefon}</div>}
+                  </td>
+                  <td className="px-4 py-3"><RolBadge role={k.role} /></td>
+                  <td className="px-4 py-3">
+                    <span className="text-xs px-2 py-1 rounded-full font-semibold bg-amber-100 text-amber-800">
+                      {k.sistem === "EGITIMCI" ? "Eğitim" : k.sistem === "UNIVERSITE" ? "Üniversite" : k.sistem === "LISE" ? "Lise" : k.sistem ?? "—"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    {k.passwordHash
+                      ? <span className="text-xs text-green-600 font-medium">Şifreli</span>
+                      : <span className="text-xs text-red-500 font-medium">Şifresiz</span>}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-400">{new Date(k.createdAt).toLocaleDateString("tr-TR")}</td>
+                  <td className="px-4 py-3">
+                    <button onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}
+                      className="text-xs text-blue-600 hover:underline font-medium">Şifre Ata</button>
+                  </td>
+                </tr>
+              ))}
+              {aktifList.length === 0 && (
+                <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-400">Yetkili kullanıcı bulunamadı</td></tr>
               )}
             </tbody>
           </table>

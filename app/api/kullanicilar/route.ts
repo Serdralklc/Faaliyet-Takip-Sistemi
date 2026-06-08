@@ -23,18 +23,41 @@ export async function GET(req: NextRequest) {
 
   const isSuperAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(role);
 
-  // For super admins: use sistem param if provided, otherwise no filter (show all)
-  // For others: filter by their own sistem
-  const sistemFilter = isSuperAdmin
-    ? (sistemParam ? { sistem: sistemParam } : {})
-    : { sistem: session.user.sistem as Sistem };
+  // YONETICI sekmesi: admin rollere sahip kullanıcılar (sistem filtresi yok)
+  const YONETICI_ROLLERI: Role[] = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"];
+  const YONETICI_BASVURU_GOREVLER = ["TURKIYE_SORUMLUSU", "GENEL_MERKEZ"];
 
-  const users = await prisma.user.findMany({
-    where: {
+  let whereClause: Record<string, unknown> = {};
+
+  if ((sistemParam as string) === "YONETICI") {
+    if (status === "BEKLEMEDE") {
+      // Bekleyenler: BEKLEYEN rolü + basvuruGorev yönetici görevi olanlar
+      whereClause = {
+        role: "BEKLEYEN",
+        status: "BEKLEMEDE",
+        basvuruGorev: { in: YONETICI_BASVURU_GOREVLER },
+      };
+    } else {
+      // Aktifler: yönetici rollerinden biri
+      whereClause = {
+        role: { in: YONETICI_ROLLERI },
+        status: "AKTIF",
+      };
+    }
+  } else {
+    const sistemFilter = isSuperAdmin
+      ? (sistemParam ? { sistem: sistemParam } : {})
+      : { sistem: session.user.sistem as Sistem };
+
+    whereClause = {
       ...sistemFilter,
       ...(status    ? { status: status as never } : {}),
       ...(rolFilter ? { role: rolFilter }         : {}),
-    },
+    };
+  }
+
+  const users = await prisma.user.findMany({
+    where: whereClause,
     include: {
       assignments: {
         where: { status: "AKTIF" },
