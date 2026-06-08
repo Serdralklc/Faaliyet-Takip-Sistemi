@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -197,11 +197,27 @@ function LoginForm({
   const isYonetici      = roleKey === "yonetici";
   const role            = isYonetici ? YONETICI_CARD : ROLES.find(r => r.key === roleKey)!;
 
-  const [email,    setEmail]    = useState("");
-  const [password, setPassword] = useState("");
-  const [error,    setError]    = useState("");
-  const [loading,  setLoading]  = useState(false);
-  const [showPass, setShowPass] = useState(false);
+  const STORAGE_KEY = `sv_remember_${roleKey}`;
+
+  const [email,      setEmail]      = useState("");
+  const [password,   setPassword]   = useState("");
+  const [error,      setError]      = useState("");
+  const [loading,    setLoading]    = useState(false);
+  const [showPass,   setShowPass]   = useState(false);
+  const [remember,   setRemember]   = useState(false);
+
+  // Kayıtlı bilgileri yükle
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const { email: e, password: p } = JSON.parse(saved);
+        if (e) { setEmail(e); setRemember(true); }
+        if (p) setPassword(p);
+      }
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roleKey]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -222,6 +238,12 @@ function LoginForm({
         }
         setLoading(false);
       } else {
+        // Beni hatırla
+        if (remember) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ email, password }));
+        } else {
+          localStorage.removeItem(STORAGE_KEY);
+        }
         if (gonulluRedirect) {
           window.location.href = "/api/gonullu/staff-giris";
         } else if (isYonetici) {
@@ -339,6 +361,25 @@ function LoginForm({
               </button>
             </div>
           </div>
+
+          {/* Beni hatırla */}
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <div
+              onClick={() => setRemember(!remember)}
+              className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 transition border-2"
+              style={{
+                background: remember ? role.color : "transparent",
+                borderColor: remember ? role.color : "#CBD5E1",
+              }}
+            >
+              {remember && (
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              )}
+            </div>
+            <span className="text-[13px] font-medium" style={{ color: "#64748B" }}>Beni hatırla</span>
+          </label>
 
           {/* Hata mesajı */}
           {error && (
