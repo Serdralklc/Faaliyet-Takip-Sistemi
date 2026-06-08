@@ -135,6 +135,7 @@ export default function KullanicilarPage() {
   const [showOnayModal,     setShowOnayModal]     = useState<Kullanici | null>(null);
   const [showYetkiKalModal, setShowYetkiKalModal] = useState<Kullanici | null>(null);
   const [showSifreModal,    setShowSifreModal]    = useState<Kullanici | null>(null);
+  const [showSilModal,      setShowSilModal]      = useState<Kullanici | null>(null);
   const [yeniSifre,         setYeniSifre]         = useState("");
 
   const [davetForm, setDavetForm] = useState({
@@ -226,6 +227,21 @@ export default function KullanicilarPage() {
     fetchData();
   }
 
+  async function handleSil() {
+    if (!showSilModal) return;
+    setLoading(true);
+    const res = await fetch(`/api/kullanicilar/${showSilModal.id}/sil`, { method: "DELETE" });
+    setLoading(false);
+    setShowSilModal(null);
+    if (res.ok) {
+      showToast("Kullanıcı silindi");
+      fetchData();
+    } else {
+      const d = await res.json();
+      showToast("Hata: " + d.error);
+    }
+  }
+
   async function handleSifreAta() {
     if (!showSifreModal || !yeniSifre) return;
     setLoading(true);
@@ -281,12 +297,16 @@ export default function KullanicilarPage() {
           {new Date(k.createdAt).toLocaleDateString("tr-TR")}
         </td>
         <td className="px-4 py-3">
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <button onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}
               className="text-xs text-blue-600 hover:underline font-medium">Şifre Ata</button>
-            {!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"].includes(k.role) && (
+            {k.role !== "SISTEM_ADMIN" && (
               <button onClick={() => setShowYetkiKalModal(k)}
-                className="text-xs text-red-500 hover:underline font-medium">Yetkiyi Al</button>
+                className="text-xs text-orange-500 hover:underline font-medium">Yetkiyi Al</button>
+            )}
+            {k.role !== "SISTEM_ADMIN" && (
+              <button onClick={() => setShowSilModal(k)}
+                className="text-xs text-red-600 hover:underline font-medium">Sil</button>
             )}
           </div>
         </td>
@@ -540,8 +560,18 @@ export default function KullanicilarPage() {
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-400">{new Date(k.createdAt).toLocaleDateString("tr-TR")}</td>
                   <td className="px-4 py-3">
-                    <button onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}
-                      className="text-xs text-blue-600 hover:underline font-medium">Şifre Ata</button>
+                    <div className="flex gap-2 flex-wrap">
+                      <button onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}
+                        className="text-xs text-blue-600 hover:underline font-medium">Şifre Ata</button>
+                      {k.role !== "SISTEM_ADMIN" && (
+                        <button onClick={() => setShowYetkiKalModal(k)}
+                          className="text-xs text-orange-500 hover:underline font-medium">Yetkiyi Al</button>
+                      )}
+                      {k.role !== "SISTEM_ADMIN" && (
+                        <button onClick={() => setShowSilModal(k)}
+                          className="text-xs text-red-600 hover:underline font-medium">Sil</button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -766,6 +796,36 @@ export default function KullanicilarPage() {
               <button onClick={handleYetkiKal} disabled={loading}
                 className="flex-1 bg-red-600 text-white rounded-lg py-2.5 text-sm font-bold hover:bg-red-700 disabled:opacity-50">
                 {loading ? "..." : "Evet, Al"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SİL MODAL ── */}
+      {showSilModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm text-center">
+            <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-7 h-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </div>
+            <h2 className="text-lg font-bold text-gray-900 mb-2">Hesabı Sil</h2>
+            <p className="text-gray-500 text-sm mb-1">
+              <span className="font-semibold text-gray-800">{showSilModal.ad} {showSilModal.soyad}</span>
+            </p>
+            <p className="text-gray-400 text-xs mb-5">
+              Bu işlem geri alınamaz. Kullanıcının tüm atamaları ve hesap bilgileri kalıcı olarak silinecek.
+            </p>
+            <div className="flex gap-2">
+              <button onClick={() => setShowSilModal(null)}
+                className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                İptal
+              </button>
+              <button onClick={handleSil} disabled={loading}
+                className="flex-1 bg-red-600 text-white rounded-lg py-2.5 text-sm font-bold hover:bg-red-700 disabled:opacity-50">
+                {loading ? "..." : "Evet, Sil"}
               </button>
             </div>
           </div>

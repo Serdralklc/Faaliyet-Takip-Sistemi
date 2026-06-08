@@ -14,14 +14,19 @@ export async function POST(
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
 
+  const hedef = await prisma.user.findUnique({ where: { id }, select: { role: true, ad: true, soyad: true } });
+  if (!hedef) return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
+
+  // Sadece SISTEM_ADMIN başka bir SISTEM_ADMIN'in yetkisini alabilir
+  if (hedef.role === "SISTEM_ADMIN" && session.user.role !== "SISTEM_ADMIN") {
+    return NextResponse.json({ error: "Sistem adminin yetkisini sadece başka bir sistem admini alabilir" }, { status: 403 });
+  }
+
   await prisma.$transaction(async (tx) => {
-    // Aktif atamaları bitir
     await tx.roleAssignment.updateMany({
       where: { userId: id, status: "AKTIF" },
       data: { status: "TAMAMLANDI", endedAt: new Date(), endedById: session.user.id },
     });
-
-    // Kullanıcıyı bekleyene düşür
     await tx.user.update({
       where: { id },
       data: { role: "BEKLEYEN", status: "BEKLEMEDE" },
@@ -34,7 +39,7 @@ export async function POST(
     entity: "User",
     entityId: id,
     ipAddress: req.headers.get("x-forwarded-for") ?? undefined,
-    description: "Kullanıcı yetkisi alındı",
+    description: `Kullanıcı yetkisi alındı: ${hedef.ad} ${hedef.soyad}`,
   });
 
   return NextResponse.json({ success: true });
