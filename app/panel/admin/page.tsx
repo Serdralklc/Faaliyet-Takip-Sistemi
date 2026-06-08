@@ -3,97 +3,100 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { AdminDashboardClient } from "./AdminDashboardClient";
-import type { Sistem } from "@/app/generated/prisma/client";
 
-async function getStats(sistem: Sistem) {
+async function getStats() {
   const thisYear = new Date().getFullYear();
 
   const [
-    aktifKullanici,
-    bekleyenler,
+    toplamBolge,
     toplamIl,
-    toplamFaaliyet,
-    aktifBolge,
-    yeniIntisapAgg,
-    aktifEvAgg,
-    aktifApartAgg,
-    aktifYurtAgg,
+    aktifKullanici,
+    // Barınma: HousingUnit bazlı
+    evler,
+    apartlar,
+    yurtlar,
+    evOgrenci,
+    apartOgrenci,
+    yurtOgrenci,
+    // Bölge bazlı veri girişi (Eğitimci sistemi)
     bolgeStats,
+    // Tüm veri girilen iller (3 birimde en az birer kayıt)
+    tamVeriGirenIller,
+    // Son sistem hareketleri (sistem bağımsız)
     sonLogs,
+    // Bekleyen başvurular (tüm sistemler)
     sonBasvurular,
+    toplamBekleyen,
   ] = await Promise.all([
-    // Sadece bu sisteme ait aktif kullanıcılar
-    prisma.user.count({ where: { status: "AKTIF", sistem } }),
-
-    // Sadece bu sisteme ait bekleyen başvurular
-    prisma.user.count({ where: { status: "BEKLEMEDE", sistem } }),
-
-    // İl sayısı sistemden bağımsız (coğrafi yapı aynı)
-    prisma.il.count(),
-
-    // Bu sisteme kayıtlı kullanıcıların oluşturduğu faaliyetler
-    prisma.activity.count({
-      where: { yil: thisYear, createdBy: { sistem } },
-    }),
 
     prisma.bolge.count(),
+    prisma.il.count(),
 
-    // Yeni intisap — bu sisteme ait faaliyetler
-    prisma.activity.aggregate({
-      where: { yil: thisYear, createdBy: { sistem } },
-      _sum: { ls_yeniIntisap: true, uni_yeniIntisap: true },
-    }),
+    // Eğitimci sisteminde aktif kullanıcı sayısı
+    prisma.user.count({ where: { status: "AKTIF", sistem: "EGITIMCI" } }),
 
-    // Barınma verileri — bu sisteme ait faaliyetler
-    prisma.activity.aggregate({
-      where: { createdBy: { sistem } },
-      _sum: { eay_mevcutEv: true },
-    }),
-    prisma.activity.aggregate({
-      where: { createdBy: { sistem } },
-      _sum: { eay_mevcutApart: true },
-    }),
-    prisma.activity.aggregate({
-      where: { createdBy: { sistem } },
-      _sum: { eay_mevcutYurt: true },
-    }),
+    // Aktif konut sayıları
+    prisma.housingUnit.count({ where: { aktif: true, tip: "EV"    } }),
+    prisma.housingUnit.count({ where: { aktif: true, tip: "APART" } }),
+    prisma.housingUnit.count({ where: { aktif: true, tip: "YURT"  } }),
 
-    // Bölge bazlı faaliyet — bu sisteme ait
+    // Öğrenci sayıları (HousingStudent tipten bağımsız, unit tipine göre)
+    prisma.housingStudent.count({ where: { housingUnit: { aktif: true, tip: "EV"    } } }),
+    prisma.housingStudent.count({ where: { housingUnit: { aktif: true, tip: "APART" } } }),
+    prisma.housingStudent.count({ where: { housingUnit: { aktif: true, tip: "YURT"  } } }),
+
+    // Bölge bazlı: kaç il bu yıl veri girmiş (EGITIMCI sistemi)
     prisma.bolge.findMany({
-      take: 10,
       orderBy: { no: "asc" },
       include: {
         iller: {
           include: {
             activities: {
-              where: { yil: thisYear, createdBy: { sistem } },
+              where: { yil: thisYear, createdBy: { sistem: "EGITIMCI" } },
               take: 1,
+              select: { id: true },
             },
           },
         },
       },
     }),
 
-    // Son denetim logları — bu sisteme ait kullanıcıların logları
+    // Tüm 3 birimi dolan iller: ls + uni + eay hepsinde veri var
+    prisma.il.findMany({
+      where: {
+        activities: {
+          some: {
+            yil: thisYear,
+            createdBy: { sistem: "EGITIMCI" },
+            ls_toplamFaaliyet:  { gt: 0 },
+            uni_toplamFaaliyet: { gt: 0 },
+            eay_mevcutEv:       { gt: 0 },
+          },
+        },
+      },
+      select: { id: true },
+    }),
+
+    // Son sistem hareketleri (tüm sistemler)
     prisma.auditLog.findMany({
-      take: 6,
+      take: 7,
       orderBy: { createdAt: "desc" },
-      where: { user: { sistem } },
       include: { user: { select: { ad: true, soyad: true } } },
     }),
 
-    // Bekleyen başvurular — bu sisteme ait
+    // Bekleyen başvurular (tüm sistemler)
     prisma.user.findMany({
-      where: { status: "BEKLEMEDE", sistem },
-      take: 5,
+      where: { status: "BEKLEMEDE" },
+      take: 6,
       orderBy: { createdAt: "desc" },
-      select: { id: true, ad: true, soyad: true, email: true, createdAt: true },
+      select: {
+        id: true, ad: true, soyad: true, email: true, createdAt: true,
+        sistem: true, basvuruGorev: true,
+      },
     }),
-  ]);
 
-  const yeniIntisap =
-    (yeniIntisapAgg._sum.ls_yeniIntisap ?? 0) +
-    (yeniIntisapAgg._sum.uni_yeniIntisap ?? 0);
+    prisma.user.count({ where: { status: "BEKLEMEDE" } }),
+  ]);
 
   const bolgeChartData = bolgeStats.map(b => ({
     name:   `${b.no}. Bölge`,
@@ -102,16 +105,18 @@ async function getStats(sistem: Sistem) {
   }));
 
   return {
-    aktifKullanici,
-    bekleyenler,
+    toplamBolge,
     toplamIl,
-    toplamFaaliyet,
-    aktifBolge,
-    yeniIntisap,
-    aktifEv:    aktifEvAgg._sum.eay_mevcutEv       ?? 0,
-    aktifApart: aktifApartAgg._sum.eay_mevcutApart  ?? 0,
-    aktifYurt:  aktifYurtAgg._sum.eay_mevcutYurt    ?? 0,
+    tamVeriGirenIlSayisi: tamVeriGirenIller.length,
+    aktifKullanici,
+    evSayisi:      evler,
+    evOgrenci,
+    apartSayisi:   apartlar,
+    apartOgrenci,
+    yurtSayisi:    yurtlar,
+    yurtOgrenci,
     bolgeChartData,
+    toplamBekleyen,
     sonLogs: sonLogs.map(l => ({
       id:          l.id,
       action:      l.action,
@@ -120,13 +125,14 @@ async function getStats(sistem: Sistem) {
       userName:    l.user ? `${l.user.ad} ${l.user.soyad}` : "—",
     })),
     sonBasvurular: sonBasvurular.map(u => ({
-      id:        u.id,
-      ad:        u.ad,
-      soyad:     u.soyad,
-      email:     u.email,
-      createdAt: u.createdAt.toISOString(),
+      id:           u.id,
+      ad:           u.ad,
+      soyad:        u.soyad,
+      email:        u.email,
+      createdAt:    u.createdAt.toISOString(),
+      sistem:       u.sistem,
+      basvuruGorev: u.basvuruGorev,
     })),
-    sistem, // dashboard başlığında göstermek için
   };
 }
 
@@ -137,8 +143,6 @@ export default async function AdminPage() {
     redirect("/panel/beklemede");
   }
 
-  const sistem = (session.user.sistem ?? "EGITIMCI") as Sistem;
-  const stats  = await getStats(sistem);
-
+  const stats = await getStats();
   return <AdminDashboardClient stats={stats} />;
 }
