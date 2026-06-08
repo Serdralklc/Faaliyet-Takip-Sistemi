@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic'
+﻿export const dynamic = 'force-dynamic'
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -10,13 +10,13 @@ export default async function BolgelerPage() {
   if (!session?.user) redirect("/giris");
 
   const { role, sistem: userSistem } = session.user;
-  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"].includes(role)) redirect("/");
+  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"].includes(role)) redirect("/");
 
-  // TURKIYE_SORUMLUSU yalnızca kendi sistemini görür
-  const SISTEMLER: Sistem[] =
-    role === "TURKIYE_SORUMLUSU" && userSistem
-      ? [userSistem as Sistem]
-      : ["EGITIMCI", "UNIVERSITE", "LISE"];
+  const TURKIYE_ROLLERI = ["TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+  // Türkiye sorumluları yalnızca kendi sistemini görür
+  const SISTEMLER: Sistem[] = TURKIYE_ROLLERI.includes(role) && userSistem
+    ? [userSistem as Sistem]
+    : ["EGITIMCI", "UNIVERSITE", "LISE"];
 
   // Her sistem için bölge+il verisi çek
   const sistemVerileri = await Promise.all(
@@ -71,5 +71,5 @@ export default async function BolgelerPage() {
     })
   );
 
-  return <BolgelerClient sistemVerileri={sistemVerileri} lockedSistem={role === "TURKIYE_SORUMLUSU" ? userSistem as Sistem ?? null : null} />;
+  return <BolgelerClient sistemVerileri={sistemVerileri} lockedSistem={TURKIYE_ROLLERI.includes(role) ? userSistem as Sistem ?? null : null} />;
 }

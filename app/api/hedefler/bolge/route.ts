@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-const ADMIN_ROLES = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"];
+const ADMIN_ROLES = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
 
 export async function GET(req: NextRequest) {
   const session = await getSession();

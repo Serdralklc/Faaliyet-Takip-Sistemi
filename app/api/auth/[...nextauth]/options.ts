@@ -86,9 +86,9 @@ export const authOptions: NextAuthOptions = {
 
         const requestedSistem = credentials.sistem as string | undefined;
 
-        // Yönetici kartından giriş: SISTEM_ADMIN, GENEL_MERKEZ, TURKIYE_SORUMLUSU olmalı
+        // Yönetici kartından giriş: yönetici rolleri olmalı
         if (requestedSistem === "YONETICI") {
-          const adminRoles = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"];
+          const adminRoles = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
           if (!adminRoles.includes(user.role)) {
             throw new Error("YONETICI_YETKISIZ");
           }
@@ -105,7 +105,7 @@ export const authOptions: NextAuthOptions = {
         const sistemEnum = requestedSistem as Sistem | undefined;
 
         // Yönetici rolleri sadece YONETICI kartından girebilir
-        const YONETICI_ROLLERI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"];
+        const YONETICI_ROLLERI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
         if (YONETICI_ROLLERI.includes(user.role)) {
           throw new Error("SADECE_YONETICI_KARTI");
         }

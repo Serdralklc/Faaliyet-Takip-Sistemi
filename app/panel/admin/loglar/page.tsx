@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic'
+﻿export const dynamic = 'force-dynamic'
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -8,11 +8,12 @@ export default async function LoglarPage() {
   if (!session?.user) redirect("/giris");
 
   const { role, sistem } = session.user;
-  const YETKILI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"];
+  const YETKILI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
   if (!YETKILI.includes(role)) redirect("/");
 
-  // TURKIYE_SORUMLUSU yalnızca kendi sistemindeki kullanıcıların loglarını görür
-  const sistemFilter = (role === "TURKIYE_SORUMLUSU" && sistem)
+  const TURKIYE_ROLLERI = ["TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+  // Türkiye sorumluları yalnızca kendi sistemindeki kullanıcıların loglarını görür
+  const sistemFilter = (TURKIYE_ROLLERI.includes(role) && sistem)
     ? { user: { sistem: sistem as never } }
     : {};
 

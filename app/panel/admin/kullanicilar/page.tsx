@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
@@ -40,6 +40,12 @@ interface Bolge { id: string; no: number; ad: string; iller: Il[] }
 // ──────────────────────────────────────────────
 // Sabitler
 // ──────────────────────────────────────────────
+const TURKIYE_ROLLERI = [
+  "TURKIYE_EGITIM_SORUMLUSU",
+  "TURKIYE_UNIVERSITE_SORUMLUSU",
+  "TURKIYE_LISE_SORUMLUSU",
+];
+
 const SISTEM_TABS: { key: SistemKey; label: string; color: string; enum?: string }[] = [
   { key: "yetkili",    label: "Yetkili Girişi",     color: "#92400E", enum: "YONETICI" },
   { key: "egitimci",   label: "Eğitimci",           color: "#0B6B3A", enum: "EGITIMCI" },
@@ -58,20 +64,13 @@ const inputCls = "w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm t
 // Yardımcı bileşenler
 // ──────────────────────────────────────────────
 // Yetkili sekmesinde rol+sistem'e göre özel etiket
-function YetkiliRolBadge({ role, sistem }: { role: string; sistem?: string | null }) {
-  const label =
-    role === "SISTEM_ADMIN"                                         ? "Sistem Admini" :
-    role === "GENEL_MERKEZ"                                         ? "Merkez Ekibi"  :
-    role === "TURKIYE_SORUMLUSU" && sistem === "EGITIMCI"           ? "Türkiye Eğitim Sorumlusu"         :
-    role === "TURKIYE_SORUMLUSU" && sistem === "UNIVERSITE"         ? "Türkiye Üniversite Gençlik Sorumlusu" :
-    role === "TURKIYE_SORUMLUSU" && sistem === "LISE"               ? "Türkiye Lise Gençlik Sorumlusu"   :
-    role === "TURKIYE_SORUMLUSU"                                    ? "Türkiye Sorumlusu" :
-    ROLE_LABELS[role as Role] ?? role;
+function YetkiliRolBadge({ role }: { role: string; sistem?: string | null }) {
+  const label = ROLE_LABELS[role as Role] ?? role;
 
   const cls =
     role === "SISTEM_ADMIN"      ? "bg-red-100 text-red-700"       :
     role === "GENEL_MERKEZ"      ? "bg-purple-100 text-purple-700" :
-    role === "TURKIYE_SORUMLUSU" ? "bg-amber-100 text-amber-700"   :
+    TURKIYE_ROLLERI.includes(role) ? "bg-amber-100 text-amber-700"   :
     "bg-gray-100 text-gray-600";
 
   return (
@@ -85,7 +84,7 @@ function RolBadge({ role }: { role: string }) {
   const cls =
     role === "SISTEM_ADMIN"      ? "bg-red-100 text-red-700" :
     role === "GENEL_MERKEZ"      ? "bg-purple-100 text-purple-700" :
-    role === "TURKIYE_SORUMLUSU" ? "bg-indigo-100 text-indigo-700" :
+    TURKIYE_ROLLERI.includes(role) ? "bg-indigo-100 text-indigo-700" :
     role === "BOLGE_SORUMLUSU"   ? "bg-blue-100 text-blue-700" :
     role === "IL_SORUMLUSU"      ? "bg-green-100 text-green-700" :
     "bg-gray-100 text-gray-600";
@@ -106,8 +105,8 @@ export default function KullanicilarPage() {
 
   const sessionRole   = session?.user?.role ?? "";
   const sessionSistem = session?.user?.sistem ?? "";
-  // TURKIYE_SORUMLUSU yalnızca kendi sistemini yönetir
-  const isTuriyeSorumlusu = sessionRole === "TURKIYE_SORUMLUSU";
+  // Türkiye sorumluları yalnızca kendi sistemini yönetir
+  const isTuriyeSorumlusu = TURKIYE_ROLLERI.includes(sessionRole);
 
   // TURKIYE_SORUMLUSU kendi sisteminde başlar
   const initTab: SistemKey = (() => {
@@ -157,8 +156,8 @@ export default function KullanicilarPage() {
     sistem: "EGITIMCI",
   });
   const [onayForm, setOnayForm] = useState({ ilId: "", bolgeId: "", role: "IL_SORUMLUSU" as Role, sistem: "" });
-  // yetkili sekmesi için rol+sistem kombinasyonu: "TURKIYE_SORUMLUSU:EGITIMCI" vb.
-  const [yetkiliRolKey, setYetkiliRolKey] = useState("TURKIYE_SORUMLUSU:EGITIMCI");
+  // yetkili sekmesi için atanacak rol
+  const [yetkiliRol, setYetkiliRol] = useState<Role>("TURKIYE_EGITIM_SORUMLUSU");
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
@@ -220,11 +219,16 @@ export default function KullanicilarPage() {
   async function handleOnay(action: "onayla" | "reddet") {
     if (!showOnayModal) return;
     setLoading(true);
-    // Yetkili sekmesindeyse rol+sistem ayrıştır
+    // Yetkili sekmesindeyse direkt rolü gönder (sistem rol içinde zaten belli)
+    const SISTEM_MAP: Record<string, string> = {
+      TURKIYE_EGITIM_SORUMLUSU:     "EGITIMCI",
+      TURKIYE_UNIVERSITE_SORUMLUSU: "UNIVERSITE",
+      TURKIYE_LISE_SORUMLUSU:       "LISE",
+      GENEL_MERKEZ:                 "EGITIMCI",
+    };
     let body: Record<string, unknown> = { action, ...onayForm };
     if (tab === "yetkili" && action === "onayla") {
-      const [rolePart, sistemPart] = yetkiliRolKey.split(":");
-      body = { action, role: rolePart, sistem: sistemPart, ilId: "", bolgeId: "" };
+      body = { action, role: yetkiliRol, sistem: SISTEM_MAP[yetkiliRol] ?? "EGITIMCI", ilId: "", bolgeId: "" };
     }
     await fetch(`/api/kullanicilar/${showOnayModal.id}/onayla`, {
       method: "POST",
@@ -348,10 +352,7 @@ export default function KullanicilarPage() {
           {k.basvuruGorev ? (
             <div className="flex flex-wrap gap-1.5">
               <span className="text-xs px-2 py-1 rounded-full font-semibold bg-blue-100 text-blue-700">
-                {k.basvuruGorev === "TURKIYE_SORUMLUSU" && k.sistem === "EGITIMCI"    ? "Türkiye Eğitim Sorumlusu" :
-                 k.basvuruGorev === "TURKIYE_SORUMLUSU" && k.sistem === "UNIVERSITE"  ? "Türkiye Üniversite Gençlik Sorumlusu" :
-                 k.basvuruGorev === "TURKIYE_SORUMLUSU" && k.sistem === "LISE"        ? "Türkiye Lise Gençlik Sorumlusu" :
-                 ROLE_LABELS[k.basvuruGorev as Role] ?? k.basvuruGorev}
+                {ROLE_LABELS[k.basvuruGorev as Role] ?? k.basvuruGorev}
               </span>
               {basvuruBolge && (
                 <span className="text-xs px-2 py-1 rounded-full font-semibold bg-indigo-50 text-indigo-700">
@@ -683,7 +684,7 @@ export default function KullanicilarPage() {
                 onChange={e => setDavetForm({ ...davetForm, userRole: e.target.value as Role })} className={inputCls}>
                 <option value="IL_SORUMLUSU">İl Eğitimcisi</option>
                 <option value="BOLGE_SORUMLUSU">Bölge Eğitimcisi</option>
-                <option value="TURKIYE_SORUMLUSU">Türkiye Sorumlusu</option>
+                <option value="TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU">Türkiye Sorumlusu</option>
                 <option value="GENEL_MERKEZ">Genel Merkez</option>
               </select>
               <select value={davetForm.bolgeId}
@@ -739,10 +740,7 @@ export default function KullanicilarPage() {
                 <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-1.5">Başvurulan Görev</p>
                 <div className="flex flex-wrap gap-2">
                   <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-semibold">
-                    {showOnayModal.basvuruGorev === "TURKIYE_SORUMLUSU" && showOnayModal.sistem === "EGITIMCI"    ? "Türkiye Eğitim Sorumlusu" :
-                     showOnayModal.basvuruGorev === "TURKIYE_SORUMLUSU" && showOnayModal.sistem === "UNIVERSITE"  ? "Türkiye Üniversite Gençlik Sorumlusu" :
-                     showOnayModal.basvuruGorev === "TURKIYE_SORUMLUSU" && showOnayModal.sistem === "LISE"        ? "Türkiye Lise Gençlik Sorumlusu" :
-                     ROLE_LABELS[showOnayModal.basvuruGorev as Role] ?? showOnayModal.basvuruGorev}
+                    {ROLE_LABELS[showOnayModal.basvuruGorev as Role] ?? showOnayModal.basvuruGorev}
                   </span>
                   {showOnayModal.basvuruBolgeId && (
                     <span className="bg-indigo-100 text-indigo-800 text-xs px-2.5 py-1 rounded-full font-semibold">
@@ -763,12 +761,12 @@ export default function KullanicilarPage() {
                 /* Yetkili sekmesi: sadece 4 özel rol, bölge/il yok */
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-1">Atanacak Rol</label>
-                  <select value={yetkiliRolKey}
-                    onChange={e => setYetkiliRolKey(e.target.value)} className={inputCls}>
-                    <option value="TURKIYE_SORUMLUSU:EGITIMCI">Türkiye Eğitim Sorumlusu</option>
-                    <option value="GENEL_MERKEZ:EGITIMCI">Merkez Ekibi</option>
-                    <option value="TURKIYE_SORUMLUSU:UNIVERSITE">Türkiye Üniversite Gençlik Sorumlusu</option>
-                    <option value="TURKIYE_SORUMLUSU:LISE">Türkiye Lise Gençlik Sorumlusu</option>
+                  <select value={yetkiliRol}
+                    onChange={e => setYetkiliRol(e.target.value as Role)} className={inputCls}>
+                    <option value="TURKIYE_EGITIM_SORUMLUSU">Türkiye Eğitim Sorumlusu</option>
+                    <option value="GENEL_MERKEZ">Merkez Ekibi</option>
+                    <option value="TURKIYE_UNIVERSITE_SORUMLUSU">Türkiye Üniversite Gençlik Sorumlusu</option>
+                    <option value="TURKIYE_LISE_SORUMLUSU">Türkiye Lise Gençlik Sorumlusu</option>
                   </select>
                 </div>
               ) : (

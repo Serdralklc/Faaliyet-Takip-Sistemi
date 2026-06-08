@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
   const { role, sistem: userSistem } = session.user;
-  const YETKILI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"];
+  const YETKILI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
   if (!YETKILI.includes(role)) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
@@ -24,14 +24,15 @@ export async function GET(req: NextRequest) {
 
   const isSuperAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(role);
 
-  // TURKIYE_SORUMLUSU yalnızca kendi sistemini sorgulayabilir
-  const effectiveSistem = role === "TURKIYE_SORUMLUSU"
+  const TURKIYE_ROLLERI = ["TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+  // Türkiye sorumluları yalnızca kendi sistemini sorgulayabilir
+  const effectiveSistem = TURKIYE_ROLLERI.includes(role)
     ? (userSistem as Sistem)
     : sistemParam;
 
   // YONETICI sekmesi: admin rollere sahip kullanıcılar (sistem filtresi yok)
-  const YONETICI_ROLLERI: Role[] = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"];
-  const YONETICI_BASVURU_GOREVLER = ["TURKIYE_SORUMLUSU", "GENEL_MERKEZ"];
+  const YONETICI_ROLLERI: Role[] = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+  const YONETICI_BASVURU_GOREVLER = ["TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "GENEL_MERKEZ"];
 
   let whereClause: Record<string, unknown> = {};
 

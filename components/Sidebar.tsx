@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -91,10 +91,9 @@ function ThemeToggle() {
 }
 
 export function Sidebar({ user, onClose }: { user: User; onClose?: () => void }) {
-  const isFullAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(user.role)
-    || (user.role === "TURKIYE_SORUMLUSU" && user.sistem === "EGITIMCI");
-  const isTRUni  = user.role === "TURKIYE_SORUMLUSU" && user.sistem === "UNIVERSITE";
-  const isTRLise = user.role === "TURKIYE_SORUMLUSU" && user.sistem === "LISE";
+  const isFullAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(user.role);
+  const isTRUni  = user.role === "TURKIYE_UNIVERSITE_SORUMLUSU";
+  const isTRLise = user.role === "TURKIYE_LISE_SORUMLUSU";
   const isBolge  = user.role === "BOLGE_SORUMLUSU";
   const isIl     = user.role === "IL_SORUMLUSU";
 
@@ -185,11 +184,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
     },
   ];
 
-  const roleLabel =
-    user.role === "TURKIYE_SORUMLUSU" && user.sistem === "EGITIMCI"    ? "Türkiye Eğitim Sorumlusu" :
-    user.role === "TURKIYE_SORUMLUSU" && user.sistem === "UNIVERSITE"  ? "Türkiye Üniversite Gençlik Sorumlusu" :
-    user.role === "TURKIYE_SORUMLUSU" && user.sistem === "LISE"        ? "Türkiye Lise Gençlik Sorumlusu" :
-    ROLE_LABELS[user.role];
+  const roleLabel = ROLE_LABELS[user.role] ?? user.role;
 
   const locationLabel = user.activeIlAd
     ? `${user.activeIlAd} İl Sorumlusu`

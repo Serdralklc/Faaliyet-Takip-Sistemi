@@ -33,10 +33,10 @@ const SISTEM_LABELS: Record<SistemKey, { bolge: string; il: string; baslik: stri
 
 /* ── Yönetici başvuru rolleri ── */
 const YONETICI_ROLLER = [
-  { label: "Türkiye Eğitim Sorumlusu",            gorev: "TURKIYE_SORUMLUSU", sistem: "EGITIMCI"   },
-  { label: "Merkez Ekibi",                         gorev: "GENEL_MERKEZ",      sistem: "EGITIMCI"   },
-  { label: "Türkiye Üniversite Gençlik Sorumlusu", gorev: "TURKIYE_SORUMLUSU", sistem: "UNIVERSITE" },
-  { label: "Türkiye Lise Gençlik Sorumlusu",       gorev: "TURKIYE_SORUMLUSU", sistem: "LISE"       },
+  { label: "Türkiye Eğitim Sorumlusu",            gorev: "TURKIYE_EGITIM_SORUMLUSU",     sistem: "EGITIMCI"   },
+  { label: "Merkez Ekibi",                         gorev: "GENEL_MERKEZ",                 sistem: "EGITIMCI"   },
+  { label: "Türkiye Üniversite Gençlik Sorumlusu", gorev: "TURKIYE_UNIVERSITE_SORUMLUSU", sistem: "UNIVERSITE" },
+  { label: "Türkiye Lise Gençlik Sorumlusu",       gorev: "TURKIYE_LISE_SORUMLUSU",       sistem: "LISE"       },
 ] as const;
 
 /* ── Query param'dan sistem oku ── */

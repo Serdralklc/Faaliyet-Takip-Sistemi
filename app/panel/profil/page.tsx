@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useSession } from "next-auth/react";
 import { useState } from "react";
@@ -49,11 +49,7 @@ export default function ProfilPage() {
 
   if (!user) return null;
 
-  const roleLabel =
-    user.role === "TURKIYE_SORUMLUSU" && user.sistem === "EGITIMCI"    ? "Türkiye Eğitim Sorumlusu" :
-    user.role === "TURKIYE_SORUMLUSU" && user.sistem === "UNIVERSITE"  ? "Türkiye Üniversite Gençlik Sorumlusu" :
-    user.role === "TURKIYE_SORUMLUSU" && user.sistem === "LISE"        ? "Türkiye Lise Gençlik Sorumlusu" :
-    ROLE_LABELS[user.role as Role];
+  const roleLabel = ROLE_LABELS[user.role as Role] ?? user.role;
 
   const konum = user.activeIlAd
     ? `${user.activeIlAd} İl Sorumlusu`

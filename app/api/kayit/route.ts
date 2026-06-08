@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import bcrypt from "bcryptjs";
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Yönetici başvurusu: bolge/il zorunlu değil
-  const YONETICI_GOREVCLER = ["TURKIYE_SORUMLUSU", "GENEL_MERKEZ"];
+  const YONETICI_GOREVCLER = ["TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "GENEL_MERKEZ"];
   const isYoneticiBasvuru = YONETICI_GOREVCLER.includes(gorev ?? "")
     && !bolgeId && !ilId;
 
