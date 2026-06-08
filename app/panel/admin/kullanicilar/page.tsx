@@ -108,7 +108,7 @@ export default function KullanicilarPage() {
     if (sistemParam === "UNIVERSITE") return "universite";
     if (sistemParam === "LISE")       return "lise";
     if (sistemParam === "GONULLU")    return "gonullu";
-    return "egitimci";
+    return "yetkili";
   })();
 
   const [tab, setTab]         = useState<SistemKey>(initTab);
