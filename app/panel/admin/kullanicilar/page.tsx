@@ -621,8 +621,8 @@ export default function KullanicilarPage() {
               </select>
               <select value={davetForm.userRole}
                 onChange={e => setDavetForm({ ...davetForm, userRole: e.target.value as Role })} className={inputCls}>
-                <option value="IL_SORUMLUSU">İl Sorumlusu</option>
-                <option value="BOLGE_SORUMLUSU">Bölge Sorumlusu</option>
+                <option value="IL_SORUMLUSU">İl Eğitimcisi</option>
+                <option value="BOLGE_SORUMLUSU">Bölge Eğitimcisi</option>
                 <option value="TURKIYE_SORUMLUSU">Türkiye Sorumlusu</option>
                 <option value="GENEL_MERKEZ">Genel Merkez</option>
               </select>
@@ -700,8 +700,8 @@ export default function KullanicilarPage() {
                 <label className="block text-xs font-bold text-gray-600 mb-1">Atanacak Rol</label>
                 <select value={onayForm.role}
                   onChange={e => setOnayForm({ ...onayForm, role: e.target.value as Role })} className={inputCls}>
-                  <option value="IL_SORUMLUSU">İl Sorumlusu</option>
-                  <option value="BOLGE_SORUMLUSU">Bölge Sorumlusu</option>
+                  <option value="IL_SORUMLUSU">İl Eğitimcisi</option>
+                  <option value="BOLGE_SORUMLUSU">Bölge Eğitimcisi</option>
                   <option value="TURKIYE_SORUMLUSU">Türkiye Sorumlusu</option>
                   <option value="GENEL_MERKEZ">Genel Merkez</option>
                 </select>

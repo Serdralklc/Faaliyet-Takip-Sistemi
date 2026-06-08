@@ -10,8 +10,8 @@ export const ROLE_LABELS: Record<Role, string> = {
   SISTEM_ADMIN: "Sistem Admini",
   GENEL_MERKEZ: "Genel Merkez",
   TURKIYE_SORUMLUSU: "Türkiye Sorumlusu",
-  BOLGE_SORUMLUSU: "Bölge Sorumlusu",
-  IL_SORUMLUSU: "İl Sorumlusu",
+  BOLGE_SORUMLUSU: "Bölge Eğitimcisi",
+  IL_SORUMLUSU: "İl Eğitimcisi",
   BEKLEYEN: "Bekleyen",
 };
 
