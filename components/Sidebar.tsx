@@ -235,7 +235,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
 
             <NavItem href="/panel/admin/hedefler" label="Hedef Yönetimi" icon={Target} />
 
-            <NavGroupComp group={kullaniciGroup} />
+            <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
 
             <NavItem href="/panel/admin/bolgeler" label="Coğrafi Yapı" icon={MapPin} />
             <NavItem href="/panel/admin/loglar"   label="Denetim Logları" icon={ClipboardList} />

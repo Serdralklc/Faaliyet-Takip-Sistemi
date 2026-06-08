@@ -51,6 +51,8 @@ export async function GET(req: NextRequest) {
 
     whereClause = {
       ...sistemFilter,
+      // Yönetici rolleri normal sistem sekmelerinde görünmez
+      role: { notIn: YONETICI_ROLLERI as Role[] },
       ...(status    ? { status: status as never } : {}),
       ...(rolFilter ? { role: rolFilter }         : {}),
     };

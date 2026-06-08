@@ -56,6 +56,30 @@ const inputCls = "w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm t
 // ──────────────────────────────────────────────
 // Yardımcı bileşenler
 // ──────────────────────────────────────────────
+// Yetkili sekmesinde rol+sistem'e göre özel etiket
+function YetkiliRolBadge({ role, sistem }: { role: string; sistem?: string | null }) {
+  const label =
+    role === "SISTEM_ADMIN"                                         ? "Sistem Admini" :
+    role === "GENEL_MERKEZ"                                         ? "Merkez Ekibi"  :
+    role === "TURKIYE_SORUMLUSU" && sistem === "EGITIMCI"           ? "Türkiye Eğitim Sorumlusu"         :
+    role === "TURKIYE_SORUMLUSU" && sistem === "UNIVERSITE"         ? "Türkiye Üniversite Gençlik Sorumlusu" :
+    role === "TURKIYE_SORUMLUSU" && sistem === "LISE"               ? "Türkiye Lise Gençlik Sorumlusu"   :
+    role === "TURKIYE_SORUMLUSU"                                    ? "Türkiye Sorumlusu" :
+    ROLE_LABELS[role as Role] ?? role;
+
+  const cls =
+    role === "SISTEM_ADMIN"      ? "bg-red-100 text-red-700"       :
+    role === "GENEL_MERKEZ"      ? "bg-purple-100 text-purple-700" :
+    role === "TURKIYE_SORUMLUSU" ? "bg-amber-100 text-amber-700"   :
+    "bg-gray-100 text-gray-600";
+
+  return (
+    <span className={`text-xs px-2 py-1 rounded-full font-semibold ${cls}`}>
+      {label}
+    </span>
+  );
+}
+
 function RolBadge({ role }: { role: string }) {
   const cls =
     role === "SISTEM_ADMIN"      ? "bg-red-100 text-red-700" :
@@ -501,7 +525,9 @@ export default function KullanicilarPage() {
                     <div className="text-xs text-gray-500">{k.email}</div>
                     {k.telefon && <div className="text-xs text-gray-400">{k.telefon}</div>}
                   </td>
-                  <td className="px-4 py-3"><RolBadge role={k.role} /></td>
+                  <td className="px-4 py-3">
+                    <YetkiliRolBadge role={k.role} sistem={k.sistem} />
+                  </td>
                   <td className="px-4 py-3">
                     <span className="text-xs px-2 py-1 rounded-full font-semibold bg-amber-100 text-amber-800">
                       {k.sistem === "EGITIMCI" ? "Eğitim" : k.sistem === "UNIVERSITE" ? "Üniversite" : k.sistem === "LISE" ? "Lise" : k.sistem ?? "—"}
