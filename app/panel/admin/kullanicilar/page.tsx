@@ -144,7 +144,9 @@ export default function KullanicilarPage() {
     bolgeId: "", ilId: "",
     sistem: "EGITIMCI",
   });
-  const [onayForm, setOnayForm] = useState({ ilId: "", bolgeId: "", role: "IL_SORUMLUSU" as Role });
+  const [onayForm, setOnayForm] = useState({ ilId: "", bolgeId: "", role: "IL_SORUMLUSU" as Role, sistem: "" });
+  // yetkili sekmesi için rol+sistem kombinasyonu: "TURKIYE_SORUMLUSU:EGITIMCI" vb.
+  const [yetkiliRolKey, setYetkiliRolKey] = useState("TURKIYE_SORUMLUSU:EGITIMCI");
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
@@ -206,10 +208,16 @@ export default function KullanicilarPage() {
   async function handleOnay(action: "onayla" | "reddet") {
     if (!showOnayModal) return;
     setLoading(true);
+    // Yetkili sekmesindeyse rol+sistem ayrıştır
+    let body: Record<string, unknown> = { action, ...onayForm };
+    if (tab === "yetkili" && action === "onayla") {
+      const [rolePart, sistemPart] = yetkiliRolKey.split(":");
+      body = { action, role: rolePart, sistem: sistemPart, ilId: "", bolgeId: "" };
+    }
     await fetch(`/api/kullanicilar/${showOnayModal.id}/onayla`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, ...onayForm }),
+      body: JSON.stringify(body),
     });
     setLoading(false);
     setShowOnayModal(null);
@@ -729,33 +737,48 @@ export default function KullanicilarPage() {
             )}
 
             <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-gray-600 mb-1">Atanacak Rol</label>
-                <select value={onayForm.role}
-                  onChange={e => setOnayForm({ ...onayForm, role: e.target.value as Role })} className={inputCls}>
-                  <option value="IL_SORUMLUSU">İl Eğitimcisi</option>
-                  <option value="BOLGE_SORUMLUSU">Bölge Eğitimcisi</option>
-                  <option value="TURKIYE_SORUMLUSU">Türkiye Sorumlusu</option>
-                  <option value="GENEL_MERKEZ">Genel Merkez</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-600 mb-1">Bölge</label>
-                <select value={onayForm.bolgeId}
-                  onChange={e => setOnayForm({ ...onayForm, bolgeId: e.target.value, ilId: "" })} className={inputCls}>
-                  <option value="">Seçiniz</option>
-                  {bolgeler.map(b => <option key={b.id} value={b.id}>{b.ad}</option>)}
-                </select>
-              </div>
-              {onayBolge && onayForm.role === "IL_SORUMLUSU" && (
+              {tab === "yetkili" ? (
+                /* Yetkili sekmesi: sadece 4 özel rol, bölge/il yok */
                 <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">İl</label>
-                  <select value={onayForm.ilId}
-                    onChange={e => setOnayForm({ ...onayForm, ilId: e.target.value })} className={inputCls}>
-                    <option value="">Seçiniz</option>
-                    {onayBolge.iller.map(il => <option key={il.id} value={il.id}>{il.ad}</option>)}
+                  <label className="block text-xs font-bold text-gray-600 mb-1">Atanacak Rol</label>
+                  <select value={yetkiliRolKey}
+                    onChange={e => setYetkiliRolKey(e.target.value)} className={inputCls}>
+                    <option value="TURKIYE_SORUMLUSU:EGITIMCI">Türkiye Eğitim Sorumlusu</option>
+                    <option value="GENEL_MERKEZ:EGITIMCI">Merkez Ekibi</option>
+                    <option value="TURKIYE_SORUMLUSU:UNIVERSITE">Türkiye Üniversite Gençlik Sorumlusu</option>
+                    <option value="TURKIYE_SORUMLUSU:LISE">Türkiye Lise Gençlik Sorumlusu</option>
                   </select>
                 </div>
+              ) : (
+                /* Normal sistemler: il/bölge eğitimcisi rolleri */
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Atanacak Rol</label>
+                    <select value={onayForm.role}
+                      onChange={e => setOnayForm({ ...onayForm, role: e.target.value as Role })} className={inputCls}>
+                      <option value="IL_SORUMLUSU">İl Eğitimcisi</option>
+                      <option value="BOLGE_SORUMLUSU">Bölge Eğitimcisi</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">Bölge</label>
+                    <select value={onayForm.bolgeId}
+                      onChange={e => setOnayForm({ ...onayForm, bolgeId: e.target.value, ilId: "" })} className={inputCls}>
+                      <option value="">Seçiniz</option>
+                      {bolgeler.map(b => <option key={b.id} value={b.id}>{b.ad}</option>)}
+                    </select>
+                  </div>
+                  {onayBolge && onayForm.role === "IL_SORUMLUSU" && (
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1">İl</label>
+                      <select value={onayForm.ilId}
+                        onChange={e => setOnayForm({ ...onayForm, ilId: e.target.value })} className={inputCls}>
+                        <option value="">Seçiniz</option>
+                        {onayBolge.iller.map(il => <option key={il.id} value={il.id}>{il.ad}</option>)}
+                      </select>
+                    </div>
+                  )}
+                </>
               )}
             </div>
             <div className="flex gap-2 mt-5">

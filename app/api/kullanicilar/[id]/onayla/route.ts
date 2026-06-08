@@ -14,7 +14,7 @@ export async function POST(
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
 
-  const { action, ilId, bolgeId, role } = await req.json();
+  const { action, ilId, bolgeId, role, sistem } = await req.json();
 
   if (action === "reddet") {
     await prisma.user.update({ where: { id }, data: { status: "PASIF" } });
@@ -31,7 +31,11 @@ export async function POST(
   await prisma.$transaction(async (tx) => {
     await tx.user.update({
       where: { id },
-      data: { role: role || "IL_SORUMLUSU", status: "AKTIF" },
+      data: {
+        role: role || "IL_SORUMLUSU",
+        status: "AKTIF",
+        ...(sistem ? { sistem } : {}),
+      },
     });
     if (ilId || bolgeId) {
       await tx.roleAssignment.create({
