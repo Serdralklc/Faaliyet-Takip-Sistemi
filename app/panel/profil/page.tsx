@@ -49,11 +49,17 @@ export default function ProfilPage() {
 
   if (!user) return null;
 
+  const roleLabel =
+    user.role === "TURKIYE_SORUMLUSU" && user.sistem === "EGITIMCI"    ? "Türkiye Eğitim Sorumlusu" :
+    user.role === "TURKIYE_SORUMLUSU" && user.sistem === "UNIVERSITE"  ? "Türkiye Üniversite Gençlik Sorumlusu" :
+    user.role === "TURKIYE_SORUMLUSU" && user.sistem === "LISE"        ? "Türkiye Lise Gençlik Sorumlusu" :
+    ROLE_LABELS[user.role as Role];
+
   const konum = user.activeIlAd
     ? `${user.activeIlAd} İl Sorumlusu`
     : user.activeBolgeAd
     ? `${user.activeBolgeAd} Bölge Sorumlusu`
-    : ROLE_LABELS[user.role as Role];
+    : roleLabel;
 
   return (
     <div className="p-6 max-w-2xl mx-auto">

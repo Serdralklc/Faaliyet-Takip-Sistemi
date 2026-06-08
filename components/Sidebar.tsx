@@ -185,11 +185,17 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
     },
   ];
 
+  const roleLabel =
+    user.role === "TURKIYE_SORUMLUSU" && user.sistem === "EGITIMCI"    ? "Türkiye Eğitim Sorumlusu" :
+    user.role === "TURKIYE_SORUMLUSU" && user.sistem === "UNIVERSITE"  ? "Türkiye Üniversite Gençlik Sorumlusu" :
+    user.role === "TURKIYE_SORUMLUSU" && user.sistem === "LISE"        ? "Türkiye Lise Gençlik Sorumlusu" :
+    ROLE_LABELS[user.role];
+
   const locationLabel = user.activeIlAd
     ? `${user.activeIlAd} İl Sorumlusu`
     : user.activeBolgeAd
     ? `${user.activeBolgeAd} Bölge Sorumlusu`
-    : ROLE_LABELS[user.role];
+    : roleLabel;
 
   const initials = `${user.ad[0] ?? ""}${user.soyad[0] ?? ""}`.toUpperCase();
 
