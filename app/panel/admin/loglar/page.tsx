@@ -6,9 +6,18 @@ import { prisma } from "@/lib/prisma";
 export default async function LoglarPage() {
   const session = await getSession();
   if (!session?.user) redirect("/giris");
-  if (session.user.role !== "SISTEM_ADMIN") redirect("/");
+
+  const { role, sistem } = session.user;
+  const YETKILI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"];
+  if (!YETKILI.includes(role)) redirect("/");
+
+  // TURKIYE_SORUMLUSU yalnızca kendi sistemindeki kullanıcıların loglarını görür
+  const sistemFilter = (role === "TURKIYE_SORUMLUSU" && sistem)
+    ? { user: { sistem: sistem as never } }
+    : {};
 
   const loglar = await prisma.auditLog.findMany({
+    where: sistemFilter,
     orderBy: { createdAt: "desc" },
     take: 200,
     include: { user: true },

@@ -8,9 +8,15 @@ import type { Sistem } from "@/app/generated/prisma/client";
 export default async function BolgelerPage() {
   const session = await getSession();
   if (!session?.user) redirect("/giris");
-  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"].includes(session.user.role)) redirect("/");
 
-  const SISTEMLER: Sistem[] = ["EGITIMCI", "UNIVERSITE", "LISE"];
+  const { role, sistem: userSistem } = session.user;
+  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"].includes(role)) redirect("/");
+
+  // TURKIYE_SORUMLUSU yalnızca kendi sistemini görür
+  const SISTEMLER: Sistem[] =
+    role === "TURKIYE_SORUMLUSU" && userSistem
+      ? [userSistem as Sistem]
+      : ["EGITIMCI", "UNIVERSITE", "LISE"];
 
   // Her sistem için bölge+il verisi çek
   const sistemVerileri = await Promise.all(
@@ -65,5 +71,5 @@ export default async function BolgelerPage() {
     })
   );
 
-  return <BolgelerClient sistemVerileri={sistemVerileri} />;
+  return <BolgelerClient sistemVerileri={sistemVerileri} lockedSistem={role === "TURKIYE_SORUMLUSU" ? userSistem as Sistem ?? null : null} />;
 }

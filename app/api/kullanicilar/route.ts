@@ -11,8 +11,9 @@ export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
-  const { role } = session.user;
-  if (!["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(role)) {
+  const { role, sistem: userSistem } = session.user;
+  const YETKILI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"];
+  if (!YETKILI.includes(role)) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
 
@@ -23,13 +24,18 @@ export async function GET(req: NextRequest) {
 
   const isSuperAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(role);
 
+  // TURKIYE_SORUMLUSU yalnızca kendi sistemini sorgulayabilir
+  const effectiveSistem = role === "TURKIYE_SORUMLUSU"
+    ? (userSistem as Sistem)
+    : sistemParam;
+
   // YONETICI sekmesi: admin rollere sahip kullanıcılar (sistem filtresi yok)
   const YONETICI_ROLLERI: Role[] = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_SORUMLUSU"];
   const YONETICI_BASVURU_GOREVLER = ["TURKIYE_SORUMLUSU", "GENEL_MERKEZ"];
 
   let whereClause: Record<string, unknown> = {};
 
-  if ((sistemParam as string) === "YONETICI") {
+  if ((effectiveSistem as string) === "YONETICI") {
     if (status === "BEKLEMEDE") {
       // Bekleyenler: BEKLEYEN rolü + basvuruGorev yönetici görevi olanlar
       whereClause = {
@@ -45,9 +51,9 @@ export async function GET(req: NextRequest) {
       };
     }
   } else {
-    const sistemFilter = isSuperAdmin
-      ? (sistemParam ? { sistem: sistemParam } : {})
-      : { sistem: session.user.sistem as Sistem };
+    const sistemFilter = effectiveSistem
+      ? { sistem: effectiveSistem }
+      : isSuperAdmin ? {} : { sistem: session.user.sistem as Sistem };
 
     whereClause = {
       ...sistemFilter,

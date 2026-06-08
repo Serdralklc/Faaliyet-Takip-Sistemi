@@ -63,8 +63,8 @@ function hasVeri(il: Il): boolean {
   return il.sonFaaliyet !== null;
 }
 
-export function BolgelerClient({ sistemVerileri }: { sistemVerileri: SistemVeri[] }) {
-  const [aktifSistem, setAktifSistem] = useState<Sistem>("EGITIMCI");
+export function BolgelerClient({ sistemVerileri, lockedSistem }: { sistemVerileri: SistemVeri[]; lockedSistem?: Sistem | null }) {
+  const [aktifSistem, setAktifSistem] = useState<Sistem>(lockedSistem ?? "EGITIMCI");
   const [acikBolgeler, setAcikBolgeler] = useState<Set<string>>(new Set());
 
   const veri = sistemVerileri.find(s => s.sistem === aktifSistem)!;
@@ -92,25 +92,27 @@ export function BolgelerClient({ sistemVerileri }: { sistemVerileri: SistemVeri[
         </h1>
       </div>
 
-      {/* Sistem sekmeleri */}
-      <div className="flex gap-1 p-1 rounded-xl border w-fit"
-        style={{ background: "var(--bg-th)", borderColor: "var(--border)" }}>
-        {(["EGITIMCI", "UNIVERSITE", "LISE"] as Sistem[]).map(s => {
-          const c = SISTEM_CONFIG[s];
-          const aktif = aktifSistem === s;
-          return (
-            <button key={s}
-              onClick={() => { setAktifSistem(s); setAcikBolgeler(new Set()); }}
-              className="px-4 py-2 rounded-lg text-sm font-semibold transition-all"
-              style={aktif
-                ? { background: c.color, color: "#fff" }
-                : { color: "var(--text-muted)" }
-              }>
-              {c.label}
-            </button>
-          );
-        })}
-      </div>
+      {/* Sistem sekmeleri — lockedSistem varsa tek sekme göster */}
+      {!lockedSistem && (
+        <div className="flex gap-1 p-1 rounded-xl border w-fit"
+          style={{ background: "var(--bg-th)", borderColor: "var(--border)" }}>
+          {(["EGITIMCI", "UNIVERSITE", "LISE"] as Sistem[]).map(s => {
+            const c = SISTEM_CONFIG[s];
+            const aktif = aktifSistem === s;
+            return (
+              <button key={s}
+                onClick={() => { setAktifSistem(s); setAcikBolgeler(new Set()); }}
+                className="px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+                style={aktif
+                  ? { background: c.color, color: "#fff" }
+                  : { color: "var(--text-muted)" }
+                }>
+                {c.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* İstatistik kartları */}
       <div className="grid grid-cols-3 gap-4">

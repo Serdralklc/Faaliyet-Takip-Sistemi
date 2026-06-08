@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { ROLE_LABELS } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 
@@ -99,11 +100,22 @@ function RolBadge({ role }: { role: string }) {
 // Ana sayfa
 // ──────────────────────────────────────────────
 export default function KullanicilarPage() {
+  const { data: session } = useSession();
   const searchParams = useSearchParams();
   const sistemParam  = searchParams.get("sistem");
 
-  // Aktif ana sekme (query param'dan başla)
+  const sessionRole   = session?.user?.role ?? "";
+  const sessionSistem = session?.user?.sistem ?? "";
+  // TURKIYE_SORUMLUSU yalnızca kendi sistemini yönetir
+  const isTuriyeSorumlusu = sessionRole === "TURKIYE_SORUMLUSU";
+
+  // TURKIYE_SORUMLUSU kendi sisteminde başlar
   const initTab: SistemKey = (() => {
+    if (isTuriyeSorumlusu) {
+      if (sessionSistem === "UNIVERSITE") return "universite";
+      if (sessionSistem === "LISE")       return "lise";
+      return "egitimci";
+    }
     if (sistemParam === "YONETICI")   return "yetkili";
     if (sistemParam === "UNIVERSITE") return "universite";
     if (sistemParam === "LISE")       return "lise";
@@ -424,7 +436,13 @@ export default function KullanicilarPage() {
 
       {/* Ana sekmeler (4 sistem) */}
       <div className="flex gap-1 overflow-x-auto pb-1 mb-0">
-        {SISTEM_TABS.map(t => {
+        {SISTEM_TABS.filter(t => {
+          if (!isTuriyeSorumlusu) return true;
+          // TURKIYE_SORUMLUSU yalnızca kendi sistem sekmesini görür
+          if (sessionSistem === "UNIVERSITE") return t.key === "universite";
+          if (sessionSistem === "LISE")       return t.key === "lise";
+          return t.key === "egitimci";
+        }).map(t => {
           const total = t.key === "gonullu"
             ? counts[t.key].aktif
             : counts[t.key].aktif + counts[t.key].bekleyen;
