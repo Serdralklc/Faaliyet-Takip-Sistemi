@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
   const rolFilter = searchParams.get("role") as Role | null;
   const sistemParam = searchParams.get("sistem") as Sistem | null;
 
-  const isSuperAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(role);
+  const isSuperAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(role);
 
   const SISTEM_KISITLI = ["TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
   // Sistem kısıtlı roller yalnızca kendi sistemini sorgulayabilir
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
   const { role } = session.user;
-  if (!["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(role)) {
+  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(role)) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
 

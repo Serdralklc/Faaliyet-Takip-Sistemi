@@ -4,7 +4,15 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { AdminDashboardClient } from "./AdminDashboardClient";
 
-async function getStats() {
+async function getStats(userRole: string, userSistem: string | null | undefined) {
+  const SISTEM_KISITLI = ["TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+  const isSistemKisitli = SISTEM_KISITLI.includes(userRole);
+  const YONETICI_BASVURU_GOREVLER = ["TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "GENEL_MERKEZ"];
+
+  // Sistem kısıtlı roller sadece kendi sisteminin bekleyen başvurularını görür
+  const bekleyenFilter = isSistemKisitli
+    ? { status: "BEKLEMEDE" as const, sistem: userSistem as never, basvuruGorev: { notIn: YONETICI_BASVURU_GOREVLER } }
+    : { status: "BEKLEMEDE" as const };
   const thisYear = new Date().getFullYear();
 
   const [
@@ -84,9 +92,9 @@ async function getStats() {
       include: { user: { select: { ad: true, soyad: true } } },
     }),
 
-    // Bekleyen başvurular (tüm sistemler)
+    // Bekleyen başvurular (sistem kısıtlı rollere göre filtreli)
     prisma.user.findMany({
-      where: { status: "BEKLEMEDE" },
+      where: bekleyenFilter,
       take: 6,
       orderBy: { createdAt: "desc" },
       select: {
@@ -95,7 +103,7 @@ async function getStats() {
       },
     }),
 
-    prisma.user.count({ where: { status: "BEKLEMEDE" } }),
+    prisma.user.count({ where: bekleyenFilter }),
   ]);
 
   const bolgeChartData = bolgeStats.map(b => ({
@@ -143,6 +151,6 @@ export default async function AdminPage() {
     redirect("/panel/beklemede");
   }
 
-  const stats = await getStats();
+  const stats = await getStats(session.user.role, session.user.sistem);
   return <AdminDashboardClient stats={stats} />;
 }

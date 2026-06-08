@@ -10,7 +10,7 @@ export async function POST(
   const { id: yeniKullaniciId } = await params;
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  if (!["SISTEM_ADMIN", "GENEL_MERKEZ"].includes(session.user.role)) {
+  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(session.user.role)) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
 
