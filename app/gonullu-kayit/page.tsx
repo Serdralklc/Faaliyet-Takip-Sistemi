@@ -77,7 +77,6 @@ export default function GonulluKayitPage() {
     <div style={{ minHeight: "100dvh", background: COLORS.bg }} className="flex items-center justify-center px-4 py-12">
       <div style={{ background: COLORS.sr, border: `1px solid ${COLORS.br}`, borderRadius: "1.5rem", padding: "2.5rem", width: "100%", maxWidth: "560px" }}>
 
-        {/* Başlık */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-xl" style={{ background: BRAND.green + "18" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={BRAND.green} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -109,7 +108,6 @@ export default function GonulluKayitPage() {
               </div>
             )}
 
-            {/* Ad Soyad */}
             <div>
               <label style={labelSt}>Ad Soyad *</label>
               <input type="text" required placeholder="Adınız Soyadınız" style={inputSt}
@@ -118,7 +116,6 @@ export default function GonulluKayitPage() {
                 onBlur={e  => (e.target.style.borderColor = COLORS.br)} />
             </div>
 
-            {/* Telefon */}
             <div>
               <label style={labelSt}>Telefon *</label>
               <input type="tel" required placeholder="05xx xxx xxxx" style={inputSt}
@@ -127,7 +124,6 @@ export default function GonulluKayitPage() {
                 onBlur={e  => (e.target.style.borderColor = COLORS.br)} />
             </div>
 
-            {/* E-posta */}
             <div>
               <label style={labelSt}>E-posta *</label>
               <input
@@ -137,7 +133,6 @@ export default function GonulluKayitPage() {
                 value={form.email} onChange={e => set("email", e.target.value)} />
             </div>
 
-            {/* Öğrenim Durumu */}
             <div>
               <label style={labelSt}>Öğrenim Durumu *</label>
               <select required style={{ ...inputSt, cursor: "pointer" }}
@@ -152,7 +147,6 @@ export default function GonulluKayitPage() {
               </select>
             </div>
 
-            {/* Üniversite ek alanları */}
             {form.ogrenim === "UNIVERSITE" && (
               <>
                 <div>
@@ -185,7 +179,6 @@ export default function GonulluKayitPage() {
               </>
             )}
 
-            {/* İl */}
             <div>
               <label style={labelSt}>İkamet Edilen İl</label>
               <select style={{ ...inputSt, cursor: "pointer" }}
@@ -197,7 +190,6 @@ export default function GonulluKayitPage() {
               </select>
             </div>
 
-            {/* Şifre */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label style={labelSt}>Şifre *</label>
