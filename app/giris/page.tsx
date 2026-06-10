@@ -319,10 +319,10 @@ function LoginForm({
                 onChange={e => setEmail(e.target.value)}
                 placeholder="ornek@email.com"
                 autoComplete="email"
-                className="w-full rounded-xl px-4 py-3 pr-10 text-[14px] font-medium border-2 focus:outline-none transition"
-                style={{ background: "#F8FAFC", borderColor: "#E2E8F0", color: "#0F172A" }}
+                className="w-full rounded-xl px-4 py-3 pr-10 text-[14px] font-medium focus:outline-none transition"
+                style={{ background: "#F8FAFC", border: "2px solid #CBD5E1", color: "#0F172A" }}
                 onFocus={e  => (e.target.style.borderColor = role.color)}
-                onBlur={e   => (e.target.style.borderColor = "#E2E8F0")}
+                onBlur={e   => (e.target.style.borderColor = "#CBD5E1")}
               />
               <svg className="absolute right-3 top-1/2 -translate-y-1/2" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
@@ -346,10 +346,10 @@ function LoginForm({
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
                 autoComplete="current-password"
-                className="w-full rounded-xl px-4 py-3 pr-20 text-[14px] font-medium border-2 focus:outline-none transition"
-                style={{ background: "#F8FAFC", borderColor: "#E2E8F0", color: "#0F172A" }}
+                className="w-full rounded-xl px-4 py-3 pr-20 text-[14px] font-medium focus:outline-none transition"
+                style={{ background: "#F8FAFC", border: "2px solid #CBD5E1", color: "#0F172A" }}
                 onFocus={e  => (e.target.style.borderColor = role.color)}
-                onBlur={e   => (e.target.style.borderColor = "#E2E8F0")}
+                onBlur={e   => (e.target.style.borderColor = "#CBD5E1")}
               />
               <button
                 type="button"
