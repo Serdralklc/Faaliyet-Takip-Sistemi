@@ -313,18 +313,21 @@ function LoginForm({
             >
               E-posta Adresi
             </label>
-            <div className="relative">
+            <div
+              className="flex items-center rounded-xl transition"
+              style={{ background: "#F8FAFC", border: "2px solid #CBD5E1" }}
+              onFocusCapture={e => (e.currentTarget.style.borderColor = role.color)}
+              onBlurCapture={e  => (e.currentTarget.style.borderColor = "#CBD5E1")}
+            >
               <input
                 type="email" required value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="ornek@email.com"
                 autoComplete="email"
-                className="w-full rounded-xl px-4 py-3 pr-10 text-[14px] font-medium focus:outline-none transition"
-                style={{ background: "#F8FAFC", border: "2px solid #CBD5E1", color: "#0F172A" }}
-                onFocus={e  => (e.target.style.borderColor = role.color)}
-                onBlur={e   => (e.target.style.borderColor = "#CBD5E1")}
+                className="flex-1 rounded-xl px-4 py-3 text-[14px] font-medium focus:outline-none"
+                style={{ background: "transparent", border: "none", color: "#0F172A", minWidth: 0 }}
               />
-              <svg className="absolute right-3 top-1/2 -translate-y-1/2" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="flex-shrink-0 mr-3" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>
@@ -339,22 +342,25 @@ function LoginForm({
             >
               Şifre
             </label>
-            <div className="relative">
+            <div
+              className="flex items-center rounded-xl transition"
+              style={{ background: "#F8FAFC", border: "2px solid #CBD5E1" }}
+              onFocusCapture={e => (e.currentTarget.style.borderColor = role.color)}
+              onBlurCapture={e  => (e.currentTarget.style.borderColor = "#CBD5E1")}
+            >
               <input
                 type={showPass ? "text" : "password"}
                 required value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
                 autoComplete="current-password"
-                className="w-full rounded-xl px-4 py-3 pr-20 text-[14px] font-medium focus:outline-none transition"
-                style={{ background: "#F8FAFC", border: "2px solid #CBD5E1", color: "#0F172A" }}
-                onFocus={e  => (e.target.style.borderColor = role.color)}
-                onBlur={e   => (e.target.style.borderColor = "#CBD5E1")}
+                className="flex-1 rounded-xl px-4 py-3 text-[14px] font-medium focus:outline-none"
+                style={{ background: "transparent", border: "none", color: "#0F172A", minWidth: 0 }}
               />
               <button
                 type="button"
                 onClick={() => setShowPass(!showPass)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-bold transition hover:opacity-75"
+                className="flex-shrink-0 mr-3 text-[12px] font-bold transition hover:opacity-75"
                 style={{ color: role.color }}
               >
                 {showPass ? "Gizle" : "Göster"}

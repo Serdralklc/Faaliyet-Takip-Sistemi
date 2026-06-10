@@ -89,19 +89,29 @@ export default function GonulluGirisPage() {
             <label style={{ color: c.mu, fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: "6px" }}>
               E-posta
             </label>
-            <input type="email" required placeholder="ornek@email.com" style={inputSt}
-              value={email} onChange={e => setEmail(e.target.value)}
-              onFocus={e => (e.target.style.borderColor = BRAND.green)}
-              onBlur={e  => (e.target.style.borderColor = "#CBD5E1")} />
+            <div
+              style={{ display: "flex", alignItems: "center", background: "#F8FAFC", border: "2px solid #CBD5E1", borderRadius: "0.75rem", transition: "border-color 0.15s" }}
+              onFocusCapture={e => (e.currentTarget.style.borderColor = BRAND.green)}
+              onBlurCapture={e  => (e.currentTarget.style.borderColor = "#CBD5E1")}
+            >
+              <input type="email" required placeholder="ornek@email.com"
+                style={{ flex: 1, background: "transparent", border: "none", outline: "none", padding: "0.75rem 1rem", fontSize: "14px", color: "#0F172A", minWidth: 0 }}
+                value={email} onChange={e => setEmail(e.target.value)} />
+            </div>
           </div>
           <div>
             <label style={{ color: c.mu, fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: "6px" }}>
               Şifre
             </label>
-            <input type="password" required placeholder="Şifreniz" style={inputSt}
-              value={sifre} onChange={e => setSifre(e.target.value)}
-              onFocus={e => (e.target.style.borderColor = BRAND.green)}
-              onBlur={e  => (e.target.style.borderColor = "#CBD5E1")} />
+            <div
+              style={{ display: "flex", alignItems: "center", background: "#F8FAFC", border: "2px solid #CBD5E1", borderRadius: "0.75rem", transition: "border-color 0.15s" }}
+              onFocusCapture={e => (e.currentTarget.style.borderColor = BRAND.green)}
+              onBlurCapture={e  => (e.currentTarget.style.borderColor = "#CBD5E1")}
+            >
+              <input type="password" required placeholder="Şifreniz"
+                style={{ flex: 1, background: "transparent", border: "none", outline: "none", padding: "0.75rem 1rem", fontSize: "14px", color: "#0F172A", minWidth: 0 }}
+                value={sifre} onChange={e => setSifre(e.target.value)} />
+            </div>
           </div>
           <button
             type="submit"
