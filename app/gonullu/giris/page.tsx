@@ -29,19 +29,19 @@ export default function GonulluGirisPage() {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
 
-  const inputSt = {
-    background:          c.sr,
-    border:              `2px solid ${c.br}`,
+  const inputSt: React.CSSProperties = {
+    background:          "#F8FAFC",
+    border:              "2px solid #CBD5E1",
     borderRadius:        "0.75rem",
     padding:             "0.75rem 1rem",
     width:               "100%",
     fontSize:            "14px",
-    color:               c.h,
+    color:               "#0F172A",
     outline:             "none",
     boxSizing:           "border-box",
-    WebkitBoxShadow:     `0 0 0 1000px ${c.sr} inset`,
-    WebkitTextFillColor: c.h,
-  } as React.CSSProperties;
+    WebkitBoxShadow:     "0 0 0 1000px #F8FAFC inset",
+    WebkitTextFillColor: "#0F172A",
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -91,8 +91,8 @@ export default function GonulluGirisPage() {
             </label>
             <input type="email" required placeholder="ornek@email.com" style={inputSt}
               value={email} onChange={e => setEmail(e.target.value)}
-              onFocus={e => (e.target.style.border = `1px solid ${BRAND.green}`)}
-              onBlur={e  => (e.target.style.border = `1px solid ${c.br}`)} />
+              onFocus={e => (e.target.style.borderColor = BRAND.green)}
+              onBlur={e  => (e.target.style.borderColor = "#CBD5E1")} />
           </div>
           <div>
             <label style={{ color: c.mu, fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: "6px" }}>
@@ -100,8 +100,8 @@ export default function GonulluGirisPage() {
             </label>
             <input type="password" required placeholder="Şifreniz" style={inputSt}
               value={sifre} onChange={e => setSifre(e.target.value)}
-              onFocus={e => (e.target.style.border = `1px solid ${BRAND.green}`)}
-              onBlur={e  => (e.target.style.border = `1px solid ${c.br}`)} />
+              onFocus={e => (e.target.style.borderColor = BRAND.green)}
+              onBlur={e  => (e.target.style.borderColor = "#CBD5E1")} />
           </div>
           <button
             type="submit"
