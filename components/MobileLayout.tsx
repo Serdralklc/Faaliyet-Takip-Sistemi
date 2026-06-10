@@ -28,7 +28,7 @@ export function MobileLayout({ user, children }: { user: User; children: React.R
   }, [open]);
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: "var(--bg-page)" }}>
+    <div className="panel-layout flex h-screen overflow-hidden" style={{ background: "var(--bg-page)" }}>
 
       {/* ── Desktop sidebar (her zaman görünür, lg ve üstü) ── */}
       <div className="hidden lg:flex flex-shrink-0">

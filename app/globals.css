@@ -117,7 +117,9 @@ tr:hover { background-color: var(--bg-hover) !important; }
 .text-gray-400 { color: var(--text-muted) !important; }
 .text-gray-500 { color: var(--text-muted) !important; }
 .text-gray-600 { color: var(--text-secondary) !important; }
-h1, h2, h3, h4 { color: var(--text-primary) !important; }
+/* Panel başlıkları: tema rengini kullan */
+.panel-layout h1, .panel-layout h2, .panel-layout h3, .panel-layout h4 { color: var(--text-primary) !important; }
+/* Public sayfalar: inline style'a dokunma */
 
 /* ══════════════════════════════════════
    BORDERS
