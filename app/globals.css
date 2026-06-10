@@ -84,13 +84,13 @@ body {
 /* ══════════════════════════════════════
    INPUTS
 ══════════════════════════════════════ */
-input, textarea, select {
+.panel-layout input, .panel-layout textarea, .panel-layout select {
   background-color: var(--bg-input) !important;
   color: var(--text-primary) !important;
   border-color: var(--border-input) !important;
 }
 
-input::placeholder, textarea::placeholder {
+.panel-layout input::placeholder, .panel-layout textarea::placeholder {
   color: var(--text-placeholder) !important;
   opacity: 1 !important;
 }
