@@ -78,22 +78,18 @@ export default function GonulluGirisPage() {
           <div>
             <label style={labelSt}>E-posta</label>
             <input
-              type="email" autoComplete="off" required
+              type="text" inputMode="email" autoComplete="off" required
               placeholder="ornek@email.com"
-              style={inputSt}
-              value={email} onChange={e => setEmail(e.target.value)}
-              onFocus={e => (e.target.style.borderColor = BRAND.green)}
-              onBlur={e  => (e.target.style.borderColor = COLORS.br)} />
+              className="public-input"
+              value={email} onChange={e => setEmail(e.target.value)} />
           </div>
           <div>
             <label style={labelSt}>Şifre</label>
             <input
               type="password" required
               placeholder="Şifreniz"
-              style={inputSt}
-              value={sifre} onChange={e => setSifre(e.target.value)}
-              onFocus={e => (e.target.style.borderColor = BRAND.green)}
-              onBlur={e  => (e.target.style.borderColor = COLORS.br)} />
+              className="public-input"
+              value={sifre} onChange={e => setSifre(e.target.value)} />
           </div>
           <button
             type="submit"
