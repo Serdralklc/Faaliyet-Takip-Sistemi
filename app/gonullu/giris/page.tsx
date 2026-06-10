@@ -14,7 +14,7 @@ function useColors() {
   return {
     bg: dark ? "#081C15" : "#F6F8F5",
     sr: dark ? "#142C22" : "#FFFFFF",
-    br: dark ? "#1F3D31" : "#E2E8F0",
+    br: dark ? "#2A4A38" : "#CBD5E1",
     h:  dark ? "#F8FAFC" : "#0F172A",
     b:  dark ? "#CBD5E1" : "#475569",
     mu: dark ? "#94A3B8" : "#64748B",
@@ -31,13 +31,14 @@ export default function GonulluGirisPage() {
 
   const inputSt = {
     background:          c.sr,
-    border:              `1px solid ${c.br}`,
+    border:              `2px solid ${c.br}`,
     borderRadius:        "0.75rem",
-    padding:             "0.625rem 1rem",
+    padding:             "0.75rem 1rem",
     width:               "100%",
     fontSize:            "14px",
     color:               c.h,
     outline:             "none",
+    boxSizing:           "border-box",
     WebkitBoxShadow:     `0 0 0 1000px ${c.sr} inset`,
     WebkitTextFillColor: c.h,
   } as React.CSSProperties;
