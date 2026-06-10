@@ -89,29 +89,25 @@ export default function GonulluGirisPage() {
             <label style={{ color: c.mu, fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: "6px" }}>
               E-posta
             </label>
-            <div
-              style={{ display: "flex", alignItems: "center", background: "#FFFFFF", boxShadow: "0 0 0 1px #CBD5E1", borderRadius: "0.75rem" }}
-              onFocusCapture={e => (e.currentTarget.style.boxShadow = `0 0 0 2px ${BRAND.green}`)}
-              onBlurCapture={e  => (e.currentTarget.style.boxShadow = "0 0 0 1px #CBD5E1")}
-            >
-              <input type="email" required placeholder="ornek@email.com"
-                style={{ flex: 1, background: "transparent", border: "none", outline: "none", padding: "0.625rem 1rem", fontSize: "14px", color: "#0F172A", minWidth: 0, WebkitBoxShadow: "0 0 0 1000px #FFFFFF inset", WebkitTextFillColor: "#0F172A" } as React.CSSProperties}
-                value={email} onChange={e => setEmail(e.target.value)} />
-            </div>
+            <input
+              type="text" inputMode="email" autoComplete="email" required
+              placeholder="ornek@email.com"
+              style={inputSt}
+              value={email} onChange={e => setEmail(e.target.value)}
+              onFocus={e => (e.target.style.borderColor = BRAND.green)}
+              onBlur={e  => (e.target.style.borderColor = "#CBD5E1")} />
           </div>
           <div>
             <label style={{ color: c.mu, fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: "6px" }}>
               Şifre
             </label>
-            <div
-              style={{ display: "flex", alignItems: "center", background: "#FFFFFF", boxShadow: "0 0 0 1px #CBD5E1", borderRadius: "0.75rem" }}
-              onFocusCapture={e => (e.currentTarget.style.boxShadow = `0 0 0 2px ${BRAND.green}`)}
-              onBlurCapture={e  => (e.currentTarget.style.boxShadow = "0 0 0 1px #CBD5E1")}
-            >
-              <input type="password" required placeholder="Şifreniz"
-                style={{ flex: 1, background: "transparent", border: "none", outline: "none", padding: "0.625rem 1rem", fontSize: "14px", color: "#0F172A", minWidth: 0 }}
-                value={sifre} onChange={e => setSifre(e.target.value)} />
-            </div>
+            <input
+              type="password" required
+              placeholder="Şifreniz"
+              style={inputSt}
+              value={sifre} onChange={e => setSifre(e.target.value)}
+              onFocus={e => (e.target.style.borderColor = BRAND.green)}
+              onBlur={e  => (e.target.style.borderColor = "#CBD5E1")} />
           </div>
           <button
             type="submit"
