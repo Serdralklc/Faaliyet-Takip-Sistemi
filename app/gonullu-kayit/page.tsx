@@ -131,12 +131,10 @@ export default function GonulluKayitPage() {
             <div>
               <label style={labelSt}>E-posta *</label>
               <input
-                type="text" inputMode="email" autoComplete="email" required
+                type="text" inputMode="email" autoComplete="off" required
                 placeholder="ornek@email.com"
-                style={inputSt}
-                value={form.email} onChange={e => set("email", e.target.value)}
-                onFocus={e => (e.target.style.borderColor = BRAND.green)}
-                onBlur={e  => (e.target.style.borderColor = COLORS.br)} />
+                className="public-input"
+                value={form.email} onChange={e => set("email", e.target.value)} />
             </div>
 
             {/* Öğrenim Durumu */}
