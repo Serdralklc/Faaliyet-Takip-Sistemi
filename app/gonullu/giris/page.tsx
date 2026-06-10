@@ -78,7 +78,7 @@ export default function GonulluGirisPage() {
           <div>
             <label style={labelSt}>E-posta</label>
             <input
-              type="text" inputMode="email" autoComplete="email" required
+              type="text" inputMode="email" autoComplete="off" required
               placeholder="ornek@email.com"
               style={inputSt}
               value={email} onChange={e => setEmail(e.target.value)}
