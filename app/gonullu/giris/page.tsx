@@ -90,12 +90,12 @@ export default function GonulluGirisPage() {
               E-posta
             </label>
             <div
-              style={{ display: "flex", alignItems: "center", background: c.sr, border: `1px solid ${c.br}`, borderRadius: "0.75rem", transition: "border-color 0.15s" }}
+              style={{ display: "flex", alignItems: "center", background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "0.75rem", transition: "border-color 0.15s" }}
               onFocusCapture={e => (e.currentTarget.style.borderColor = BRAND.green)}
-              onBlurCapture={e  => (e.currentTarget.style.borderColor = c.br)}
+              onBlurCapture={e  => (e.currentTarget.style.borderColor = "#CBD5E1")}
             >
               <input type="email" required placeholder="ornek@email.com"
-                style={{ flex: 1, background: "transparent", border: "none", outline: "none", padding: "0.625rem 1rem", fontSize: "14px", color: c.h, minWidth: 0, WebkitBoxShadow: `0 0 0 1000px ${c.sr} inset`, WebkitTextFillColor: c.h } as React.CSSProperties}
+                style={{ flex: 1, background: "transparent", border: "none", outline: "none", padding: "0.625rem 1rem", fontSize: "14px", color: "#0F172A", minWidth: 0, WebkitBoxShadow: "0 0 0 1000px #FFFFFF inset", WebkitTextFillColor: "#0F172A" } as React.CSSProperties}
                 value={email} onChange={e => setEmail(e.target.value)} />
             </div>
           </div>
@@ -104,12 +104,12 @@ export default function GonulluGirisPage() {
               Şifre
             </label>
             <div
-              style={{ display: "flex", alignItems: "center", background: c.sr, border: `1px solid ${c.br}`, borderRadius: "0.75rem", transition: "border-color 0.15s" }}
+              style={{ display: "flex", alignItems: "center", background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: "0.75rem", transition: "border-color 0.15s" }}
               onFocusCapture={e => (e.currentTarget.style.borderColor = BRAND.green)}
-              onBlurCapture={e  => (e.currentTarget.style.borderColor = c.br)}
+              onBlurCapture={e  => (e.currentTarget.style.borderColor = "#CBD5E1")}
             >
               <input type="password" required placeholder="Şifreniz"
-                style={{ flex: 1, background: "transparent", border: "none", outline: "none", padding: "0.625rem 1rem", fontSize: "14px", color: c.h, minWidth: 0 }}
+                style={{ flex: 1, background: "transparent", border: "none", outline: "none", padding: "0.625rem 1rem", fontSize: "14px", color: "#0F172A", minWidth: 0 }}
                 value={sifre} onChange={e => setSifre(e.target.value)} />
             </div>
           </div>
