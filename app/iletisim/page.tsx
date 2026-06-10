@@ -156,7 +156,7 @@ export default function IletisimPage() {
         style={{
           position: "relative",
           minHeight: "45vh",
-          backgroundImage: "url(https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1600&q=80)",
+          backgroundImage: "url(https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&q=80)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           display: "flex",
