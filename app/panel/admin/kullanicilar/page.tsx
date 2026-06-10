@@ -166,49 +166,38 @@ export default function KullanicilarPage() {
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
-  // Tüm tab verileri (tab → { aktif, bekleyen })
+  // Tüm tab verileri cache
   const [allData, setAllData] = useState<Record<string, { aktif: Kullanici[]; bekleyen: Kullanici[] }>>({});
 
-  // Bölgeler + tüm tabların verisini paralel yükle
+  // Tek bir tab için veri çek ve cache'e yaz
+  const fetchTab = useCallback(async (key: SistemKey) => {
+    const t = SISTEM_TABS.find(x => x.key === key);
+    if (!t) return;
+    if (key === "gonullu") {
+      const data: Gonullu[] = await fetch("/api/admin/gonulluler").then(r => r.json());
+      setGonulluler(data);
+      setCounts(prev => ({ ...prev, gonullu: { aktif: data.length, bekleyen: 0 } }));
+      return;
+    }
+    const [aktif, bekleyen]: [Kullanici[], Kullanici[]] = await Promise.all([
+      fetch(`/api/kullanicilar?sistem=${t.enum}&status=AKTIF`).then(r => r.json()),
+      fetch(`/api/kullanicilar?sistem=${t.enum}&status=BEKLEMEDE`).then(r => r.json()),
+    ]);
+    setAllData(prev => ({ ...prev, [key]: { aktif, bekleyen } }));
+    setCounts(prev => ({ ...prev, [key]: { aktif: aktif.length, bekleyen: bekleyen.length } }));
+  }, []);
+
+  // Mount: bölgeler + tüm tabları paralel yükle
   useEffect(() => {
     setLoading(true);
-    const sistemTablar = SISTEM_TABS.filter(t => t.key !== "gonullu");
-
-    Promise.all([
-      fetch("/api/bolgeler").then(r => r.json()),
-      fetch("/api/admin/gonulluler").then(r => r.json()),
-      ...sistemTablar.flatMap(t => [
-        fetch(`/api/kullanicilar?sistem=${t.enum}&status=AKTIF`).then(r => r.json()),
-        fetch(`/api/kullanicilar?sistem=${t.enum}&status=BEKLEMEDE`).then(r => r.json()),
-      ]),
-    ]).then(results => {
-      const [bolgeData, gonulluData, ...rest] = results;
-      setBolgeler(bolgeData);
-      setGonulluler(gonulluData);
-
-      const newAllData: Record<string, { aktif: Kullanici[]; bekleyen: Kullanici[] }> = {};
-      const newCounts = { ...counts };
-      sistemTablar.forEach((t, i) => {
-        const aktif    = rest[i * 2]     as Kullanici[];
-        const bekleyen = rest[i * 2 + 1] as Kullanici[];
-        newAllData[t.key] = { aktif, bekleyen };
-        newCounts[t.key]  = { aktif: aktif.length, bekleyen: bekleyen.length };
-      });
-      newCounts.gonullu = { aktif: (gonulluData as Gonullu[]).length, bekleyen: 0 };
-
-      setAllData(newAllData);
-      setCounts(newCounts);
-      // Aktif tab için listeleri set et
-      const cur = newAllData[initTab];
-      if (cur) { setAktifList(cur.aktif); setBekleyenList(cur.bekleyen); }
-      setLoading(false);
-    });
+    fetch("/api/bolgeler").then(r => r.json()).then(setBolgeler);
+    const keys: SistemKey[] = ["yetkili", "egitimci", "universite", "lise", "gonullu"];
+    Promise.allSettled(keys.map(k => fetchTab(k))).finally(() => setLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Tab değişince allData'dan anında yükle
+  // allData değişince aktif tab listelerini güncelle
   useEffect(() => {
-    if (tab === "gonullu") return;
     const d = allData[tab];
     if (d) { setAktifList(d.aktif); setBekleyenList(d.bekleyen); }
   }, [tab, allData]);
@@ -216,32 +205,10 @@ export default function KullanicilarPage() {
   // Veri yenileme (işlem sonrası)
   const fetchData = useCallback(async () => {
     setLoading(true);
-    try {
-      const sistemTablar = SISTEM_TABS.filter(t => t.key !== "gonullu");
-      const [gonulluRes, ...rest] = await Promise.all([
-        fetch("/api/admin/gonulluler").then(r => r.json()),
-        ...sistemTablar.flatMap(t => [
-          fetch(`/api/kullanicilar?sistem=${t.enum}&status=AKTIF`).then(r => r.json()),
-          fetch(`/api/kullanicilar?sistem=${t.enum}&status=BEKLEMEDE`).then(r => r.json()),
-        ]),
-      ]);
-      setGonulluler(gonulluRes);
-      const newAllData: Record<string, { aktif: Kullanici[]; bekleyen: Kullanici[] }> = {};
-      const newCounts = { ...counts, gonullu: { aktif: (gonulluRes as Gonullu[]).length, bekleyen: 0 } };
-      sistemTablar.forEach((t, i) => {
-        const aktif    = rest[i * 2]     as Kullanici[];
-        const bekleyen = rest[i * 2 + 1] as Kullanici[];
-        newAllData[t.key] = { aktif, bekleyen };
-        newCounts[t.key]  = { aktif: aktif.length, bekleyen: bekleyen.length };
-      });
-      setAllData(newAllData);
-      setCounts(newCounts);
-      const cur = newAllData[tab];
-      if (cur) { setAktifList(cur.aktif); setBekleyenList(cur.bekleyen); }
-    } finally {
-      setLoading(false);
-    }
-  }, [tab]);
+    const keys: SistemKey[] = ["yetkili", "egitimci", "universite", "lise", "gonullu"];
+    await Promise.allSettled(keys.map(k => fetchTab(k)));
+    setLoading(false);
+  }, [fetchTab]);
 
   // ─── Handlers ────────────────────────────────
   async function handleDavet(e: React.FormEvent) {
