@@ -166,39 +166,82 @@ export default function KullanicilarPage() {
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
-  // Bölgeler
+  // Tüm tab verileri (tab → { aktif, bekleyen })
+  const [allData, setAllData] = useState<Record<string, { aktif: Kullanici[]; bekleyen: Kullanici[] }>>({});
+
+  // Bölgeler + tüm tabların verisini paralel yükle
   useEffect(() => {
-    fetch("/api/bolgeler").then(r => r.json()).then(setBolgeler);
+    setLoading(true);
+    const sistemTablar = SISTEM_TABS.filter(t => t.key !== "gonullu");
+
+    Promise.all([
+      fetch("/api/bolgeler").then(r => r.json()),
+      fetch("/api/admin/gonulluler").then(r => r.json()),
+      ...sistemTablar.flatMap(t => [
+        fetch(`/api/kullanicilar?sistem=${t.enum}&status=AKTIF`).then(r => r.json()),
+        fetch(`/api/kullanicilar?sistem=${t.enum}&status=BEKLEMEDE`).then(r => r.json()),
+      ]),
+    ]).then(results => {
+      const [bolgeData, gonulluData, ...rest] = results;
+      setBolgeler(bolgeData);
+      setGonulluler(gonulluData);
+
+      const newAllData: Record<string, { aktif: Kullanici[]; bekleyen: Kullanici[] }> = {};
+      const newCounts = { ...counts };
+      sistemTablar.forEach((t, i) => {
+        const aktif    = rest[i * 2]     as Kullanici[];
+        const bekleyen = rest[i * 2 + 1] as Kullanici[];
+        newAllData[t.key] = { aktif, bekleyen };
+        newCounts[t.key]  = { aktif: aktif.length, bekleyen: bekleyen.length };
+      });
+      newCounts.gonullu = { aktif: (gonulluData as Gonullu[]).length, bekleyen: 0 };
+
+      setAllData(newAllData);
+      setCounts(newCounts);
+      // Aktif tab için listeleri set et
+      const cur = newAllData[initTab];
+      if (cur) { setAktifList(cur.aktif); setBekleyenList(cur.bekleyen); }
+      setLoading(false);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Veri yükleme
+  // Tab değişince allData'dan anında yükle
+  useEffect(() => {
+    if (tab === "gonullu") return;
+    const d = allData[tab];
+    if (d) { setAktifList(d.aktif); setBekleyenList(d.bekleyen); }
+  }, [tab, allData]);
+
+  // Veri yenileme (işlem sonrası)
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      if (tab === "gonullu") {
-        const res  = await fetch("/api/admin/gonulluler");
-        const data: Gonullu[] = await res.json();
-        setGonulluler(data);
-        setCounts(prev => ({ ...prev, gonullu: { aktif: data.length, bekleyen: 0 } }));
-      } else {
-        const enumVal = SISTEM_TABS.find(t => t.key === tab)!.enum!;
-        const [aktifRes, bekleyenRes] = await Promise.all([
-          fetch(`/api/kullanicilar?sistem=${enumVal}&status=AKTIF`),
-          fetch(`/api/kullanicilar?sistem=${enumVal}&status=BEKLEMEDE`),
-        ]);
-        const aktif:    Kullanici[] = await aktifRes.json();
-        const bekleyen: Kullanici[] = await bekleyenRes.json();
-        setAktifList(aktif);
-        setBekleyenList(bekleyen);
-        setCounts(prev => ({ ...prev, [tab]: { aktif: aktif.length, bekleyen: bekleyen.length } }));
-      }
+      const sistemTablar = SISTEM_TABS.filter(t => t.key !== "gonullu");
+      const [gonulluRes, ...rest] = await Promise.all([
+        fetch("/api/admin/gonulluler").then(r => r.json()),
+        ...sistemTablar.flatMap(t => [
+          fetch(`/api/kullanicilar?sistem=${t.enum}&status=AKTIF`).then(r => r.json()),
+          fetch(`/api/kullanicilar?sistem=${t.enum}&status=BEKLEMEDE`).then(r => r.json()),
+        ]),
+      ]);
+      setGonulluler(gonulluRes);
+      const newAllData: Record<string, { aktif: Kullanici[]; bekleyen: Kullanici[] }> = {};
+      const newCounts = { ...counts, gonullu: { aktif: (gonulluRes as Gonullu[]).length, bekleyen: 0 } };
+      sistemTablar.forEach((t, i) => {
+        const aktif    = rest[i * 2]     as Kullanici[];
+        const bekleyen = rest[i * 2 + 1] as Kullanici[];
+        newAllData[t.key] = { aktif, bekleyen };
+        newCounts[t.key]  = { aktif: aktif.length, bekleyen: bekleyen.length };
+      });
+      setAllData(newAllData);
+      setCounts(newCounts);
+      const cur = newAllData[tab];
+      if (cur) { setAktifList(cur.aktif); setBekleyenList(cur.bekleyen); }
     } finally {
       setLoading(false);
     }
   }, [tab]);
-
-
-  useEffect(() => { fetchData(); }, [fetchData]);
 
   // ─── Handlers ────────────────────────────────
   async function handleDavet(e: React.FormEvent) {
