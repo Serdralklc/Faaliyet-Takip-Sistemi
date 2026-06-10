@@ -54,7 +54,7 @@ export function AdminDashboardClient({ stats }: { stats: Stats }) {
       {/* ── Başlık ── */}
       <div>
         <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
-          Genel Bakış
+          Ana Sayfa
         </h1>
         <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
           Türkiye geneli eğitimci sistemi ve organizasyon özeti

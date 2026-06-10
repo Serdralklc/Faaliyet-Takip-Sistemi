@@ -229,7 +229,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
               Yönetim Merkezi
             </p>
 
-            <NavItem href="/panel/admin" label="Dashboard" icon={LayoutDashboard} exact />
+            <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
 
             <NavGroupComp group={faaliyetGroup} />
             <NavGroupComp group={gonulluGroup} />
@@ -249,7 +249,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
               Üniversite Gençlik
             </p>
-            <NavItem href="/panel/admin" label="Dashboard" icon={LayoutDashboard} exact />
+            <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavGroupComp group={uniOnlyFaaliyet} />
             <NavItem href="/panel/admin/hedefler"     label="Hedef Yönetimi"  icon={Target} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Paneli" icon={UserCircle} />
@@ -264,7 +264,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
               Lise Gençlik
             </p>
-            <NavItem href="/panel/admin" label="Dashboard" icon={LayoutDashboard} exact />
+            <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavGroupComp group={liseOnlyFaaliyet} />
             <NavItem href="/panel/admin/hedefler"     label="Hedef Yönetimi"  icon={Target} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Paneli" icon={UserCircle} />
@@ -279,7 +279,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
               Ana Menü
             </p>
-            <NavItem href="/panel/bolge" label="Dashboard" icon={LayoutDashboard} exact />
+            <NavItem href="/panel/bolge" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/bolge/iller" label="İller" icon={MapPin} />
             <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
             <NavItem href="/panel/bolge/hedefler" label="Hedef Dağıtımı" icon={Target} />
@@ -293,7 +293,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
               Ana Menü
             </p>
-            <NavItem href="/panel/il" label="Dashboard" icon={LayoutDashboard} exact />
+            <NavItem href="/panel/il" label="Ana Sayfa" icon={LayoutDashboard} exact />
             {ilGroups.map(g => <NavGroupComp key={g.label} group={g} />)}
           </>
         )}
