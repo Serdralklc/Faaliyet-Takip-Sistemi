@@ -1,8 +1,10 @@
 ﻿export const dynamic = 'force-dynamic'
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { AdminDashboardClient } from "./AdminDashboardClient";
+import { IcerikDashboard } from "./IcerikDashboard";
 
 async function getStats(userRole: string, userSistem: string | null | undefined) {
   const SISTEM_KISITLI = ["TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
@@ -159,6 +161,14 @@ export default async function AdminPage() {
   if (!session?.user) redirect("/giris");
   if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"].includes(session.user.role)) {
     redirect("/panel/beklemede");
+  }
+
+  // Merkez Ekip + İçerik Yöneticisi: içerik görünümünde içerik hub'ı göster
+  if (session.user.role === "GENEL_MERKEZ" && session.user.icerikYoneticisi) {
+    const ck = await cookies();
+    if (ck.get("panel-gorunum")?.value === "icerik") {
+      return <IcerikDashboard ad={session.user.ad} />;
+    }
   }
 
   const stats = await getStats(session.user.role, session.user.sistem);

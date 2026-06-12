@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -12,13 +12,14 @@ import {
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
   GraduationCap, School, BookOpen, Home, Building2,
   Hotel, BarChart3, Settings, UserCircle, Target, TrendingUp, X,
-  FileSpreadsheet, FolderOpen, Bell, Archive,
+  FileSpreadsheet, FolderOpen, Bell, Archive, PenSquare,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 
 interface User {
   id: string; ad: string; soyad: string; role: Role;
   sistem?: string | null;
+  icerikYoneticisi?: boolean;
   activeIlAd?: string | null;
   activeBolgeAd?: string | null;
 }
@@ -92,8 +93,54 @@ function ThemeToggle() {
   );
 }
 
-export function Sidebar({ user, onClose }: { user: User; onClose?: () => void }) {
-  const isFullAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(user.role);
+/* Merkez Ekip + İçerik Yöneticisi: aktif görünüm değiştirici */
+function GorunumSwitcher({ aktif }: { aktif: "merkez" | "icerik" }) {
+  const router = useRouter();
+  const set = (v: "merkez" | "icerik") => {
+    if (v === aktif) return;
+    document.cookie = `panel-gorunum=${v}; path=/; max-age=${60 * 60 * 24 * 365}`;
+    router.push("/panel/admin");
+    router.refresh();
+  };
+  const btn = (v: "merkez" | "icerik", Icon: React.ElementType, label: string) => {
+    const on = aktif === v;
+    return (
+      <button
+        onClick={() => set(v)}
+        aria-pressed={on}
+        className="flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] font-bold transition"
+        style={on
+          ? { background: "var(--green-primary)", color: "#fff" }
+          : { color: "var(--text-muted)" }}
+      >
+        <Icon size={13} strokeWidth={on ? 2.5 : 2} />
+        <span>{label}</span>
+      </button>
+    );
+  };
+  return (
+    <div className="pb-1">
+      <p className="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+        Görünüm
+      </p>
+      <div className="flex gap-1 p-1 rounded-xl" style={{ background: "var(--bg-hover)" }}>
+        {btn("merkez", UserCircle, "Merkez Ekip")}
+        {btn("icerik", PenSquare, "İçerik Yön.")}
+      </div>
+    </div>
+  );
+}
+
+export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
+  user: User; aktifGorunum?: "merkez" | "icerik"; onClose?: () => void;
+}) {
+  // SISTEM_ADMIN ve TR Eğitim Sorumlusu: tüm ekranlar (takip + içerik) — değişmez
+  const isSuperFull = ["SISTEM_ADMIN", "TURKIYE_EGITIM_SORUMLUSU"].includes(user.role);
+  // Merkez Ekip: aktif görünüme göre takip / içerik ekranları
+  const isMerkezEkip = user.role === "GENEL_MERKEZ";
+  const canIcerik    = isMerkezEkip && !!user.icerikYoneticisi;
+  const icerikAktif  = canIcerik && aktifGorunum === "icerik";
+  const isFullAdmin  = isSuperFull || isMerkezEkip;
   const isTRUni  = user.role === "TURKIYE_UNIVERSITE_SORUMLUSU";
   const isTRLise = user.role === "TURKIYE_LISE_SORUMLUSU";
   const isBolge  = user.role === "BOLGE_SORUMLUSU";
@@ -188,7 +235,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
     },
   ];
 
-  const roleLabel = ROLE_LABELS[user.role] ?? user.role;
+  const roleLabel = icerikAktif ? "İçerik Yöneticisi" : (ROLE_LABELS[user.role] ?? user.role);
 
   const locationLabel = user.activeIlAd
     ? `${user.activeIlAd} İl Sorumlusu`
@@ -229,8 +276,8 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
       {/* ── Nav ── */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
 
-        {/* ── FULL ADMIN (SISTEM_ADMIN / GENEL_MERKEZ / TURKIYE+EGİTİMCİ) ── */}
-        {isFullAdmin && (
+        {/* ── SÜPER YÖNETİCİ (SISTEM_ADMIN / TR Eğitim Sorumlusu) — tüm ekranlar ── */}
+        {isSuperFull && (
           <>
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
               Yönetim Merkezi
@@ -253,6 +300,42 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             <NavItem href="/panel/admin/dokumanlar" label="Doküman Merkezi" icon={FolderOpen} />
             <NavItem href="/panel/admin/arsiv" label="Veri Arşivi" icon={Archive} />
             <NavItem href="/panel/admin/loglar"   label="Denetim Logları" icon={ClipboardList} />
+          </>
+        )}
+
+        {/* ── MERKEZ EKİP (GENEL_MERKEZ) — aktif görünüme göre takip / içerik ── */}
+        {isMerkezEkip && !icerikAktif && (
+          <>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+              Yönetim Merkezi
+            </p>
+
+            <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
+
+            <NavGroupComp group={faaliyetGroup} />
+            <NavGroupComp group={gonulluGroup} />
+
+            <NavItem href="/panel/admin/analiz" label="Rapor ve Analiz Merkezi" icon={BarChart3} />
+            <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
+            <NavItem href="/panel/admin/bolgeler" label="Coğrafi Yapı" icon={MapPin} />
+            <NavItem href="/panel/admin/loglar"   label="Denetim Logları" icon={ClipboardList} />
+          </>
+        )}
+
+        {/* Merkez Ekip — İçerik Yöneticisi görünümü */}
+        {isMerkezEkip && icerikAktif && (
+          <>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+              İçerik Yönetimi
+            </p>
+
+            <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
+
+            <NavItem href="/panel/admin/form-yonetimi" label="Form Yönetimi" icon={FileText} />
+            <NavItem href="/panel/admin/bildirimler-merkezi" label="Bildirim Merkezi" icon={Bell} />
+            <NavItem href="/panel/admin/hedefler" label="Muradımız" icon={Target} />
+            <NavItem href="/panel/admin/dokumanlar" label="Doküman Merkezi" icon={FolderOpen} />
+            <NavItem href="/panel/admin/arsiv" label="Veri Arşivi" icon={Archive} />
           </>
         )}
 
@@ -343,6 +426,9 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
 
       {/* ── Footer ── */}
       <div className="px-3 pb-3 pt-2 border-t space-y-1" style={{ borderColor: "var(--border)" }}>
+        {/* Görünüm değiştirici — yalnızca İçerik Yöneticisi yetkili Merkez Ekip */}
+        {canIcerik && <GorunumSwitcher aktif={aktifGorunum} />}
+
         {/* Profil */}
         <Link href="/panel/profil"
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[color:var(--bg-hover)] transition group">

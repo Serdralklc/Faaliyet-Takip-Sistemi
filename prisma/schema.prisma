@@ -53,6 +53,9 @@ model User {
   role         Role       @default(BEKLEYEN)
   status       UserStatus @default(BEKLEMEDE)
   sistem       Sistem     @default(EGITIMCI)
+  // Ek yardımcı rol (teşkilat rolü değildir): belirli Merkez Ekip üyelerine
+  // içerik yönetimi yetkisi (Form Yönetimi, Bildirim, Muradımız, Doküman, Arşiv) verir
+  icerikYoneticisi Boolean @default(false)
   // Kayıt sırasında başvurulan görev bilgisi (onay sürecinde admin görsün)
   basvuruGorev   String?
   basvuruBolgeId String?

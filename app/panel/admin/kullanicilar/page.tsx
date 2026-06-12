@@ -23,6 +23,7 @@ interface Assignment {
 interface Kullanici {
   id: string; ad: string; soyad: string; email: string;
   telefon?: string; role: Role; status: string; sistem?: string;
+  icerikYoneticisi?: boolean;
   passwordHash?: string | null; createdAt: string; sonAktif?: string | null;
   assignments: Assignment[];
   basvuruGorev?: string | null;
@@ -109,7 +110,16 @@ const YETKILI_COLS: DataTableColumn<Kullanici>[] = [
   {
     key: "role", header: "Rol", mobile: true,
     sortValue: k => ROLE_LABELS[k.role] ?? k.role,
-    render: k => <YetkiliRolBadge role={k.role} sistem={k.sistem} />,
+    render: k => (
+      <div className="flex flex-wrap items-center gap-1.5">
+        <YetkiliRolBadge role={k.role} sistem={k.sistem} />
+        {k.icerikYoneticisi && (
+          <span className="text-xs px-2 py-1 rounded-full font-semibold bg-cyan-100 text-cyan-700">
+            İçerik Yöneticisi
+          </span>
+        )}
+      </div>
+    ),
   },
   {
     key: "sistem", header: "Sistem",
@@ -371,6 +381,24 @@ export default function KullanicilarPage() {
       setShowSifreModal(null); setYeniSifre(""); showToast("Şifre atandı"); fetchData();
     } else {
       const d = await res.json(); showToast("Hata: " + d.error);
+    }
+  }
+
+  // İçerik Yöneticisi ek rolünü ver / al (yalnızca Merkez Ekip)
+  async function handleIcerikToggle(k: Kullanici) {
+    setLoading(true);
+    const res = await fetch(`/api/kullanicilar/${k.id}/icerik-yoneticisi`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deger: !k.icerikYoneticisi }),
+    });
+    setLoading(false);
+    if (res.ok) {
+      showToast(k.icerikYoneticisi ? "İçerik Yöneticisi yetkisi alındı" : "İçerik Yöneticisi yetkisi verildi");
+      fetchData();
+    } else {
+      const d = await res.json();
+      showToast("Hata: " + d.error);
     }
   }
 
@@ -665,6 +693,11 @@ export default function KullanicilarPage() {
             rowActions={k => (
               <div className="flex gap-1.5 justify-end flex-wrap">
                 <Button size="sm" variant="secondary" onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}>Şifre Ata</Button>
+                {k.role === "GENEL_MERKEZ" && (
+                  <Button size="sm" variant={k.icerikYoneticisi ? "ghost" : "primary"} onClick={() => handleIcerikToggle(k)}>
+                    {k.icerikYoneticisi ? "İçerik Yön. Al" : "İçerik Yön. Ver"}
+                  </Button>
+                )}
                 {k.role !== "SISTEM_ADMIN" && (
                   <Button size="sm" variant="ghost" onClick={() => setShowYetkiKalModal(k)}>Yetkiyi Al</Button>
                 )}

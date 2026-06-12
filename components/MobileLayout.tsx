@@ -10,11 +10,14 @@ import type { Role } from "@/lib/constants";
 interface User {
   id: string; ad: string; soyad: string; role: Role;
   sistem?: string | null;
+  icerikYoneticisi?: boolean;
   activeIlAd?: string | null;
   activeBolgeAd?: string | null;
 }
 
-export function MobileLayout({ user, children }: { user: User; children: React.ReactNode }) {
+export function MobileLayout({ user, aktifGorunum = "merkez", children }: {
+  user: User; aktifGorunum?: "merkez" | "icerik"; children: React.ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -41,7 +44,7 @@ export function MobileLayout({ user, children }: { user: User; children: React.R
 
       {/* ── Desktop sidebar (her zaman görünür, lg ve üstü) ── */}
       <div className="hidden lg:flex flex-shrink-0">
-        <Sidebar user={user} />
+        <Sidebar user={user} aktifGorunum={aktifGorunum} />
       </div>
 
       {/* ── Mobile overlay backdrop ── */}
@@ -63,7 +66,7 @@ export function MobileLayout({ user, children }: { user: User; children: React.R
         `}
         style={{ width: 272 }}
       >
-        <Sidebar user={user} onClose={() => setOpen(false)} />
+        <Sidebar user={user} aktifGorunum={aktifGorunum} onClose={() => setOpen(false)} />
       </div>
 
       {/* ── Ana içerik ── */}

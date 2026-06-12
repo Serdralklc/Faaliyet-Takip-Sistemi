@@ -107,6 +107,7 @@ export const UserScalarFieldEnum = {
   role: 'role',
   status: 'status',
   sistem: 'sistem',
+  icerikYoneticisi: 'icerikYoneticisi',
   basvuruGorev: 'basvuruGorev',
   basvuruBolgeId: 'basvuruBolgeId',
   basvuruIlId: 'basvuruIlId',

@@ -10,6 +10,8 @@ export default async function BildirimMerkeziPage() {
   const session = await getSession();
   if (!session?.user) redirect("/giris");
   if (!YONETICI_ROLLERI.includes(session.user.role as Role)) redirect("/");
+  // İçerik ekranı: İçerik Yöneticisi yetkisi olmayan Merkez Ekip giremez
+  if (session.user.role === "GENEL_MERKEZ" && !session.user.icerikYoneticisi) redirect("/panel/admin");
 
   return <BildirimMerkeziClient />;
 }

@@ -9,6 +9,8 @@ export default async function AdminHedeflerPage() {
   if (!session?.user) redirect("/giris");
   const allowed = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
   if (!allowed.includes(session.user.role)) redirect("/");
+  // İçerik ekranı: İçerik Yöneticisi yetkisi olmayan Merkez Ekip giremez
+  if (session.user.role === "GENEL_MERKEZ" && !session.user.icerikYoneticisi) redirect("/panel/admin");
 
   const bolgeler = await prisma.bolge.findMany({
     orderBy: { no: "asc" },

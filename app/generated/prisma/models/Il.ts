@@ -411,10 +411,6 @@ export type IlUncheckedUpdateManyWithoutBolgeNestedInput = {
   deleteMany?: Prisma.IlScalarWhereInput | Prisma.IlScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type IlCreateNestedOneWithoutAssignmentsInput = {
   create?: Prisma.XOR<Prisma.IlCreateWithoutAssignmentsInput, Prisma.IlUncheckedCreateWithoutAssignmentsInput>
   connectOrCreate?: Prisma.IlCreateOrConnectWithoutAssignmentsInput

@@ -14,6 +14,7 @@ declare module "next-auth" {
       soyad: string;
       role: Role;
       sistem: Sistem;
+      icerikYoneticisi: boolean;
       activeIlId?: string | null;
       activeBolgeId?: string | null;
       activeIlAd?: string | null;
@@ -27,6 +28,7 @@ declare module "next-auth" {
     soyad: string;
     role: Role;
     sistem: Sistem;
+    icerikYoneticisi: boolean;
     activeIlId?: string | null;
     activeBolgeId?: string | null;
     activeIlAd?: string | null;
@@ -39,6 +41,7 @@ declare module "next-auth/jwt" {
     id: string;
     role: Role;
     sistem: Sistem;
+    icerikYoneticisi: boolean;
     ad: string;
     soyad: string;
     activeIlId?: string | null;
@@ -99,7 +102,7 @@ export const authOptions: NextAuthOptions = {
           const a = user.assignments[0];
           return {
             id: user.id, email: user.email, ad: user.ad, soyad: user.soyad,
-            role: user.role, sistem: user.sistem,
+            role: user.role, sistem: user.sistem, icerikYoneticisi: user.icerikYoneticisi,
             activeIlId: a?.ilId ?? null, activeBolgeId: a?.bolgeId ?? null,
             activeIlAd: a?.il?.ad ?? null, activeBolgeAd: a?.bolge?.ad ?? null,
           };
@@ -130,6 +133,7 @@ export const authOptions: NextAuthOptions = {
           soyad:         user.soyad,
           role:          user.role,
           sistem:        sessionSistem,
+          icerikYoneticisi: user.icerikYoneticisi,
           activeIlId:    a?.ilId      ?? null,
           activeBolgeId: a?.bolgeId   ?? null,
           activeIlAd:    a?.il?.ad    ?? null,
@@ -172,6 +176,7 @@ export const authOptions: NextAuthOptions = {
         token.id            = user.id;
         token.role          = user.role;
         token.sistem        = user.sistem;
+        token.icerikYoneticisi = user.icerikYoneticisi;
         token.ad            = user.ad;
         token.soyad         = user.soyad;
         token.activeIlId    = user.activeIlId;
@@ -188,6 +193,7 @@ export const authOptions: NextAuthOptions = {
           token.id            = dbUser.id;
           token.role          = dbUser.role;
           token.sistem        = dbUser.sistem;
+          token.icerikYoneticisi = dbUser.icerikYoneticisi;
           token.ad            = dbUser.ad;
           token.soyad         = dbUser.soyad;
           token.activeIlId    = a?.ilId      ?? null;
@@ -205,6 +211,7 @@ export const authOptions: NextAuthOptions = {
       session.user.id            = token.id;
       session.user.role          = token.role;
       session.user.sistem        = token.sistem;
+      session.user.icerikYoneticisi = token.icerikYoneticisi ?? false;
       session.user.ad            = token.ad;
       session.user.soyad         = token.soyad;
       session.user.activeIlId    = token.activeIlId;
