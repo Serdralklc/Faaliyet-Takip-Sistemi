@@ -15,7 +15,8 @@ export interface EgitimciBirim {
 export interface SistemDurum {
   EGITIMCI: EgitimciBirim | null;
   UNIVERSITE: boolean | null;
-  LISE: boolean | null;
+  /** Lise Gençlik: girilen faaliyet sayısı (faaliyet-bazlı) */
+  LISE: number | null;
 }
 
 /** Eğitimci sekmesinin açılır penceresindeki alt görünümler */
@@ -121,7 +122,7 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
       }
     }
     if (aktifSistem === "UNIVERSITE") return d.UNIVERSITE === true;
-    return d.LISE === true;
+    return (d.LISE ?? 0) > 0;
   };
 
   function navigate(yeniYil: number, yeniDonem: string) {
@@ -311,7 +312,7 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
             style={sekmeBtnStyle(aktifSistem === "LISE")}
           >
             Lise Gençlik
-            <SekmeEksikRozet aktif={aktifSistem === "LISE"} sayi={tumIller.filter(il => durumOf(il.id).LISE !== true).length} />
+            <SekmeEksikRozet aktif={aktifSistem === "LISE"} sayi={tumIller.filter(il => (durumOf(il.id).LISE ?? 0) === 0).length} />
           </button>
         </div>
       )}
@@ -416,6 +417,13 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
                                     <span className="text-[11px] font-bold ml-1" style={{ color: "var(--accent)" }}>· tamam</span>
                                   )}
                                 </div>
+                              ) : aktifSistem === "LISE" ? (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                                  style={(durumOf(il.id).LISE ?? 0) > 0
+                                    ? { background: "var(--bg-active)", color: "var(--accent)" }
+                                    : { background: EKSIK_ZEMIN, color: EKSIK_RENK }}>
+                                  📋 {durumOf(il.id).LISE ?? 0} faaliyet girildi
+                                </span>
                               ) : (
                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
                                   style={tamam

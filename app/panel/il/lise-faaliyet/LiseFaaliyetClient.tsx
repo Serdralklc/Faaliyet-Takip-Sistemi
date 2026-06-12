@@ -11,7 +11,7 @@ import { Plus, Pencil, Trash2, Image as ImageIcon, Paperclip } from "lucide-reac
 import { LISE_KATEGORILER, KATEGORI_LABEL, KATEGORI_RENK, type LiseKategoriKey } from "@/lib/lise-faaliyet";
 
 interface Faaliyet {
-  id: string; ilId: string; tarih: string; yil: number;
+  id: string; ilId: string; tarih: string; yil: number; donem: string;
   kategori: LiseKategoriKey; faaliyetAdi: string; aciklama: string | null; yer: string | null;
   katilimci: number; ilkKezKatilan: number; yeniIntisap: number;
   fotoKey: string | null; dosyaKey: string | null; dosyaAd: string | null;
@@ -19,6 +19,11 @@ interface Faaliyet {
 }
 
 const THIS_YEAR = new Date().getFullYear();
+const DONEMLER: { value: string; label: string }[] = [
+  { value: "DONEM_1", label: "1. Dönem" },
+  { value: "DONEM_2", label: "2. Dönem" },
+  { value: "YAZ_DONEMI", label: "Yaz Dönemi" },
+];
 
 function bugunStr() {
   const d = new Date();
@@ -28,13 +33,13 @@ function bugunStr() {
 const trTarih = (iso: string) => new Date(iso).toLocaleDateString("tr-TR");
 
 type FormState = {
-  tarih: string; kategori: LiseKategoriKey; adSecim: string; manuelAd: string;
+  tarih: string; donem: string; kategori: LiseKategoriKey; adSecim: string; manuelAd: string;
   aciklama: string; yer: string; katilimci: string; ilkKezKatilan: string; yeniIntisap: string;
   fotoFile: File | null; dosyaFile: File | null; fotoSil: boolean; dosyaSil: boolean;
 };
 
-const bosForm = (): FormState => ({
-  tarih: bugunStr(), kategori: "ILIM_SOHBET", adSecim: LISE_KATEGORILER[0].adlar[0] ?? "", manuelAd: "",
+const bosForm = (donem = "DONEM_1"): FormState => ({
+  tarih: bugunStr(), donem, kategori: "ILIM_SOHBET", adSecim: LISE_KATEGORILER[0].adlar[0] ?? "", manuelAd: "",
   aciklama: "", yer: "", katilimci: "", ilkKezKatilan: "", yeniIntisap: "",
   fotoFile: null, dosyaFile: null, fotoSil: false, dosyaSil: false,
 });
@@ -44,6 +49,7 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
   const [list, setList] = useState<Faaliyet[]>([]);
   const [loading, setLoading] = useState(true);
   const [yil, setYil] = useState(THIS_YEAR);
+  const [donem, setDonem] = useState("DONEM_1");
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Faaliyet | null>(null);
   const [form, setForm] = useState<FormState>(bosForm());
@@ -53,12 +59,12 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
 
   function load() {
     setLoading(true);
-    fetch(`/api/lise-faaliyetler?ilId=${ilId}&yil=${yil}`)
+    fetch(`/api/lise-faaliyetler?ilId=${ilId}&yil=${yil}&donem=${donem}`)
       .then(r => (r.ok ? r.json() : []))
       .then(d => setList(Array.isArray(d) ? d : []))
       .finally(() => setLoading(false));
   }
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [yil]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [yil, donem]);
 
   const yilSecenekleri = useMemo(() => {
     const set = new Set<number>([THIS_YEAR, THIS_YEAR - 1, ...list.map(f => f.yil), yil]);
@@ -82,13 +88,13 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
   const hasAdlar = kategoriDef.adlar.length > 0;
   const manuelGerek = !hasAdlar || form.adSecim === "Diğer";
 
-  function openNew() { setEditing(null); setForm(bosForm()); setModalOpen(true); }
+  function openNew() { setEditing(null); setForm(bosForm(donem)); setModalOpen(true); }
   function openEdit(f: Faaliyet) {
     const def = LISE_KATEGORILER.find(k => k.key === f.kategori)!;
     const adVar = def.adlar.includes(f.faaliyetAdi);
     setEditing(f);
     setForm({
-      tarih: f.tarih.slice(0, 10), kategori: f.kategori,
+      tarih: f.tarih.slice(0, 10), donem: f.donem, kategori: f.kategori,
       adSecim: def.adlar.length === 0 ? "" : adVar ? f.faaliyetAdi : "Diğer",
       manuelAd: adVar ? "" : f.faaliyetAdi,
       aciklama: f.aciklama ?? "", yer: f.yer ?? "",
@@ -112,6 +118,7 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
     const fd = new FormData();
     fd.append("ilId", ilId);
     fd.append("tarih", form.tarih);
+    fd.append("donem", form.donem);
     fd.append("kategori", form.kategori);
     fd.append("faaliyetAdi", faaliyetAdi);
     fd.append("aciklama", form.aciklama);
@@ -187,6 +194,13 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
               {yilSecenekleri.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
           </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-[10.5px] font-bold uppercase tracking-wider text-muted">Dönem</span>
+            <select value={donem} onChange={e => setDonem(e.target.value)}
+              className="rounded-xl border border-[var(--border-input)] bg-input text-heading text-[13px] px-3 py-2 focus:border-[var(--accent)] transition">
+              {DONEMLER.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+            </select>
+          </label>
           <Button onClick={openNew}><Plus size={16} /> Faaliyet Ekle</Button>
         </div>
       </div>
@@ -201,7 +215,7 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
         ].map(s => (
           <div key={s.label} className="sv-section p-4">
             <p className="text-3xl font-black" style={{ color: s.renk }}>{s.val}</p>
-            <p className="text-xs font-semibold mt-0.5 text-muted">{s.label} ({yil})</p>
+            <p className="text-xs font-semibold mt-0.5 text-muted">{s.label} ({yil} / {DONEMLER.find(d => d.value === donem)?.label})</p>
           </div>
         ))}
       </div>
@@ -249,8 +263,11 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
           </>
         }>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input label="Tarih" type="date" required value={form.tarih} onChange={e => setForm(f => ({ ...f, tarih: e.target.value }))} />
+            <Select label="Dönem" required value={form.donem} onChange={e => setForm(f => ({ ...f, donem: e.target.value }))}>
+              {DONEMLER.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+            </Select>
             <Select label="Kategori" required value={form.kategori} onChange={e => setKategori(e.target.value as LiseKategoriKey)}>
               {LISE_KATEGORILER.map(k => <option key={k.key} value={k.key}>{k.label}</option>)}
             </Select>

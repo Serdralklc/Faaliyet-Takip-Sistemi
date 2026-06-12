@@ -13,9 +13,14 @@ const IK_ALANLAR = [
   "ik_egitmenYardimciSayisi", "ik_elifBaOgrenci", "ik_kuranOgrenci", "ik_gecisOgrenci",
 ] as const;
 const LS_ALANLAR = [
-  "ls_toplamDergah", "ls_ilimDersYeri", "ls_ilimDersKatilim",
-  "ls_sabahNamaziSayisi", "ls_sabahNamaziKatilim", "ls_kafileSayisi",
-  "ls_kafileOgrenci", "ls_toplamFaaliyet", "ls_yeniIntisap",
+  "ls_toplamDergah", "ls_liseliOgrenciSayisi", "ls_yeniIntisap",
+  "ls_ilimSohbetDergah", "ls_mezunOgrenci",
+  "ls_ilimSohbetSayisi", "ls_ilimSohbetKatilim",
+  "ls_sosyalSayisi", "ls_sosyalKatilim",
+  "ls_sorumlulukSayisi", "ls_sorumlulukKatilim",
+  "ls_muhabbetSayisi", "ls_muhabbetKatilim",
+  "ls_namazSayisi", "ls_namazKatilim",
+  "ls_kafileSayisi", "ls_kafileOgrenci",
 ] as const;
 const UNI_ALANLAR = [
   "uni_toplamDergah", "uni_ilimDersYeri", "uni_ilimDersKatilim",
@@ -59,7 +64,7 @@ export default async function BolgelerPage({
     : (yillar[0] ?? new Date().getFullYear());
   const donem: Donem = DONEMLER.includes(sp.donem as Donem) ? (sp.donem as Donem) : "DONEM_1";
 
-  const [bolgeler, activities] = await Promise.all([
+  const [bolgeler, activities, liseSayim] = await Promise.all([
     prisma.bolge.findMany({
       orderBy: { no: "asc" },
       select: {
@@ -76,16 +81,25 @@ export default async function BolgelerPage({
         ik_toplamDergah: true, ik_kursuYapilanDergah: true, ik_egitmenSayisi: true,
         ik_egitmenYardimciSayisi: true, ik_elifBaOgrenci: true, ik_kuranOgrenci: true,
         ik_gecisOgrenci: true,
-        ls_toplamDergah: true, ls_ilimDersYeri: true, ls_ilimDersKatilim: true,
-        ls_sabahNamaziSayisi: true, ls_sabahNamaziKatilim: true, ls_kafileSayisi: true,
-        ls_kafileOgrenci: true, ls_toplamFaaliyet: true, ls_yeniIntisap: true,
+        ls_toplamDergah: true, ls_liseliOgrenciSayisi: true, ls_yeniIntisap: true,
+        ls_ilimSohbetDergah: true, ls_mezunOgrenci: true,
+        ls_ilimSohbetSayisi: true, ls_ilimSohbetKatilim: true,
+        ls_sosyalSayisi: true, ls_sosyalKatilim: true,
+        ls_sorumlulukSayisi: true, ls_sorumlulukKatilim: true,
+        ls_muhabbetSayisi: true, ls_muhabbetKatilim: true,
+        ls_namazSayisi: true, ls_namazKatilim: true,
+        ls_kafileSayisi: true, ls_kafileOgrenci: true,
         uni_toplamDergah: true, uni_ilimDersYeri: true, uni_ilimDersKatilim: true,
         uni_sabahNamaziSayisi: true, uni_sabahNamaziKatilim: true, uni_kafileSayisi: true,
         uni_kafileOgrenci: true, uni_toplamFaaliyet: true, uni_kykBulusmaSayisi: true,
         uni_kykKatilim: true, uni_yeniIntisap: true,
       },
     }),
+    // Lise Gençlik: faaliyet-bazlı kayıt sayısı (il başına)
+    prisma.liseFaaliyet.groupBy({ by: ["ilId"], where: { yil, donem }, _count: { _all: true } }),
   ]);
+
+  const liseCount = new Map(liseSayim.map(r => [r.ilId, r._count._all]));
 
   type AktiviteSatiri = (typeof activities)[number];
   const dolu = (a: AktiviteSatiri, alanlar: readonly (keyof AktiviteSatiri)[]) =>
@@ -113,10 +127,15 @@ export default async function BolgelerPage({
       };
     } else if (sistem === "UNIVERSITE") {
       e.UNIVERSITE = dolu(a, UNI_ALANLAR);
-    } else if (sistem === "LISE") {
-      e.LISE = dolu(a, LS_ALANLAR);
     }
     sistemDurum[a.ilId] = e;
+  }
+
+  // Lise Gençlik durumu = girilen faaliyet sayısı (LiseFaaliyet'ten)
+  for (const [ilId, count] of liseCount) {
+    const e = sistemDurum[ilId] ?? { EGITIMCI: null, UNIVERSITE: null, LISE: null };
+    e.LISE = count;
+    sistemDurum[ilId] = e;
   }
 
   return (

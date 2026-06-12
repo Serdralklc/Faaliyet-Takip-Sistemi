@@ -47,6 +47,7 @@ export type LiseFaaliyetMinAggregateOutputType = {
   ilId: string | null
   tarih: Date | null
   yil: number | null
+  donem: $Enums.Donem | null
   kategori: $Enums.LiseKategori | null
   faaliyetAdi: string | null
   aciklama: string | null
@@ -73,6 +74,7 @@ export type LiseFaaliyetMaxAggregateOutputType = {
   ilId: string | null
   tarih: Date | null
   yil: number | null
+  donem: $Enums.Donem | null
   kategori: $Enums.LiseKategori | null
   faaliyetAdi: string | null
   aciklama: string | null
@@ -99,6 +101,7 @@ export type LiseFaaliyetCountAggregateOutputType = {
   ilId: number
   tarih: number
   yil: number
+  donem: number
   kategori: number
   faaliyetAdi: number
   aciklama: number
@@ -143,6 +146,7 @@ export type LiseFaaliyetMinAggregateInputType = {
   ilId?: true
   tarih?: true
   yil?: true
+  donem?: true
   kategori?: true
   faaliyetAdi?: true
   aciklama?: true
@@ -169,6 +173,7 @@ export type LiseFaaliyetMaxAggregateInputType = {
   ilId?: true
   tarih?: true
   yil?: true
+  donem?: true
   kategori?: true
   faaliyetAdi?: true
   aciklama?: true
@@ -195,6 +200,7 @@ export type LiseFaaliyetCountAggregateInputType = {
   ilId?: true
   tarih?: true
   yil?: true
+  donem?: true
   kategori?: true
   faaliyetAdi?: true
   aciklama?: true
@@ -308,6 +314,7 @@ export type LiseFaaliyetGroupByOutputType = {
   ilId: string
   tarih: Date
   yil: number
+  donem: $Enums.Donem
   kategori: $Enums.LiseKategori
   faaliyetAdi: string
   aciklama: string | null
@@ -357,6 +364,7 @@ export type LiseFaaliyetWhereInput = {
   ilId?: Prisma.StringFilter<"LiseFaaliyet"> | string
   tarih?: Prisma.DateTimeFilter<"LiseFaaliyet"> | Date | string
   yil?: Prisma.IntFilter<"LiseFaaliyet"> | number
+  donem?: Prisma.EnumDonemFilter<"LiseFaaliyet"> | $Enums.Donem
   kategori?: Prisma.EnumLiseKategoriFilter<"LiseFaaliyet"> | $Enums.LiseKategori
   faaliyetAdi?: Prisma.StringFilter<"LiseFaaliyet"> | string
   aciklama?: Prisma.StringNullableFilter<"LiseFaaliyet"> | string | null
@@ -384,6 +392,7 @@ export type LiseFaaliyetOrderByWithRelationInput = {
   ilId?: Prisma.SortOrder
   tarih?: Prisma.SortOrder
   yil?: Prisma.SortOrder
+  donem?: Prisma.SortOrder
   kategori?: Prisma.SortOrder
   faaliyetAdi?: Prisma.SortOrder
   aciklama?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -414,6 +423,7 @@ export type LiseFaaliyetWhereUniqueInput = Prisma.AtLeast<{
   ilId?: Prisma.StringFilter<"LiseFaaliyet"> | string
   tarih?: Prisma.DateTimeFilter<"LiseFaaliyet"> | Date | string
   yil?: Prisma.IntFilter<"LiseFaaliyet"> | number
+  donem?: Prisma.EnumDonemFilter<"LiseFaaliyet"> | $Enums.Donem
   kategori?: Prisma.EnumLiseKategoriFilter<"LiseFaaliyet"> | $Enums.LiseKategori
   faaliyetAdi?: Prisma.StringFilter<"LiseFaaliyet"> | string
   aciklama?: Prisma.StringNullableFilter<"LiseFaaliyet"> | string | null
@@ -441,6 +451,7 @@ export type LiseFaaliyetOrderByWithAggregationInput = {
   ilId?: Prisma.SortOrder
   tarih?: Prisma.SortOrder
   yil?: Prisma.SortOrder
+  donem?: Prisma.SortOrder
   kategori?: Prisma.SortOrder
   faaliyetAdi?: Prisma.SortOrder
   aciklama?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -475,6 +486,7 @@ export type LiseFaaliyetScalarWhereWithAggregatesInput = {
   ilId?: Prisma.StringWithAggregatesFilter<"LiseFaaliyet"> | string
   tarih?: Prisma.DateTimeWithAggregatesFilter<"LiseFaaliyet"> | Date | string
   yil?: Prisma.IntWithAggregatesFilter<"LiseFaaliyet"> | number
+  donem?: Prisma.EnumDonemWithAggregatesFilter<"LiseFaaliyet"> | $Enums.Donem
   kategori?: Prisma.EnumLiseKategoriWithAggregatesFilter<"LiseFaaliyet"> | $Enums.LiseKategori
   faaliyetAdi?: Prisma.StringWithAggregatesFilter<"LiseFaaliyet"> | string
   aciklama?: Prisma.StringNullableWithAggregatesFilter<"LiseFaaliyet"> | string | null
@@ -500,6 +512,7 @@ export type LiseFaaliyetCreateInput = {
   id?: string
   tarih: Date | string
   yil: number
+  donem?: $Enums.Donem
   kategori: $Enums.LiseKategori
   faaliyetAdi: string
   aciklama?: string | null
@@ -527,6 +540,7 @@ export type LiseFaaliyetUncheckedCreateInput = {
   ilId: string
   tarih: Date | string
   yil: number
+  donem?: $Enums.Donem
   kategori: $Enums.LiseKategori
   faaliyetAdi: string
   aciklama?: string | null
@@ -552,6 +566,7 @@ export type LiseFaaliyetUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tarih?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   yil?: Prisma.IntFieldUpdateOperationsInput | number
+  donem?: Prisma.EnumDonemFieldUpdateOperationsInput | $Enums.Donem
   kategori?: Prisma.EnumLiseKategoriFieldUpdateOperationsInput | $Enums.LiseKategori
   faaliyetAdi?: Prisma.StringFieldUpdateOperationsInput | string
   aciklama?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -579,6 +594,7 @@ export type LiseFaaliyetUncheckedUpdateInput = {
   ilId?: Prisma.StringFieldUpdateOperationsInput | string
   tarih?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   yil?: Prisma.IntFieldUpdateOperationsInput | number
+  donem?: Prisma.EnumDonemFieldUpdateOperationsInput | $Enums.Donem
   kategori?: Prisma.EnumLiseKategoriFieldUpdateOperationsInput | $Enums.LiseKategori
   faaliyetAdi?: Prisma.StringFieldUpdateOperationsInput | string
   aciklama?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -605,6 +621,7 @@ export type LiseFaaliyetCreateManyInput = {
   ilId: string
   tarih: Date | string
   yil: number
+  donem?: $Enums.Donem
   kategori: $Enums.LiseKategori
   faaliyetAdi: string
   aciklama?: string | null
@@ -630,6 +647,7 @@ export type LiseFaaliyetUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tarih?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   yil?: Prisma.IntFieldUpdateOperationsInput | number
+  donem?: Prisma.EnumDonemFieldUpdateOperationsInput | $Enums.Donem
   kategori?: Prisma.EnumLiseKategoriFieldUpdateOperationsInput | $Enums.LiseKategori
   faaliyetAdi?: Prisma.StringFieldUpdateOperationsInput | string
   aciklama?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -656,6 +674,7 @@ export type LiseFaaliyetUncheckedUpdateManyInput = {
   ilId?: Prisma.StringFieldUpdateOperationsInput | string
   tarih?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   yil?: Prisma.IntFieldUpdateOperationsInput | number
+  donem?: Prisma.EnumDonemFieldUpdateOperationsInput | $Enums.Donem
   kategori?: Prisma.EnumLiseKategoriFieldUpdateOperationsInput | $Enums.LiseKategori
   faaliyetAdi?: Prisma.StringFieldUpdateOperationsInput | string
   aciklama?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -692,6 +711,7 @@ export type LiseFaaliyetCountOrderByAggregateInput = {
   ilId?: Prisma.SortOrder
   tarih?: Prisma.SortOrder
   yil?: Prisma.SortOrder
+  donem?: Prisma.SortOrder
   kategori?: Prisma.SortOrder
   faaliyetAdi?: Prisma.SortOrder
   aciklama?: Prisma.SortOrder
@@ -726,6 +746,7 @@ export type LiseFaaliyetMaxOrderByAggregateInput = {
   ilId?: Prisma.SortOrder
   tarih?: Prisma.SortOrder
   yil?: Prisma.SortOrder
+  donem?: Prisma.SortOrder
   kategori?: Prisma.SortOrder
   faaliyetAdi?: Prisma.SortOrder
   aciklama?: Prisma.SortOrder
@@ -752,6 +773,7 @@ export type LiseFaaliyetMinOrderByAggregateInput = {
   ilId?: Prisma.SortOrder
   tarih?: Prisma.SortOrder
   yil?: Prisma.SortOrder
+  donem?: Prisma.SortOrder
   kategori?: Prisma.SortOrder
   faaliyetAdi?: Prisma.SortOrder
   aciklama?: Prisma.SortOrder
@@ -839,6 +861,7 @@ export type LiseFaaliyetCreateWithoutIlInput = {
   id?: string
   tarih: Date | string
   yil: number
+  donem?: $Enums.Donem
   kategori: $Enums.LiseKategori
   faaliyetAdi: string
   aciklama?: string | null
@@ -864,6 +887,7 @@ export type LiseFaaliyetUncheckedCreateWithoutIlInput = {
   id?: string
   tarih: Date | string
   yil: number
+  donem?: $Enums.Donem
   kategori: $Enums.LiseKategori
   faaliyetAdi: string
   aciklama?: string | null
@@ -919,6 +943,7 @@ export type LiseFaaliyetScalarWhereInput = {
   ilId?: Prisma.StringFilter<"LiseFaaliyet"> | string
   tarih?: Prisma.DateTimeFilter<"LiseFaaliyet"> | Date | string
   yil?: Prisma.IntFilter<"LiseFaaliyet"> | number
+  donem?: Prisma.EnumDonemFilter<"LiseFaaliyet"> | $Enums.Donem
   kategori?: Prisma.EnumLiseKategoriFilter<"LiseFaaliyet"> | $Enums.LiseKategori
   faaliyetAdi?: Prisma.StringFilter<"LiseFaaliyet"> | string
   aciklama?: Prisma.StringNullableFilter<"LiseFaaliyet"> | string | null
@@ -944,6 +969,7 @@ export type LiseFaaliyetCreateManyIlInput = {
   id?: string
   tarih: Date | string
   yil: number
+  donem?: $Enums.Donem
   kategori: $Enums.LiseKategori
   faaliyetAdi: string
   aciklama?: string | null
@@ -969,6 +995,7 @@ export type LiseFaaliyetUpdateWithoutIlInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tarih?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   yil?: Prisma.IntFieldUpdateOperationsInput | number
+  donem?: Prisma.EnumDonemFieldUpdateOperationsInput | $Enums.Donem
   kategori?: Prisma.EnumLiseKategoriFieldUpdateOperationsInput | $Enums.LiseKategori
   faaliyetAdi?: Prisma.StringFieldUpdateOperationsInput | string
   aciklama?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -994,6 +1021,7 @@ export type LiseFaaliyetUncheckedUpdateWithoutIlInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tarih?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   yil?: Prisma.IntFieldUpdateOperationsInput | number
+  donem?: Prisma.EnumDonemFieldUpdateOperationsInput | $Enums.Donem
   kategori?: Prisma.EnumLiseKategoriFieldUpdateOperationsInput | $Enums.LiseKategori
   faaliyetAdi?: Prisma.StringFieldUpdateOperationsInput | string
   aciklama?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1019,6 +1047,7 @@ export type LiseFaaliyetUncheckedUpdateManyWithoutIlInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tarih?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   yil?: Prisma.IntFieldUpdateOperationsInput | number
+  donem?: Prisma.EnumDonemFieldUpdateOperationsInput | $Enums.Donem
   kategori?: Prisma.EnumLiseKategoriFieldUpdateOperationsInput | $Enums.LiseKategori
   faaliyetAdi?: Prisma.StringFieldUpdateOperationsInput | string
   aciklama?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1047,6 +1076,7 @@ export type LiseFaaliyetSelect<ExtArgs extends runtime.Types.Extensions.Internal
   ilId?: boolean
   tarih?: boolean
   yil?: boolean
+  donem?: boolean
   kategori?: boolean
   faaliyetAdi?: boolean
   aciklama?: boolean
@@ -1074,6 +1104,7 @@ export type LiseFaaliyetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   ilId?: boolean
   tarih?: boolean
   yil?: boolean
+  donem?: boolean
   kategori?: boolean
   faaliyetAdi?: boolean
   aciklama?: boolean
@@ -1101,6 +1132,7 @@ export type LiseFaaliyetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   ilId?: boolean
   tarih?: boolean
   yil?: boolean
+  donem?: boolean
   kategori?: boolean
   faaliyetAdi?: boolean
   aciklama?: boolean
@@ -1128,6 +1160,7 @@ export type LiseFaaliyetSelectScalar = {
   ilId?: boolean
   tarih?: boolean
   yil?: boolean
+  donem?: boolean
   kategori?: boolean
   faaliyetAdi?: boolean
   aciklama?: boolean
@@ -1149,7 +1182,7 @@ export type LiseFaaliyetSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LiseFaaliyetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ilId" | "tarih" | "yil" | "kategori" | "faaliyetAdi" | "aciklama" | "yer" | "katilimci" | "ilkKezKatilan" | "yeniIntisap" | "fotoKey" | "fotoUrl" | "fotoMime" | "dosyaKey" | "dosyaUrl" | "dosyaMime" | "dosyaAd" | "dosyaBoyut" | "createdById" | "createdByName" | "createdAt" | "updatedAt", ExtArgs["result"]["liseFaaliyet"]>
+export type LiseFaaliyetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ilId" | "tarih" | "yil" | "donem" | "kategori" | "faaliyetAdi" | "aciklama" | "yer" | "katilimci" | "ilkKezKatilan" | "yeniIntisap" | "fotoKey" | "fotoUrl" | "fotoMime" | "dosyaKey" | "dosyaUrl" | "dosyaMime" | "dosyaAd" | "dosyaBoyut" | "createdById" | "createdByName" | "createdAt" | "updatedAt", ExtArgs["result"]["liseFaaliyet"]>
 export type LiseFaaliyetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   il?: boolean | Prisma.IlDefaultArgs<ExtArgs>
 }
@@ -1170,6 +1203,7 @@ export type $LiseFaaliyetPayload<ExtArgs extends runtime.Types.Extensions.Intern
     ilId: string
     tarih: Date
     yil: number
+    donem: $Enums.Donem
     kategori: $Enums.LiseKategori
     faaliyetAdi: string
     aciklama: string | null
@@ -1617,6 +1651,7 @@ export interface LiseFaaliyetFieldRefs {
   readonly ilId: Prisma.FieldRef<"LiseFaaliyet", 'String'>
   readonly tarih: Prisma.FieldRef<"LiseFaaliyet", 'DateTime'>
   readonly yil: Prisma.FieldRef<"LiseFaaliyet", 'Int'>
+  readonly donem: Prisma.FieldRef<"LiseFaaliyet", 'Donem'>
   readonly kategori: Prisma.FieldRef<"LiseFaaliyet", 'LiseKategori'>
   readonly faaliyetAdi: Prisma.FieldRef<"LiseFaaliyet", 'String'>
   readonly aciklama: Prisma.FieldRef<"LiseFaaliyet", 'String'>

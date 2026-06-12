@@ -9,6 +9,8 @@ import type { Role } from "@/lib/constants";
 export const dynamic = "force-dynamic";
 
 const GORSEL_TIPLERI = ["image/png", "image/jpeg", "image/webp"];
+const DONEMLER = ["DONEM_1", "DONEM_2", "YAZ_DONEMI"];
+const gecerliDonem = (v: unknown) => DONEMLER.includes(String(v)) ? (String(v) as "DONEM_1" | "DONEM_2" | "YAZ_DONEMI") : "DONEM_1";
 
 function yazabilir(user: { role: Role; sistem?: string | null; activeIlId?: string | null }, ilId: string) {
   if (user.role === "SISTEM_ADMIN") return true;
@@ -60,6 +62,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const data: Record<string, unknown> = {
     tarih,
     yil: tarih.getFullYear(),
+    donem: gecerliDonem(form.get("donem")),
     kategori,
     faaliyetAdi,
     aciklama: String(form.get("aciklama") ?? "").trim() || null,

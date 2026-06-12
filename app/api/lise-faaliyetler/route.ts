@@ -9,6 +9,8 @@ import type { Role } from "@/lib/constants";
 export const dynamic = "force-dynamic";
 
 const GORSEL_TIPLERI = ["image/png", "image/jpeg", "image/webp"];
+const DONEMLER = ["DONEM_1", "DONEM_2", "YAZ_DONEMI"];
+const gecerliDonem = (v: unknown) => DONEMLER.includes(String(v)) ? (String(v) as "DONEM_1" | "DONEM_2" | "YAZ_DONEMI") : "DONEM_1";
 
 /** Yazma yetkisi: LISE sistemli il sorumlusu (kendi ili) veya sistem admini */
 function yazabilir(user: { role: Role; sistem?: string | null; activeIlId?: string | null }, ilId: string) {
@@ -35,8 +37,10 @@ export async function GET(req: NextRequest) {
   const yil = searchParams.get("yil");
   const { role, activeIlId, activeBolgeId } = session.user;
 
+  const donem = searchParams.get("donem");
   const where: Record<string, unknown> = {};
   if (yil) where.yil = Number(yil);
+  if (donem) where.donem = donem;
 
   if (role === "IL_SORUMLUSU") {
     if (!activeIlId) return NextResponse.json([]);
@@ -97,6 +101,7 @@ export async function POST(req: NextRequest) {
       ilId,
       tarih,
       yil: tarih.getFullYear(),
+      donem: gecerliDonem(form.get("donem")),
       kategori,
       faaliyetAdi,
       aciklama: String(form.get("aciklama") ?? "").trim() || null,

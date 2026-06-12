@@ -260,6 +260,7 @@ model LiseFaaliyet {
   ilId          String
   tarih         DateTime
   yil           Int          // tarih'ten türetilir (raporlama filtresi)
+  donem         Donem        @default(DONEM_1) // kullanıcı seçer (yıl+dönem filtresi)
   kategori      LiseKategori
   faaliyetAdi   String       // kategori listesinden veya "Diğer"de manuel
   aciklama      String?

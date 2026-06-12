@@ -258,6 +258,7 @@ export const LiseFaaliyetScalarFieldEnum = {
   ilId: 'ilId',
   tarih: 'tarih',
   yil: 'yil',
+  donem: 'donem',
   kategori: 'kategori',
   faaliyetAdi: 'faaliyetAdi',
   aciklama: 'aciklama',
