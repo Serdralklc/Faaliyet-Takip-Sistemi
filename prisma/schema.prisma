@@ -145,20 +145,22 @@ model Activity {
   ik_gecisOgrenci          Int @default(0)
 
   // Lise
-  ls_toplamDergah       Int @default(0)
-  ls_ilimDersYeri       Int @default(0)
-  ls_ilimDersKatilim    Int @default(0)
-  ls_sabahNamaziSayisi  Int @default(0)
-  ls_sabahNamaziKatilim Int @default(0)
-  ls_kafileSayisi       Int @default(0)
-  ls_kafileOgrenci      Int @default(0)
-  ls_toplamFaaliyet     Int @default(0)
-  ls_yeniIntisap        Int @default(0)
+  ls_toplamDergah        Int @default(0)
+  ls_liseliOgrenciSayisi Int @default(0) // İlimizdeki toplam liseli öğrenci sayısı
+  ls_ilimDersYeri        Int @default(0)
+  ls_ilimDersKatilim     Int @default(0)
+  ls_sabahNamaziSayisi   Int @default(0)
+  ls_sabahNamaziKatilim  Int @default(0)
+  ls_kafileSayisi        Int @default(0)
+  ls_kafileOgrenci       Int @default(0)
+  ls_toplamFaaliyet      Int @default(0)
+  ls_yeniIntisap         Int @default(0)
 
   // Üniversite
-  uni_toplamDergah      Int @default(0)
-  uni_ilimDersYeri      Int @default(0)
-  uni_ilimDersKatilim   Int @default(0)
+  uni_toplamDergah              Int @default(0)
+  uni_universiteliOgrenciSayisi Int @default(0) // İlimizdeki toplam üniversite öğrenci sayısı
+  uni_ilimDersYeri              Int @default(0)
+  uni_ilimDersKatilim           Int @default(0)
   uni_sabahNamaziSayisi Int @default(0)
   uni_sabahNamaziKatilim Int @default(0)
   uni_kafileSayisi      Int @default(0)
@@ -189,6 +191,13 @@ model Activity {
   eay_bursBalan     Int @default(0)
   eay_iliskiKesme   Int @default(0)
   eay_toplamZiyaret Int @default(0)
+
+  // Birim muafiyeti: il eğitimcisi "ilimizde bu birim çalışması/barınma yoktur" işaretleyince true.
+  // Toggle (geri alınabilir). Bölge eğitimcisi "veri girilmedi" ile "çalışma yok"u ayırt etsin diye.
+  muafIlkogretim Boolean @default(false)
+  muafLise       Boolean @default(false)
+  muafUniversite Boolean @default(false)
+  muafBarinma    Boolean @default(false)
 
   // Arşiv: geçmiş dönem kapatılınca true → salt-okunur (veri asla silinmez)
   arsivlendi Boolean @default(false)

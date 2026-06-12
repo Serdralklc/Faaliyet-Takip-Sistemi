@@ -36,6 +36,7 @@ export type ActivityAvgAggregateOutputType = {
   ik_kuranOgrenci: number | null
   ik_gecisOgrenci: number | null
   ls_toplamDergah: number | null
+  ls_liseliOgrenciSayisi: number | null
   ls_ilimDersYeri: number | null
   ls_ilimDersKatilim: number | null
   ls_sabahNamaziSayisi: number | null
@@ -45,6 +46,7 @@ export type ActivityAvgAggregateOutputType = {
   ls_toplamFaaliyet: number | null
   ls_yeniIntisap: number | null
   uni_toplamDergah: number | null
+  uni_universiteliOgrenciSayisi: number | null
   uni_ilimDersYeri: number | null
   uni_ilimDersKatilim: number | null
   uni_sabahNamaziSayisi: number | null
@@ -85,6 +87,7 @@ export type ActivitySumAggregateOutputType = {
   ik_kuranOgrenci: number | null
   ik_gecisOgrenci: number | null
   ls_toplamDergah: number | null
+  ls_liseliOgrenciSayisi: number | null
   ls_ilimDersYeri: number | null
   ls_ilimDersKatilim: number | null
   ls_sabahNamaziSayisi: number | null
@@ -94,6 +97,7 @@ export type ActivitySumAggregateOutputType = {
   ls_toplamFaaliyet: number | null
   ls_yeniIntisap: number | null
   uni_toplamDergah: number | null
+  uni_universiteliOgrenciSayisi: number | null
   uni_ilimDersYeri: number | null
   uni_ilimDersKatilim: number | null
   uni_sabahNamaziSayisi: number | null
@@ -137,6 +141,7 @@ export type ActivityMinAggregateOutputType = {
   ik_kuranOgrenci: number | null
   ik_gecisOgrenci: number | null
   ls_toplamDergah: number | null
+  ls_liseliOgrenciSayisi: number | null
   ls_ilimDersYeri: number | null
   ls_ilimDersKatilim: number | null
   ls_sabahNamaziSayisi: number | null
@@ -146,6 +151,7 @@ export type ActivityMinAggregateOutputType = {
   ls_toplamFaaliyet: number | null
   ls_yeniIntisap: number | null
   uni_toplamDergah: number | null
+  uni_universiteliOgrenciSayisi: number | null
   uni_ilimDersYeri: number | null
   uni_ilimDersKatilim: number | null
   uni_sabahNamaziSayisi: number | null
@@ -174,6 +180,10 @@ export type ActivityMinAggregateOutputType = {
   eay_bursBalan: number | null
   eay_iliskiKesme: number | null
   eay_toplamZiyaret: number | null
+  muafIlkogretim: boolean | null
+  muafLise: boolean | null
+  muafUniversite: boolean | null
+  muafBarinma: boolean | null
   arsivlendi: boolean | null
   createdById: string | null
   createdByName: string | null
@@ -199,6 +209,7 @@ export type ActivityMaxAggregateOutputType = {
   ik_kuranOgrenci: number | null
   ik_gecisOgrenci: number | null
   ls_toplamDergah: number | null
+  ls_liseliOgrenciSayisi: number | null
   ls_ilimDersYeri: number | null
   ls_ilimDersKatilim: number | null
   ls_sabahNamaziSayisi: number | null
@@ -208,6 +219,7 @@ export type ActivityMaxAggregateOutputType = {
   ls_toplamFaaliyet: number | null
   ls_yeniIntisap: number | null
   uni_toplamDergah: number | null
+  uni_universiteliOgrenciSayisi: number | null
   uni_ilimDersYeri: number | null
   uni_ilimDersKatilim: number | null
   uni_sabahNamaziSayisi: number | null
@@ -236,6 +248,10 @@ export type ActivityMaxAggregateOutputType = {
   eay_bursBalan: number | null
   eay_iliskiKesme: number | null
   eay_toplamZiyaret: number | null
+  muafIlkogretim: boolean | null
+  muafLise: boolean | null
+  muafUniversite: boolean | null
+  muafBarinma: boolean | null
   arsivlendi: boolean | null
   createdById: string | null
   createdByName: string | null
@@ -261,6 +277,7 @@ export type ActivityCountAggregateOutputType = {
   ik_kuranOgrenci: number
   ik_gecisOgrenci: number
   ls_toplamDergah: number
+  ls_liseliOgrenciSayisi: number
   ls_ilimDersYeri: number
   ls_ilimDersKatilim: number
   ls_sabahNamaziSayisi: number
@@ -270,6 +287,7 @@ export type ActivityCountAggregateOutputType = {
   ls_toplamFaaliyet: number
   ls_yeniIntisap: number
   uni_toplamDergah: number
+  uni_universiteliOgrenciSayisi: number
   uni_ilimDersYeri: number
   uni_ilimDersKatilim: number
   uni_sabahNamaziSayisi: number
@@ -298,6 +316,10 @@ export type ActivityCountAggregateOutputType = {
   eay_bursBalan: number
   eay_iliskiKesme: number
   eay_toplamZiyaret: number
+  muafIlkogretim: number
+  muafLise: number
+  muafUniversite: number
+  muafBarinma: number
   arsivlendi: number
   createdById: number
   createdByName: number
@@ -322,6 +344,7 @@ export type ActivityAvgAggregateInputType = {
   ik_kuranOgrenci?: true
   ik_gecisOgrenci?: true
   ls_toplamDergah?: true
+  ls_liseliOgrenciSayisi?: true
   ls_ilimDersYeri?: true
   ls_ilimDersKatilim?: true
   ls_sabahNamaziSayisi?: true
@@ -331,6 +354,7 @@ export type ActivityAvgAggregateInputType = {
   ls_toplamFaaliyet?: true
   ls_yeniIntisap?: true
   uni_toplamDergah?: true
+  uni_universiteliOgrenciSayisi?: true
   uni_ilimDersYeri?: true
   uni_ilimDersKatilim?: true
   uni_sabahNamaziSayisi?: true
@@ -371,6 +395,7 @@ export type ActivitySumAggregateInputType = {
   ik_kuranOgrenci?: true
   ik_gecisOgrenci?: true
   ls_toplamDergah?: true
+  ls_liseliOgrenciSayisi?: true
   ls_ilimDersYeri?: true
   ls_ilimDersKatilim?: true
   ls_sabahNamaziSayisi?: true
@@ -380,6 +405,7 @@ export type ActivitySumAggregateInputType = {
   ls_toplamFaaliyet?: true
   ls_yeniIntisap?: true
   uni_toplamDergah?: true
+  uni_universiteliOgrenciSayisi?: true
   uni_ilimDersYeri?: true
   uni_ilimDersKatilim?: true
   uni_sabahNamaziSayisi?: true
@@ -423,6 +449,7 @@ export type ActivityMinAggregateInputType = {
   ik_kuranOgrenci?: true
   ik_gecisOgrenci?: true
   ls_toplamDergah?: true
+  ls_liseliOgrenciSayisi?: true
   ls_ilimDersYeri?: true
   ls_ilimDersKatilim?: true
   ls_sabahNamaziSayisi?: true
@@ -432,6 +459,7 @@ export type ActivityMinAggregateInputType = {
   ls_toplamFaaliyet?: true
   ls_yeniIntisap?: true
   uni_toplamDergah?: true
+  uni_universiteliOgrenciSayisi?: true
   uni_ilimDersYeri?: true
   uni_ilimDersKatilim?: true
   uni_sabahNamaziSayisi?: true
@@ -460,6 +488,10 @@ export type ActivityMinAggregateInputType = {
   eay_bursBalan?: true
   eay_iliskiKesme?: true
   eay_toplamZiyaret?: true
+  muafIlkogretim?: true
+  muafLise?: true
+  muafUniversite?: true
+  muafBarinma?: true
   arsivlendi?: true
   createdById?: true
   createdByName?: true
@@ -485,6 +517,7 @@ export type ActivityMaxAggregateInputType = {
   ik_kuranOgrenci?: true
   ik_gecisOgrenci?: true
   ls_toplamDergah?: true
+  ls_liseliOgrenciSayisi?: true
   ls_ilimDersYeri?: true
   ls_ilimDersKatilim?: true
   ls_sabahNamaziSayisi?: true
@@ -494,6 +527,7 @@ export type ActivityMaxAggregateInputType = {
   ls_toplamFaaliyet?: true
   ls_yeniIntisap?: true
   uni_toplamDergah?: true
+  uni_universiteliOgrenciSayisi?: true
   uni_ilimDersYeri?: true
   uni_ilimDersKatilim?: true
   uni_sabahNamaziSayisi?: true
@@ -522,6 +556,10 @@ export type ActivityMaxAggregateInputType = {
   eay_bursBalan?: true
   eay_iliskiKesme?: true
   eay_toplamZiyaret?: true
+  muafIlkogretim?: true
+  muafLise?: true
+  muafUniversite?: true
+  muafBarinma?: true
   arsivlendi?: true
   createdById?: true
   createdByName?: true
@@ -547,6 +585,7 @@ export type ActivityCountAggregateInputType = {
   ik_kuranOgrenci?: true
   ik_gecisOgrenci?: true
   ls_toplamDergah?: true
+  ls_liseliOgrenciSayisi?: true
   ls_ilimDersYeri?: true
   ls_ilimDersKatilim?: true
   ls_sabahNamaziSayisi?: true
@@ -556,6 +595,7 @@ export type ActivityCountAggregateInputType = {
   ls_toplamFaaliyet?: true
   ls_yeniIntisap?: true
   uni_toplamDergah?: true
+  uni_universiteliOgrenciSayisi?: true
   uni_ilimDersYeri?: true
   uni_ilimDersKatilim?: true
   uni_sabahNamaziSayisi?: true
@@ -584,6 +624,10 @@ export type ActivityCountAggregateInputType = {
   eay_bursBalan?: true
   eay_iliskiKesme?: true
   eay_toplamZiyaret?: true
+  muafIlkogretim?: true
+  muafLise?: true
+  muafUniversite?: true
+  muafBarinma?: true
   arsivlendi?: true
   createdById?: true
   createdByName?: true
@@ -696,6 +740,7 @@ export type ActivityGroupByOutputType = {
   ik_kuranOgrenci: number
   ik_gecisOgrenci: number
   ls_toplamDergah: number
+  ls_liseliOgrenciSayisi: number
   ls_ilimDersYeri: number
   ls_ilimDersKatilim: number
   ls_sabahNamaziSayisi: number
@@ -705,6 +750,7 @@ export type ActivityGroupByOutputType = {
   ls_toplamFaaliyet: number
   ls_yeniIntisap: number
   uni_toplamDergah: number
+  uni_universiteliOgrenciSayisi: number
   uni_ilimDersYeri: number
   uni_ilimDersKatilim: number
   uni_sabahNamaziSayisi: number
@@ -733,6 +779,10 @@ export type ActivityGroupByOutputType = {
   eay_bursBalan: number
   eay_iliskiKesme: number
   eay_toplamZiyaret: number
+  muafIlkogretim: boolean
+  muafLise: boolean
+  muafUniversite: boolean
+  muafBarinma: boolean
   arsivlendi: boolean
   createdById: string
   createdByName: string
@@ -781,6 +831,7 @@ export type ActivityWhereInput = {
   ik_kuranOgrenci?: Prisma.IntFilter<"Activity"> | number
   ik_gecisOgrenci?: Prisma.IntFilter<"Activity"> | number
   ls_toplamDergah?: Prisma.IntFilter<"Activity"> | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFilter<"Activity"> | number
   ls_ilimDersYeri?: Prisma.IntFilter<"Activity"> | number
   ls_ilimDersKatilim?: Prisma.IntFilter<"Activity"> | number
   ls_sabahNamaziSayisi?: Prisma.IntFilter<"Activity"> | number
@@ -790,6 +841,7 @@ export type ActivityWhereInput = {
   ls_toplamFaaliyet?: Prisma.IntFilter<"Activity"> | number
   ls_yeniIntisap?: Prisma.IntFilter<"Activity"> | number
   uni_toplamDergah?: Prisma.IntFilter<"Activity"> | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFilter<"Activity"> | number
   uni_ilimDersYeri?: Prisma.IntFilter<"Activity"> | number
   uni_ilimDersKatilim?: Prisma.IntFilter<"Activity"> | number
   uni_sabahNamaziSayisi?: Prisma.IntFilter<"Activity"> | number
@@ -818,6 +870,10 @@ export type ActivityWhereInput = {
   eay_bursBalan?: Prisma.IntFilter<"Activity"> | number
   eay_iliskiKesme?: Prisma.IntFilter<"Activity"> | number
   eay_toplamZiyaret?: Prisma.IntFilter<"Activity"> | number
+  muafIlkogretim?: Prisma.BoolFilter<"Activity"> | boolean
+  muafLise?: Prisma.BoolFilter<"Activity"> | boolean
+  muafUniversite?: Prisma.BoolFilter<"Activity"> | boolean
+  muafBarinma?: Prisma.BoolFilter<"Activity"> | boolean
   arsivlendi?: Prisma.BoolFilter<"Activity"> | boolean
   createdById?: Prisma.StringFilter<"Activity"> | string
   createdByName?: Prisma.StringFilter<"Activity"> | string
@@ -846,6 +902,7 @@ export type ActivityOrderByWithRelationInput = {
   ik_kuranOgrenci?: Prisma.SortOrder
   ik_gecisOgrenci?: Prisma.SortOrder
   ls_toplamDergah?: Prisma.SortOrder
+  ls_liseliOgrenciSayisi?: Prisma.SortOrder
   ls_ilimDersYeri?: Prisma.SortOrder
   ls_ilimDersKatilim?: Prisma.SortOrder
   ls_sabahNamaziSayisi?: Prisma.SortOrder
@@ -855,6 +912,7 @@ export type ActivityOrderByWithRelationInput = {
   ls_toplamFaaliyet?: Prisma.SortOrder
   ls_yeniIntisap?: Prisma.SortOrder
   uni_toplamDergah?: Prisma.SortOrder
+  uni_universiteliOgrenciSayisi?: Prisma.SortOrder
   uni_ilimDersYeri?: Prisma.SortOrder
   uni_ilimDersKatilim?: Prisma.SortOrder
   uni_sabahNamaziSayisi?: Prisma.SortOrder
@@ -883,6 +941,10 @@ export type ActivityOrderByWithRelationInput = {
   eay_bursBalan?: Prisma.SortOrder
   eay_iliskiKesme?: Prisma.SortOrder
   eay_toplamZiyaret?: Prisma.SortOrder
+  muafIlkogretim?: Prisma.SortOrder
+  muafLise?: Prisma.SortOrder
+  muafUniversite?: Prisma.SortOrder
+  muafBarinma?: Prisma.SortOrder
   arsivlendi?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
@@ -915,6 +977,7 @@ export type ActivityWhereUniqueInput = Prisma.AtLeast<{
   ik_kuranOgrenci?: Prisma.IntFilter<"Activity"> | number
   ik_gecisOgrenci?: Prisma.IntFilter<"Activity"> | number
   ls_toplamDergah?: Prisma.IntFilter<"Activity"> | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFilter<"Activity"> | number
   ls_ilimDersYeri?: Prisma.IntFilter<"Activity"> | number
   ls_ilimDersKatilim?: Prisma.IntFilter<"Activity"> | number
   ls_sabahNamaziSayisi?: Prisma.IntFilter<"Activity"> | number
@@ -924,6 +987,7 @@ export type ActivityWhereUniqueInput = Prisma.AtLeast<{
   ls_toplamFaaliyet?: Prisma.IntFilter<"Activity"> | number
   ls_yeniIntisap?: Prisma.IntFilter<"Activity"> | number
   uni_toplamDergah?: Prisma.IntFilter<"Activity"> | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFilter<"Activity"> | number
   uni_ilimDersYeri?: Prisma.IntFilter<"Activity"> | number
   uni_ilimDersKatilim?: Prisma.IntFilter<"Activity"> | number
   uni_sabahNamaziSayisi?: Prisma.IntFilter<"Activity"> | number
@@ -952,6 +1016,10 @@ export type ActivityWhereUniqueInput = Prisma.AtLeast<{
   eay_bursBalan?: Prisma.IntFilter<"Activity"> | number
   eay_iliskiKesme?: Prisma.IntFilter<"Activity"> | number
   eay_toplamZiyaret?: Prisma.IntFilter<"Activity"> | number
+  muafIlkogretim?: Prisma.BoolFilter<"Activity"> | boolean
+  muafLise?: Prisma.BoolFilter<"Activity"> | boolean
+  muafUniversite?: Prisma.BoolFilter<"Activity"> | boolean
+  muafBarinma?: Prisma.BoolFilter<"Activity"> | boolean
   arsivlendi?: Prisma.BoolFilter<"Activity"> | boolean
   createdById?: Prisma.StringFilter<"Activity"> | string
   createdByName?: Prisma.StringFilter<"Activity"> | string
@@ -980,6 +1048,7 @@ export type ActivityOrderByWithAggregationInput = {
   ik_kuranOgrenci?: Prisma.SortOrder
   ik_gecisOgrenci?: Prisma.SortOrder
   ls_toplamDergah?: Prisma.SortOrder
+  ls_liseliOgrenciSayisi?: Prisma.SortOrder
   ls_ilimDersYeri?: Prisma.SortOrder
   ls_ilimDersKatilim?: Prisma.SortOrder
   ls_sabahNamaziSayisi?: Prisma.SortOrder
@@ -989,6 +1058,7 @@ export type ActivityOrderByWithAggregationInput = {
   ls_toplamFaaliyet?: Prisma.SortOrder
   ls_yeniIntisap?: Prisma.SortOrder
   uni_toplamDergah?: Prisma.SortOrder
+  uni_universiteliOgrenciSayisi?: Prisma.SortOrder
   uni_ilimDersYeri?: Prisma.SortOrder
   uni_ilimDersKatilim?: Prisma.SortOrder
   uni_sabahNamaziSayisi?: Prisma.SortOrder
@@ -1017,6 +1087,10 @@ export type ActivityOrderByWithAggregationInput = {
   eay_bursBalan?: Prisma.SortOrder
   eay_iliskiKesme?: Prisma.SortOrder
   eay_toplamZiyaret?: Prisma.SortOrder
+  muafIlkogretim?: Prisma.SortOrder
+  muafLise?: Prisma.SortOrder
+  muafUniversite?: Prisma.SortOrder
+  muafBarinma?: Prisma.SortOrder
   arsivlendi?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
@@ -1050,6 +1124,7 @@ export type ActivityScalarWhereWithAggregatesInput = {
   ik_kuranOgrenci?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   ik_gecisOgrenci?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   ls_toplamDergah?: Prisma.IntWithAggregatesFilter<"Activity"> | number
+  ls_liseliOgrenciSayisi?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   ls_ilimDersYeri?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   ls_ilimDersKatilim?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   ls_sabahNamaziSayisi?: Prisma.IntWithAggregatesFilter<"Activity"> | number
@@ -1059,6 +1134,7 @@ export type ActivityScalarWhereWithAggregatesInput = {
   ls_toplamFaaliyet?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   ls_yeniIntisap?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   uni_toplamDergah?: Prisma.IntWithAggregatesFilter<"Activity"> | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   uni_ilimDersYeri?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   uni_ilimDersKatilim?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   uni_sabahNamaziSayisi?: Prisma.IntWithAggregatesFilter<"Activity"> | number
@@ -1087,6 +1163,10 @@ export type ActivityScalarWhereWithAggregatesInput = {
   eay_bursBalan?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   eay_iliskiKesme?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   eay_toplamZiyaret?: Prisma.IntWithAggregatesFilter<"Activity"> | number
+  muafIlkogretim?: Prisma.BoolWithAggregatesFilter<"Activity"> | boolean
+  muafLise?: Prisma.BoolWithAggregatesFilter<"Activity"> | boolean
+  muafUniversite?: Prisma.BoolWithAggregatesFilter<"Activity"> | boolean
+  muafBarinma?: Prisma.BoolWithAggregatesFilter<"Activity"> | boolean
   arsivlendi?: Prisma.BoolWithAggregatesFilter<"Activity"> | boolean
   createdById?: Prisma.StringWithAggregatesFilter<"Activity"> | string
   createdByName?: Prisma.StringWithAggregatesFilter<"Activity"> | string
@@ -1111,6 +1191,7 @@ export type ActivityCreateInput = {
   ik_kuranOgrenci?: number
   ik_gecisOgrenci?: number
   ls_toplamDergah?: number
+  ls_liseliOgrenciSayisi?: number
   ls_ilimDersYeri?: number
   ls_ilimDersKatilim?: number
   ls_sabahNamaziSayisi?: number
@@ -1120,6 +1201,7 @@ export type ActivityCreateInput = {
   ls_toplamFaaliyet?: number
   ls_yeniIntisap?: number
   uni_toplamDergah?: number
+  uni_universiteliOgrenciSayisi?: number
   uni_ilimDersYeri?: number
   uni_ilimDersKatilim?: number
   uni_sabahNamaziSayisi?: number
@@ -1148,6 +1230,10 @@ export type ActivityCreateInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdByName: string
   createdByRole: $Enums.Role
@@ -1174,6 +1260,7 @@ export type ActivityUncheckedCreateInput = {
   ik_kuranOgrenci?: number
   ik_gecisOgrenci?: number
   ls_toplamDergah?: number
+  ls_liseliOgrenciSayisi?: number
   ls_ilimDersYeri?: number
   ls_ilimDersKatilim?: number
   ls_sabahNamaziSayisi?: number
@@ -1183,6 +1270,7 @@ export type ActivityUncheckedCreateInput = {
   ls_toplamFaaliyet?: number
   ls_yeniIntisap?: number
   uni_toplamDergah?: number
+  uni_universiteliOgrenciSayisi?: number
   uni_ilimDersYeri?: number
   uni_ilimDersKatilim?: number
   uni_sabahNamaziSayisi?: number
@@ -1211,6 +1299,10 @@ export type ActivityUncheckedCreateInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdById: string
   createdByName: string
@@ -1235,6 +1327,7 @@ export type ActivityUpdateInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1244,6 +1337,7 @@ export type ActivityUpdateInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1272,6 +1366,10 @@ export type ActivityUpdateInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1298,6 +1396,7 @@ export type ActivityUncheckedUpdateInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1307,6 +1406,7 @@ export type ActivityUncheckedUpdateInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1335,6 +1435,10 @@ export type ActivityUncheckedUpdateInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1360,6 +1464,7 @@ export type ActivityCreateManyInput = {
   ik_kuranOgrenci?: number
   ik_gecisOgrenci?: number
   ls_toplamDergah?: number
+  ls_liseliOgrenciSayisi?: number
   ls_ilimDersYeri?: number
   ls_ilimDersKatilim?: number
   ls_sabahNamaziSayisi?: number
@@ -1369,6 +1474,7 @@ export type ActivityCreateManyInput = {
   ls_toplamFaaliyet?: number
   ls_yeniIntisap?: number
   uni_toplamDergah?: number
+  uni_universiteliOgrenciSayisi?: number
   uni_ilimDersYeri?: number
   uni_ilimDersKatilim?: number
   uni_sabahNamaziSayisi?: number
@@ -1397,6 +1503,10 @@ export type ActivityCreateManyInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdById: string
   createdByName: string
@@ -1421,6 +1531,7 @@ export type ActivityUpdateManyMutationInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1430,6 +1541,7 @@ export type ActivityUpdateManyMutationInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1458,6 +1570,10 @@ export type ActivityUpdateManyMutationInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1481,6 +1597,7 @@ export type ActivityUncheckedUpdateManyInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1490,6 +1607,7 @@ export type ActivityUncheckedUpdateManyInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1518,6 +1636,10 @@ export type ActivityUncheckedUpdateManyInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1559,6 +1681,7 @@ export type ActivityCountOrderByAggregateInput = {
   ik_kuranOgrenci?: Prisma.SortOrder
   ik_gecisOgrenci?: Prisma.SortOrder
   ls_toplamDergah?: Prisma.SortOrder
+  ls_liseliOgrenciSayisi?: Prisma.SortOrder
   ls_ilimDersYeri?: Prisma.SortOrder
   ls_ilimDersKatilim?: Prisma.SortOrder
   ls_sabahNamaziSayisi?: Prisma.SortOrder
@@ -1568,6 +1691,7 @@ export type ActivityCountOrderByAggregateInput = {
   ls_toplamFaaliyet?: Prisma.SortOrder
   ls_yeniIntisap?: Prisma.SortOrder
   uni_toplamDergah?: Prisma.SortOrder
+  uni_universiteliOgrenciSayisi?: Prisma.SortOrder
   uni_ilimDersYeri?: Prisma.SortOrder
   uni_ilimDersKatilim?: Prisma.SortOrder
   uni_sabahNamaziSayisi?: Prisma.SortOrder
@@ -1596,6 +1720,10 @@ export type ActivityCountOrderByAggregateInput = {
   eay_bursBalan?: Prisma.SortOrder
   eay_iliskiKesme?: Prisma.SortOrder
   eay_toplamZiyaret?: Prisma.SortOrder
+  muafIlkogretim?: Prisma.SortOrder
+  muafLise?: Prisma.SortOrder
+  muafUniversite?: Prisma.SortOrder
+  muafBarinma?: Prisma.SortOrder
   arsivlendi?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
@@ -1618,6 +1746,7 @@ export type ActivityAvgOrderByAggregateInput = {
   ik_kuranOgrenci?: Prisma.SortOrder
   ik_gecisOgrenci?: Prisma.SortOrder
   ls_toplamDergah?: Prisma.SortOrder
+  ls_liseliOgrenciSayisi?: Prisma.SortOrder
   ls_ilimDersYeri?: Prisma.SortOrder
   ls_ilimDersKatilim?: Prisma.SortOrder
   ls_sabahNamaziSayisi?: Prisma.SortOrder
@@ -1627,6 +1756,7 @@ export type ActivityAvgOrderByAggregateInput = {
   ls_toplamFaaliyet?: Prisma.SortOrder
   ls_yeniIntisap?: Prisma.SortOrder
   uni_toplamDergah?: Prisma.SortOrder
+  uni_universiteliOgrenciSayisi?: Prisma.SortOrder
   uni_ilimDersYeri?: Prisma.SortOrder
   uni_ilimDersKatilim?: Prisma.SortOrder
   uni_sabahNamaziSayisi?: Prisma.SortOrder
@@ -1670,6 +1800,7 @@ export type ActivityMaxOrderByAggregateInput = {
   ik_kuranOgrenci?: Prisma.SortOrder
   ik_gecisOgrenci?: Prisma.SortOrder
   ls_toplamDergah?: Prisma.SortOrder
+  ls_liseliOgrenciSayisi?: Prisma.SortOrder
   ls_ilimDersYeri?: Prisma.SortOrder
   ls_ilimDersKatilim?: Prisma.SortOrder
   ls_sabahNamaziSayisi?: Prisma.SortOrder
@@ -1679,6 +1810,7 @@ export type ActivityMaxOrderByAggregateInput = {
   ls_toplamFaaliyet?: Prisma.SortOrder
   ls_yeniIntisap?: Prisma.SortOrder
   uni_toplamDergah?: Prisma.SortOrder
+  uni_universiteliOgrenciSayisi?: Prisma.SortOrder
   uni_ilimDersYeri?: Prisma.SortOrder
   uni_ilimDersKatilim?: Prisma.SortOrder
   uni_sabahNamaziSayisi?: Prisma.SortOrder
@@ -1707,6 +1839,10 @@ export type ActivityMaxOrderByAggregateInput = {
   eay_bursBalan?: Prisma.SortOrder
   eay_iliskiKesme?: Prisma.SortOrder
   eay_toplamZiyaret?: Prisma.SortOrder
+  muafIlkogretim?: Prisma.SortOrder
+  muafLise?: Prisma.SortOrder
+  muafUniversite?: Prisma.SortOrder
+  muafBarinma?: Prisma.SortOrder
   arsivlendi?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
@@ -1732,6 +1868,7 @@ export type ActivityMinOrderByAggregateInput = {
   ik_kuranOgrenci?: Prisma.SortOrder
   ik_gecisOgrenci?: Prisma.SortOrder
   ls_toplamDergah?: Prisma.SortOrder
+  ls_liseliOgrenciSayisi?: Prisma.SortOrder
   ls_ilimDersYeri?: Prisma.SortOrder
   ls_ilimDersKatilim?: Prisma.SortOrder
   ls_sabahNamaziSayisi?: Prisma.SortOrder
@@ -1741,6 +1878,7 @@ export type ActivityMinOrderByAggregateInput = {
   ls_toplamFaaliyet?: Prisma.SortOrder
   ls_yeniIntisap?: Prisma.SortOrder
   uni_toplamDergah?: Prisma.SortOrder
+  uni_universiteliOgrenciSayisi?: Prisma.SortOrder
   uni_ilimDersYeri?: Prisma.SortOrder
   uni_ilimDersKatilim?: Prisma.SortOrder
   uni_sabahNamaziSayisi?: Prisma.SortOrder
@@ -1769,6 +1907,10 @@ export type ActivityMinOrderByAggregateInput = {
   eay_bursBalan?: Prisma.SortOrder
   eay_iliskiKesme?: Prisma.SortOrder
   eay_toplamZiyaret?: Prisma.SortOrder
+  muafIlkogretim?: Prisma.SortOrder
+  muafLise?: Prisma.SortOrder
+  muafUniversite?: Prisma.SortOrder
+  muafBarinma?: Prisma.SortOrder
   arsivlendi?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
@@ -1791,6 +1933,7 @@ export type ActivitySumOrderByAggregateInput = {
   ik_kuranOgrenci?: Prisma.SortOrder
   ik_gecisOgrenci?: Prisma.SortOrder
   ls_toplamDergah?: Prisma.SortOrder
+  ls_liseliOgrenciSayisi?: Prisma.SortOrder
   ls_ilimDersYeri?: Prisma.SortOrder
   ls_ilimDersKatilim?: Prisma.SortOrder
   ls_sabahNamaziSayisi?: Prisma.SortOrder
@@ -1800,6 +1943,7 @@ export type ActivitySumOrderByAggregateInput = {
   ls_toplamFaaliyet?: Prisma.SortOrder
   ls_yeniIntisap?: Prisma.SortOrder
   uni_toplamDergah?: Prisma.SortOrder
+  uni_universiteliOgrenciSayisi?: Prisma.SortOrder
   uni_ilimDersYeri?: Prisma.SortOrder
   uni_ilimDersKatilim?: Prisma.SortOrder
   uni_sabahNamaziSayisi?: Prisma.SortOrder
@@ -1976,6 +2120,7 @@ export type ActivityCreateWithoutCreatedByInput = {
   ik_kuranOgrenci?: number
   ik_gecisOgrenci?: number
   ls_toplamDergah?: number
+  ls_liseliOgrenciSayisi?: number
   ls_ilimDersYeri?: number
   ls_ilimDersKatilim?: number
   ls_sabahNamaziSayisi?: number
@@ -1985,6 +2130,7 @@ export type ActivityCreateWithoutCreatedByInput = {
   ls_toplamFaaliyet?: number
   ls_yeniIntisap?: number
   uni_toplamDergah?: number
+  uni_universiteliOgrenciSayisi?: number
   uni_ilimDersYeri?: number
   uni_ilimDersKatilim?: number
   uni_sabahNamaziSayisi?: number
@@ -2013,6 +2159,10 @@ export type ActivityCreateWithoutCreatedByInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdByName: string
   createdByRole: $Enums.Role
@@ -2038,6 +2188,7 @@ export type ActivityUncheckedCreateWithoutCreatedByInput = {
   ik_kuranOgrenci?: number
   ik_gecisOgrenci?: number
   ls_toplamDergah?: number
+  ls_liseliOgrenciSayisi?: number
   ls_ilimDersYeri?: number
   ls_ilimDersKatilim?: number
   ls_sabahNamaziSayisi?: number
@@ -2047,6 +2198,7 @@ export type ActivityUncheckedCreateWithoutCreatedByInput = {
   ls_toplamFaaliyet?: number
   ls_yeniIntisap?: number
   uni_toplamDergah?: number
+  uni_universiteliOgrenciSayisi?: number
   uni_ilimDersYeri?: number
   uni_ilimDersKatilim?: number
   uni_sabahNamaziSayisi?: number
@@ -2075,6 +2227,10 @@ export type ActivityUncheckedCreateWithoutCreatedByInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdByName: string
   createdByRole: $Enums.Role
@@ -2108,6 +2264,7 @@ export type ActivityCreateWithoutUpdatedByInput = {
   ik_kuranOgrenci?: number
   ik_gecisOgrenci?: number
   ls_toplamDergah?: number
+  ls_liseliOgrenciSayisi?: number
   ls_ilimDersYeri?: number
   ls_ilimDersKatilim?: number
   ls_sabahNamaziSayisi?: number
@@ -2117,6 +2274,7 @@ export type ActivityCreateWithoutUpdatedByInput = {
   ls_toplamFaaliyet?: number
   ls_yeniIntisap?: number
   uni_toplamDergah?: number
+  uni_universiteliOgrenciSayisi?: number
   uni_ilimDersYeri?: number
   uni_ilimDersKatilim?: number
   uni_sabahNamaziSayisi?: number
@@ -2145,6 +2303,10 @@ export type ActivityCreateWithoutUpdatedByInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdByName: string
   createdByRole: $Enums.Role
@@ -2170,6 +2332,7 @@ export type ActivityUncheckedCreateWithoutUpdatedByInput = {
   ik_kuranOgrenci?: number
   ik_gecisOgrenci?: number
   ls_toplamDergah?: number
+  ls_liseliOgrenciSayisi?: number
   ls_ilimDersYeri?: number
   ls_ilimDersKatilim?: number
   ls_sabahNamaziSayisi?: number
@@ -2179,6 +2342,7 @@ export type ActivityUncheckedCreateWithoutUpdatedByInput = {
   ls_toplamFaaliyet?: number
   ls_yeniIntisap?: number
   uni_toplamDergah?: number
+  uni_universiteliOgrenciSayisi?: number
   uni_ilimDersYeri?: number
   uni_ilimDersKatilim?: number
   uni_sabahNamaziSayisi?: number
@@ -2207,6 +2371,10 @@ export type ActivityUncheckedCreateWithoutUpdatedByInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdById: string
   createdByName: string
@@ -2260,6 +2428,7 @@ export type ActivityScalarWhereInput = {
   ik_kuranOgrenci?: Prisma.IntFilter<"Activity"> | number
   ik_gecisOgrenci?: Prisma.IntFilter<"Activity"> | number
   ls_toplamDergah?: Prisma.IntFilter<"Activity"> | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFilter<"Activity"> | number
   ls_ilimDersYeri?: Prisma.IntFilter<"Activity"> | number
   ls_ilimDersKatilim?: Prisma.IntFilter<"Activity"> | number
   ls_sabahNamaziSayisi?: Prisma.IntFilter<"Activity"> | number
@@ -2269,6 +2438,7 @@ export type ActivityScalarWhereInput = {
   ls_toplamFaaliyet?: Prisma.IntFilter<"Activity"> | number
   ls_yeniIntisap?: Prisma.IntFilter<"Activity"> | number
   uni_toplamDergah?: Prisma.IntFilter<"Activity"> | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFilter<"Activity"> | number
   uni_ilimDersYeri?: Prisma.IntFilter<"Activity"> | number
   uni_ilimDersKatilim?: Prisma.IntFilter<"Activity"> | number
   uni_sabahNamaziSayisi?: Prisma.IntFilter<"Activity"> | number
@@ -2297,6 +2467,10 @@ export type ActivityScalarWhereInput = {
   eay_bursBalan?: Prisma.IntFilter<"Activity"> | number
   eay_iliskiKesme?: Prisma.IntFilter<"Activity"> | number
   eay_toplamZiyaret?: Prisma.IntFilter<"Activity"> | number
+  muafIlkogretim?: Prisma.BoolFilter<"Activity"> | boolean
+  muafLise?: Prisma.BoolFilter<"Activity"> | boolean
+  muafUniversite?: Prisma.BoolFilter<"Activity"> | boolean
+  muafBarinma?: Prisma.BoolFilter<"Activity"> | boolean
   arsivlendi?: Prisma.BoolFilter<"Activity"> | boolean
   createdById?: Prisma.StringFilter<"Activity"> | string
   createdByName?: Prisma.StringFilter<"Activity"> | string
@@ -2337,6 +2511,7 @@ export type ActivityCreateWithoutIlInput = {
   ik_kuranOgrenci?: number
   ik_gecisOgrenci?: number
   ls_toplamDergah?: number
+  ls_liseliOgrenciSayisi?: number
   ls_ilimDersYeri?: number
   ls_ilimDersKatilim?: number
   ls_sabahNamaziSayisi?: number
@@ -2346,6 +2521,7 @@ export type ActivityCreateWithoutIlInput = {
   ls_toplamFaaliyet?: number
   ls_yeniIntisap?: number
   uni_toplamDergah?: number
+  uni_universiteliOgrenciSayisi?: number
   uni_ilimDersYeri?: number
   uni_ilimDersKatilim?: number
   uni_sabahNamaziSayisi?: number
@@ -2374,6 +2550,10 @@ export type ActivityCreateWithoutIlInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdByName: string
   createdByRole: $Enums.Role
@@ -2398,6 +2578,7 @@ export type ActivityUncheckedCreateWithoutIlInput = {
   ik_kuranOgrenci?: number
   ik_gecisOgrenci?: number
   ls_toplamDergah?: number
+  ls_liseliOgrenciSayisi?: number
   ls_ilimDersYeri?: number
   ls_ilimDersKatilim?: number
   ls_sabahNamaziSayisi?: number
@@ -2407,6 +2588,7 @@ export type ActivityUncheckedCreateWithoutIlInput = {
   ls_toplamFaaliyet?: number
   ls_yeniIntisap?: number
   uni_toplamDergah?: number
+  uni_universiteliOgrenciSayisi?: number
   uni_ilimDersYeri?: number
   uni_ilimDersKatilim?: number
   uni_sabahNamaziSayisi?: number
@@ -2435,6 +2617,10 @@ export type ActivityUncheckedCreateWithoutIlInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdById: string
   createdByName: string
@@ -2486,6 +2672,7 @@ export type ActivityCreateManyCreatedByInput = {
   ik_kuranOgrenci?: number
   ik_gecisOgrenci?: number
   ls_toplamDergah?: number
+  ls_liseliOgrenciSayisi?: number
   ls_ilimDersYeri?: number
   ls_ilimDersKatilim?: number
   ls_sabahNamaziSayisi?: number
@@ -2495,6 +2682,7 @@ export type ActivityCreateManyCreatedByInput = {
   ls_toplamFaaliyet?: number
   ls_yeniIntisap?: number
   uni_toplamDergah?: number
+  uni_universiteliOgrenciSayisi?: number
   uni_ilimDersYeri?: number
   uni_ilimDersKatilim?: number
   uni_sabahNamaziSayisi?: number
@@ -2523,6 +2711,10 @@ export type ActivityCreateManyCreatedByInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdByName: string
   createdByRole: $Enums.Role
@@ -2547,6 +2739,7 @@ export type ActivityCreateManyUpdatedByInput = {
   ik_kuranOgrenci?: number
   ik_gecisOgrenci?: number
   ls_toplamDergah?: number
+  ls_liseliOgrenciSayisi?: number
   ls_ilimDersYeri?: number
   ls_ilimDersKatilim?: number
   ls_sabahNamaziSayisi?: number
@@ -2556,6 +2749,7 @@ export type ActivityCreateManyUpdatedByInput = {
   ls_toplamFaaliyet?: number
   ls_yeniIntisap?: number
   uni_toplamDergah?: number
+  uni_universiteliOgrenciSayisi?: number
   uni_ilimDersYeri?: number
   uni_ilimDersKatilim?: number
   uni_sabahNamaziSayisi?: number
@@ -2584,6 +2778,10 @@ export type ActivityCreateManyUpdatedByInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdById: string
   createdByName: string
@@ -2607,6 +2805,7 @@ export type ActivityUpdateWithoutCreatedByInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2616,6 +2815,7 @@ export type ActivityUpdateWithoutCreatedByInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2644,6 +2844,10 @@ export type ActivityUpdateWithoutCreatedByInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2669,6 +2873,7 @@ export type ActivityUncheckedUpdateWithoutCreatedByInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2678,6 +2883,7 @@ export type ActivityUncheckedUpdateWithoutCreatedByInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2706,6 +2912,10 @@ export type ActivityUncheckedUpdateWithoutCreatedByInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2730,6 +2940,7 @@ export type ActivityUncheckedUpdateManyWithoutCreatedByInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2739,6 +2950,7 @@ export type ActivityUncheckedUpdateManyWithoutCreatedByInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2767,6 +2979,10 @@ export type ActivityUncheckedUpdateManyWithoutCreatedByInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2790,6 +3006,7 @@ export type ActivityUpdateWithoutUpdatedByInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2799,6 +3016,7 @@ export type ActivityUpdateWithoutUpdatedByInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2827,6 +3045,10 @@ export type ActivityUpdateWithoutUpdatedByInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2852,6 +3074,7 @@ export type ActivityUncheckedUpdateWithoutUpdatedByInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2861,6 +3084,7 @@ export type ActivityUncheckedUpdateWithoutUpdatedByInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2889,6 +3113,10 @@ export type ActivityUncheckedUpdateWithoutUpdatedByInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2913,6 +3141,7 @@ export type ActivityUncheckedUpdateManyWithoutUpdatedByInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2922,6 +3151,7 @@ export type ActivityUncheckedUpdateManyWithoutUpdatedByInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2950,6 +3180,10 @@ export type ActivityUncheckedUpdateManyWithoutUpdatedByInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2973,6 +3207,7 @@ export type ActivityCreateManyIlInput = {
   ik_kuranOgrenci?: number
   ik_gecisOgrenci?: number
   ls_toplamDergah?: number
+  ls_liseliOgrenciSayisi?: number
   ls_ilimDersYeri?: number
   ls_ilimDersKatilim?: number
   ls_sabahNamaziSayisi?: number
@@ -2982,6 +3217,7 @@ export type ActivityCreateManyIlInput = {
   ls_toplamFaaliyet?: number
   ls_yeniIntisap?: number
   uni_toplamDergah?: number
+  uni_universiteliOgrenciSayisi?: number
   uni_ilimDersYeri?: number
   uni_ilimDersKatilim?: number
   uni_sabahNamaziSayisi?: number
@@ -3010,6 +3246,10 @@ export type ActivityCreateManyIlInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdById: string
   createdByName: string
@@ -3034,6 +3274,7 @@ export type ActivityUpdateWithoutIlInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3043,6 +3284,7 @@ export type ActivityUpdateWithoutIlInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3071,6 +3313,10 @@ export type ActivityUpdateWithoutIlInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -3095,6 +3341,7 @@ export type ActivityUncheckedUpdateWithoutIlInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3104,6 +3351,7 @@ export type ActivityUncheckedUpdateWithoutIlInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3132,6 +3380,10 @@ export type ActivityUncheckedUpdateWithoutIlInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3156,6 +3408,7 @@ export type ActivityUncheckedUpdateManyWithoutIlInput = {
   ik_kuranOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ik_gecisOgrenci?: Prisma.IntFieldUpdateOperationsInput | number
   ls_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  ls_liseliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   ls_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   ls_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3165,6 +3418,7 @@ export type ActivityUncheckedUpdateManyWithoutIlInput = {
   ls_toplamFaaliyet?: Prisma.IntFieldUpdateOperationsInput | number
   ls_yeniIntisap?: Prisma.IntFieldUpdateOperationsInput | number
   uni_toplamDergah?: Prisma.IntFieldUpdateOperationsInput | number
+  uni_universiteliOgrenciSayisi?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersYeri?: Prisma.IntFieldUpdateOperationsInput | number
   uni_ilimDersKatilim?: Prisma.IntFieldUpdateOperationsInput | number
   uni_sabahNamaziSayisi?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3193,6 +3447,10 @@ export type ActivityUncheckedUpdateManyWithoutIlInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  muafIlkogretim?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  muafBarinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3220,6 +3478,7 @@ export type ActivitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   ik_kuranOgrenci?: boolean
   ik_gecisOgrenci?: boolean
   ls_toplamDergah?: boolean
+  ls_liseliOgrenciSayisi?: boolean
   ls_ilimDersYeri?: boolean
   ls_ilimDersKatilim?: boolean
   ls_sabahNamaziSayisi?: boolean
@@ -3229,6 +3488,7 @@ export type ActivitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   ls_toplamFaaliyet?: boolean
   ls_yeniIntisap?: boolean
   uni_toplamDergah?: boolean
+  uni_universiteliOgrenciSayisi?: boolean
   uni_ilimDersYeri?: boolean
   uni_ilimDersKatilim?: boolean
   uni_sabahNamaziSayisi?: boolean
@@ -3257,6 +3517,10 @@ export type ActivitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   eay_bursBalan?: boolean
   eay_iliskiKesme?: boolean
   eay_toplamZiyaret?: boolean
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdById?: boolean
   createdByName?: boolean
@@ -3285,6 +3549,7 @@ export type ActivitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   ik_kuranOgrenci?: boolean
   ik_gecisOgrenci?: boolean
   ls_toplamDergah?: boolean
+  ls_liseliOgrenciSayisi?: boolean
   ls_ilimDersYeri?: boolean
   ls_ilimDersKatilim?: boolean
   ls_sabahNamaziSayisi?: boolean
@@ -3294,6 +3559,7 @@ export type ActivitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   ls_toplamFaaliyet?: boolean
   ls_yeniIntisap?: boolean
   uni_toplamDergah?: boolean
+  uni_universiteliOgrenciSayisi?: boolean
   uni_ilimDersYeri?: boolean
   uni_ilimDersKatilim?: boolean
   uni_sabahNamaziSayisi?: boolean
@@ -3322,6 +3588,10 @@ export type ActivitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   eay_bursBalan?: boolean
   eay_iliskiKesme?: boolean
   eay_toplamZiyaret?: boolean
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdById?: boolean
   createdByName?: boolean
@@ -3350,6 +3620,7 @@ export type ActivitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   ik_kuranOgrenci?: boolean
   ik_gecisOgrenci?: boolean
   ls_toplamDergah?: boolean
+  ls_liseliOgrenciSayisi?: boolean
   ls_ilimDersYeri?: boolean
   ls_ilimDersKatilim?: boolean
   ls_sabahNamaziSayisi?: boolean
@@ -3359,6 +3630,7 @@ export type ActivitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   ls_toplamFaaliyet?: boolean
   ls_yeniIntisap?: boolean
   uni_toplamDergah?: boolean
+  uni_universiteliOgrenciSayisi?: boolean
   uni_ilimDersYeri?: boolean
   uni_ilimDersKatilim?: boolean
   uni_sabahNamaziSayisi?: boolean
@@ -3387,6 +3659,10 @@ export type ActivitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   eay_bursBalan?: boolean
   eay_iliskiKesme?: boolean
   eay_toplamZiyaret?: boolean
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdById?: boolean
   createdByName?: boolean
@@ -3415,6 +3691,7 @@ export type ActivitySelectScalar = {
   ik_kuranOgrenci?: boolean
   ik_gecisOgrenci?: boolean
   ls_toplamDergah?: boolean
+  ls_liseliOgrenciSayisi?: boolean
   ls_ilimDersYeri?: boolean
   ls_ilimDersKatilim?: boolean
   ls_sabahNamaziSayisi?: boolean
@@ -3424,6 +3701,7 @@ export type ActivitySelectScalar = {
   ls_toplamFaaliyet?: boolean
   ls_yeniIntisap?: boolean
   uni_toplamDergah?: boolean
+  uni_universiteliOgrenciSayisi?: boolean
   uni_ilimDersYeri?: boolean
   uni_ilimDersKatilim?: boolean
   uni_sabahNamaziSayisi?: boolean
@@ -3452,6 +3730,10 @@ export type ActivitySelectScalar = {
   eay_bursBalan?: boolean
   eay_iliskiKesme?: boolean
   eay_toplamZiyaret?: boolean
+  muafIlkogretim?: boolean
+  muafLise?: boolean
+  muafUniversite?: boolean
+  muafBarinma?: boolean
   arsivlendi?: boolean
   createdById?: boolean
   createdByName?: boolean
@@ -3464,7 +3746,7 @@ export type ActivitySelectScalar = {
   updatedAt?: boolean
 }
 
-export type ActivityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ilId" | "yil" | "donem" | "ik_toplamDergah" | "ik_kursuYapilanDergah" | "ik_egitmenSayisi" | "ik_egitmenYardimciSayisi" | "ik_elifBaOgrenci" | "ik_kuranOgrenci" | "ik_gecisOgrenci" | "ls_toplamDergah" | "ls_ilimDersYeri" | "ls_ilimDersKatilim" | "ls_sabahNamaziSayisi" | "ls_sabahNamaziKatilim" | "ls_kafileSayisi" | "ls_kafileOgrenci" | "ls_toplamFaaliyet" | "ls_yeniIntisap" | "uni_toplamDergah" | "uni_ilimDersYeri" | "uni_ilimDersKatilim" | "uni_sabahNamaziSayisi" | "uni_sabahNamaziKatilim" | "uni_kafileSayisi" | "uni_kafileOgrenci" | "uni_toplamFaaliyet" | "uni_kykBulusmaSayisi" | "uni_kykKatilim" | "uni_yeniIntisap" | "ortakKafileSayisi" | "ortakKafileLiseKatilim" | "ortakKafileUniKatilim" | "ortakSabahNamaziSayisi" | "ortakSabahNamaziLiseKatilim" | "ortakSabahNamaziUniKatilim" | "eay_mevcutEv" | "eay_mevcutApart" | "eay_mevcutYurt" | "eay_acilacakEv" | "eay_acilacakApart" | "eay_acilacakYurt" | "eay_kapanacakEv" | "eay_kapanacakApart" | "eay_kapanacakYurt" | "eay_bursBalan" | "eay_iliskiKesme" | "eay_toplamZiyaret" | "arsivlendi" | "createdById" | "createdByName" | "createdByRole" | "createdByIlId" | "createdByBolgeId" | "createdAt" | "updatedById" | "updatedByName" | "updatedAt", ExtArgs["result"]["activity"]>
+export type ActivityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ilId" | "yil" | "donem" | "ik_toplamDergah" | "ik_kursuYapilanDergah" | "ik_egitmenSayisi" | "ik_egitmenYardimciSayisi" | "ik_elifBaOgrenci" | "ik_kuranOgrenci" | "ik_gecisOgrenci" | "ls_toplamDergah" | "ls_liseliOgrenciSayisi" | "ls_ilimDersYeri" | "ls_ilimDersKatilim" | "ls_sabahNamaziSayisi" | "ls_sabahNamaziKatilim" | "ls_kafileSayisi" | "ls_kafileOgrenci" | "ls_toplamFaaliyet" | "ls_yeniIntisap" | "uni_toplamDergah" | "uni_universiteliOgrenciSayisi" | "uni_ilimDersYeri" | "uni_ilimDersKatilim" | "uni_sabahNamaziSayisi" | "uni_sabahNamaziKatilim" | "uni_kafileSayisi" | "uni_kafileOgrenci" | "uni_toplamFaaliyet" | "uni_kykBulusmaSayisi" | "uni_kykKatilim" | "uni_yeniIntisap" | "ortakKafileSayisi" | "ortakKafileLiseKatilim" | "ortakKafileUniKatilim" | "ortakSabahNamaziSayisi" | "ortakSabahNamaziLiseKatilim" | "ortakSabahNamaziUniKatilim" | "eay_mevcutEv" | "eay_mevcutApart" | "eay_mevcutYurt" | "eay_acilacakEv" | "eay_acilacakApart" | "eay_acilacakYurt" | "eay_kapanacakEv" | "eay_kapanacakApart" | "eay_kapanacakYurt" | "eay_bursBalan" | "eay_iliskiKesme" | "eay_toplamZiyaret" | "muafIlkogretim" | "muafLise" | "muafUniversite" | "muafBarinma" | "arsivlendi" | "createdById" | "createdByName" | "createdByRole" | "createdByIlId" | "createdByBolgeId" | "createdAt" | "updatedById" | "updatedByName" | "updatedAt", ExtArgs["result"]["activity"]>
 export type ActivityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   il?: boolean | Prisma.IlDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -3501,6 +3783,7 @@ export type $ActivityPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     ik_kuranOgrenci: number
     ik_gecisOgrenci: number
     ls_toplamDergah: number
+    ls_liseliOgrenciSayisi: number
     ls_ilimDersYeri: number
     ls_ilimDersKatilim: number
     ls_sabahNamaziSayisi: number
@@ -3510,6 +3793,7 @@ export type $ActivityPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     ls_toplamFaaliyet: number
     ls_yeniIntisap: number
     uni_toplamDergah: number
+    uni_universiteliOgrenciSayisi: number
     uni_ilimDersYeri: number
     uni_ilimDersKatilim: number
     uni_sabahNamaziSayisi: number
@@ -3538,6 +3822,10 @@ export type $ActivityPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     eay_bursBalan: number
     eay_iliskiKesme: number
     eay_toplamZiyaret: number
+    muafIlkogretim: boolean
+    muafLise: boolean
+    muafUniversite: boolean
+    muafBarinma: boolean
     arsivlendi: boolean
     createdById: string
     createdByName: string
@@ -3986,6 +4274,7 @@ export interface ActivityFieldRefs {
   readonly ik_kuranOgrenci: Prisma.FieldRef<"Activity", 'Int'>
   readonly ik_gecisOgrenci: Prisma.FieldRef<"Activity", 'Int'>
   readonly ls_toplamDergah: Prisma.FieldRef<"Activity", 'Int'>
+  readonly ls_liseliOgrenciSayisi: Prisma.FieldRef<"Activity", 'Int'>
   readonly ls_ilimDersYeri: Prisma.FieldRef<"Activity", 'Int'>
   readonly ls_ilimDersKatilim: Prisma.FieldRef<"Activity", 'Int'>
   readonly ls_sabahNamaziSayisi: Prisma.FieldRef<"Activity", 'Int'>
@@ -3995,6 +4284,7 @@ export interface ActivityFieldRefs {
   readonly ls_toplamFaaliyet: Prisma.FieldRef<"Activity", 'Int'>
   readonly ls_yeniIntisap: Prisma.FieldRef<"Activity", 'Int'>
   readonly uni_toplamDergah: Prisma.FieldRef<"Activity", 'Int'>
+  readonly uni_universiteliOgrenciSayisi: Prisma.FieldRef<"Activity", 'Int'>
   readonly uni_ilimDersYeri: Prisma.FieldRef<"Activity", 'Int'>
   readonly uni_ilimDersKatilim: Prisma.FieldRef<"Activity", 'Int'>
   readonly uni_sabahNamaziSayisi: Prisma.FieldRef<"Activity", 'Int'>
@@ -4023,6 +4313,10 @@ export interface ActivityFieldRefs {
   readonly eay_bursBalan: Prisma.FieldRef<"Activity", 'Int'>
   readonly eay_iliskiKesme: Prisma.FieldRef<"Activity", 'Int'>
   readonly eay_toplamZiyaret: Prisma.FieldRef<"Activity", 'Int'>
+  readonly muafIlkogretim: Prisma.FieldRef<"Activity", 'Boolean'>
+  readonly muafLise: Prisma.FieldRef<"Activity", 'Boolean'>
+  readonly muafUniversite: Prisma.FieldRef<"Activity", 'Boolean'>
+  readonly muafBarinma: Prisma.FieldRef<"Activity", 'Boolean'>
   readonly arsivlendi: Prisma.FieldRef<"Activity", 'Boolean'>
   readonly createdById: Prisma.FieldRef<"Activity", 'String'>
   readonly createdByName: Prisma.FieldRef<"Activity", 'String'>

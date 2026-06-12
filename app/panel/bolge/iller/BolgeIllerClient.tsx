@@ -13,15 +13,19 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import type { Donem } from "@/app/generated/prisma/client";
+import {
+  birimDurum, durumEtiket, BIRIMLER, BIRIM_KISA,
+  type BirimDurum, type BirimKey,
+} from "@/lib/birimDurum";
 
 const DONEM_LABELS: Record<Donem, string> = {
   DONEM_1: "1. Dönem", DONEM_2: "2. Dönem", YAZ_DONEMI: "Yaz Dönemi",
 };
 
 /** Detayda birim gruplu gösterilecek alanlar (geçmiş kayıtların tüm alanları dahil) */
-const BIRIM_GRUPLARI: { baslik: string; renk: string; alanlar: { key: string; label: string }[] }[] = [
+const BIRIM_GRUPLARI: { baslik: string; renk: string; birim?: BirimKey; alanlar: { key: string; label: string }[] }[] = [
   {
-    baslik: "İlköğretim", renk: "#006B3F",
+    baslik: "İlköğretim", renk: "#006B3F", birim: "ILKOGRETIM",
     alanlar: [
       { key: "ik_toplamDergah", label: "Toplam Dergah" },
       { key: "ik_kursuYapilanDergah", label: "Kurs Yapılan Dergah" },
@@ -33,8 +37,9 @@ const BIRIM_GRUPLARI: { baslik: string; renk: string; alanlar: { key: string; la
     ],
   },
   {
-    baslik: "Lise", renk: "#0369A1",
+    baslik: "Lise", renk: "#0369A1", birim: "LISE",
     alanlar: [
+      { key: "ls_liseliOgrenciSayisi", label: "Liseli Öğrenci (toplam)" },
       { key: "ls_toplamDergah", label: "Toplam Dergah" },
       { key: "ls_ilimDersYeri", label: "İlim Ders Yeri" },
       { key: "ls_ilimDersKatilim", label: "İlim Ders Katılım" },
@@ -47,8 +52,9 @@ const BIRIM_GRUPLARI: { baslik: string; renk: string; alanlar: { key: string; la
     ],
   },
   {
-    baslik: "Üniversite", renk: "#7C3AED",
+    baslik: "Üniversite", renk: "#7C3AED", birim: "UNIVERSITE",
     alanlar: [
+      { key: "uni_universiteliOgrenciSayisi", label: "Üni. Öğrenci (toplam)" },
       { key: "uni_toplamDergah", label: "Toplam Dergah" },
       { key: "uni_ilimDersYeri", label: "İlim Ders Yeri" },
       { key: "uni_ilimDersKatilim", label: "İlim Ders Katılım" },
@@ -74,7 +80,7 @@ const BIRIM_GRUPLARI: { baslik: string; renk: string; alanlar: { key: string; la
     ],
   },
   {
-    baslik: "Ev / Apart / Yurt", renk: "#0891B2",
+    baslik: "Ev / Apart / Yurt", renk: "#0891B2", birim: "BARINMA",
     alanlar: [
       { key: "eay_mevcutEv", label: "Mevcut Ev" },
       { key: "eay_mevcutApart", label: "Mevcut Apart" },
@@ -89,12 +95,6 @@ const BIRIM_GRUPLARI: { baslik: string; renk: string; alanlar: { key: string; la
   },
 ];
 
-const BIRIM_ANAHTAR = {
-  ILKOGRETIM: ["ik_toplamDergah", "ik_kursuYapilanDergah", "ik_egitmenSayisi", "ik_egitmenYardimciSayisi", "ik_elifBaOgrenci", "ik_kuranOgrenci", "ik_gecisOgrenci"],
-  LISE: ["ls_toplamDergah", "ls_ilimDersYeri", "ls_ilimDersKatilim", "ls_toplamFaaliyet", "ls_yeniIntisap"],
-  UNIVERSITE: ["uni_toplamDergah", "uni_ilimDersYeri", "uni_ilimDersKatilim", "uni_toplamFaaliyet", "uni_yeniIntisap"],
-} as const;
-
 type Veri = Record<string, string | number | boolean | null> | null;
 interface Il {
   id: string;
@@ -104,7 +104,13 @@ interface Il {
 }
 
 const sayi = (v: string | number | boolean | null | undefined) => (typeof v === "number" ? v : 0);
-const birimDolu = (veri: Veri, keys: readonly string[]) => !!veri && keys.some(k => sayi(veri[k]) > 0);
+
+/** Birim durum rozeti stili (tablo "Birim Durumları" sütunu) */
+function birimStil(d: BirimDurum) {
+  if (d === "girildi") return { ikon: "✓", bg: "var(--bg-active)", fg: "var(--accent)" };
+  if (d === "muaf") return { ikon: "—", bg: "rgba(120,113,108,0.12)", fg: "#57534E" };
+  return { ikon: "✗", bg: "rgba(220,38,38,0.08)", fg: "#DC2626" };
+}
 
 export function BolgeIllerClient({
   bolgeAd, iller, yil, donem, yillar,
@@ -123,7 +129,8 @@ export function BolgeIllerClient({
     router.push(`/panel/bolge/iller?yil=${yeniYil}&donem=${yeniDonem}`);
   }
 
-  const veriGirildi = iller.filter(i => i.veri).length;
+  const eksikSayisi = (i: Il) => BIRIMLER.filter(b => birimDurum(i.veri, b) === "girilmedi").length;
+  const tamamSayi = iller.filter(i => eksikSayisi(i) === 0).length;
 
   const columns: DataTableColumn<Il>[] = [
     {
@@ -143,15 +150,17 @@ export function BolgeIllerClient({
         : <span className="text-xs text-muted italic">atanmamış</span>,
     },
     {
-      key: "birimler", header: "Girilen Birimler", sortable: false,
+      key: "birimler", header: "Birim Durumları", sortable: false,
       render: i => (
         <div className="flex flex-wrap gap-1">
-          {([["İlk", "ILKOGRETIM"], ["Lise", "LISE"], ["Üni", "UNIVERSITE"]] as const).map(([ad, key]) => {
-            const dolu = birimDolu(i.veri, BIRIM_ANAHTAR[key]);
+          {BIRIMLER.map(b => {
+            const d = birimDurum(i.veri, b);
+            const s = birimStil(d);
             return (
-              <span key={key} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10.5px] font-semibold"
-                style={dolu ? { background: "var(--bg-active)", color: "var(--accent)" } : { background: "rgba(220,38,38,0.08)", color: "#DC2626" }}>
-                {dolu ? "✓" : "✗"} {ad}
+              <span key={b} title={durumEtiket(d, b)}
+                className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10.5px] font-semibold"
+                style={{ background: s.bg, color: s.fg }}>
+                {s.ikon} {BIRIM_KISA[b]}
               </span>
             );
           })}
@@ -159,11 +168,14 @@ export function BolgeIllerClient({
       ),
     },
     {
-      key: "durum", header: "Durum", mobile: true,
-      sortValue: i => (i.veri ? 1 : 0),
-      render: i => i.veri
-        ? <Badge tone="success">✓ Veri Girildi</Badge>
-        : <Badge tone="danger">✗ Veri Yok</Badge>,
+      key: "durum", header: "Genel", mobile: true,
+      sortValue: i => eksikSayisi(i),
+      render: i => {
+        const eksik = eksikSayisi(i);
+        return eksik === 0
+          ? <Badge tone="success">✓ Tamam</Badge>
+          : <Badge tone="danger">{eksik} birim eksik</Badge>;
+      },
     },
   ];
 
@@ -196,8 +208,8 @@ export function BolgeIllerClient({
       <div className="grid grid-cols-3 gap-4">
         {[
           { label: "Toplam İl", value: iller.length, renk: "var(--text-primary)" },
-          { label: `Veri Girildi (${DONEM_LABELS[donem]})`, value: veriGirildi, renk: "var(--accent)" },
-          { label: "Veri Bekleyen", value: iller.length - veriGirildi, renk: "#DC2626" },
+          { label: `Tamamlandı (${DONEM_LABELS[donem]})`, value: tamamSayi, renk: "var(--accent)" },
+          { label: "Eksik Var", value: iller.length - tamamSayi, renk: "#DC2626" },
         ].map(s => (
           <div key={s.label} className="sv-section p-5">
             <p className="text-3xl font-black" style={{ color: s.renk }}>{s.value}</p>
@@ -243,25 +255,35 @@ export function BolgeIllerClient({
               </div>
             ) : (
               BIRIM_GRUPLARI.map(grup => {
+                const muaf = grup.birim ? birimDurum(secili.veri, grup.birim) === "muaf" : false;
                 const doluAlanlar = grup.alanlar.filter(a => sayi(secili.veri![a.key]) > 0);
                 const hepsiSifir = doluAlanlar.length === 0;
                 return (
                   <div key={grup.baslik} className="sv-section overflow-hidden">
                     <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: grup.renk }}>
                       <h3 className="text-white font-bold text-[13.5px]">{grup.baslik}</h3>
-                      {hepsiSifir && <span className="text-white/70 text-[11px]">veri yok</span>}
+                      {muaf
+                        ? <span className="text-white text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.25)" }}>{durumEtiket("muaf", grup.birim!)}</span>
+                        : hepsiSifir && <span className="text-white/70 text-[11px]">veri yok</span>}
                     </div>
-                    <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {grup.alanlar.map(a => {
-                        const v = sayi(secili.veri![a.key]);
-                        return (
-                          <div key={a.key} className="rounded-lg border border-border px-3 py-2" style={{ opacity: v > 0 ? 1 : 0.45 }}>
-                            <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted truncate" title={a.label}>{a.label}</p>
-                            <p className="text-[18px] font-black mt-0.5" style={{ color: v > 0 ? "var(--text-primary)" : "var(--text-muted)" }}>{v.toLocaleString("tr-TR")}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    {muaf ? (
+                      <div className="p-4 text-center text-[12.5px] text-muted">
+                        İl eğitimcisi bu birimi <strong>muaf</strong> işaretlemiş — bu dönem{" "}
+                        {grup.birim === "BARINMA" ? "ilde ev/apart/yurt yok" : "birim çalışması yok"}.
+                      </div>
+                    ) : (
+                      <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {grup.alanlar.map(a => {
+                          const v = sayi(secili.veri![a.key]);
+                          return (
+                            <div key={a.key} className="rounded-lg border border-border px-3 py-2" style={{ opacity: v > 0 ? 1 : 0.45 }}>
+                              <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted truncate" title={a.label}>{a.label}</p>
+                              <p className="text-[18px] font-black mt-0.5" style={{ color: v > 0 ? "var(--text-primary)" : "var(--text-muted)" }}>{v.toLocaleString("tr-TR")}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 );
               })

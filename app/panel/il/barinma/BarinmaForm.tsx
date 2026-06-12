@@ -84,6 +84,7 @@ export function BarinmaForm({ activeTab }: { activeTab: Tab }) {
   const [yil, setYil] = useState(THIS_YEAR);
   const [donem, setDonem] = useState("DONEM_1");
   const [form, setForm] = useState<Record<string, number>>({});
+  const [muaf, setMuaf] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   const tabDef = TAB_FIELDS[activeTab];
@@ -100,6 +101,7 @@ export function BarinmaForm({ activeTab }: { activeTab: Tab }) {
         const vals: Record<string, number> = {};
         allKeys.forEach(k => { vals[k] = data?.[k] ?? 0; });
         setForm(vals);
+        setMuaf(!!data?.muafBarinma);
       });
   }, [session?.user?.activeIlId, yil, donem, activeTab]);
 
@@ -112,7 +114,11 @@ export function BarinmaForm({ activeTab }: { activeTab: Tab }) {
     const res = await fetch("/api/faaliyetler", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ilId: session.user.activeIlId, yil, donem, ...form }),
+      body: JSON.stringify({
+        ilId: session.user.activeIlId, yil, donem, ...form,
+        // Muafiyet yalnızca "Evler" sekmesinden yönetilir (tek bayrak tüm barınmayı kapsar)
+        ...(activeTab === "evler" ? { muafBarinma: muaf } : {}),
+      }),
     });
     setStatus(res.ok ? "success" : "error");
     setTimeout(() => setStatus("idle"), 3000);
@@ -168,9 +174,52 @@ export function BarinmaForm({ activeTab }: { activeTab: Tab }) {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      {/* Barınma muafiyeti — "ilimizde ev/apart/yurt yoktur" (yalnızca Evler sekmesinde yönetilir) */}
+      {activeTab === "evler" ? (
+        <label className="mb-6 flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition select-none"
+          style={muaf
+            ? { background: "#FEF3C7", borderColor: "#F59E0B" }
+            : { background: "var(--bg-card)", borderColor: "var(--border)" }}>
+          <input type="checkbox" checked={muaf}
+            onChange={e => setMuaf(e.target.checked)}
+            className="mt-0.5 w-4 h-4 accent-amber-500 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-bold" style={{ color: muaf ? "#92400E" : "var(--text-primary)" }}>
+              İlimizde ev / apart / yurt bulunmamaktadır
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: muaf ? "#B45309" : "var(--text-muted)" }}>
+              İşaretlerseniz barınma bu dönem için <strong>muaf</strong> sayılır; bölge eğitimcisi ekranında
+              “veri girilmedi” yerine <strong>“ev/apart/yurt yoktur”</strong> görünür. Durum değişirse işareti
+              kaldırıp veri girebilirsiniz.
+            </p>
+          </div>
+        </label>
+      ) : muaf ? (
+        <div className="mb-6 flex items-start gap-3 p-4 rounded-xl border"
+          style={{ background: "#FEF3C7", borderColor: "#F59E0B" }}>
+          <span className="text-lg mt-0.5">🚫</span>
+          <p className="text-sm font-semibold" style={{ color: "#92400E" }}>
+            Bu il bu dönem için barınmadan muaf işaretlenmiş. Değiştirmek için <strong>Evler</strong> sekmesini kullanın.
+          </p>
+        </div>
+      ) : null}
+
+      <form onSubmit={handleSubmit} className={muaf && activeTab !== "evler" ? "hidden" : ""}>
+        {muaf && (
+          <div className="mb-6 p-8 rounded-xl border text-center"
+            style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+            <p className="text-3xl mb-2">🚫</p>
+            <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
+              Barınma bu dönem için muaf işaretlendi
+            </p>
+            <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+              Alanlar gizlendi. Kaydetmek için “Kaydet”e basın. Yukarıdaki işareti kaldırıp veri girebilirsiniz.
+            </p>
+          </div>
+        )}
+
         {/* Özet kartları */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className={`grid grid-cols-3 gap-3 mb-6 ${muaf ? "hidden" : ""}`}>
           {[
             { label: "Mevcut", val: mevcut, color: "bg-blue-50 border-blue-200 text-blue-800" },
             { label: "Tahmini Dönem Sonu", val: tahmini, color: "bg-green-50 border-green-200 text-green-800" },
@@ -185,7 +234,7 @@ export function BarinmaForm({ activeTab }: { activeTab: Tab }) {
         </div>
 
         {/* Ana kartlar */}
-        <div className="rounded-xl border overflow-hidden mb-6" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+        <div className={`rounded-xl border overflow-hidden mb-6 ${muaf ? "hidden" : ""}`} style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
           <div className={`px-5 py-4 ${tabColor}`}>
             <h2 className="text-white font-bold text-lg">{tabTitle} Takibi</h2>
           </div>
@@ -197,7 +246,7 @@ export function BarinmaForm({ activeTab }: { activeTab: Tab }) {
         </div>
 
         {/* Extra alanlar (Evler için) */}
-        {tabDef.extra && tabDef.extra.length > 0 && (
+        {!muaf && tabDef.extra && tabDef.extra.length > 0 && (
           <div className="rounded-xl border overflow-hidden mb-6" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
             <div className="px-5 py-3 border-b" style={{ borderColor: "var(--border)" }}>
               <h3 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>Ek Bilgiler</h3>
