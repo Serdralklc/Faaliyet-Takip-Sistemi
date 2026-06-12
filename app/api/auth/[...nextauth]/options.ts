@@ -204,6 +204,16 @@ export const authOptions: NextAuthOptions = {
         return token;
       }
 
+      // İçerik Yöneticisi yetkisi anlık yansısın: Merkez Ekip için her istekte
+      // DB'den tazele (atama/kaldırma sonraki girişi beklemeden etkili olur).
+      if (token?.role === "GENEL_MERKEZ" && token.id) {
+        const fresh = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { icerikYoneticisi: true },
+        });
+        if (fresh) token.icerikYoneticisi = fresh.icerikYoneticisi;
+      }
+
       return token;
     },
 
