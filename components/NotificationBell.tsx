@@ -121,8 +121,9 @@ export function NotificationBell() {
 
       {open && (
         <div
-          className="absolute z-[80] mt-2 w-[min(360px,calc(100vw-2rem))] rounded-2xl border border-border bg-card shadow-2xl overflow-hidden"
-          style={{ right: 0 }}
+          /* Mobil: ekrana sabit, kenarlardan 12px (asla tasmaz).
+             Masaustu: butona gore, sola tasmayi onlemek icin sola yasli. */
+          className="fixed inset-x-3 top-16 w-auto sm:absolute sm:inset-x-auto sm:left-0 sm:top-full sm:mt-2 sm:w-[360px] z-[80] rounded-2xl border border-border bg-card shadow-2xl overflow-hidden"
         >
           <div className="px-4 py-3 border-b border-border flex items-center justify-between">
             <p className="text-[13px] font-bold text-heading">🔔 Bildirim Merkezi</p>
