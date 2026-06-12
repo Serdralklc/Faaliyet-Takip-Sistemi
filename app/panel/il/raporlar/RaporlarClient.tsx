@@ -21,6 +21,8 @@ interface Activity {
   uni_kafileSayisi: number | null; uni_kafileOgrenci: number | null;
   uni_kykBulusmaSayisi: number | null; uni_kykKatilim: number | null;
   uni_toplamFaaliyet: number | null; uni_yeniIntisap: number | null;
+  ortakKafileSayisi: number | null; ortakKafileLiseKatilim: number | null; ortakKafileUniKatilim: number | null;
+  ortakSabahNamaziSayisi: number | null; ortakSabahNamaziLiseKatilim: number | null; ortakSabahNamaziUniKatilim: number | null;
 }
 
 /* ─── Yardımcılar ─── */
@@ -148,12 +150,22 @@ export default function RaporlarClient({
       { header: "Üni Top. Faaliyet", key: "uni_toplamFaaliyet" },
       { header: "Üni Yeni İntisap", key: "uni_yeniIntisap" },
       { header: "Üni Kafile", key: "uni_kafileSayisi" },
+      { header: "Üni Sabah Nam.", key: "uni_sabahNamaziSayisi" },
       { header: "Üni KYK Buluşma", key: "uni_kykBulusmaSayisi" },
+      { header: "Ortak Kafile", key: "ortakKafileSayisi" },
+      { header: "Ortak Sabah Nam.", key: "ortakSabahNamaziSayisi" },
+      { header: "TOPLAM Kafile", key: "toplamKafile" },
+      { header: "TOPLAM Sabah Nam.", key: "toplamSabahNamazi" },
       { header: "Toplam Ziyaret", key: "eay_toplamZiyaret" },
     ];
     const rows = faaliyetler
       .filter(x => x.yil === selectedYil)
-      .map(x => ({ ...x, donemAd: DONEM_LABEL[x.donem] ?? x.donem } as unknown as Record<string, string | number>));
+      .map(x => ({
+        ...x,
+        donemAd: DONEM_LABEL[x.donem] ?? x.donem,
+        toplamKafile: n(x.ls_kafileSayisi) + n(x.uni_kafileSayisi) + n(x.ortakKafileSayisi),
+        toplamSabahNamazi: n(x.ls_sabahNamaziSayisi) + n(x.uni_sabahNamaziSayisi) + n(x.ortakSabahNamaziSayisi),
+      } as unknown as Record<string, string | number>));
     return {
       title: `${ilAd} İl Raporu`,
       subtitle: `${bolgeAd} • ${selectedYil}`,
@@ -337,6 +349,49 @@ export default function RaporlarClient({
                         <MetrikRow label="Sosyal Faaliyet" value={n(f.uni_toplamFaaliyet)} />
                         <MetrikRow label="Yeni İntisap" value={n(f.uni_yeniIntisap)} bold />
                       </div>
+                    </div>
+                  </BirimSection>
+
+                  {/* ORTAK FAALİYETLER */}
+                  <BirimSection title="🤝 Ortak Faaliyetler (Lise + Üniversite birlikte)" color="#B45309">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>Kafile</p>
+                        <MetrikRow label="Ortak Kafile" value={n(f.ortakKafileSayisi)} bold />
+                        <MetrikRow label="Katılan Liseli" value={n(f.ortakKafileLiseKatilim)} />
+                        <MetrikRow label="Katılan Üniversiteli" value={n(f.ortakKafileUniKatilim)} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>Sabah Namazı</p>
+                        <MetrikRow label="Ortak Sabah Namazı" value={n(f.ortakSabahNamaziSayisi)} bold />
+                        <MetrikRow label="Katılan Liseli" value={n(f.ortakSabahNamaziLiseKatilim)} />
+                        <MetrikRow label="Katılan Üniversiteli" value={n(f.ortakSabahNamaziUniKatilim)} />
+                      </div>
+                    </div>
+                  </BirimSection>
+
+                  {/* İL GENELİ TOPLAM (Lise + Üniversite + Ortak) */}
+                  <BirimSection title="🧮 İl Geneli Toplam (Lise + Üniversite + Ortak)" color="#0B6B3A">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        {
+                          label: "Toplam Kafile",
+                          ls: n(f.ls_kafileSayisi), uni: n(f.uni_kafileSayisi), ortak: n(f.ortakKafileSayisi),
+                        },
+                        {
+                          label: "Toplam Sabah Namazı",
+                          ls: n(f.ls_sabahNamaziSayisi), uni: n(f.uni_sabahNamaziSayisi), ortak: n(f.ortakSabahNamaziSayisi),
+                        },
+                      ].map(c => (
+                        <div key={c.label} className="rounded-2xl border p-4"
+                          style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+                          <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--text-muted)" }}>{c.label}</p>
+                          <p className="text-3xl font-black" style={{ color: "var(--text-primary)" }}>{c.ls + c.uni + c.ortak}</p>
+                          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                            Lise {c.ls} · Üniversite {c.uni} · Ortak {c.ortak}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   </BirimSection>
 

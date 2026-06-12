@@ -32,8 +32,8 @@ function gerceklesen(f: any): Record<HedefKey, number> {
   return {
     yeniIntisap:    n(f.ls_yeniIntisap) + n(f.uni_yeniIntisap),
     sosyalFaaliyet: n(f.ls_toplamFaaliyet) + n(f.uni_toplamFaaliyet),
-    kafile:         n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi),
-    sabahNamazi:    n(f.ls_sabahNamaziSayisi) + n(f.uni_sabahNamaziSayisi),
+    kafile:         n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi) + n(f.ortakKafileSayisi),
+    sabahNamazi:    n(f.ls_sabahNamaziSayisi) + n(f.uni_sabahNamaziSayisi) + n(f.ortakSabahNamaziSayisi),
     ilimDersi:      n(f.ls_ilimDersKatilim) + n(f.uni_ilimDersKatilim),
     kykBulusma:     n(f.uni_kykBulusmaSayisi),
     ziyaret:        n(f.eay_toplamZiyaret),

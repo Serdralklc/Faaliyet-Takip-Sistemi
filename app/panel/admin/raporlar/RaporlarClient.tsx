@@ -18,6 +18,8 @@ interface Activity {
   uni_kafileSayisi: number; uni_kafileOgrenci: number;
   uni_toplamFaaliyet: number; uni_kykBulusmaSayisi: number;
   uni_kykKatilim: number; uni_yeniIntisap: number;
+  ortakKafileSayisi: number; ortakKafileLiseKatilim: number; ortakKafileUniKatilim: number;
+  ortakSabahNamaziSayisi: number; ortakSabahNamaziLiseKatilim: number; ortakSabahNamaziUniKatilim: number;
   eay_mevcutEv: number; eay_mevcutApart: number; eay_mevcutYurt: number;
   eay_acilacakEv: number; eay_acilacakApart: number; eay_acilacakYurt: number;
   eay_kapanacakEv: number; eay_kapanacakApart: number; eay_kapanacakYurt: number;
@@ -43,12 +45,13 @@ const SISTEM_INFO: Record<string, { title: string; color: string }> = {
   LISE:       { title: "Lise Gençlik Sistemi",       color: "#7C3AED" },
 };
 
-// Eğitimci sistem sekmeleri (4 birim)
+// Eğitimci sistem sekmeleri (5 birim)
 const EGITIMCI_TABS = [
-  { key: "uni",  label: "Üniversite Birimi" },
-  { key: "lise", label: "Lise Birimi" },
-  { key: "ilk",  label: "İlköğretim Birimi" },
-  { key: "eay",  label: "Ev / Apart / Yurt" },
+  { key: "uni",   label: "Üniversite Birimi" },
+  { key: "lise",  label: "Lise Birimi" },
+  { key: "ilk",   label: "İlköğretim Birimi" },
+  { key: "ortak", label: "Ortak Faaliyetler" },
+  { key: "eay",   label: "Ev / Apart / Yurt" },
 ] as const;
 
 const UNIVERSITE_TABS = [
@@ -104,6 +107,15 @@ const UNI_COLS: { label: string; field: keyof Activity }[] = [
   { label: "KYK Buluşma",      field: "uni_kykBulusmaSayisi" },
   { label: "KYK Katılım",      field: "uni_kykKatilim" },
   { label: "Yeni İntisap",     field: "uni_yeniIntisap" },
+];
+// Ortak Faaliyetler (lise + üniversite birlikte)
+const ORTAK_COLS: { label: string; field: keyof Activity }[] = [
+  { label: "Kafile",           field: "ortakKafileSayisi" },
+  { label: "Kafile Liseli",    field: "ortakKafileLiseKatilim" },
+  { label: "Kafile Üni.",      field: "ortakKafileUniKatilim" },
+  { label: "Sabah Namazı",     field: "ortakSabahNamaziSayisi" },
+  { label: "SN Liseli",        field: "ortakSabahNamaziLiseKatilim" },
+  { label: "SN Üni.",          field: "ortakSabahNamaziUniKatilim" },
 ];
 
 /* ── UI Atoms ── */
@@ -401,22 +413,25 @@ function EAYTable({ bolgeler, yil, donem, color }: {
    BİRİM SEKMESİ WRAPPER
    (yıl+dönem filtresi + tablolar)
 ══════════════════════════════════════ */
-type BirimKey = "uni" | "lise" | "ilk" | "eay";
+type BirimKey = "uni" | "lise" | "ilk" | "ortak" | "eay";
 
 const DONEMLER_BY_BIRIM: Record<BirimKey, string[]> = {
-  ilk:  ["DONEM_1", "DONEM_2", "YAZ_DONEMI"],
-  lise: ["DONEM_1", "DONEM_2"],
-  uni:  ["DONEM_1", "DONEM_2"],
-  eay:  ["DONEM_1", "DONEM_2"],
+  ilk:   ["DONEM_1", "DONEM_2", "YAZ_DONEMI"],
+  lise:  ["DONEM_1", "DONEM_2"],
+  uni:   ["DONEM_1", "DONEM_2"],
+  ortak: ["DONEM_1", "DONEM_2"],
+  eay:   ["DONEM_1", "DONEM_2"],
 };
 const COLS_BY_BIRIM: Record<string, { label: string; field: keyof Activity }[]> = {
-  ilk:  IK_COLS,
-  lise: LS_COLS,
-  uni:  UNI_COLS,
+  ilk:   IK_COLS,
+  lise:  LS_COLS,
+  uni:   UNI_COLS,
+  ortak: ORTAK_COLS,
 };
 
 const BIRIM_LABEL: Record<BirimKey, string> = {
-  ilk: "İlköğretim Birimi", lise: "Lise Birimi", uni: "Üniversite Birimi", eay: "Ev / Apart / Yurt",
+  ilk: "İlköğretim Birimi", lise: "Lise Birimi", uni: "Üniversite Birimi",
+  ortak: "Ortak Faaliyetler", eay: "Ev / Apart / Yurt",
 };
 
 /* Ev/Apart/Yurt dışa aktarma sütunları */

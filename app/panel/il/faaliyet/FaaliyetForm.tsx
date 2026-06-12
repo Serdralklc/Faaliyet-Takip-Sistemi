@@ -44,8 +44,12 @@ const FIELDS: Record<Tab, { key: string; label: string; suffix?: string }[]> = {
     { key: "ls_ilimDersYeri",        label: "İlim Dersleri Yapılan Yer Sayısı",  suffix: "yer"      },
     { key: "ls_ilimDersKatilim",     label: "İlim Derslerine Katılan Öğrenci",   suffix: "öğrenci"  },
     { key: "ls_toplamFaaliyet",      label: "Toplam Faaliyet Sayısı",            suffix: "faaliyet" },
+    { key: "ls_kafileSayisi",        label: "Kafile Sayısı (yalnız lise)",        suffix: "kafile"   },
+    { key: "ls_kafileOgrenci",       label: "Kafileye Katılan Liseli",            suffix: "öğrenci"  },
+    { key: "ls_sabahNamaziSayisi",   label: "Sabah Namazı Buluşması (yalnız lise)", suffix: "buluşma" },
+    { key: "ls_sabahNamaziKatilim",  label: "Sabah Namazına Katılan Liseli",      suffix: "öğrenci"  },
     { key: "ls_yeniIntisap",         label: "Yeni İntisap Sayısı",               suffix: "kişi"     },
-    // Sabah namazı ve kafile alanları "Ortak Faaliyetler" sekmesinde girilir
+    // Yalnız lise grubuna ait kafile/sabah namazı burada; ortak (lise+üni birlikte) "Ortak Faaliyetler"de
   ],
   universite: [
     { key: "uni_universiteliOgrenciSayisi", label: "İlimizdeki Toplam Üniversite Öğrencisi", suffix: "öğrenci" },
@@ -53,10 +57,14 @@ const FIELDS: Record<Tab, { key: string; label: string; suffix?: string }[]> = {
     { key: "uni_ilimDersYeri",        label: "İlim Dersleri Yapılan Yer Sayısı",         suffix: "yer"      },
     { key: "uni_ilimDersKatilim",     label: "İlim Derslerine Katılan Öğrenci",          suffix: "öğrenci"  },
     { key: "uni_toplamFaaliyet",      label: "Toplam Faaliyet Sayısı",                   suffix: "faaliyet" },
+    { key: "uni_kafileSayisi",        label: "Kafile Sayısı (yalnız üniversite)",        suffix: "kafile"   },
+    { key: "uni_kafileOgrenci",       label: "Kafileye Katılan Üniversiteli",            suffix: "öğrenci"  },
+    { key: "uni_sabahNamaziSayisi",   label: "Sabah Namazı Buluşması (yalnız üniversite)", suffix: "buluşma" },
+    { key: "uni_sabahNamaziKatilim",  label: "Sabah Namazına Katılan Üniversiteli",      suffix: "öğrenci"  },
     { key: "uni_kykBulusmaSayisi",    label: "KYK Buluşma Sayısı",                       suffix: "buluşma"  },
     { key: "uni_kykKatilim",          label: "KYK Buluşmalarına Katılan Öğrenci",        suffix: "öğrenci"  },
     { key: "uni_yeniIntisap",         label: "Yeni İntisap Sayısı",                      suffix: "kişi"     },
-    // Sabah namazı ve kafile alanları "Ortak Faaliyetler" sekmesinde girilir
+    // Yalnız üniversite grubuna ait kafile/sabah namazı burada; ortak (lise+üni birlikte) "Ortak Faaliyetler"de
   ],
   ortak: [
     { key: "ortakKafileSayisi",           label: "Ortak Kafile Sayısı",                   suffix: "kafile"   },
@@ -216,6 +224,22 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
           </div>
         )}
       </div>
+
+      {/* Lise/Üni: kafile-sabah namazı nereye girilir bilgisi (çift sayım önleme) */}
+      {(activeTab === "lise" || activeTab === "universite") && (
+        <div className="mb-5 flex items-start gap-3 p-4 rounded-xl border"
+          style={{ background: "#EFF6FF", borderColor: "#BFDBFE" }}>
+          <span className="text-xl mt-0.5">ℹ️</span>
+          <div>
+            <p className="text-sm font-bold" style={{ color: "#1E40AF" }}>Kafile / Sabah Namazı Nereye Girilir?</p>
+            <p className="text-xs mt-0.5" style={{ color: "#1D4ED8" }}>
+              Buraya YALNIZCA {activeTab === "lise" ? "liselilerin" : "üniversitelilerin"} kendi başına yaptığı
+              kafile ve sabah namazını girin. Lise + üniversite <strong>birlikte</strong> ise
+              “Ortak Faaliyetler” sekmesine girin — böylece çift sayım olmaz.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Ortak faaliyetler bilgi notu */}
       {activeTab === "ortak" && (

@@ -9,6 +9,7 @@ interface Activity {
   ls_toplamFaaliyet: number | null; uni_toplamFaaliyet: number | null;
   ls_kafileSayisi: number | null; uni_kafileSayisi: number | null;
   ls_sabahNamaziSayisi: number | null; uni_sabahNamaziSayisi: number | null;
+  ortakKafileSayisi: number | null; ortakSabahNamaziSayisi: number | null;
   ls_ilimDersKatilim: number | null; uni_ilimDersKatilim: number | null;
   uni_kykBulusmaSayisi: number | null;
   eay_toplamZiyaret: number | null;
@@ -53,8 +54,8 @@ function gerceklesenFromActivity(activities: Activity[], yil: number, donem: str
   return {
     yeniIntisap:    (f.ls_yeniIntisap ?? 0) + (f.uni_yeniIntisap ?? 0),
     sosyalFaaliyet: (f.ls_toplamFaaliyet ?? 0) + (f.uni_toplamFaaliyet ?? 0),
-    kafile:         (f.ls_kafileSayisi ?? 0) + (f.uni_kafileSayisi ?? 0),
-    sabahNamazi:    (f.ls_sabahNamaziSayisi ?? 0) + (f.uni_sabahNamaziSayisi ?? 0),
+    kafile:         (f.ls_kafileSayisi ?? 0) + (f.uni_kafileSayisi ?? 0) + (f.ortakKafileSayisi ?? 0),
+    sabahNamazi:    (f.ls_sabahNamaziSayisi ?? 0) + (f.uni_sabahNamaziSayisi ?? 0) + (f.ortakSabahNamaziSayisi ?? 0),
     ilimDersi:      (f.ls_ilimDersKatilim ?? 0) + (f.uni_ilimDersKatilim ?? 0),
     kykBulusma:     f.uni_kykBulusmaSayisi ?? 0,
     ziyaret:        f.eay_toplamZiyaret ?? 0,
