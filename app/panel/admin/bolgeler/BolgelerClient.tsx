@@ -14,8 +14,8 @@ export interface EgitimciBirim {
 }
 export interface SistemDurum {
   EGITIMCI: EgitimciBirim | null;
-  UNIVERSITE: boolean | null;
-  /** Lise Gençlik: girilen faaliyet sayısı (faaliyet-bazlı) */
+  /** Üniversite / Lise Gençlik: girilen faaliyet sayısı (faaliyet-bazlı) */
+  UNIVERSITE: number | null;
   LISE: number | null;
 }
 
@@ -121,7 +121,7 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
         case "UNIVERSITE": return e.UNIVERSITE;
       }
     }
-    if (aktifSistem === "UNIVERSITE") return d.UNIVERSITE === true;
+    if (aktifSistem === "UNIVERSITE") return (d.UNIVERSITE ?? 0) > 0;
     return (d.LISE ?? 0) > 0;
   };
 
@@ -302,7 +302,7 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
             style={sekmeBtnStyle(aktifSistem === "UNIVERSITE")}
           >
             Üniversite Gençlik
-            <SekmeEksikRozet aktif={aktifSistem === "UNIVERSITE"} sayi={tumIller.filter(il => durumOf(il.id).UNIVERSITE !== true).length} />
+            <SekmeEksikRozet aktif={aktifSistem === "UNIVERSITE"} sayi={tumIller.filter(il => (durumOf(il.id).UNIVERSITE ?? 0) === 0).length} />
           </button>
 
           {/* Lise Gençlik — tıklamalı */}
@@ -417,13 +417,18 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
                                     <span className="text-[11px] font-bold ml-1" style={{ color: "var(--accent)" }}>· tamam</span>
                                   )}
                                 </div>
-                              ) : aktifSistem === "LISE" ? (
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-                                  style={(durumOf(il.id).LISE ?? 0) > 0
-                                    ? { background: "var(--bg-active)", color: "var(--accent)" }
-                                    : { background: EKSIK_ZEMIN, color: EKSIK_RENK }}>
-                                  📋 {durumOf(il.id).LISE ?? 0} faaliyet girildi
-                                </span>
+                              ) : (aktifSistem === "LISE" || aktifSistem === "UNIVERSITE") ? (
+                                (() => {
+                                  const c = (aktifSistem === "LISE" ? durumOf(il.id).LISE : durumOf(il.id).UNIVERSITE) ?? 0;
+                                  return (
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                                      style={c > 0
+                                        ? { background: "var(--bg-active)", color: "var(--accent)" }
+                                        : { background: EKSIK_ZEMIN, color: EKSIK_RENK }}>
+                                      📋 {c} faaliyet girildi
+                                    </span>
+                                  );
+                                })()
                               ) : (
                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
                                   style={tamam

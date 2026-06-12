@@ -53,6 +53,7 @@ export default async function IlHedeflerPage() {
   if (!session?.user) redirect("/giris");
   if (session.user.role !== "IL_SORUMLUSU") redirect("/");
   if (session.user.sistem === "LISE") redirect("/panel/il/lise-faaliyet");
+  if (session.user.sistem === "UNIVERSITE") redirect("/panel/il/universite-faaliyet");
   const ilId = session.user.activeIlId;
   if (!ilId) redirect("/panel/beklemede");
 

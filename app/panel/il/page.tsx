@@ -8,8 +8,9 @@ export default async function IlDashboard() {
   const session = await getSession();
   if (!session?.user) redirect("/giris");
   if (session.user.role !== "IL_SORUMLUSU") redirect("/");
-  // Lise Gençlik il sorumlusu kendi faaliyet ekranına gider (eğitimci paneli değil)
+  // Lise/Üniversite Gençlik il sorumlusu kendi faaliyet ekranına gider (eğitimci paneli değil)
   if (session.user.sistem === "LISE") redirect("/panel/il/lise-faaliyet");
+  if (session.user.sistem === "UNIVERSITE") redirect("/panel/il/universite-faaliyet");
 
   const ilId = session.user.activeIlId;
   if (!ilId) redirect("/panel/beklemede");

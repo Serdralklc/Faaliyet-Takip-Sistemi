@@ -53,6 +53,11 @@ export type Activity = Prisma.ActivityModel
  */
 export type LiseFaaliyet = Prisma.LiseFaaliyetModel
 /**
+ * Model UniversiteFaaliyet
+ * 
+ */
+export type UniversiteFaaliyet = Prisma.UniversiteFaaliyetModel
+/**
  * Model HousingUnit
  * 
  */

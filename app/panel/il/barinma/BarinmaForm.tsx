@@ -85,6 +85,7 @@ export function BarinmaForm({ activeTab }: { activeTab: Tab }) {
   const router = useRouter();
   useEffect(() => {
     if (session?.user?.sistem === "LISE") router.replace("/panel/il/lise-faaliyet");
+    else if (session?.user?.sistem === "UNIVERSITE") router.replace("/panel/il/universite-faaliyet");
   }, [session, router]);
   const [yil, setYil] = useState(THIS_YEAR);
   const [donem, setDonem] = useState("DONEM_1");

@@ -157,6 +157,7 @@ export default function BarinmaPage() {
   const router = useRouter();
   useEffect(() => {
     if (session?.user?.sistem === "LISE") router.replace("/panel/il/lise-faaliyet");
+    else if (session?.user?.sistem === "UNIVERSITE") router.replace("/panel/il/universite-faaliyet");
   }, [session, router]);
   const [units, setUnits] = useState<HousingUnit[]>([]);
   const [barinmaYok, setBarinmaYok] = useState(false);

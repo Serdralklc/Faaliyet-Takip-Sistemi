@@ -391,6 +391,7 @@ export const ModelName = {
   Invitation: 'Invitation',
   Activity: 'Activity',
   LiseFaaliyet: 'LiseFaaliyet',
+  UniversiteFaaliyet: 'UniversiteFaaliyet',
   HousingUnit: 'HousingUnit',
   HousingStudent: 'HousingStudent',
   HousingVisit: 'HousingVisit',
@@ -426,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "bolge" | "il" | "roleAssignment" | "invitation" | "activity" | "liseFaaliyet" | "housingUnit" | "housingStudent" | "housingVisit" | "bolgeHedef" | "ilHedef" | "volunteer" | "bursBasvuru" | "ekKayitBasvuru" | "geriBildirim" | "dokumanKlasor" | "dokuman" | "dokumanPaylasim" | "dinamikForm" | "formSoru" | "formYanit" | "formYanitDosya" | "bildirim" | "bildirimAlim" | "authToken" | "auditLog"
+    modelProps: "user" | "bolge" | "il" | "roleAssignment" | "invitation" | "activity" | "liseFaaliyet" | "universiteFaaliyet" | "housingUnit" | "housingStudent" | "housingVisit" | "bolgeHedef" | "ilHedef" | "volunteer" | "bursBasvuru" | "ekKayitBasvuru" | "geriBildirim" | "dokumanKlasor" | "dokuman" | "dokumanPaylasim" | "dinamikForm" | "formSoru" | "formYanit" | "formYanitDosya" | "bildirim" | "bildirimAlim" | "authToken" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -945,6 +946,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.LiseFaaliyetCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.LiseFaaliyetCountAggregateOutputType> | number
+        }
+      }
+    }
+    UniversiteFaaliyet: {
+      payload: Prisma.$UniversiteFaaliyetPayload<ExtArgs>
+      fields: Prisma.UniversiteFaaliyetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UniversiteFaaliyetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UniversiteFaaliyetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UniversiteFaaliyetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UniversiteFaaliyetPayload>
+        }
+        findFirst: {
+          args: Prisma.UniversiteFaaliyetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UniversiteFaaliyetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UniversiteFaaliyetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UniversiteFaaliyetPayload>
+        }
+        findMany: {
+          args: Prisma.UniversiteFaaliyetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UniversiteFaaliyetPayload>[]
+        }
+        create: {
+          args: Prisma.UniversiteFaaliyetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UniversiteFaaliyetPayload>
+        }
+        createMany: {
+          args: Prisma.UniversiteFaaliyetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UniversiteFaaliyetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UniversiteFaaliyetPayload>[]
+        }
+        delete: {
+          args: Prisma.UniversiteFaaliyetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UniversiteFaaliyetPayload>
+        }
+        update: {
+          args: Prisma.UniversiteFaaliyetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UniversiteFaaliyetPayload>
+        }
+        deleteMany: {
+          args: Prisma.UniversiteFaaliyetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UniversiteFaaliyetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UniversiteFaaliyetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UniversiteFaaliyetPayload>[]
+        }
+        upsert: {
+          args: Prisma.UniversiteFaaliyetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UniversiteFaaliyetPayload>
+        }
+        aggregate: {
+          args: Prisma.UniversiteFaaliyetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUniversiteFaaliyet>
+        }
+        groupBy: {
+          args: Prisma.UniversiteFaaliyetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UniversiteFaaliyetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UniversiteFaaliyetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UniversiteFaaliyetCountAggregateOutputType> | number
         }
       }
     }
@@ -2669,6 +2744,36 @@ export const LiseFaaliyetScalarFieldEnum = {
 export type LiseFaaliyetScalarFieldEnum = (typeof LiseFaaliyetScalarFieldEnum)[keyof typeof LiseFaaliyetScalarFieldEnum]
 
 
+export const UniversiteFaaliyetScalarFieldEnum = {
+  id: 'id',
+  ilId: 'ilId',
+  tarih: 'tarih',
+  yil: 'yil',
+  donem: 'donem',
+  kategori: 'kategori',
+  faaliyetAdi: 'faaliyetAdi',
+  aciklama: 'aciklama',
+  yer: 'yer',
+  katilimci: 'katilimci',
+  ilkKezKatilan: 'ilkKezKatilan',
+  yeniIntisap: 'yeniIntisap',
+  fotoKey: 'fotoKey',
+  fotoUrl: 'fotoUrl',
+  fotoMime: 'fotoMime',
+  dosyaKey: 'dosyaKey',
+  dosyaUrl: 'dosyaUrl',
+  dosyaMime: 'dosyaMime',
+  dosyaAd: 'dosyaAd',
+  dosyaBoyut: 'dosyaBoyut',
+  createdById: 'createdById',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UniversiteFaaliyetScalarFieldEnum = (typeof UniversiteFaaliyetScalarFieldEnum)[keyof typeof UniversiteFaaliyetScalarFieldEnum]
+
+
 export const HousingUnitScalarFieldEnum = {
   id: 'id',
   ilId: 'ilId',
@@ -3195,6 +3300,20 @@ export type ListEnumLiseKategoriFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'UniversiteKategori'
+ */
+export type EnumUniversiteKategoriFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UniversiteKategori'>
+    
+
+
+/**
+ * Reference to a field of type 'UniversiteKategori[]'
+ */
+export type ListEnumUniversiteKategoriFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UniversiteKategori[]'>
+    
+
+
+/**
  * Reference to a field of type 'OgrenimDurum'
  */
 export type EnumOgrenimDurumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OgrenimDurum'>
@@ -3464,6 +3583,7 @@ export type GlobalOmitConfig = {
   invitation?: Prisma.InvitationOmit
   activity?: Prisma.ActivityOmit
   liseFaaliyet?: Prisma.LiseFaaliyetOmit
+  universiteFaaliyet?: Prisma.UniversiteFaaliyetOmit
   housingUnit?: Prisma.HousingUnitOmit
   housingStudent?: Prisma.HousingStudentOmit
   housingVisit?: Prisma.HousingVisitOmit

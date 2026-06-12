@@ -304,6 +304,23 @@ export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
 }
 
+export type EnumUniversiteKategoriFilter<$PrismaModel = never> = {
+  equals?: $Enums.UniversiteKategori | Prisma.EnumUniversiteKategoriFieldRefInput<$PrismaModel>
+  in?: $Enums.UniversiteKategori[] | Prisma.ListEnumUniversiteKategoriFieldRefInput<$PrismaModel>
+  notIn?: $Enums.UniversiteKategori[] | Prisma.ListEnumUniversiteKategoriFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumUniversiteKategoriFilter<$PrismaModel> | $Enums.UniversiteKategori
+}
+
+export type EnumUniversiteKategoriWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.UniversiteKategori | Prisma.EnumUniversiteKategoriFieldRefInput<$PrismaModel>
+  in?: $Enums.UniversiteKategori[] | Prisma.ListEnumUniversiteKategoriFieldRefInput<$PrismaModel>
+  notIn?: $Enums.UniversiteKategori[] | Prisma.ListEnumUniversiteKategoriFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumUniversiteKategoriWithAggregatesFilter<$PrismaModel> | $Enums.UniversiteKategori
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumUniversiteKategoriFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumUniversiteKategoriFilter<$PrismaModel>
+}
+
 export type EnumOgrenimDurumFilter<$PrismaModel = never> = {
   equals?: $Enums.OgrenimDurum | Prisma.EnumOgrenimDurumFieldRefInput<$PrismaModel>
   in?: $Enums.OgrenimDurum[] | Prisma.ListEnumOgrenimDurumFieldRefInput<$PrismaModel>
@@ -860,6 +877,23 @@ export type NestedFloatNullableFilter<$PrismaModel = never> = {
   gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null
+}
+
+export type NestedEnumUniversiteKategoriFilter<$PrismaModel = never> = {
+  equals?: $Enums.UniversiteKategori | Prisma.EnumUniversiteKategoriFieldRefInput<$PrismaModel>
+  in?: $Enums.UniversiteKategori[] | Prisma.ListEnumUniversiteKategoriFieldRefInput<$PrismaModel>
+  notIn?: $Enums.UniversiteKategori[] | Prisma.ListEnumUniversiteKategoriFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumUniversiteKategoriFilter<$PrismaModel> | $Enums.UniversiteKategori
+}
+
+export type NestedEnumUniversiteKategoriWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.UniversiteKategori | Prisma.EnumUniversiteKategoriFieldRefInput<$PrismaModel>
+  in?: $Enums.UniversiteKategori[] | Prisma.ListEnumUniversiteKategoriFieldRefInput<$PrismaModel>
+  notIn?: $Enums.UniversiteKategori[] | Prisma.ListEnumUniversiteKategoriFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumUniversiteKategoriWithAggregatesFilter<$PrismaModel> | $Enums.UniversiteKategori
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumUniversiteKategoriFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumUniversiteKategoriFilter<$PrismaModel>
 }
 
 export type NestedEnumOgrenimDurumFilter<$PrismaModel = never> = {

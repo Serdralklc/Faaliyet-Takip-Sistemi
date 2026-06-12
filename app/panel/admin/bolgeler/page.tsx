@@ -69,7 +69,7 @@ export default async function BolgelerPage({
     : (yillar[0] ?? new Date().getFullYear());
   const donem: Donem = DONEMLER.includes(sp.donem as Donem) ? (sp.donem as Donem) : "DONEM_1";
 
-  const [bolgeler, activities, liseSayim] = await Promise.all([
+  const [bolgeler, activities, liseSayim, uniSayim] = await Promise.all([
     prisma.bolge.findMany({
       orderBy: { no: "asc" },
       select: {
@@ -105,11 +105,13 @@ export default async function BolgelerPage({
         uni_namazSayisi: true, uni_namazKatilim: true,
       },
     }),
-    // Lise Gençlik: faaliyet-bazlı kayıt sayısı (il başına)
+    // Lise / Üniversite Gençlik: faaliyet-bazlı kayıt sayısı (il başına)
     prisma.liseFaaliyet.groupBy({ by: ["ilId"], where: { yil, donem }, _count: { _all: true } }),
+    prisma.universiteFaaliyet.groupBy({ by: ["ilId"], where: { yil, donem }, _count: { _all: true } }),
   ]);
 
   const liseCount = new Map(liseSayim.map(r => [r.ilId, r._count._all]));
+  const uniCount = new Map(uniSayim.map(r => [r.ilId, r._count._all]));
 
   type AktiviteSatiri = (typeof activities)[number];
   const dolu = (a: AktiviteSatiri, alanlar: readonly (keyof AktiviteSatiri)[]) =>
@@ -135,16 +137,19 @@ export default async function BolgelerPage({
         LISE:       dolu(a, LS_ALANLAR),
         UNIVERSITE: dolu(a, UNI_ALANLAR),
       };
-    } else if (sistem === "UNIVERSITE") {
-      e.UNIVERSITE = dolu(a, UNI_ALANLAR);
     }
     sistemDurum[a.ilId] = e;
   }
 
-  // Lise Gençlik durumu = girilen faaliyet sayısı (LiseFaaliyet'ten)
+  // Lise / Üniversite Gençlik durumu = girilen faaliyet sayısı (faaliyet-bazlı)
   for (const [ilId, count] of liseCount) {
     const e = sistemDurum[ilId] ?? { EGITIMCI: null, UNIVERSITE: null, LISE: null };
     e.LISE = count;
+    sistemDurum[ilId] = e;
+  }
+  for (const [ilId, count] of uniCount) {
+    const e = sistemDurum[ilId] ?? { EGITIMCI: null, UNIVERSITE: null, LISE: null };
+    e.UNIVERSITE = count;
     sistemDurum[ilId] = e;
   }
 

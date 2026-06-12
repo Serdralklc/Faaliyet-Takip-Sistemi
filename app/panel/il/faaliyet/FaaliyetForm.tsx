@@ -175,9 +175,10 @@ function groupFields(fields: FieldDef[]): { title: string; items: FieldDef[] }[]
 export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
   const { data: session } = useSession();
   const router = useRouter();
-  // Lise Gençlik sistemli kullanıcı eğitimci formuna erişemez
+  // Lise/Üniversite Gençlik sistemli kullanıcı eğitimci formuna erişemez
   useEffect(() => {
     if (session?.user?.sistem === "LISE") router.replace("/panel/il/lise-faaliyet");
+    else if (session?.user?.sistem === "UNIVERSITE") router.replace("/panel/il/universite-faaliyet");
   }, [session, router]);
   const [yil, setYil] = useState(THIS_YEAR);
   const [donem, setDonem] = useState("DONEM_1");

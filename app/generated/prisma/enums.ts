@@ -71,6 +71,21 @@ export const LiseKategori = {
 export type LiseKategori = (typeof LiseKategori)[keyof typeof LiseKategori]
 
 
+export const UniversiteKategori = {
+  ILIM_SOHBET: 'ILIM_SOHBET',
+  KULUP: 'KULUP',
+  SOSYAL: 'SOSYAL',
+  SOSYAL_SORUMLULUK: 'SOSYAL_SORUMLULUK',
+  MUHABBET: 'MUHABBET',
+  NAMAZ: 'NAMAZ',
+  KAFILE: 'KAFILE',
+  KYK: 'KYK',
+  DIGER: 'DIGER'
+} as const
+
+export type UniversiteKategori = (typeof UniversiteKategori)[keyof typeof UniversiteKategori]
+
+
 export const OgrenimDurum = {
   ILKOKUL: 'ILKOKUL',
   ORTAOKUL: 'ORTAOKUL',

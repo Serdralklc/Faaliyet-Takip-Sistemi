@@ -315,8 +315,20 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
           </>
         )}
 
+        {/* İl — Üniversite Gençlik sistemi: tek birim, faaliyet-bazlı (açılır menü yok) */}
+        {isIl && user.sistem === "UNIVERSITE" && (
+          <>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+              Üniversite Gençlik
+            </p>
+            <NavItem href="/panel/il/universite-faaliyet" label="Faaliyet Yönetimi" icon={ClipboardList} />
+            <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
+            <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
+          </>
+        )}
+
         {/* İl — Eğitimci sistemi (tam yapı) */}
-        {isIl && user.sistem !== "LISE" && (
+        {isIl && user.sistem !== "LISE" && user.sistem !== "UNIVERSITE" && (
           <>
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
               Ana Menü

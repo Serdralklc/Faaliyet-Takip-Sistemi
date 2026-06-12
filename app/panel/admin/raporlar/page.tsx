@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { RaporlarClient } from "./RaporlarClient";
 import { LiseRaporClient } from "./LiseRaporClient";
+import { UniversiteRaporClient } from "./UniversiteRaporClient";
 import type { Sistem } from "@/app/generated/prisma/client";
 
 export default async function RaporlarPage({
@@ -30,6 +31,17 @@ export default async function RaporlarPage({
     const lyillar = [...new Set(liseFaal.map(f => f.yil))].sort((a, b) => b - a);
     if (!lyillar.includes(new Date().getFullYear())) lyillar.unshift(new Date().getFullYear());
     return <LiseRaporClient bolgeler={bolgeler} faaliyetler={liseFaal} yillar={lyillar} />;
+  }
+
+  // Üniversite Gençlik: faaliyet-bazlı UniversiteFaaliyet kayıtlarından otomatik toplama
+  if (sistem === "UNIVERSITE") {
+    const [bolgeler, uniFaal] = await Promise.all([
+      prisma.bolge.findMany({ orderBy: { no: "asc" }, select: { id: true, no: true, ad: true, iller: { select: { id: true, ad: true } } } }),
+      prisma.universiteFaaliyet.findMany({ select: { ilId: true, yil: true, kategori: true, katilimci: true, ilkKezKatilan: true, yeniIntisap: true } }),
+    ]);
+    const uyillar = [...new Set(uniFaal.map(f => f.yil))].sort((a, b) => b - a);
+    if (!uyillar.includes(new Date().getFullYear())) uyillar.unshift(new Date().getFullYear());
+    return <UniversiteRaporClient bolgeler={bolgeler} faaliyetler={uniFaal} yillar={uyillar} />;
   }
 
   // Bölgeler + iller + bu sisteme ait faaliyetler (Eğitimci / Üniversite)
