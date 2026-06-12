@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { RaporlarClient } from "./RaporlarClient";
+import { LiseRaporClient } from "./LiseRaporClient";
 import type { Sistem } from "@/app/generated/prisma/client";
 
 export default async function RaporlarPage({
@@ -20,7 +21,18 @@ export default async function RaporlarPage({
     ? (params.sistem as Sistem)
     : "EGITIMCI";
 
-  // Bölgeler + iller + bu sisteme ait faaliyetler
+  // Lise Gençlik: faaliyet-bazlı LiseFaaliyet kayıtlarından otomatik toplama
+  if (sistem === "LISE") {
+    const [bolgeler, liseFaal] = await Promise.all([
+      prisma.bolge.findMany({ orderBy: { no: "asc" }, select: { id: true, no: true, ad: true, iller: { select: { id: true, ad: true } } } }),
+      prisma.liseFaaliyet.findMany({ select: { ilId: true, yil: true, kategori: true, katilimci: true, ilkKezKatilan: true, yeniIntisap: true } }),
+    ]);
+    const lyillar = [...new Set(liseFaal.map(f => f.yil))].sort((a, b) => b - a);
+    if (!lyillar.includes(new Date().getFullYear())) lyillar.unshift(new Date().getFullYear());
+    return <LiseRaporClient bolgeler={bolgeler} faaliyetler={liseFaal} yillar={lyillar} />;
+  }
+
+  // Bölgeler + iller + bu sisteme ait faaliyetler (Eğitimci / Üniversite)
   const bolgeler = await prisma.bolge.findMany({
     orderBy: { no: "asc" },
     include: {

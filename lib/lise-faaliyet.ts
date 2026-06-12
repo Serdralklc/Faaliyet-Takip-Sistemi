@@ -60,3 +60,31 @@ export const KATEGORI_RENK: Record<string, string> = Object.fromEntries(
 export function gecerliKategori(v: unknown): v is LiseKategoriKey {
   return typeof v === "string" && (KATEGORILER_KEYS as string[]).includes(v);
 }
+
+/* ── Otomatik raporlama: faaliyet kayıtlarından toplamlar ── */
+
+export interface LiseKatOzet { sayi: number; katilimci: number; ilkKez: number; yeniIntisap: number }
+export interface LiseOzet {
+  perKat: Record<string, LiseKatOzet>;
+  toplam: number;
+  toplamKatilimci: number;
+  toplamIlkKez: number;
+  toplamIntisap: number;
+}
+
+type OzetGirdi = { kategori: string; katilimci: number; ilkKezKatilan: number; yeniIntisap: number };
+
+const bosKat = (): LiseKatOzet => ({ sayi: 0, katilimci: 0, ilkKez: 0, yeniIntisap: 0 });
+
+/** Faaliyet listesinden kategori bazlı + genel toplamları çıkarır (Faz D raporlama temeli) */
+export function liseOzet(list: OzetGirdi[]): LiseOzet {
+  const perKat: Record<string, LiseKatOzet> = {};
+  for (const k of KATEGORILER_KEYS) perKat[k] = bosKat();
+  let toplamKatilimci = 0, toplamIlkKez = 0, toplamIntisap = 0;
+  for (const f of list) {
+    const p = perKat[f.kategori] ?? (perKat[f.kategori] = bosKat());
+    p.sayi += 1; p.katilimci += f.katilimci; p.ilkKez += f.ilkKezKatilan; p.yeniIntisap += f.yeniIntisap;
+    toplamKatilimci += f.katilimci; toplamIlkKez += f.ilkKezKatilan; toplamIntisap += f.yeniIntisap;
+  }
+  return { perKat, toplam: list.length, toplamKatilimci, toplamIlkKez, toplamIntisap };
+}
