@@ -10,11 +10,14 @@ interface Activity {
   id: string; yil: number; donem: string;
   ik_toplamDergah: number | null; ik_kursuYapilanDergah: number | null;
   ik_elifBaOgrenci: number | null; ik_kuranOgrenci: number | null; ik_gecisOgrenci: number | null;
-  ls_toplamDergah: number | null; ls_ilimDersYeri: number | null;
-  ls_ilimDersKatilim: number | null; ls_sabahNamaziSayisi: number | null;
-  ls_sabahNamaziKatilim: number | null;
+  ls_toplamDergah: number | null; ls_liseliOgrenciSayisi: number | null; ls_yeniIntisap: number | null;
   ls_kafileSayisi: number | null; ls_kafileOgrenci: number | null;
-  ls_toplamFaaliyet: number | null; ls_yeniIntisap: number | null;
+  ls_ilimSohbetDergah: number | null; ls_mezunOgrenci: number | null;
+  ls_ilimSohbetSayisi: number | null; ls_ilimSohbetKatilim: number | null;
+  ls_sosyalSayisi: number | null; ls_sosyalKatilim: number | null;
+  ls_sorumlulukSayisi: number | null; ls_sorumlulukKatilim: number | null;
+  ls_muhabbetSayisi: number | null; ls_muhabbetKatilim: number | null;
+  ls_namazSayisi: number | null; ls_namazKatilim: number | null;
   uni_toplamDergah: number | null; uni_ilimDersYeri: number | null;
   uni_ilimDersKatilim: number | null; uni_sabahNamaziSayisi: number | null;
   uni_sabahNamaziKatilim: number | null;
@@ -143,10 +146,10 @@ export default function RaporlarClient({
       { header: "Dönem", key: "donemAd" },
       { header: "İlköğr. Elif-Ba", key: "ik_elifBaOgrenci" },
       { header: "İlköğr. Kur'an", key: "ik_kuranOgrenci" },
-      { header: "Lise Top. Faaliyet", key: "ls_toplamFaaliyet" },
+      { header: "Lise Top. Faaliyet", key: "lsToplamFaaliyet" },
       { header: "Lise Yeni İntisap", key: "ls_yeniIntisap" },
       { header: "Lise Kafile", key: "ls_kafileSayisi" },
-      { header: "Lise Sabah Nam.", key: "ls_sabahNamaziSayisi" },
+      { header: "Lise Namaz", key: "ls_namazSayisi" },
       { header: "Üni Top. Faaliyet", key: "uni_toplamFaaliyet" },
       { header: "Üni Yeni İntisap", key: "uni_yeniIntisap" },
       { header: "Üni Kafile", key: "uni_kafileSayisi" },
@@ -163,8 +166,9 @@ export default function RaporlarClient({
       .map(x => ({
         ...x,
         donemAd: DONEM_LABEL[x.donem] ?? x.donem,
+        lsToplamFaaliyet: n(x.ls_ilimSohbetSayisi) + n(x.ls_sosyalSayisi) + n(x.ls_sorumlulukSayisi) + n(x.ls_muhabbetSayisi) + n(x.ls_namazSayisi) + n(x.ls_kafileSayisi),
         toplamKafile: n(x.ls_kafileSayisi) + n(x.uni_kafileSayisi) + n(x.ortakKafileSayisi),
-        toplamSabahNamazi: n(x.ls_sabahNamaziSayisi) + n(x.uni_sabahNamaziSayisi) + n(x.ortakSabahNamaziSayisi),
+        toplamSabahNamazi: n(x.ls_namazSayisi) + n(x.uni_sabahNamaziSayisi) + n(x.ortakSabahNamaziSayisi),
       } as unknown as Record<string, string | number>));
     return {
       title: `${ilAd} İl Raporu`,
@@ -299,25 +303,21 @@ export default function RaporlarClient({
                   <BirimSection title="🎓 Lise Birimi" color="#0369A1">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>İlim Dersi</p>
-                        <MetrikRow label="Toplam Dergah" value={n(f.ls_toplamDergah)} bold />
-                        <MetrikRow label="İlim Dersi Yapılan" value={n(f.ls_ilimDersYeri)} />
-                        <div className="mt-2">
-                          <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>İlim Dersi Yaygınlığı</p>
-                          <ProgressBar value={pct(n(f.ls_ilimDersYeri), n(f.ls_toplamDergah))} color="#0369A1" />
-                        </div>
-                        <MetrikRow label="Toplam Katılımcı" value={n(f.ls_ilimDersKatilim)} bold />
+                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>Öğrenci ve Dergâh</p>
+                        <MetrikRow label="Toplam Dergâh" value={n(f.ls_toplamDergah)} bold />
+                        <MetrikRow label="İlim/Sohbet Yapılan Dergâh" value={n(f.ls_ilimSohbetDergah)} />
+                        <MetrikRow label="Toplam Liseli Öğrenci" value={n(f.ls_liseliOgrenciSayisi)} />
+                        <MetrikRow label="Mezun Olacak Liseli" value={n(f.ls_mezunOgrenci)} />
+                        <MetrikRow label="Yeni İntisap" value={n(f.ls_yeniIntisap)} bold />
                       </div>
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>Etkinlikler</p>
-                        <MetrikRow label="Sabah Namazı Buluşması"
-                          value={n(f.ls_sabahNamaziSayisi)}
-                          sub={`${n(f.ls_sabahNamaziKatilim)} katılım`} />
-                        <MetrikRow label="Kafile"
-                          value={n(f.ls_kafileSayisi)}
-                          sub={`${n(f.ls_kafileOgrenci)} öğrenci`} />
-                        <MetrikRow label="Sosyal Faaliyet" value={n(f.ls_toplamFaaliyet)} />
-                        <MetrikRow label="Yeni İntisap" value={n(f.ls_yeniIntisap)} bold />
+                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>Faaliyetler (sayı · katılan)</p>
+                        <MetrikRow label="İlim / Sohbet"      value={n(f.ls_ilimSohbetSayisi)}  sub={`${n(f.ls_ilimSohbetKatilim)} katılım`} />
+                        <MetrikRow label="Sosyal"             value={n(f.ls_sosyalSayisi)}      sub={`${n(f.ls_sosyalKatilim)} katılım`} />
+                        <MetrikRow label="Sosyal Sorumluluk"  value={n(f.ls_sorumlulukSayisi)}  sub={`${n(f.ls_sorumlulukKatilim)} katılım`} />
+                        <MetrikRow label="Muhabbet"           value={n(f.ls_muhabbetSayisi)}    sub={`${n(f.ls_muhabbetKatilim)} katılım`} />
+                        <MetrikRow label="Namaz Buluşması"    value={n(f.ls_namazSayisi)}       sub={`${n(f.ls_namazKatilim)} katılım`} />
+                        <MetrikRow label="Kafile"             value={n(f.ls_kafileSayisi)}      sub={`${n(f.ls_kafileOgrenci)} öğrenci`} />
                       </div>
                     </div>
                   </BirimSection>
@@ -379,8 +379,8 @@ export default function RaporlarClient({
                           ls: n(f.ls_kafileSayisi), uni: n(f.uni_kafileSayisi), ortak: n(f.ortakKafileSayisi),
                         },
                         {
-                          label: "Toplam Sabah Namazı",
-                          ls: n(f.ls_sabahNamaziSayisi), uni: n(f.uni_sabahNamaziSayisi), ortak: n(f.ortakSabahNamaziSayisi),
+                          label: "Toplam Namaz Buluşması",
+                          ls: n(f.ls_namazSayisi), uni: n(f.uni_sabahNamaziSayisi), ortak: n(f.ortakSabahNamaziSayisi),
                         },
                       ].map(c => (
                         <div key={c.label} className="rounded-2xl border p-4"
@@ -453,11 +453,11 @@ export default function RaporlarClient({
                               🎓 Lise
                             </p>
                             <Delta
-                              label="İlim Yaygınlığı %"
-                              prev={pct(n(d1.ls_ilimDersYeri), n(d1.ls_toplamDergah))}
-                              curr={pct(n(d2.ls_ilimDersYeri), n(d2.ls_toplamDergah))}
+                              label="İlim/Sohbet Dergâh Yaygınlığı %"
+                              prev={pct(n(d1.ls_ilimSohbetDergah), n(d1.ls_toplamDergah))}
+                              curr={pct(n(d2.ls_ilimSohbetDergah), n(d2.ls_toplamDergah))}
                             />
-                            <Delta label="Katılımcı"  prev={n(d1.ls_ilimDersKatilim)} curr={n(d2.ls_ilimDersKatilim)} />
+                            <Delta label="İlim/Sohbet Katılım" prev={n(d1.ls_ilimSohbetKatilim)} curr={n(d2.ls_ilimSohbetKatilim)} />
                             <Delta label="Kafile"     prev={n(d1.ls_kafileSayisi)}    curr={n(d2.ls_kafileSayisi)} />
                             <Delta label="Yeni İntisap" prev={n(d1.ls_yeniIntisap)}  curr={n(d2.ls_yeniIntisap)} />
                           </div>

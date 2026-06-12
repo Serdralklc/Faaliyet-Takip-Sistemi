@@ -148,17 +148,31 @@ model Activity {
   ik_kuranOgrenci          Int @default(0)
   ik_gecisOgrenci          Int @default(0)
 
-  // Lise
+  // Lise (Eğitimci panelindeki "Lise" birimi sekmesi)
   ls_toplamDergah        Int @default(0)
-  ls_liseliOgrenciSayisi Int @default(0) // İlimizdeki toplam liseli öğrenci sayısı
+  ls_liseliOgrenciSayisi Int @default(0) // Toplam liseli öğrenci sayısı
+  ls_yeniIntisap         Int @default(0) // Toplam yeni intisap eden öğrenci
+  ls_kafileSayisi        Int @default(0) // Toplam kafile sayısı
+  ls_kafileOgrenci       Int @default(0) // Kafilelere katılan toplam öğrenci
+  // Yeni yapı (faaliyet-türü bazlı; Lise Gençlik modülüyle ölçüm uyumu için)
+  ls_ilimSohbetDergah    Int @default(0) // İlim/Sohbet faaliyeti yapılan dergâh
+  ls_mezunOgrenci        Int @default(0) // Bu yıl mezun olacak liseli öğrenci
+  ls_ilimSohbetSayisi    Int @default(0)
+  ls_ilimSohbetKatilim   Int @default(0)
+  ls_sosyalSayisi        Int @default(0)
+  ls_sosyalKatilim       Int @default(0)
+  ls_sorumlulukSayisi    Int @default(0)
+  ls_sorumlulukKatilim   Int @default(0)
+  ls_muhabbetSayisi      Int @default(0)
+  ls_muhabbetKatilim     Int @default(0)
+  ls_namazSayisi         Int @default(0)
+  ls_namazKatilim        Int @default(0)
+  // Eski alanlar (yeni Lise sekmesinde gösterilmiyor; veri korunur)
   ls_ilimDersYeri        Int @default(0)
   ls_ilimDersKatilim     Int @default(0)
   ls_sabahNamaziSayisi   Int @default(0)
   ls_sabahNamaziKatilim  Int @default(0)
-  ls_kafileSayisi        Int @default(0)
-  ls_kafileOgrenci       Int @default(0)
   ls_toplamFaaliyet      Int @default(0)
-  ls_yeniIntisap         Int @default(0)
 
   // Üniversite
   uni_toplamDergah              Int @default(0)

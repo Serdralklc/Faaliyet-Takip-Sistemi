@@ -29,12 +29,16 @@ function pctColor(v: number) {
 }
 
 function gerceklesen(f: any): Record<HedefKey, number> {
+  // Lise toplam faaliyet = 6 faaliyet türü sayısının toplamı (yeni yapı)
+  const lsToplamFaaliyet =
+    n(f.ls_ilimSohbetSayisi) + n(f.ls_sosyalSayisi) + n(f.ls_sorumlulukSayisi) +
+    n(f.ls_muhabbetSayisi) + n(f.ls_namazSayisi) + n(f.ls_kafileSayisi);
   return {
     yeniIntisap:    n(f.ls_yeniIntisap) + n(f.uni_yeniIntisap),
-    sosyalFaaliyet: n(f.ls_toplamFaaliyet) + n(f.uni_toplamFaaliyet),
+    sosyalFaaliyet: lsToplamFaaliyet + n(f.uni_toplamFaaliyet),
     kafile:         n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi) + n(f.ortakKafileSayisi),
-    sabahNamazi:    n(f.ls_sabahNamaziSayisi) + n(f.uni_sabahNamaziSayisi) + n(f.ortakSabahNamaziSayisi),
-    ilimDersi:      n(f.ls_ilimDersKatilim) + n(f.uni_ilimDersKatilim),
+    sabahNamazi:    n(f.ls_namazSayisi) + n(f.uni_sabahNamaziSayisi) + n(f.ortakSabahNamaziSayisi),
+    ilimDersi:      n(f.ls_ilimSohbetKatilim) + n(f.uni_ilimDersKatilim),
     kykBulusma:     n(f.uni_kykBulusmaSayisi),
     ziyaret:        n(f.eay_toplamZiyaret),
   };

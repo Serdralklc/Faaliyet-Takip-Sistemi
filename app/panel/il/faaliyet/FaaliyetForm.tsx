@@ -28,7 +28,7 @@ const DONEMLER: Record<Tab, { value: string; label: string }[]> = {
   ],
 };
 
-const FIELDS: Record<Tab, { key: string; label: string; suffix?: string }[]> = {
+const FIELDS: Record<Tab, { key: string; label: string; suffix?: string; group?: string }[]> = {
   ilkogretim: [
     { key: "ik_toplamDergah",          label: "Toplam Dergah Sayısı",                   suffix: "dergah"   },
     { key: "ik_kursuYapilanDergah",    label: "Hafta Sonu Kursu Yapılan Dergah",        suffix: "dergah"   },
@@ -39,17 +39,30 @@ const FIELDS: Record<Tab, { key: string; label: string; suffix?: string }[]> = {
     { key: "ik_gecisOgrenci",          label: "Elif Ba'dan Kuran'a Geçen Öğrenci",      suffix: "öğrenci"  },
   ],
   lise: [
-    { key: "ls_liseliOgrenciSayisi", label: "İlimizdeki Toplam Liseli Öğrenci",   suffix: "öğrenci"  },
-    { key: "ls_toplamDergah",        label: "Toplam Dergah Sayısı",              suffix: "dergah"   },
-    { key: "ls_ilimDersYeri",        label: "İlim Dersleri Yapılan Yer Sayısı",  suffix: "yer"      },
-    { key: "ls_ilimDersKatilim",     label: "İlim Derslerine Katılan Öğrenci",   suffix: "öğrenci"  },
-    { key: "ls_toplamFaaliyet",      label: "Toplam Faaliyet Sayısı",            suffix: "faaliyet" },
-    { key: "ls_sabahNamaziSayisi",   label: "Sabah Namazı Buluşması (yalnız lise)", suffix: "buluşma" },
-    { key: "ls_sabahNamaziKatilim",  label: "Sabah Namazına Katılan Liseli",      suffix: "öğrenci"  },
-    { key: "ls_kafileSayisi",        label: "Kafile Sayısı (yalnız lise)",        suffix: "kafile"   },
-    { key: "ls_kafileOgrenci",       label: "Kafileye Katılan Liseli",            suffix: "öğrenci"  },
-    { key: "ls_yeniIntisap",         label: "Yeni İntisap Sayısı",               suffix: "kişi"     },
-    // Yalnız lise grubuna ait kafile/sabah namazı burada; ortak (lise+üni birlikte) "Ortak Faaliyetler"de
+    // Öğrenci ve Dergâh Bilgileri
+    { key: "ls_toplamDergah",        label: "Toplam Dergâh Sayısı",                      suffix: "dergah",   group: "Öğrenci ve Dergâh Bilgileri" },
+    { key: "ls_ilimSohbetDergah",    label: "İlim/Sohbet Faaliyeti Yapılan Dergâh",      suffix: "dergah",   group: "Öğrenci ve Dergâh Bilgileri" },
+    { key: "ls_liseliOgrenciSayisi", label: "Toplam Liseli Öğrenci Sayısı",              suffix: "öğrenci",  group: "Öğrenci ve Dergâh Bilgileri" },
+    { key: "ls_mezunOgrenci",        label: "Bu Yıl Mezun Olacak Liseli Öğrenci",        suffix: "öğrenci",  group: "Öğrenci ve Dergâh Bilgileri" },
+    { key: "ls_yeniIntisap",         label: "Toplam Yeni İntisap Eden Öğrenci",          suffix: "öğrenci",  group: "Öğrenci ve Dergâh Bilgileri" },
+    // İlim / Sohbet Faaliyetleri
+    { key: "ls_ilimSohbetSayisi",    label: "Toplam İlim/Sohbet Faaliyeti Sayısı",       suffix: "faaliyet", group: "İlim / Sohbet Faaliyetleri" },
+    { key: "ls_ilimSohbetKatilim",   label: "Katılan Toplam Öğrenci Sayısı",             suffix: "öğrenci",  group: "İlim / Sohbet Faaliyetleri" },
+    // Sosyal Faaliyetler
+    { key: "ls_sosyalSayisi",        label: "Toplam Sosyal Faaliyet Sayısı",             suffix: "faaliyet", group: "Sosyal Faaliyetler" },
+    { key: "ls_sosyalKatilim",       label: "Katılan Toplam Öğrenci Sayısı",             suffix: "öğrenci",  group: "Sosyal Faaliyetler" },
+    // Sosyal Sorumluluk Faaliyetleri
+    { key: "ls_sorumlulukSayisi",    label: "Toplam Sosyal Sorumluluk Faaliyeti Sayısı", suffix: "faaliyet", group: "Sosyal Sorumluluk Faaliyetleri" },
+    { key: "ls_sorumlulukKatilim",   label: "Katılan Toplam Öğrenci Sayısı",             suffix: "öğrenci",  group: "Sosyal Sorumluluk Faaliyetleri" },
+    // Muhabbet Buluşmaları
+    { key: "ls_muhabbetSayisi",      label: "Toplam Muhabbet Buluşması Sayısı",          suffix: "buluşma",  group: "Muhabbet Buluşmaları" },
+    { key: "ls_muhabbetKatilim",     label: "Katılan Toplam Öğrenci Sayısı",             suffix: "öğrenci",  group: "Muhabbet Buluşmaları" },
+    // Namaz Buluşmaları
+    { key: "ls_namazSayisi",         label: "Toplam Namaz Buluşması Sayısı",             suffix: "buluşma",  group: "Namaz Buluşmaları" },
+    { key: "ls_namazKatilim",        label: "Katılan Toplam Öğrenci Sayısı",             suffix: "öğrenci",  group: "Namaz Buluşmaları" },
+    // Kafile Faaliyetleri
+    { key: "ls_kafileSayisi",        label: "Toplam Kafile Sayısı",                      suffix: "kafile",   group: "Kafile Faaliyetleri" },
+    { key: "ls_kafileOgrenci",       label: "Kafilelere Katılan Toplam Öğrenci",         suffix: "öğrenci",  group: "Kafile Faaliyetleri" },
   ],
   universite: [
     { key: "uni_universiteliOgrenciSayisi", label: "İlimizdeki Toplam Üniversite Öğrencisi", suffix: "öğrenci" },
@@ -126,6 +139,20 @@ function NumberInput({ label, value, suffix, onChange, accent }: {
   );
 }
 
+type FieldDef = { key: string; label: string; suffix?: string; group?: string };
+
+/** Alanları ardışık grup başlıklarına böler (grup yoksa tek blok, başlıksız) */
+function groupFields(fields: FieldDef[]): { title: string; items: FieldDef[] }[] {
+  const out: { title: string; items: FieldDef[] }[] = [];
+  for (const f of fields) {
+    const title = f.group ?? "";
+    const last = out[out.length - 1];
+    if (last && last.title === title) last.items.push(f);
+    else out.push({ title, items: [f] });
+  }
+  return out;
+}
+
 export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
   const { data: session } = useSession();
   const [yil, setYil] = useState(THIS_YEAR);
@@ -139,6 +166,8 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
   const donemler = DONEMLER[activeTab];
   const header = HEADER[activeTab];
   const muafDef = MUAF[activeTab];
+  const groups = groupFields(fields);
+  const hasGroups = groups.some(g => g.title);
 
   useEffect(() => {
     const valid = donemler.some(d => d.value === donem);
@@ -231,11 +260,11 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
           style={{ background: "#EFF6FF", borderColor: "#BFDBFE" }}>
           <span className="text-xl mt-0.5">ℹ️</span>
           <div>
-            <p className="text-sm font-bold" style={{ color: "#1E40AF" }}>Kafile / Sabah Namazı Nereye Girilir?</p>
+            <p className="text-sm font-bold" style={{ color: "#1E40AF" }}>Ortak faaliyetler nereye girilir?</p>
             <p className="text-xs mt-0.5" style={{ color: "#1D4ED8" }}>
-              Buraya YALNIZCA {activeTab === "lise" ? "liselilerin" : "üniversitelilerin"} kendi başına yaptığı
-              kafile ve sabah namazını girin. Lise + üniversite <strong>birlikte</strong> ise
-              “Ortak Faaliyetler” sekmesine girin — böylece çift sayım olmaz.
+              Buraya YALNIZCA {activeTab === "lise" ? "lise grubunun" : "üniversite grubunun"} kendi başına
+              yaptığı faaliyetleri girin. Lise + üniversite <strong>birlikte</strong> yapılan
+              (kafile, namaz buluşması vb.) faaliyetleri “Ortak Faaliyetler” sekmesine girin — böylece çift sayım olmaz.
             </p>
           </div>
         </div>
@@ -296,6 +325,31 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
               <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
                 Faaliyet alanları gizlendi. Kaydetmek için “Kaydet”e basın. Yukarıdaki işareti kaldırıp veri girebilirsiniz.
               </p>
+            </div>
+          ) : hasGroups ? (
+            <div className="p-6 space-y-6">
+              {groups.map((g, gi) => (
+                <div key={gi}>
+                  {g.title && (
+                    <p className="text-xs font-bold uppercase tracking-wide mb-3 pb-1.5 border-b"
+                      style={{ color: header.color, borderColor: "var(--border)" }}>
+                      {g.title}
+                    </p>
+                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {g.items.map(f => (
+                      <NumberInput
+                        key={f.key}
+                        label={f.label}
+                        suffix={f.suffix}
+                        value={form[f.key] ?? 0}
+                        onChange={v => handleChange(f.key, v)}
+                        accent={header.color}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

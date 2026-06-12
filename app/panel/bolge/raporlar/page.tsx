@@ -78,7 +78,8 @@ export default async function BolgeRaporlarPage({
       metrikler: {
         ik_elifBaOgrenci: a?.ik_elifBaOgrenci ?? 0,
         ik_kuranOgrenci: a?.ik_kuranOgrenci ?? 0,
-        ls_toplamFaaliyet: a?.ls_toplamFaaliyet ?? 0,
+        // Lise toplam faaliyet = 6 faaliyet türü sayısının toplamı (yeni yapı)
+        ls_toplamFaaliyet: (a?.ls_ilimSohbetSayisi ?? 0) + (a?.ls_sosyalSayisi ?? 0) + (a?.ls_sorumlulukSayisi ?? 0) + (a?.ls_muhabbetSayisi ?? 0) + (a?.ls_namazSayisi ?? 0) + (a?.ls_kafileSayisi ?? 0),
         ls_yeniIntisap: a?.ls_yeniIntisap ?? 0,
         uni_toplamFaaliyet: a?.uni_toplamFaaliyet ?? 0,
         uni_yeniIntisap: a?.uni_yeniIntisap ?? 0,

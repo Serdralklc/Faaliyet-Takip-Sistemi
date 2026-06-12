@@ -6,13 +6,17 @@ import { useState, useMemo } from "react";
 interface Activity {
   yil: number; donem: string;
   ls_yeniIntisap: number | null; uni_yeniIntisap: number | null;
-  ls_toplamFaaliyet: number | null; uni_toplamFaaliyet: number | null;
+  uni_toplamFaaliyet: number | null;
   ls_kafileSayisi: number | null; uni_kafileSayisi: number | null;
-  ls_sabahNamaziSayisi: number | null; uni_sabahNamaziSayisi: number | null;
+  uni_sabahNamaziSayisi: number | null;
   ortakKafileSayisi: number | null; ortakSabahNamaziSayisi: number | null;
-  ls_ilimDersKatilim: number | null; uni_ilimDersKatilim: number | null;
+  uni_ilimDersKatilim: number | null;
   uni_kykBulusmaSayisi: number | null;
   eay_toplamZiyaret: number | null;
+  // Lise yeni yapı
+  ls_ilimSohbetSayisi: number | null; ls_ilimSohbetKatilim: number | null;
+  ls_sosyalSayisi: number | null; ls_sorumlulukSayisi: number | null;
+  ls_muhabbetSayisi: number | null; ls_namazSayisi: number | null;
 }
 interface Il {
   id: string; ad: string;
@@ -51,12 +55,15 @@ type HedefKey = typeof HEDEF_ALANLARI[number]["key"];
 function gerceklesenFromActivity(activities: Activity[], yil: number, donem: string): Record<HedefKey, number> {
   const f = activities.find(a => a.yil === yil && a.donem === donem);
   if (!f) return { yeniIntisap: 0, sosyalFaaliyet: 0, kafile: 0, sabahNamazi: 0, ilimDersi: 0, kykBulusma: 0, ziyaret: 0 };
+  const lsToplamFaaliyet =
+    (f.ls_ilimSohbetSayisi ?? 0) + (f.ls_sosyalSayisi ?? 0) + (f.ls_sorumlulukSayisi ?? 0) +
+    (f.ls_muhabbetSayisi ?? 0) + (f.ls_namazSayisi ?? 0) + (f.ls_kafileSayisi ?? 0);
   return {
     yeniIntisap:    (f.ls_yeniIntisap ?? 0) + (f.uni_yeniIntisap ?? 0),
-    sosyalFaaliyet: (f.ls_toplamFaaliyet ?? 0) + (f.uni_toplamFaaliyet ?? 0),
+    sosyalFaaliyet: lsToplamFaaliyet + (f.uni_toplamFaaliyet ?? 0),
     kafile:         (f.ls_kafileSayisi ?? 0) + (f.uni_kafileSayisi ?? 0) + (f.ortakKafileSayisi ?? 0),
-    sabahNamazi:    (f.ls_sabahNamaziSayisi ?? 0) + (f.uni_sabahNamaziSayisi ?? 0) + (f.ortakSabahNamaziSayisi ?? 0),
-    ilimDersi:      (f.ls_ilimDersKatilim ?? 0) + (f.uni_ilimDersKatilim ?? 0),
+    sabahNamazi:    (f.ls_namazSayisi ?? 0) + (f.uni_sabahNamaziSayisi ?? 0) + (f.ortakSabahNamaziSayisi ?? 0),
+    ilimDersi:      (f.ls_ilimSohbetKatilim ?? 0) + (f.uni_ilimDersKatilim ?? 0),
     kykBulusma:     f.uni_kykBulusmaSayisi ?? 0,
     ziyaret:        f.eay_toplamZiyaret ?? 0,
   };

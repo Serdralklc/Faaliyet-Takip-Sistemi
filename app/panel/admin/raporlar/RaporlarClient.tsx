@@ -9,10 +9,14 @@ interface Activity {
   ik_toplamDergah: number; ik_kursuYapilanDergah: number;
   ik_egitmenSayisi: number; ik_egitmenYardimciSayisi: number;
   ik_elifBaOgrenci: number; ik_kuranOgrenci: number; ik_gecisOgrenci: number;
-  ls_toplamDergah: number; ls_ilimDersYeri: number; ls_ilimDersKatilim: number;
-  ls_sabahNamaziSayisi: number; ls_sabahNamaziKatilim: number;
+  ls_toplamDergah: number; ls_liseliOgrenciSayisi: number; ls_yeniIntisap: number;
   ls_kafileSayisi: number; ls_kafileOgrenci: number;
-  ls_toplamFaaliyet: number; ls_yeniIntisap: number;
+  ls_ilimSohbetDergah: number; ls_mezunOgrenci: number;
+  ls_ilimSohbetSayisi: number; ls_ilimSohbetKatilim: number;
+  ls_sosyalSayisi: number; ls_sosyalKatilim: number;
+  ls_sorumlulukSayisi: number; ls_sorumlulukKatilim: number;
+  ls_muhabbetSayisi: number; ls_muhabbetKatilim: number;
+  ls_namazSayisi: number; ls_namazKatilim: number;
   uni_toplamDergah: number; uni_ilimDersYeri: number; uni_ilimDersKatilim: number;
   uni_sabahNamaziSayisi: number; uni_sabahNamaziKatilim: number;
   uni_kafileSayisi: number; uni_kafileOgrenci: number;
@@ -85,15 +89,23 @@ const IK_COLS: { label: string; field: keyof Activity }[] = [
   { label: "Geçiş Öğr.",      field: "ik_gecisOgrenci" },
 ];
 const LS_COLS: { label: string; field: keyof Activity }[] = [
-  { label: "Toplam Dergah",    field: "ls_toplamDergah" },
-  { label: "İlim Ders Yeri",   field: "ls_ilimDersYeri" },
-  { label: "Ders Katılım",     field: "ls_ilimDersKatilim" },
-  { label: "Sabah Namazı",     field: "ls_sabahNamaziSayisi" },
-  { label: "SN Katılım",       field: "ls_sabahNamaziKatilim" },
-  { label: "Kafile",           field: "ls_kafileSayisi" },
-  { label: "Kafile Öğr.",      field: "ls_kafileOgrenci" },
-  { label: "Top. Faaliyet",    field: "ls_toplamFaaliyet" },
-  { label: "Yeni İntisap",     field: "ls_yeniIntisap" },
+  { label: "Toplam Dergâh",       field: "ls_toplamDergah" },
+  { label: "İlim/Sohbet Dergâh",  field: "ls_ilimSohbetDergah" },
+  { label: "Liseli Öğrenci",      field: "ls_liseliOgrenciSayisi" },
+  { label: "Mezun Olacak",        field: "ls_mezunOgrenci" },
+  { label: "Yeni İntisap",        field: "ls_yeniIntisap" },
+  { label: "İlim/Sohbet",         field: "ls_ilimSohbetSayisi" },
+  { label: "İlim/Sohbet Kat.",    field: "ls_ilimSohbetKatilim" },
+  { label: "Sosyal",              field: "ls_sosyalSayisi" },
+  { label: "Sosyal Kat.",         field: "ls_sosyalKatilim" },
+  { label: "Sos. Sorumluluk",     field: "ls_sorumlulukSayisi" },
+  { label: "Sos. Sor. Kat.",      field: "ls_sorumlulukKatilim" },
+  { label: "Muhabbet",            field: "ls_muhabbetSayisi" },
+  { label: "Muhabbet Kat.",       field: "ls_muhabbetKatilim" },
+  { label: "Namaz",               field: "ls_namazSayisi" },
+  { label: "Namaz Kat.",          field: "ls_namazKatilim" },
+  { label: "Kafile",              field: "ls_kafileSayisi" },
+  { label: "Kafile Öğr.",         field: "ls_kafileOgrenci" },
 ];
 const UNI_COLS: { label: string; field: keyof Activity }[] = [
   { label: "Toplam Dergah",    field: "uni_toplamDergah" },

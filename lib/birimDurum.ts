@@ -17,8 +17,14 @@ export const BIRIM_ALANLAR: Record<BirimKey, string[]> = {
     "ik_egitmenYardimciSayisi", "ik_elifBaOgrenci", "ik_kuranOgrenci", "ik_gecisOgrenci",
   ],
   LISE: [
-    "ls_liseliOgrenciSayisi", "ls_toplamDergah", "ls_ilimDersYeri",
-    "ls_ilimDersKatilim", "ls_toplamFaaliyet", "ls_yeniIntisap",
+    "ls_toplamDergah", "ls_liseliOgrenciSayisi", "ls_yeniIntisap",
+    "ls_ilimSohbetDergah", "ls_mezunOgrenci",
+    "ls_ilimSohbetSayisi", "ls_ilimSohbetKatilim",
+    "ls_sosyalSayisi", "ls_sosyalKatilim",
+    "ls_sorumlulukSayisi", "ls_sorumlulukKatilim",
+    "ls_muhabbetSayisi", "ls_muhabbetKatilim",
+    "ls_namazSayisi", "ls_namazKatilim",
+    "ls_kafileSayisi", "ls_kafileOgrenci",
   ],
   UNIVERSITE: [
     "uni_universiteliOgrenciSayisi", "uni_toplamDergah", "uni_ilimDersYeri",
