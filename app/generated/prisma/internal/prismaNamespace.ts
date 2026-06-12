@@ -2427,7 +2427,8 @@ export const IlScalarFieldEnum = {
   id: 'id',
   ad: 'ad',
   bolgeId: 'bolgeId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  barinmaYok: 'barinmaYok'
 } as const
 
 export type IlScalarFieldEnum = (typeof IlScalarFieldEnum)[keyof typeof IlScalarFieldEnum]
@@ -3013,6 +3014,13 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
  * Reference to a field of type 'AssignmentStatus'
  */
 export type EnumAssignmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssignmentStatus'>
@@ -3037,13 +3045,6 @@ export type EnumDonemFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMode
  * Reference to a field of type 'Donem[]'
  */
 export type ListEnumDonemFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Donem[]'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 

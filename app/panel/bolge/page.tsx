@@ -48,6 +48,8 @@ export default async function BolgePanelPage({
         select: {
           id: true,
           ad: true,
+          barinmaYok: true,
+          _count: { select: { housingUnits: true } },
           activities: { where: { yil, donem }, take: 1 },
           assignments: {
             where: { status: "AKTIF" },
@@ -60,10 +62,15 @@ export default async function BolgePanelPage({
   });
 
   const iller: IlDurum[] = (bolge?.iller ?? []).map(il => {
-    const a = (il.activities[0] ?? null) as Record<string, unknown> | null;
+    const aRaw = (il.activities[0] ?? null) as Record<string, unknown> | null;
     const sorumlu = il.assignments[0]?.user ?? null;
+    // Barınma muafiyeti il-bazlı (Il.barinmaYok); barınma "girildi" ev/apart/yurt birimi varsa.
+    const veri: Record<string, unknown> | null =
+      (aRaw || il.barinmaYok || il._count.housingUnits > 0)
+        ? { ...(aRaw ?? {}), barinmaYok: il.barinmaYok, _housingUnits: il._count.housingUnits }
+        : null;
     const durumlar = Object.fromEntries(
-      BIRIMLER.map(b => [b, birimDurum(a, b)])
+      BIRIMLER.map(b => [b, birimDurum(veri, b)])
     ) as Record<BirimKey, BirimDurum>;
     return {
       id: il.id,
@@ -71,8 +78,8 @@ export default async function BolgePanelPage({
       sorumlu: sorumlu ? `${sorumlu.ad} ${sorumlu.soyad}` : null,
       sorumluAtanmis: !!sorumlu,
       durumlar,
-      veriVar: !!a,
-      tamam: ilTamam(a),
+      veriVar: !!aRaw,
+      tamam: ilTamam(veri),
     };
   });
 

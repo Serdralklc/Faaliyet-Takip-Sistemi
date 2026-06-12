@@ -46,6 +46,8 @@ export default async function BolgeIllerPage({
         select: {
           id: true,
           ad: true,
+          barinmaYok: true,
+          _count: { select: { housingUnits: true } },
           activities: { where: { yil, donem } },
           assignments: {
             where: { status: "AKTIF" },
@@ -60,16 +62,19 @@ export default async function BolgeIllerPage({
   const iller = (bolge?.iller ?? []).map(il => {
     const a = il.activities[0] ?? null;
     const sorumlu = il.assignments[0]?.user ?? null;
+    // Barınma: il-bazlı muafiyet (barinmaYok) + ev/apart/yurt birim sayısı (_housingUnits) enjekte edilir
+    const ekBarinma = { barinmaYok: il.barinmaYok, _housingUnits: il._count.housingUnits };
+    const veri =
+      a
+        ? { ...Object.fromEntries(Object.entries(a).map(([k, v]) => [k, v instanceof Date ? v.toISOString() : v])), ...ekBarinma }
+        : (il.barinmaYok || il._count.housingUnits > 0 ? ekBarinma : null);
     return {
       id: il.id,
       ad: il.ad,
       sorumlu: sorumlu
         ? { ad: `${sorumlu.ad} ${sorumlu.soyad}`, email: sorumlu.email, telefon: sorumlu.telefon, sonAktif: sorumlu.sonAktif?.toISOString() ?? null }
         : null,
-      // Activity'yi JSON'a düz çevir (Date alanları string'e)
-      veri: a
-        ? Object.fromEntries(Object.entries(a).map(([k, v]) => [k, v instanceof Date ? v.toISOString() : v]))
-        : null,
+      veri,
     };
   });
 

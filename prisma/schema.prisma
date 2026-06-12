@@ -86,6 +86,10 @@ model Il {
   bolgeId   String
   createdAt DateTime @default(now())
 
+  // Barınma muafiyeti (il-bazlı, kalıcı): il eğitimcisi "ilimizde ev/apart/yurt yoktur"
+  // işaretleyince true. Ev/Apart/Yurt sayfasından yönetilir; bölge "ev/apart/yurt yok" görür.
+  barinmaYok Boolean @default(false)
+
   bolge        Bolge            @relation(fields: [bolgeId], references: [id])
   assignments  RoleAssignment[]
   activities   Activity[]
@@ -197,7 +201,7 @@ model Activity {
   muafIlkogretim Boolean @default(false)
   muafLise       Boolean @default(false)
   muafUniversite Boolean @default(false)
-  muafBarinma    Boolean @default(false)
+  muafBarinma    Boolean @default(false) // KULLANIMDIŞI: barınma muafiyeti artık il-bazlı (Il.barinmaYok)
 
   // Arşiv: geçmiş dönem kapatılınca true → salt-okunur (veri asla silinmez)
   arsivlendi Boolean @default(false)

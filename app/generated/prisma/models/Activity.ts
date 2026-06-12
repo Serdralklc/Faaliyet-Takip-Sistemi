@@ -2104,10 +2104,6 @@ export type EnumDonemFieldUpdateOperationsInput = {
   set?: $Enums.Donem
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type ActivityCreateWithoutCreatedByInput = {
   id?: string
   yil: number

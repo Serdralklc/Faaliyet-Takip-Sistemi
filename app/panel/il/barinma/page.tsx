@@ -154,6 +154,7 @@ function TipSection({ tip, units, ilId, onChange }: {
 export default function BarinmaPage() {
   const { data: session } = useSession();
   const [units, setUnits] = useState<HousingUnit[]>([]);
+  const [barinmaYok, setBarinmaYok] = useState(false);
 
   const ilId = session?.user?.activeIlId;
 
@@ -161,10 +162,24 @@ export default function BarinmaPage() {
     if (!ilId) return;
     fetch(`/api/housing-units?ilId=${ilId}`)
       .then(r => r.json())
-      .then(setUnits);
+      .then(d => setUnits(Array.isArray(d) ? d : []));
+    fetch(`/api/barinma-muafiyet?ilId=${ilId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setBarinmaYok(!!d.barinmaYok); });
   }
 
   useEffect(() => { load(); }, [ilId]);
+
+  async function toggleMuaf(yeni: boolean) {
+    if (!ilId) return;
+    setBarinmaYok(yeni); // iyimser güncelleme
+    const res = await fetch("/api/barinma-muafiyet", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ilId, barinmaYok: yeni }),
+    });
+    if (!res.ok) setBarinmaYok(!yeni); // başarısızsa geri al
+  }
 
   const evler   = units.filter(u => u.tip === "EV");
   const apartlar = units.filter(u => u.tip === "APART");
@@ -179,6 +194,38 @@ export default function BarinmaPage() {
         <p>İlinize ait barınma birimlerini buradan yönetin</p>
       </div>
 
+      {/* Barınma muafiyeti — "ilimizde ev/apart/yurt yoktur" (il-bazlı, kalıcı) */}
+      <label className="flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition select-none"
+        style={barinmaYok
+          ? { background: "#FEF3C7", borderColor: "#F59E0B" }
+          : { background: "var(--bg-card)", borderColor: "var(--border)" }}>
+        <input type="checkbox" checked={barinmaYok}
+          onChange={e => toggleMuaf(e.target.checked)}
+          className="mt-0.5 w-4 h-4 accent-amber-500 flex-shrink-0" />
+        <div>
+          <p className="text-sm font-bold" style={{ color: barinmaYok ? "#92400E" : "var(--text-primary)" }}>
+            İlimizde ev / apart / yurt bulunmamaktadır
+          </p>
+          <p className="text-xs mt-0.5" style={{ color: barinmaYok ? "#B45309" : "var(--text-muted)" }}>
+            İşaretlerseniz iliniz barınmadan <strong>muaf</strong> sayılır; bölge eğitimcisi ekranında
+            “veri girilmedi” yerine <strong>“ev/apart/yurt yok”</strong> görünür. İleride ev/apart/yurt açılırsa
+            işareti kaldırıp birim ekleyebilirsiniz.
+          </p>
+        </div>
+      </label>
+
+      {barinmaYok ? (
+        <div className="rounded-xl border p-10 text-center" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+          <p className="text-3xl mb-2">🚫</p>
+          <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
+            İliniz barınmadan muaf işaretlendi
+          </p>
+          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+            Ev/apart/yurt bölümleri gizlendi. Birim eklemek için yukarıdaki işareti kaldırın.
+          </p>
+        </div>
+      ) : (
+      <>
       {/* Özet kartlar */}
       <div className="grid grid-cols-3 gap-4">
         {[
@@ -198,6 +245,8 @@ export default function BarinmaPage() {
       <TipSection tip="EV"    units={evler}    ilId={ilId} onChange={load} />
       <TipSection tip="APART" units={apartlar} ilId={ilId} onChange={load} />
       <TipSection tip="YURT"  units={yurtlar}  ilId={ilId} onChange={load} />
+      </>
+      )}
     </div>
   );
 }

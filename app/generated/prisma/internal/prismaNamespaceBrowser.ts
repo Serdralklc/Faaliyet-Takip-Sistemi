@@ -130,7 +130,8 @@ export const IlScalarFieldEnum = {
   id: 'id',
   ad: 'ad',
   bolgeId: 'bolgeId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  barinmaYok: 'barinmaYok'
 } as const
 
 export type IlScalarFieldEnum = (typeof IlScalarFieldEnum)[keyof typeof IlScalarFieldEnum]

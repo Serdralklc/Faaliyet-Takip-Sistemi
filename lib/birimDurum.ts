@@ -26,6 +26,8 @@ export const BIRIM_ALANLAR: Record<BirimKey, string[]> = {
     "uni_kykKatilim", "uni_yeniIntisap",
   ],
   BARINMA: [
+    // Eklenmiş ev/apart/yurt birim sayısı (Il.housingUnits) — server tarafında enjekte edilir
+    "_housingUnits",
     "eay_mevcutEv", "eay_mevcutApart", "eay_mevcutYurt",
     "eay_acilacakEv", "eay_acilacakApart", "eay_acilacakYurt",
     "eay_kapanacakEv", "eay_kapanacakApart", "eay_kapanacakYurt",
@@ -37,7 +39,8 @@ const MUAF_ALAN: Record<BirimKey, string> = {
   ILKOGRETIM: "muafIlkogretim",
   LISE: "muafLise",
   UNIVERSITE: "muafUniversite",
-  BARINMA: "muafBarinma",
+  // Barınma muafiyeti il-bazlı (Il.barinmaYok) — server, veri objesine barinmaYok enjekte eder
+  BARINMA: "barinmaYok",
 };
 
 export const BIRIM_ETIKET: Record<BirimKey, string> = {
