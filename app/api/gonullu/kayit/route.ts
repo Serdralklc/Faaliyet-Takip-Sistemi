@@ -1,43 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { OgrenimDurum, OgrenimTuru } from "@/app/generated/prisma/client";
+import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+import { parseJson, zAdSoyad, zTelefon, zEmail, zPassword, zKisaMetinOptional } from "@/lib/validation";
+import { createAuthToken } from "@/lib/auth-tokens";
+import { sendEmailVerification } from "@/lib/mail";
 
 export const dynamic = "force-dynamic";
 
-
-const VALID_OGRENIM: OgrenimDurum[] = ["ILKOKUL", "ORTAOKUL", "LISE", "UNIVERSITE"];
-const VALID_OGRENIM_TURU: OgrenimTuru[] = ["ONLISANS", "LISANS", "YUKSEK_LISANS", "DOKTORA"];
+const schema = z
+  .object({
+    adSoyad:     zAdSoyad,
+    telefon:     zTelefon,
+    email:       zEmail,
+    sifre:       zPassword,
+    ogrenim:     z.enum(["ILKOKUL", "ORTAOKUL", "LISE", "UNIVERSITE"]),
+    ogrenimTuru: z.enum(["ONLISANS", "LISANS", "YUKSEK_LISANS", "DOKTORA"]).optional().nullable(),
+    bolum:       zKisaMetinOptional,
+    okul:        zKisaMetinOptional,
+    il:          zKisaMetinOptional,
+  });
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { adSoyad, telefon, email, sifre, ogrenim, ogrenimTuru, bolum, okul, il } = body;
+    const r = await parseJson(req, schema);
+    if ("error" in r) return r.error;
+    const { adSoyad, telefon, email, sifre, ogrenim, ogrenimTuru, bolum, okul, il } = r.data;
 
-    if (!adSoyad || !telefon || !email || !sifre || !ogrenim) {
-      return NextResponse.json({ error: "Ad Soyad, telefon, e-posta, şifre ve öğrenim durumu zorunludur." }, { status: 400 });
-    }
-
-    if (!VALID_OGRENIM.includes(ogrenim)) {
-      return NextResponse.json({ error: "Geçersiz öğrenim durumu." }, { status: 400 });
-    }
-
-    if (ogrenim === "UNIVERSITE" && ogrenimTuru && !VALID_OGRENIM_TURU.includes(ogrenimTuru)) {
-      return NextResponse.json({ error: "Geçersiz öğrenim türü." }, { status: 400 });
-    }
-
-    if (sifre.length < 6) {
-      return NextResponse.json({ error: "Şifre en az 6 karakter olmalıdır." }, { status: 400 });
-    }
-
-    // Telefon tekrar kontrolü
+    // Telefon tekrar kontrolü — zTelefon normalize ettiği için
+    // "0555 123 45 67" ile "05551234567" artık aynı kayda çarpar
     const existing = await prisma.volunteer.findUnique({ where: { telefon } });
     if (existing) {
       return NextResponse.json({ error: "Bu telefon numarası zaten kayıtlı." }, { status: 409 });
     }
 
-    // E-posta tekrar kontrolü
-    const existingEmail = await prisma.volunteer.findUnique({ where: { email: email.trim().toLowerCase() } });
+    const existingEmail = await prisma.volunteer.findUnique({ where: { email } });
     if (existingEmail) {
       return NextResponse.json({ error: "Bu e-posta adresi zaten kayıtlı." }, { status: 409 });
     }
@@ -46,20 +43,29 @@ export async function POST(req: NextRequest) {
 
     const volunteer = await prisma.volunteer.create({
       data: {
-        adSoyad:     adSoyad.trim(),
-        telefon:     telefon.trim(),
-        email:       email.trim().toLowerCase(),
+        adSoyad,
+        telefon,
+        email,
         passwordHash,
-        ogrenim:     ogrenim as OgrenimDurum,
-        ogrenimTuru: (ogrenim === "UNIVERSITE" && ogrenimTuru) ? ogrenimTuru as OgrenimTuru : null,
-        bolum:       (ogrenim === "UNIVERSITE" && bolum) ? bolum.trim() : null,
-        okul:        (ogrenim === "UNIVERSITE" && okul)  ? okul.trim()  : null,
-        il:          il?.trim() || null,
+        ogrenim,
+        ogrenimTuru: ogrenim === "UNIVERSITE" && ogrenimTuru ? ogrenimTuru : null,
+        bolum:       ogrenim === "UNIVERSITE" && bolum ? bolum : null,
+        okul:        ogrenim === "UNIVERSITE" && okul ? okul : null,
+        il:          il || null,
       },
-      select: { id: true, adSoyad: true, telefon: true },
+      select: { id: true, adSoyad: true, telefon: true, email: true },
     });
 
-    return NextResponse.json({ ok: true, volunteer }, { status: 201 });
+    // Doğrulama e-postası — başarısız olsa bile kayıt tamamlanır
+    try {
+      const token = await createAuthToken("EPOSTA_DOGRULAMA_VOLUNTEER", { volunteerId: volunteer.id });
+      const base = process.env.NEXTAUTH_URL ?? req.nextUrl.origin;
+      await sendEmailVerification(volunteer.email!, volunteer.adSoyad, `${base}/eposta-dogrula/${token}`);
+    } catch (e) {
+      console.error("[gonullu/kayit] doğrulama e-postası gönderilemedi:", e);
+    }
+
+    return NextResponse.json({ ok: true, volunteer: { id: volunteer.id, adSoyad: volunteer.adSoyad, telefon: volunteer.telefon } }, { status: 201 });
   } catch (err) {
     console.error("[gonullu/kayit]", err);
     return NextResponse.json({ error: "Sunucu hatası." }, { status: 500 });

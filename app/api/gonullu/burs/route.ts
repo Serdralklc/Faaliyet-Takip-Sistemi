@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 
 import { getGonulluFromCookie } from "@/lib/gonullu-auth";
+import {
+  parseJson,
+  zAdSoyad,
+  zEmailOptional,
+  zKisaMetin,
+  zTelefon,
+  zUzunMetin,
+} from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
@@ -24,18 +33,27 @@ export async function GET() {
 }
 
 /** Yeni burs başvurusu */
+const bursSchema = z.object({
+  adSoyad: zAdSoyad,
+  telefon: zTelefon,
+  email: zEmailOptional,
+  universite: zKisaMetin,
+  fakulteBolum: zKisaMetin,
+  sinif: zKisaMetin,
+  il: zKisaMetin,
+  madiDurum: zKisaMetin,
+  aciklama: zUzunMetin,
+});
+
 export async function POST(req: NextRequest) {
   const session = await getGonulluFromCookie();
   if (!session) return NextResponse.json({ error: "Yetkisiz." }, { status: 401 });
 
+  const r = await parseJson(req, bursSchema);
+  if ("error" in r) return r.error;
+  const { adSoyad, telefon, email, universite, fakulteBolum, sinif, il, madiDurum, aciklama } = r.data;
+
   try {
-    const body = await req.json();
-    const { adSoyad, telefon, email, universite, fakulteBolum, sinif, il, madiDurum, aciklama } = body;
-
-    if (!adSoyad || !telefon || !universite || !fakulteBolum || !sinif || !il || !madiDurum || !aciklama) {
-      return NextResponse.json({ error: "Zorunlu alanlar eksik." }, { status: 400 });
-    }
-
     // Bekleyen başvuru var mı kontrol
     const mevcut = await prisma.bursBasvuru.findFirst({
       where: { volunteerId: session.id, durum: { in: ["BEKLEMEDE", "INCELENIYOR"] } },
@@ -47,15 +65,15 @@ export async function POST(req: NextRequest) {
     const basvuru = await prisma.bursBasvuru.create({
       data: {
         volunteerId:  session.id,
-        adSoyad:      adSoyad.trim(),
-        telefon:      telefon.trim(),
-        email:        email?.trim() || null,
-        universite:   universite.trim(),
-        fakulteBolum: fakulteBolum.trim(),
-        sinif:        sinif.trim(),
-        il:           il.trim(),
-        madiDurum:    madiDurum.trim(),
-        aciklama:     aciklama.trim(),
+        adSoyad,
+        telefon, // zTelefon normalize edilmiş değeri döndürür
+        email:        email ?? null,
+        universite,
+        fakulteBolum,
+        sinif,
+        il,
+        madiDurum,
+        aciklama,
         belgeler:     [],
       },
     });

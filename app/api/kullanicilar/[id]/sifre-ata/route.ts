@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import bcrypt from "bcryptjs";
+import { parseJson, zPassword } from "@/lib/validation";
+
+const sifreAtaSchema = z.object({ sifre: zPassword });
 
 export async function POST(
   req: NextRequest,
@@ -15,10 +19,9 @@ export async function POST(
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
 
-  const { sifre } = await req.json();
-  if (!sifre || sifre.length < 6) {
-    return NextResponse.json({ error: "Şifre en az 6 karakter olmalıdır" }, { status: 400 });
-  }
+  const r = await parseJson(req, sifreAtaSchema);
+  if ("error" in r) return r.error;
+  const { sifre } = r.data;
 
   const passwordHash = await bcrypt.hash(sifre, 12);
 

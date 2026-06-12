@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getGonulluFromCookie } from "@/lib/gonullu-auth";
+import {
+  parseJson,
+  zAdSoyad,
+  zKisaMetin,
+  zKisaMetinOptional,
+  zTelefon,
+  zTelefonOptional,
+} from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
@@ -21,46 +30,64 @@ export async function GET() {
   return NextResponse.json(basvurular);
 }
 
+const ekKayitSchema = z.object({
+  ogrenciAd: zAdSoyad,
+  ogrenciSoyad: zAdSoyad,
+  telefon: zTelefon,
+  geldigiUlke: zKisaMetinOptional,
+  geldigiIl: zKisaMetinOptional,
+  geldigiIlce: zKisaMetinOptional,
+  gidecegiBolge: zKisaMetinOptional,
+  gidecegiIl: zKisaMetinOptional,
+  gidecegiIlce: zKisaMetinOptional,
+  universite: zKisaMetin,
+  fakulte: zKisaMetin,
+  bolum: zKisaMetin,
+  kayitTipi: zKisaMetin,
+  veliAdSoyad: zKisaMetinOptional,
+  veliTelefon: zTelefonOptional,
+  referansAdSoyad: zKisaMetinOptional,
+  referansTelefon: zTelefonOptional,
+  referansGorev: zKisaMetinOptional,
+});
+
 export async function POST(req: NextRequest) {
   const session = await getGonulluFromCookie();
   if (!session) return NextResponse.json({ error: "Yetkisiz." }, { status: 401 });
 
+  const r = await parseJson(req, ekKayitSchema);
+  if ("error" in r) return r.error;
+  const {
+    ogrenciAd, ogrenciSoyad, telefon,
+    geldigiUlke, geldigiIl, geldigiIlce,
+    gidecegiBolge, gidecegiIl, gidecegiIlce,
+    universite, fakulte, bolum, kayitTipi,
+    veliAdSoyad, veliTelefon,
+    referansAdSoyad, referansTelefon, referansGorev,
+  } = r.data;
+
   try {
-    const body = await req.json();
-    const {
-      ogrenciAd, ogrenciSoyad, telefon,
-      geldigiUlke, geldigiIl, geldigiIlce,
-      gidecegiBolge, gidecegiIl, gidecegiIlce,
-      universite, fakulte, bolum, kayitTipi,
-      veliAdSoyad, veliTelefon,
-      referansAdSoyad, referansTelefon, referansGorev,
-    } = body;
-
-    if (!ogrenciAd || !ogrenciSoyad || !telefon || !universite || !fakulte || !bolum || !kayitTipi) {
-      return NextResponse.json({ error: "Zorunlu alanlar eksik." }, { status: 400 });
-    }
-
     const basvuru = await prisma.ekKayitBasvuru.create({
       data: {
         volunteerId:     session.id,
-        ogrenciAd:       ogrenciAd.trim(),
-        ogrenciSoyad:    ogrenciSoyad.trim(),
-        telefon:         telefon.trim(),
-        geldigiUlke:     geldigiUlke?.trim() || null,
-        geldigiIl:       geldigiIl?.trim()   || null,
-        geldigiIlce:     geldigiIlce?.trim() || null,
-        gidecegiBolge:   gidecegiBolge?.trim() || null,
-        gidecegiIl:      gidecegiIl?.trim()  || null,
-        gidecegiIlce:    gidecegiIlce?.trim() || null,
-        universite:      universite.trim(),
-        fakulte:         fakulte.trim(),
-        bolum:           bolum.trim(),
-        kayitTipi:       kayitTipi.trim(),
-        veliAdSoyad:     veliAdSoyad?.trim()     || null,
-        veliTelefon:     veliTelefon?.trim()     || null,
-        referansAdSoyad: referansAdSoyad?.trim() || null,
-        referansTelefon: referansTelefon?.trim() || null,
-        referansGorev:   referansGorev?.trim()   || null,
+        ogrenciAd,
+        ogrenciSoyad,
+        telefon, // zTelefon normalize edilmiş değeri döndürür
+        geldigiUlke:     geldigiUlke     || null,
+        geldigiIl:       geldigiIl       || null,
+        geldigiIlce:     geldigiIlce     || null,
+        gidecegiBolge:   gidecegiBolge   || null,
+        gidecegiIl:      gidecegiIl      || null,
+        gidecegiIlce:    gidecegiIlce    || null,
+        universite,
+        fakulte,
+        bolum,
+        kayitTipi,
+        veliAdSoyad:     veliAdSoyad     || null,
+        veliTelefon:     veliTelefon     || null,
+        referansAdSoyad: referansAdSoyad || null,
+        referansTelefon: referansTelefon || null,
+        referansGorev:   referansGorev   || null,
       },
     });
 

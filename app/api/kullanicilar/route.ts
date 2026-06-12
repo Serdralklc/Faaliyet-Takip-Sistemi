@@ -1,10 +1,19 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { sendInvitationEmail } from "@/lib/mail";
 import bcrypt from "bcryptjs";
 import { Role, Sistem } from "@/app/generated/prisma/client";
+import {
+  parseJson,
+  readPagination,
+  zAdSoyad,
+  zEmail,
+  zKisaMetinOptional,
+  zTelefonOptional,
+} from "@/lib/validation";
 
 // GET: kullanıcı listesi
 export async function GET(req: NextRequest) {
@@ -69,28 +78,65 @@ export async function GET(req: NextRequest) {
     };
   }
 
-  const users = await prisma.user.findMany({
-    where: whereClause,
-    include: {
-      assignments: {
-        where: { status: "AKTIF" },
-        include: { il: true, bolge: true },
-        take: 1,
-      },
+  const pag = readPagination(searchParams);
+
+  const includeClause = {
+    assignments: {
+      where: { status: "AKTIF" as const },
+      include: { il: true, bolge: true },
+      take: 1,
     },
-    orderBy: { createdAt: "desc" },
-  });
+  };
+  const orderByClause = { createdAt: "desc" as const };
 
   // passwordHash'i boolean'a çevir (güvenlik için hash değerini döndürme)
-  const safeUsers = users.map((u) => ({
+  const toSafe = <T extends { passwordHash: string | null }>(u: T) => ({
     ...u,
     passwordHash: u.passwordHash ? "SET" : null,
-  }));
+  });
 
-  return NextResponse.json(safeUsers);
+  if (!pag.paged) {
+    // Geriye uyumlu mod: düz dizi, sert tavanlı
+    const users = await prisma.user.findMany({
+      where: whereClause,
+      include: includeClause,
+      orderBy: orderByClause,
+      take: pag.take,
+    });
+    return NextResponse.json(users.map(toSafe));
+  }
+
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where: whereClause,
+      include: includeClause,
+      orderBy: orderByClause,
+      skip: pag.skip,
+      take: pag.take,
+    }),
+    prisma.user.count({ where: whereClause }),
+  ]);
+
+  return NextResponse.json({
+    items: users.map(toSafe),
+    total,
+    page: pag.page,
+    limit: pag.limit,
+  });
 }
 
 // POST: davet ile kullanıcı oluştur
+const inviteSchema = z.object({
+  ad: zAdSoyad,
+  soyad: zAdSoyad,
+  email: zEmail,
+  telefon: zTelefonOptional,
+  userRole: z.enum(Role),
+  bolgeId: zKisaMetinOptional,
+  ilId: zKisaMetinOptional,
+  sistem: z.enum(Sistem).optional(),
+});
+
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
@@ -100,8 +146,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
 
-  const body = await req.json();
-  const { ad, soyad, email, telefon, userRole, bolgeId, ilId, sistem } = body;
+  const r = await parseJson(req, inviteSchema);
+  if ("error" in r) return r.error;
+  const { ad, soyad, email, telefon, userRole, bolgeId, ilId, sistem } = r.data;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -113,17 +160,18 @@ export async function POST(req: NextRequest) {
   const [user, invitation] = await prisma.$transaction(async (tx) => {
     const newUser = await tx.user.create({
       data: {
-        ad, soyad, email, telefon,
-        role:   userRole as Role,
+        ad, soyad, email,
+        telefon: telefon || null,
+        role:   userRole,
         status: "AKTIF",
-        sistem: (sistem as Sistem) ?? (session.user.sistem as Sistem) ?? "EGITIMCI",
+        sistem: sistem ?? (session.user.sistem as Sistem) ?? "EGITIMCI",
       },
     });
 
     const inv = await tx.invitation.create({
       data: {
         email,
-        role: userRole as Role,
+        role: userRole,
         bolgeId: bolgeId || null,
         ilId: ilId || null,
         invitedById: session.user.id,
@@ -135,7 +183,7 @@ export async function POST(req: NextRequest) {
       await tx.roleAssignment.create({
         data: {
           userId: newUser.id,
-          role: userRole as Role,
+          role: userRole,
           bolgeId: bolgeId || null,
           ilId: ilId || null,
         },

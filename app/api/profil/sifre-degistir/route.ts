@@ -1,21 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import bcrypt from "bcryptjs";
+import { parseJson, zPassword } from "@/lib/validation";
+
+const sifreDegistirSchema = z.object({
+  eskiSifre: z.string().min(1, "Mevcut şifre zorunludur."),
+  yeniSifre: zPassword,
+});
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
-  const { eskiSifre, yeniSifre } = await req.json();
-
-  if (!eskiSifre || !yeniSifre) {
-    return NextResponse.json({ error: "Tüm alanlar zorunludur" }, { status: 400 });
-  }
-  if (yeniSifre.length < 8) {
-    return NextResponse.json({ error: "Yeni şifre en az 8 karakter olmalıdır" }, { status: 400 });
-  }
+  const r = await parseJson(req, sifreDegistirSchema);
+  if ("error" in r) return r.error;
+  const { eskiSifre, yeniSifre } = r.data;
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
   if (!user?.passwordHash) {

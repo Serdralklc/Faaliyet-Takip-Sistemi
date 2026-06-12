@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { GeriBildirimKonu } from "@/app/generated/prisma/client";
 import { getGonulluFromCookie } from "@/lib/gonullu-auth";
+import { parseJson, zUzunMetin } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
 
-const VALID_KONU: GeriBildirimKonu[] = ["ONERI", "TALEP", "TEKNIK_SORUN", "DIGER"];
+const geriBildirimSchema = z.object({
+  konu: z.enum(["ONERI", "TALEP", "TEKNIK_SORUN", "DIGER"]),
+  mesaj: zUzunMetin,
+});
 
 export async function GET() {
   const session = await getGonulluFromCookie();
@@ -25,19 +29,13 @@ export async function POST(req: NextRequest) {
   const session = await getGonulluFromCookie();
   if (!session) return NextResponse.json({ error: "Yetkisiz." }, { status: 401 });
 
+  const r = await parseJson(req, geriBildirimSchema);
+  if ("error" in r) return r.error;
+  const { konu, mesaj } = r.data;
+
   try {
-    const { konu, mesaj } = await req.json();
-
-    if (!konu || !mesaj?.trim()) {
-      return NextResponse.json({ error: "Konu ve mesaj zorunludur." }, { status: 400 });
-    }
-
-    if (!VALID_KONU.includes(konu)) {
-      return NextResponse.json({ error: "Geçersiz konu." }, { status: 400 });
-    }
-
     const fb = await prisma.geriBildirim.create({
-      data: { volunteerId: session.id, konu, mesaj: mesaj.trim() },
+      data: { volunteerId: session.id, konu, mesaj },
     });
 
     return NextResponse.json({ ok: true, id: fb.id }, { status: 201 });

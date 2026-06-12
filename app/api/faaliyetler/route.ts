@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
+import { readPagination } from "@/lib/validation";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -47,13 +48,34 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(activity ?? null);
   }
 
-  const activities = await prisma.activity.findMany({
-    where,
-    include: { il: { include: { bolge: true } } },
-    orderBy: [{ yil: "desc" }, { donem: "asc" }],
-  });
+  const pag = readPagination(searchParams);
 
-  return NextResponse.json(activities);
+  const includeClause = { il: { include: { bolge: true } } };
+  const orderByClause = [{ yil: "desc" as const }, { donem: "asc" as const }];
+
+  if (!pag.paged) {
+    // Geriye uyumlu mod: düz dizi, sert tavanlı
+    const activities = await prisma.activity.findMany({
+      where,
+      include: includeClause,
+      orderBy: orderByClause,
+      take: pag.take,
+    });
+    return NextResponse.json(activities);
+  }
+
+  const [activities, total] = await Promise.all([
+    prisma.activity.findMany({
+      where,
+      include: includeClause,
+      orderBy: orderByClause,
+      skip: pag.skip,
+      take: pag.take,
+    }),
+    prisma.activity.count({ where }),
+  ]);
+
+  return NextResponse.json({ items: activities, total, page: pag.page, limit: pag.limit });
 }
 
 export async function POST(req: NextRequest) {
@@ -70,6 +92,18 @@ export async function POST(req: NextRequest) {
   // İl sorumlusu sadece kendi iline girebilir
   if (session.user.role === "IL_SORUMLUSU" && session.user.activeIlId !== ilId) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
+  }
+
+  // Arşivlenmiş dönem salt-okunur — veri korunur, değiştirilemez
+  const mevcut = await prisma.activity.findUnique({
+    where: { ilId_yil_donem: { ilId, yil: Number(yil), donem } },
+    select: { arsivlendi: true },
+  });
+  if (mevcut?.arsivlendi) {
+    return NextResponse.json(
+      { error: "Bu dönem arşivlenmiş ve salt-okunurdur. Düzenlemek için önce arşivden çıkarılmalıdır." },
+      { status: 409 }
+    );
   }
 
   const user = session.user;

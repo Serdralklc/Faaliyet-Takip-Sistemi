@@ -1,32 +1,52 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 
 import { getGonulluFromCookie } from "@/lib/gonullu-auth";
 import bcrypt from "bcryptjs";
+import { parseJson, zEmail, zPassword, zTelefonOptional } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
+
+const profilSchema = z.object({
+  telefon: zTelefonOptional,
+  // "" ve null e-postayı silme talebi olarak korur; dolu değer formata uymalı
+  email: z.preprocess(
+    v => (typeof v === "string" && v.trim() === "" ? null : v),
+    zEmail.nullable().optional()
+  ),
+  eskiSifre: z.string().optional(),
+  // Boş string "şifre değiştirme yok" demektir; dolu ise en az 8 karakter
+  yeniSifre: z.preprocess(
+    v => (typeof v === "string" && v === "" ? undefined : v),
+    zPassword.optional()
+  ),
+});
 
 export async function PUT(req: NextRequest) {
   const session = await getGonulluFromCookie();
   if (!session) return NextResponse.json({ error: "Yetkisiz." }, { status: 401 });
 
-  try {
-    const { telefon, email, eskiSifre, yeniSifre } = await req.json();
+  const r = await parseJson(req, profilSchema);
+  if ("error" in r) return r.error;
+  const { telefon, email, eskiSifre, yeniSifre } = r.data;
 
+  try {
     const volunteer = await prisma.volunteer.findUnique({ where: { id: session.id } });
     if (!volunteer) return NextResponse.json({ error: "Bulunamadı." }, { status: 404 });
 
     const updateData: Record<string, string | null> = {};
 
-    if (telefon && telefon.trim() !== volunteer.telefon) {
-      const conflict = await prisma.volunteer.findUnique({ where: { telefon: telefon.trim() } });
+    if (telefon && telefon !== volunteer.telefon) {
+      // zTelefonOptional normalize edilmiş değeri döndürür
+      const conflict = await prisma.volunteer.findUnique({ where: { telefon } });
       if (conflict) return NextResponse.json({ error: "Bu telefon başka bir hesapta kullanılıyor." }, { status: 409 });
-      updateData.telefon = telefon.trim();
+      updateData.telefon = telefon;
     }
 
     if (email !== undefined) {
-      const newEmail = email?.trim() || null;
+      const newEmail = email; // zod ile normalize: küçük harf / null
       if (newEmail !== volunteer.email) {
         if (newEmail) {
           const conflict = await prisma.volunteer.findUnique({ where: { email: newEmail } });
@@ -40,7 +60,6 @@ export async function PUT(req: NextRequest) {
       if (!eskiSifre) return NextResponse.json({ error: "Mevcut şifre girilmedi." }, { status: 400 });
       const match = await bcrypt.compare(eskiSifre, volunteer.passwordHash);
       if (!match) return NextResponse.json({ error: "Mevcut şifre hatalı." }, { status: 400 });
-      if (yeniSifre.length < 6) return NextResponse.json({ error: "Yeni şifre en az 6 karakter olmalıdır." }, { status: 400 });
       updateData.passwordHash = await bcrypt.hash(yeniSifre, 12);
     }
 

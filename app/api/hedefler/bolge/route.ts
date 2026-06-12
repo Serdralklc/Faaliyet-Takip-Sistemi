@@ -1,6 +1,9 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+import { parseJson, zId, zYil, zPozitifSayi } from "@/lib/validation";
+import { createAuditLog, ACTIONS } from "@/lib/audit";
 
 const ADMIN_ROLES = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
 
@@ -30,22 +33,42 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(hedefler);
 }
 
+const postSchema = z.object({
+  bolgeId: zId,
+  yil: zYil,
+  donem: z.enum(["DONEM_1", "DONEM_2", "YAZ_DONEMI"]),
+  yeniIntisap: zPozitifSayi.optional(),
+  sosyalFaaliyet: zPozitifSayi.optional(),
+  kafile: zPozitifSayi.optional(),
+  sabahNamazi: zPozitifSayi.optional(),
+  ilimDersi: zPozitifSayi.optional(),
+  kykBulusma: zPozitifSayi.optional(),
+  ziyaret: zPozitifSayi.optional(),
+});
+
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session?.user || !ADMIN_ROLES.includes(session.user.role))
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
-  const body = await req.json();
-  const { bolgeId, yil, donem, ...hedefler } = body;
-
-  if (!bolgeId || !yil || !donem)
-    return NextResponse.json({ error: "Eksik alan" }, { status: 400 });
+  const r = await parseJson(req, postSchema);
+  if ("error" in r) return r.error;
+  const { bolgeId, yil, donem, ...hedefler } = r.data;
 
   const hedef = await prisma.bolgeHedef.upsert({
-    where: { bolgeId_yil_donem: { bolgeId, yil: parseInt(yil), donem } },
-    create: { bolgeId, yil: parseInt(yil), donem, ...hedefler },
+    where: { bolgeId_yil_donem: { bolgeId, yil, donem } },
+    create: { bolgeId, yil, donem, ...hedefler },
     update: hedefler,
   });
+
+  await createAuditLog({
+    userId: session.user.id,
+    action: ACTIONS.TARGET_UPDATED,
+    entity: "BolgeHedef",
+    entityId: hedef.id,
+    newValue: hedefler,
+    description: `${yil} ${donem} bölge hedefi güncellendi`,
+  }).catch(console.error);
 
   return NextResponse.json(hedef);
 }

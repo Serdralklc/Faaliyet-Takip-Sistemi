@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { readPagination } from "@/lib/validation";
 
 
 export const dynamic = "force-dynamic";
@@ -21,19 +22,41 @@ export async function GET(req: NextRequest) {
   const okul   = searchParams.get("okul")    || undefined;
   const ogrenim = searchParams.get("ogrenim") || undefined;
 
-  const gonulluler = await prisma.volunteer.findMany({
-    where: {
-      ...(il      ? { il:      { contains: il,      mode: "insensitive" } } : {}),
-      ...(okul    ? { okul:    { contains: okul,    mode: "insensitive" } } : {}),
-      ...(ogrenim ? { ogrenim: ogrenim as never }                           : {}),
-    },
-    select: {
-      id: true, adSoyad: true, telefon: true, email: true,
-      ogrenim: true, ogrenimTuru: true, okul: true, bolum: true, il: true, createdAt: true,
-      _count: { select: { bursBasvurulari: true, geriBildirimler: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const where = {
+    ...(il      ? { il:      { contains: il,      mode: "insensitive" as const } } : {}),
+    ...(okul    ? { okul:    { contains: okul,    mode: "insensitive" as const } } : {}),
+    ...(ogrenim ? { ogrenim: ogrenim as never }                                    : {}),
+  };
 
-  return NextResponse.json(gonulluler);
+  const selectClause = {
+    id: true, adSoyad: true, telefon: true, email: true,
+    ogrenim: true, ogrenimTuru: true, okul: true, bolum: true, il: true, createdAt: true,
+    _count: { select: { bursBasvurulari: true, geriBildirimler: true } },
+  };
+
+  const pag = readPagination(searchParams);
+
+  if (!pag.paged) {
+    // Geriye uyumlu mod: düz dizi, sert tavanlı
+    const gonulluler = await prisma.volunteer.findMany({
+      where,
+      select: selectClause,
+      orderBy: { createdAt: "desc" },
+      take: pag.take,
+    });
+    return NextResponse.json(gonulluler);
+  }
+
+  const [gonulluler, total] = await Promise.all([
+    prisma.volunteer.findMany({
+      where,
+      select: selectClause,
+      orderBy: { createdAt: "desc" },
+      skip: pag.skip,
+      take: pag.take,
+    }),
+    prisma.volunteer.count({ where }),
+  ]);
+
+  return NextResponse.json({ items: gonulluler, total, page: pag.page, limit: pag.limit });
 }

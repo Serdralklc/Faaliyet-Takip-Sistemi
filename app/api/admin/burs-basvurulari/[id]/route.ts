@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+import { parseJson } from "@/lib/validation";
+import { createAuditLog, ACTIONS } from "@/lib/audit";
+
+const patchSchema = z.object({
+  durum: z.enum(["BEKLEMEDE", "INCELENIYOR", "ONAYLANDI", "REDDEDILDI"]).optional(),
+  yoneticiNotu: z.string().trim().max(2000).optional(),
+});
 
 export async function PATCH(
   req: NextRequest,
@@ -13,7 +21,12 @@ export async function PATCH(
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
 
-  const { durum, yoneticiNotu } = await req.json();
+  const r = await parseJson(req, patchSchema);
+  if ("error" in r) return r.error;
+  const { durum, yoneticiNotu } = r.data;
+
+  const eski = await prisma.bursBasvuru.findUnique({ where: { id }, select: { durum: true } });
+  if (!eski) return NextResponse.json({ error: "Başvuru bulunamadı" }, { status: 404 });
 
   const updated = await prisma.bursBasvuru.update({
     where: { id },
@@ -22,6 +35,16 @@ export async function PATCH(
       yoneticiNotu: yoneticiNotu || null,
     },
   });
+
+  await createAuditLog({
+    userId: session.user.id,
+    action: ACTIONS.BURS_STATUS_CHANGED,
+    entity: "BursBasvuru",
+    entityId: id,
+    oldValue: { durum: eski.durum },
+    newValue: { durum: updated.durum },
+    description: `Burs başvurusu durumu güncellendi: ${eski.durum} → ${updated.durum}`,
+  }).catch(console.error);
 
   return NextResponse.json({ success: true, durum: updated.durum });
 }

@@ -1,6 +1,9 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+import { parseJson, zId, zYil, zPozitifSayi } from "@/lib/validation";
+import { createAuditLog, ACTIONS } from "@/lib/audit";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -22,6 +25,20 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(hedefler);
 }
 
+const postSchema = z.object({
+  ilId: zId,
+  bolgeHedefId: zId,
+  yil: zYil,
+  donem: z.enum(["DONEM_1", "DONEM_2", "YAZ_DONEMI"]),
+  yeniIntisap: zPozitifSayi.optional(),
+  sosyalFaaliyet: zPozitifSayi.optional(),
+  kafile: zPozitifSayi.optional(),
+  sabahNamazi: zPozitifSayi.optional(),
+  ilimDersi: zPozitifSayi.optional(),
+  kykBulusma: zPozitifSayi.optional(),
+  ziyaret: zPozitifSayi.optional(),
+});
+
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -30,18 +47,25 @@ export async function POST(req: NextRequest) {
   if (!allowed.includes(session.user.role))
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
-  const body = await req.json();
-  const { ilId, bolgeHedefId, yil, donem, ...hedefler } = body;
-
-  if (!ilId || !bolgeHedefId || !yil || !donem)
-    return NextResponse.json({ error: "Eksik alan" }, { status: 400 });
+  const r = await parseJson(req, postSchema);
+  if ("error" in r) return r.error;
+  const { ilId, bolgeHedefId, yil, donem, ...hedefler } = r.data;
 
   const hedef = await prisma.ilHedef.upsert({
-    where: { ilId_yil_donem: { ilId, yil: parseInt(yil), donem } },
-    create: { ilId, bolgeHedefId, yil: parseInt(yil), donem, ...hedefler },
+    where: { ilId_yil_donem: { ilId, yil, donem } },
+    create: { ilId, bolgeHedefId, yil, donem, ...hedefler },
     update: { ...hedefler, bolgeHedefId },
     include: { il: { select: { id: true, ad: true } } },
   });
+
+  await createAuditLog({
+    userId: session.user.id,
+    action: ACTIONS.TARGET_UPDATED,
+    entity: "IlHedef",
+    entityId: hedef.id,
+    newValue: hedefler,
+    description: `${yil} ${donem} il hedefi güncellendi`,
+  }).catch(console.error);
 
   return NextResponse.json(hedef);
 }
