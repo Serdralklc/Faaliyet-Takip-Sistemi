@@ -83,6 +83,16 @@ export type BolgeHedef = Prisma.BolgeHedefModel
  */
 export type IlHedef = Prisma.IlHedefModel
 /**
+ * Model GenclikBolgeHedef
+ * 
+ */
+export type GenclikBolgeHedef = Prisma.GenclikBolgeHedefModel
+/**
+ * Model GenclikIlHedef
+ * 
+ */
+export type GenclikIlHedef = Prisma.GenclikIlHedefModel
+/**
  * Model Volunteer
  * 
  */

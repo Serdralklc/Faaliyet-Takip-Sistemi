@@ -392,6 +392,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
               Lise Gençlik
             </p>
             <NavItem href="/panel/il/lise-faaliyet" label="Faaliyet Yönetimi" icon={ClipboardList} />
+            <NavItem href="/panel/il/hedefler" label="Muradımız" icon={Target} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
           </>
@@ -404,6 +405,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
               Üniversite Gençlik
             </p>
             <NavItem href="/panel/il/universite-faaliyet" label="Faaliyet Yönetimi" icon={ClipboardList} />
+            <NavItem href="/panel/il/hedefler" label="Muradımız" icon={Target} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
           </>

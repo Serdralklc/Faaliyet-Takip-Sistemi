@@ -81,6 +81,7 @@ model Bolge {
   iller       Il[]
   assignments RoleAssignment[]
   hedefler    BolgeHedef[]
+  genclikHedefler GenclikBolgeHedef[]
 }
 
 model Il {
@@ -98,6 +99,7 @@ model Il {
   activities     Activity[]
   housingUnits   HousingUnit[]
   hedefler       IlHedef[]
+  genclikHedefler GenclikIlHedef[]
   liseFaaliyetler LiseFaaliyet[]
   universiteFaaliyetler UniversiteFaaliyet[]
 }
@@ -463,6 +465,41 @@ model IlHedef {
 
   @@unique([ilId, yil, donem])
   @@index([ilId])
+}
+
+// ── Gençlik (Üniversite / Lise) Muradımız hedefleri ──────────────────────
+// Eğitimci hedeflerinden ayrı; kategori-bazlı (faaliyet kategorisi → hedef sayı).
+// hedefler Json: { "ILIM_SOHBET": 10, "SOSYAL": 5, ..., "YENI_INTISAP": 3 }
+model GenclikBolgeHedef {
+  id        String   @id @default(cuid())
+  sistem    Sistem   // UNIVERSITE | LISE
+  bolgeId   String
+  yil       Int
+  donem     String
+  hedefler  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bolge Bolge @relation(fields: [bolgeId], references: [id])
+
+  @@unique([sistem, bolgeId, yil, donem])
+  @@index([sistem, yil, donem])
+}
+
+model GenclikIlHedef {
+  id        String   @id @default(cuid())
+  sistem    Sistem   // UNIVERSITE | LISE
+  ilId      String
+  yil       Int
+  donem     String
+  hedefler  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  il Il @relation(fields: [ilId], references: [id])
+
+  @@unique([sistem, ilId, yil, donem])
+  @@index([sistem, yil, donem])
 }
 
 // ── Gönüllü Sistemi ────────────────────────────────────────────

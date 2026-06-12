@@ -64,6 +64,8 @@ export const ModelName = {
   HousingVisit: 'HousingVisit',
   BolgeHedef: 'BolgeHedef',
   IlHedef: 'IlHedef',
+  GenclikBolgeHedef: 'GenclikBolgeHedef',
+  GenclikIlHedef: 'GenclikIlHedef',
   Volunteer: 'Volunteer',
   BursBasvuru: 'BursBasvuru',
   EkKayitBasvuru: 'EkKayitBasvuru',
@@ -409,6 +411,34 @@ export const IlHedefScalarFieldEnum = {
 } as const
 
 export type IlHedefScalarFieldEnum = (typeof IlHedefScalarFieldEnum)[keyof typeof IlHedefScalarFieldEnum]
+
+
+export const GenclikBolgeHedefScalarFieldEnum = {
+  id: 'id',
+  sistem: 'sistem',
+  bolgeId: 'bolgeId',
+  yil: 'yil',
+  donem: 'donem',
+  hedefler: 'hedefler',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GenclikBolgeHedefScalarFieldEnum = (typeof GenclikBolgeHedefScalarFieldEnum)[keyof typeof GenclikBolgeHedefScalarFieldEnum]
+
+
+export const GenclikIlHedefScalarFieldEnum = {
+  id: 'id',
+  sistem: 'sistem',
+  ilId: 'ilId',
+  yil: 'yil',
+  donem: 'donem',
+  hedefler: 'hedefler',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GenclikIlHedefScalarFieldEnum = (typeof GenclikIlHedefScalarFieldEnum)[keyof typeof GenclikIlHedefScalarFieldEnum]
 
 
 export const VolunteerScalarFieldEnum = {

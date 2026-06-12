@@ -2,6 +2,40 @@ export const dynamic = 'force-dynamic'
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { GenclikHedefView, type DonemHedef } from "./GenclikHedefView";
+import { hedefMetrikleri, gerceklesenHedef, asNumberMap, type GenclikSistem } from "@/lib/genclik-hedef";
+
+/* Üniversite / Lise Gençlik il sorumlusu: kategori-bazlı murad + gerçekleşen ilerleme */
+async function GenclikIlHedef({ ilId, sistem }: { ilId: string; sistem: GenclikSistem }) {
+  const il = await prisma.il.findUnique({ where: { id: ilId }, include: { bolge: true } });
+  if (!il) redirect("/panel/beklemede");
+
+  const [hedefler, faaliyetler] = await Promise.all([
+    prisma.genclikIlHedef.findMany({ where: { ilId, sistem }, orderBy: [{ yil: "desc" }, { donem: "asc" }] }),
+    sistem === "UNIVERSITE"
+      ? prisma.universiteFaaliyet.findMany({ where: { ilId }, select: { yil: true, donem: true, kategori: true, yeniIntisap: true } })
+      : prisma.liseFaaliyet.findMany({ where: { ilId }, select: { yil: true, donem: true, kategori: true, yeniIntisap: true } }),
+  ]);
+
+  const donemler: DonemHedef[] = hedefler.map(h => {
+    const eslesen = faaliyetler.filter(f => f.yil === h.yil && String(f.donem) === h.donem);
+    return {
+      yil: h.yil, donem: h.donem,
+      hedefler: asNumberMap(h.hedefler),
+      gerceklesen: gerceklesenHedef(eslesen),
+      faaliyetVar: eslesen.length > 0,
+    };
+  });
+
+  return (
+    <GenclikHedefView
+      baslik="Muradımız Merkezi"
+      altBaslik={`${il.ad} · ${il.bolge.ad} · ${sistem === "UNIVERSITE" ? "Üniversite" : "Lise"} Gençlik`}
+      metrikler={hedefMetrikleri(sistem)}
+      donemler={donemler}
+    />
+  );
+}
 
 const HEDEF_ALANLARI = [
   { key: "yeniIntisap",    label: "Yeni İntisap" },
@@ -52,10 +86,13 @@ export default async function IlHedeflerPage() {
   const session = await getSession();
   if (!session?.user) redirect("/giris");
   if (session.user.role !== "IL_SORUMLUSU") redirect("/");
-  if (session.user.sistem === "LISE") redirect("/panel/il/lise-faaliyet");
-  if (session.user.sistem === "UNIVERSITE") redirect("/panel/il/universite-faaliyet");
   const ilId = session.user.activeIlId;
   if (!ilId) redirect("/panel/beklemede");
+
+  // Üniversite / Lise Gençlik il sorumlusu: kategori-bazlı murad görünümü
+  if (session.user.sistem === "UNIVERSITE" || session.user.sistem === "LISE") {
+    return <GenclikIlHedef ilId={ilId} sistem={session.user.sistem as GenclikSistem} />;
+  }
 
   const [il, hedefler, faaliyetler] = await Promise.all([
     prisma.il.findUnique({ where: { id: ilId }, include: { bolge: true } }),
