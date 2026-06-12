@@ -180,10 +180,10 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
       ],
     },
     {
-      label: "Hedef Takip",
+      label: "Muradımız",
       icon: Target,
       items: [
-        { href: "/panel/il/hedefler", label: "Hedef Takip Merkezi", icon: Target },
+        { href: "/panel/il/hedefler", label: "Muradımız Merkezi", icon: Target },
       ],
     },
   ];
@@ -244,7 +244,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             <NavItem href="/panel/admin/form-yonetimi" label="Form Yönetimi" icon={FileText} />
             <NavItem href="/panel/admin/bildirimler-merkezi" label="Bildirim Merkezi" icon={Bell} />
             <NavItem href="/panel/admin/analiz" label="Rapor ve Analiz Merkezi" icon={BarChart3} />
-            <NavItem href="/panel/admin/hedefler" label="Hedef Yönetimi" icon={Target} />
+            <NavItem href="/panel/admin/hedefler" label="Muradımız" icon={Target} />
 
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
 
@@ -264,7 +264,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             </p>
             <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavGroupComp group={uniOnlyFaaliyet} />
-            <NavItem href="/panel/admin/hedefler"     label="Hedef Yönetimi"  icon={Target} />
+            <NavItem href="/panel/admin/hedefler"     label="Muradımız"  icon={Target} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Paneli" icon={UserCircle} />
             <NavItem href="/panel/admin/bolgeler"     label="Coğrafi Yapı"    icon={MapPin} />
             <NavItem href="/panel/admin/loglar"       label="Denetim Logları" icon={ClipboardList} />
@@ -279,7 +279,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             </p>
             <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavGroupComp group={liseOnlyFaaliyet} />
-            <NavItem href="/panel/admin/hedefler"     label="Hedef Yönetimi"  icon={Target} />
+            <NavItem href="/panel/admin/hedefler"     label="Muradımız"  icon={Target} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Paneli" icon={UserCircle} />
             <NavItem href="/panel/admin/bolgeler"     label="Coğrafi Yapı"    icon={MapPin} />
             <NavItem href="/panel/admin/loglar"       label="Denetim Logları" icon={ClipboardList} />
@@ -295,7 +295,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             <NavItem href="/panel/bolge" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/bolge/iller" label="İller" icon={MapPin} />
             <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
-            <NavItem href="/panel/bolge/hedefler" label="Hedef Dağıtımı" icon={Target} />
+            <NavItem href="/panel/bolge/hedefler" label="Muradımız Dağıtımı" icon={Target} />
             <NavItem href="/panel/bolge/performans" label="Performans Paneli" icon={TrendingUp} />
             <NavItem href="/panel/bolge/ek-kayit-basvurulari" label="Ev / Yurt Başvuruları" icon={Building2} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />

@@ -343,7 +343,7 @@ export default function IlDashboardClient({
           <div>
             <div className="flex items-center justify-between mb-3">
               <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
-                Hedef Takip — {sonHedef.yil} / {DONEM_LABEL[sonHedef.donem]}
+                Muradımız — {sonHedef.yil} / {DONEM_LABEL[sonHedef.donem]}
               </p>
               <Link href="/panel/il/hedefler" className="text-xs font-bold" style={{ color: "var(--green-primary)" }}>
                 Tümünü Gör →

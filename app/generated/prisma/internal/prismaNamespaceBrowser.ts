@@ -108,6 +108,7 @@ export const UserScalarFieldEnum = {
   basvuruGorev: 'basvuruGorev',
   basvuruBolgeId: 'basvuruBolgeId',
   basvuruIlId: 'basvuruIlId',
+  sonAktif: 'sonAktif',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

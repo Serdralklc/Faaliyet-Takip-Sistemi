@@ -310,7 +310,7 @@ export default function AdminHedeflerClient({ bolgeler: initial }: { bolgeler: B
   return (
     <div className="p-6 max-w-5xl space-y-5">
       <div className="sv-page-header">
-        <h1>Hedef Yönetimi</h1>
+        <h1>Muradımız</h1>
         <p>Bölgelere dönemlik hedef atayın. Bölge sorumluları bu hedefleri illerine dağıtır.</p>
       </div>
 

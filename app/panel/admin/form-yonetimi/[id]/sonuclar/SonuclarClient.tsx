@@ -6,11 +6,12 @@
  * PDF / Excel / Word dışa aktarımı aynı sütun düzenini kullanır.
  */
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { ExportButtons } from "@/components/ui/ExportButtons";
+import { Badge } from "@/components/ui/Badge";
 import { Skeleton, SkeletonTable } from "@/components/ui/Skeleton";
 import type { ExportSpec } from "@/lib/export/corporate";
 
@@ -32,12 +33,30 @@ interface Yanit {
   cevaplar: Record<string, CevapDeger>;
 }
 
+type Sistem = "EGITIMCI" | "UNIVERSITE" | "LISE";
+
+interface Yanitlamayan {
+  id: string;
+  adSoyad: string;
+  email: string;
+  sistem: Sistem;
+  konum: string;
+}
+
 interface SonucData {
   id: string;
   baslik: string;
   sorular: Soru[];
   yanitlar: Yanit[];
+  yanitlamayanlar: Yanitlamayan[];
+  hedefToplam: number;
 }
+
+const SISTEM_BADGE: Record<Sistem, { label: string; tone: "info" | "brand" | "warning" }> = {
+  EGITIMCI:   { label: "Eğitim",     tone: "brand" },
+  UNIVERSITE: { label: "Üniversite", tone: "info" },
+  LISE:       { label: "Lise",       tone: "warning" },
+};
 
 const dosyaMi = (c: CevapDeger): c is { dosyaId: string; ad: string; url: string } =>
   typeof c === "object" && c !== null && !Array.isArray(c);
@@ -57,6 +76,8 @@ function tarihTR(value: string): string {
 }
 
 export function SonuclarClient({ formId }: { formId: string }) {
+  const [sekme, setSekme] = useState<"yanitlayan" | "yanitlamayan">("yanitlayan");
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ["form-sonuclar", formId],
     queryFn: async (): Promise<SonucData> => {
@@ -68,6 +89,8 @@ export function SonuclarClient({ formId }: { formId: string }) {
 
   const sorular = useMemo(() => data?.sorular ?? [], [data]);
   const yanitlar = useMemo(() => data?.yanitlar ?? [], [data]);
+  const yanitlamayanlar = useMemo(() => data?.yanitlamayanlar ?? [], [data]);
+  const hedefToplam = data?.hedefToplam ?? 0;
 
   const columns = useMemo<DataTableColumn<Yanit>[]>(() => [
     {
@@ -131,6 +154,57 @@ export function SonuclarClient({ formId }: { formId: string }) {
     };
   }
 
+  const yanitlamayanColumns = useMemo<DataTableColumn<Yanitlamayan>[]>(() => [
+    {
+      key: "adSoyad",
+      header: "Ad Soyad",
+      mobile: true,
+      render: u => <span className="font-semibold text-heading text-sm">{u.adSoyad}</span>,
+    },
+    {
+      key: "email",
+      header: "E-posta",
+      mobile: true,
+      render: u => <span className="text-xs text-muted">{u.email}</span>,
+    },
+    {
+      key: "sistem",
+      header: "Sistem",
+      mobile: true,
+      sortValue: u => SISTEM_BADGE[u.sistem].label,
+      render: u => {
+        const b = SISTEM_BADGE[u.sistem];
+        return <Badge tone={b.tone}>{b.label}</Badge>;
+      },
+    },
+    {
+      key: "konum",
+      header: "Konum",
+      mobile: true,
+      render: u => <span className="text-sm">{u.konum}</span>,
+    },
+  ], []);
+
+  function getYanitlamayanSpec(): ExportSpec {
+    return {
+      title: `Yanıtlamayanlar — ${data?.baslik ?? ""}`,
+      subtitle: `${yanitlamayanlar.length} kişi yanıtlamadı`,
+      fileName: `form-yanitlamayanlar-${formId}`,
+      columns: [
+        { header: "Ad Soyad", key: "adSoyad" },
+        { header: "E-posta", key: "email" },
+        { header: "Sistem", key: "sistem" },
+        { header: "Konum", key: "konum" },
+      ],
+      rows: yanitlamayanlar.map(u => ({
+        adSoyad: u.adSoyad,
+        email: u.email,
+        sistem: SISTEM_BADGE[u.sistem].label,
+        konum: u.konum,
+      })),
+    };
+  }
+
   if (isLoading) {
     return (
       <div className="p-6 lg:p-8 space-y-5">
@@ -166,22 +240,69 @@ export function SonuclarClient({ formId }: { formId: string }) {
       </Link>
 
       <div className="sv-page-header flex flex-wrap items-start justify-between gap-3" style={{ marginBottom: 0 }}>
-        <div>
+        <div className="flex flex-wrap items-center gap-3">
           <h1>{data.baslik}</h1>
-          <p>Toplam {yanitlar.length} yanıt</p>
+          {hedefToplam > 0 && yanitlamayanlar.length > 0 && (
+            <Badge tone="warning">
+              {yanitlamayanlar.length} / {hedefToplam} kişi henüz yanıtlamadı
+            </Badge>
+          )}
         </div>
-        <ExportButtons getSpec={getSpec} />
+        {sekme === "yanitlayan"
+          ? <ExportButtons getSpec={getSpec} />
+          : yanitlamayanlar.length > 0 && <ExportButtons getSpec={getYanitlamayanSpec} />}
       </div>
 
-      <DataTable
-        id={`form-sonuc-${formId}`}
-        data={yanitlar}
-        columns={columns}
-        rowKey={y => y.id}
-        searchText={y => `${y.userName} ${sorular.map(s => cevapToText(y.cevaplar?.[s.id])).join(" ")}`}
-        searchPlaceholder="Yanıtlayan veya cevap ara..."
-        emptyText="Bu forma henüz yanıt verilmemiş."
-      />
+      {/* ── Sekmeler ── */}
+      <div className="flex items-center gap-1 border-b border-border" role="tablist" aria-label="Sonuç görünümü">
+        {([
+          { key: "yanitlayan" as const, label: `Yanıtlayanlar (${yanitlar.length})` },
+          { key: "yanitlamayan" as const, label: `Yanıtlamayanlar (${yanitlamayanlar.length})` },
+        ]).map(t => {
+          const aktif = sekme === t.key;
+          return (
+            <button
+              key={t.key}
+              role="tab"
+              aria-selected={aktif}
+              onClick={() => setSekme(t.key)}
+              className="px-4 py-2.5 text-[13.5px] font-semibold transition -mb-px border-b-2"
+              style={{
+                borderColor: aktif ? "var(--accent)" : "transparent",
+                color: aktif ? "var(--accent)" : "var(--text-muted)",
+              }}
+            >
+              {t.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {sekme === "yanitlayan" ? (
+        <DataTable
+          id={`form-sonuc-${formId}`}
+          data={yanitlar}
+          columns={columns}
+          rowKey={y => y.id}
+          searchText={y => `${y.userName} ${sorular.map(s => cevapToText(y.cevaplar?.[s.id])).join(" ")}`}
+          searchPlaceholder="Yanıtlayan veya cevap ara..."
+          emptyText="Bu forma henüz yanıt verilmemiş."
+        />
+      ) : hedefToplam === 0 ? (
+        <div className="sv-section px-6 py-14 text-center">
+          <p className="text-[14.5px] font-semibold text-heading">Bu forma hedef kitle tanımlı değil.</p>
+        </div>
+      ) : (
+        <DataTable
+          id={`form-yanitlamayan-${formId}`}
+          data={yanitlamayanlar}
+          columns={yanitlamayanColumns}
+          rowKey={u => u.id}
+          searchText={u => `${u.adSoyad} ${u.email} ${SISTEM_BADGE[u.sistem].label} ${u.konum}`}
+          searchPlaceholder="Ad, e-posta veya konum ara..."
+          emptyText="Herkes yanıtladı 🎉"
+        />
+      )}
     </div>
   );
 }

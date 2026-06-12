@@ -171,7 +171,7 @@ export default function BolgePerformansClient({
     <div className="p-6 max-w-5xl space-y-6">
       <div className="sv-page-header">
         <h1>Performans Paneli</h1>
-        <p>{bolge.ad} · Hedef vs Gerçekleşen</p>
+        <p>{bolge.ad} · Muradımız vs Gerçekleşen</p>
       </div>
 
       {/* Dönem seçici */}

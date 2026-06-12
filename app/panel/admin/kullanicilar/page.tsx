@@ -23,7 +23,7 @@ interface Assignment {
 interface Kullanici {
   id: string; ad: string; soyad: string; email: string;
   telefon?: string; role: Role; status: string; sistem?: string;
-  passwordHash?: string | null; createdAt: string;
+  passwordHash?: string | null; createdAt: string; sonAktif?: string | null;
   assignments: Assignment[];
   basvuruGorev?: string | null;
   basvuruBolgeId?: string | null;
@@ -131,6 +131,13 @@ const YETKILI_COLS: DataTableColumn<Kullanici>[] = [
     key: "createdAt", header: "Kayıt", defaultHidden: true,
     sortValue: k => new Date(k.createdAt).getTime(),
     render: k => <span className="text-xs text-muted">{new Date(k.createdAt).toLocaleDateString("tr-TR")}</span>,
+  },
+  {
+    key: "sonAktif", header: "Son Aktif", mobile: true,
+    sortValue: k => (k.sonAktif ? new Date(k.sonAktif).getTime() : 0),
+    render: k => k.sonAktif
+      ? <span className="text-xs text-secondary">{new Date(k.sonAktif).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })}</span>
+      : <span className="text-xs text-muted italic">hiç giriş yok</span>,
   },
 ];
 
@@ -377,6 +384,7 @@ export default function KullanicilarPage() {
         </th>
         {!isBekleyen && <th className="text-left px-4 py-2.5 text-xs font-semibold text-muted uppercase tracking-wide">Şifre</th>}
         <th className="text-left px-4 py-2.5 text-xs font-semibold text-muted uppercase tracking-wide">Kayıt</th>
+        {!isBekleyen && <th className="text-left px-4 py-2.5 text-xs font-semibold text-muted uppercase tracking-wide">Son Aktif</th>}
         <th className="text-left px-4 py-2.5 text-xs font-semibold text-muted uppercase tracking-wide">İşlem</th>
       </tr>
     </thead>
@@ -404,6 +412,11 @@ export default function KullanicilarPage() {
         </td>
         <td className="px-4 py-3 text-xs text-muted">
           {new Date(k.createdAt).toLocaleDateString("tr-TR")}
+        </td>
+        <td className="px-4 py-3 text-xs">
+          {k.sonAktif
+            ? <span className="text-secondary">{new Date(k.sonAktif).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })}</span>
+            : <span className="text-muted italic">hiç giriş yok</span>}
         </td>
         <td className="px-4 py-3">
           <div className="flex gap-2 flex-wrap">

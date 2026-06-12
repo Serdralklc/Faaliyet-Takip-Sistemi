@@ -57,6 +57,8 @@ model User {
   basvuruGorev   String?
   basvuruBolgeId String?
   basvuruIlId    String?
+  // Son giriş (aktiflik) zamanı — her başarılı girişte güncellenir
+  sonAktif     DateTime?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 

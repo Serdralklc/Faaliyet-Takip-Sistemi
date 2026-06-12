@@ -37,6 +37,7 @@ export type UserMinAggregateOutputType = {
   basvuruGorev: string | null
   basvuruBolgeId: string | null
   basvuruIlId: string | null
+  sonAktif: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,6 +55,7 @@ export type UserMaxAggregateOutputType = {
   basvuruGorev: string | null
   basvuruBolgeId: string | null
   basvuruIlId: string | null
+  sonAktif: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -71,6 +73,7 @@ export type UserCountAggregateOutputType = {
   basvuruGorev: number
   basvuruBolgeId: number
   basvuruIlId: number
+  sonAktif: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -90,6 +93,7 @@ export type UserMinAggregateInputType = {
   basvuruGorev?: true
   basvuruBolgeId?: true
   basvuruIlId?: true
+  sonAktif?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -107,6 +111,7 @@ export type UserMaxAggregateInputType = {
   basvuruGorev?: true
   basvuruBolgeId?: true
   basvuruIlId?: true
+  sonAktif?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -124,6 +129,7 @@ export type UserCountAggregateInputType = {
   basvuruGorev?: true
   basvuruBolgeId?: true
   basvuruIlId?: true
+  sonAktif?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -214,6 +220,7 @@ export type UserGroupByOutputType = {
   basvuruGorev: string | null
   basvuruBolgeId: string | null
   basvuruIlId: string | null
+  sonAktif: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -252,6 +259,7 @@ export type UserWhereInput = {
   basvuruGorev?: Prisma.StringNullableFilter<"User"> | string | null
   basvuruBolgeId?: Prisma.StringNullableFilter<"User"> | string | null
   basvuruIlId?: Prisma.StringNullableFilter<"User"> | string | null
+  sonAktif?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   assignments?: Prisma.RoleAssignmentListRelationFilter
@@ -274,6 +282,7 @@ export type UserOrderByWithRelationInput = {
   basvuruGorev?: Prisma.SortOrderInput | Prisma.SortOrder
   basvuruBolgeId?: Prisma.SortOrderInput | Prisma.SortOrder
   basvuruIlId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sonAktif?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   assignments?: Prisma.RoleAssignmentOrderByRelationAggregateInput
@@ -299,6 +308,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   basvuruGorev?: Prisma.StringNullableFilter<"User"> | string | null
   basvuruBolgeId?: Prisma.StringNullableFilter<"User"> | string | null
   basvuruIlId?: Prisma.StringNullableFilter<"User"> | string | null
+  sonAktif?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   assignments?: Prisma.RoleAssignmentListRelationFilter
@@ -321,6 +331,7 @@ export type UserOrderByWithAggregationInput = {
   basvuruGorev?: Prisma.SortOrderInput | Prisma.SortOrder
   basvuruBolgeId?: Prisma.SortOrderInput | Prisma.SortOrder
   basvuruIlId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sonAktif?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -344,6 +355,7 @@ export type UserScalarWhereWithAggregatesInput = {
   basvuruGorev?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   basvuruBolgeId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   basvuruIlId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  sonAktif?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -361,6 +373,7 @@ export type UserCreateInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
@@ -383,6 +396,7 @@ export type UserUncheckedCreateInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
@@ -405,6 +419,7 @@ export type UserUpdateInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
@@ -427,6 +442,7 @@ export type UserUncheckedUpdateInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
@@ -449,6 +465,7 @@ export type UserCreateManyInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -466,6 +483,7 @@ export type UserUpdateManyMutationInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -483,6 +501,7 @@ export type UserUncheckedUpdateManyInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -500,6 +519,7 @@ export type UserCountOrderByAggregateInput = {
   basvuruGorev?: Prisma.SortOrder
   basvuruBolgeId?: Prisma.SortOrder
   basvuruIlId?: Prisma.SortOrder
+  sonAktif?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -517,6 +537,7 @@ export type UserMaxOrderByAggregateInput = {
   basvuruGorev?: Prisma.SortOrder
   basvuruBolgeId?: Prisma.SortOrder
   basvuruIlId?: Prisma.SortOrder
+  sonAktif?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -534,6 +555,7 @@ export type UserMinOrderByAggregateInput = {
   basvuruGorev?: Prisma.SortOrder
   basvuruBolgeId?: Prisma.SortOrder
   basvuruIlId?: Prisma.SortOrder
+  sonAktif?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -566,6 +588,10 @@ export type EnumUserStatusFieldUpdateOperationsInput = {
 
 export type EnumSistemFieldUpdateOperationsInput = {
   set?: $Enums.Sistem
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -657,6 +683,7 @@ export type UserCreateWithoutAssignmentsInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdActivities?: Prisma.ActivityCreateNestedManyWithoutCreatedByInput
@@ -678,6 +705,7 @@ export type UserUncheckedCreateWithoutAssignmentsInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCreatedByInput
@@ -715,6 +743,7 @@ export type UserUpdateWithoutAssignmentsInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdActivities?: Prisma.ActivityUpdateManyWithoutCreatedByNestedInput
@@ -736,6 +765,7 @@ export type UserUncheckedUpdateWithoutAssignmentsInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdActivities?: Prisma.ActivityUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -757,6 +787,7 @@ export type UserCreateWithoutInvitationsInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
@@ -778,6 +809,7 @@ export type UserUncheckedCreateWithoutInvitationsInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
@@ -815,6 +847,7 @@ export type UserUpdateWithoutInvitationsInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
@@ -836,6 +869,7 @@ export type UserUncheckedUpdateWithoutInvitationsInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
@@ -857,6 +891,7 @@ export type UserCreateWithoutCreatedActivitiesInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
@@ -878,6 +913,7 @@ export type UserUncheckedCreateWithoutCreatedActivitiesInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
@@ -904,6 +940,7 @@ export type UserCreateWithoutUpdatedActivitiesInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
@@ -925,6 +962,7 @@ export type UserUncheckedCreateWithoutUpdatedActivitiesInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
@@ -962,6 +1000,7 @@ export type UserUpdateWithoutCreatedActivitiesInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
@@ -983,6 +1022,7 @@ export type UserUncheckedUpdateWithoutCreatedActivitiesInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
@@ -1015,6 +1055,7 @@ export type UserUpdateWithoutUpdatedActivitiesInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
@@ -1036,6 +1077,7 @@ export type UserUncheckedUpdateWithoutUpdatedActivitiesInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
@@ -1057,6 +1099,7 @@ export type UserCreateWithoutAuditLogsInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
@@ -1078,6 +1121,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
+  sonAktif?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
@@ -1115,6 +1159,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
@@ -1136,6 +1181,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
@@ -1224,6 +1270,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   basvuruGorev?: boolean
   basvuruBolgeId?: boolean
   basvuruIlId?: boolean
+  sonAktif?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   assignments?: boolean | Prisma.User$assignmentsArgs<ExtArgs>
@@ -1247,6 +1294,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   basvuruGorev?: boolean
   basvuruBolgeId?: boolean
   basvuruIlId?: boolean
+  sonAktif?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1264,6 +1312,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   basvuruGorev?: boolean
   basvuruBolgeId?: boolean
   basvuruIlId?: boolean
+  sonAktif?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1281,11 +1330,12 @@ export type UserSelectScalar = {
   basvuruGorev?: boolean
   basvuruBolgeId?: boolean
   basvuruIlId?: boolean
+  sonAktif?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ad" | "soyad" | "email" | "telefon" | "passwordHash" | "role" | "status" | "sistem" | "basvuruGorev" | "basvuruBolgeId" | "basvuruIlId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ad" | "soyad" | "email" | "telefon" | "passwordHash" | "role" | "status" | "sistem" | "basvuruGorev" | "basvuruBolgeId" | "basvuruIlId" | "sonAktif" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignments?: boolean | Prisma.User$assignmentsArgs<ExtArgs>
   createdActivities?: boolean | Prisma.User$createdActivitiesArgs<ExtArgs>
@@ -1319,6 +1369,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     basvuruGorev: string | null
     basvuruBolgeId: string | null
     basvuruIlId: string | null
+    sonAktif: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1761,6 +1812,7 @@ export interface UserFieldRefs {
   readonly basvuruGorev: Prisma.FieldRef<"User", 'String'>
   readonly basvuruBolgeId: Prisma.FieldRef<"User", 'String'>
   readonly basvuruIlId: Prisma.FieldRef<"User", 'String'>
+  readonly sonAktif: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

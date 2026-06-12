@@ -1,51 +1,52 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import type { Donem } from "@/app/generated/prisma/client";
 
-export type Kategori = "ILKOGRETIM" | "LISE" | "UNIVERSITE" | "ORTAK";
-export interface KategoriDurum {
+export type SistemKey = "EGITIMCI" | "UNIVERSITE" | "LISE";
+/** Eğitimci sisteminin 3 birim durumu */
+export interface EgitimciBirim {
   ILKOGRETIM: boolean;
   LISE: boolean;
   UNIVERSITE: boolean;
-  ORTAK: boolean;
+}
+export interface SistemDurum {
+  EGITIMCI: EgitimciBirim | null;
+  UNIVERSITE: boolean | null;
+  LISE: boolean | null;
 }
 
-type Sekme = "TUMU" | Kategori;
+/** Eğitimci sekmesinin açılır penceresindeki alt görünümler */
+type EgitimciAlt = "GENEL" | "ILKOGRETIM" | "LISE" | "UNIVERSITE";
 
-interface Il {
-  id: string;
-  ad: string;
-}
-
-interface Bolge {
-  id: string;
-  no: number;
-  ad: string;
-  iller: Il[];
-}
+interface Il { id: string; ad: string }
+interface Bolge { id: string; no: number; ad: string; iller: Il[] }
 
 interface Props {
   bolgeler: Bolge[];
-  /** ilId → kategori bazlı girildi/eksik durumu; kayıt yoksa anahtar bulunmaz (4 kategori de eksik) */
-  kategoriDurum: Record<string, KategoriDurum>;
+  /** ilId → 3 sistemin durumu; kayıt yoksa anahtar bulunmaz */
+  sistemDurum: Record<string, SistemDurum>;
   yil: number;
   donem: Donem;
   yillar: number[];
-  /** Sistem kısıtlı roller yalnızca kendi kategorisini görür */
-  kilitliKategori?: Kategori | null;
+  /** Sistem kısıtlı roller yalnızca kendi sistem sekmesini görür */
+  kilitliSistem?: SistemKey | null;
 }
 
-const KATEGORILER: Kategori[] = ["ILKOGRETIM", "LISE", "UNIVERSITE", "ORTAK"];
-
-const KATEGORI_CONFIG: Record<Kategori, { label: string; kisa: string }> = {
-  ILKOGRETIM: { label: "İlköğretim", kisa: "İlk" },
-  LISE:       { label: "Lise",       kisa: "Lise" },
-  UNIVERSITE: { label: "Üniversite", kisa: "Üni" },
-  ORTAK:      { label: "Ortak",      kisa: "Ortak" },
+const SISTEM_LABEL: Record<SistemKey, string> = {
+  EGITIMCI:   "Eğitimci",
+  UNIVERSITE: "Üniversite Gençlik",
+  LISE:       "Lise Gençlik",
 };
+
+const EGITIMCI_ALT: { key: EgitimciAlt; label: string; aciklama: string }[] = [
+  { key: "GENEL",      label: "Eğitimci",   aciklama: "3 birim de girildi mi" },
+  { key: "UNIVERSITE", label: "Üniversite", aciklama: "Üniversite birimi" },
+  { key: "LISE",       label: "Lise",       aciklama: "Lise birimi" },
+  { key: "ILKOGRETIM", label: "İlköğretim", aciklama: "İlköğretim birimi" },
+];
 
 const DONEM_LABELS: Record<Donem, string> = {
   DONEM_1:    "1. Dönem",
@@ -53,13 +54,13 @@ const DONEM_LABELS: Record<Donem, string> = {
   YAZ_DONEMI: "Yaz Dönemi",
 };
 
-const BOS_DURUM: KategoriDurum = { ILKOGRETIM: false, LISE: false, UNIVERSITE: false, ORTAK: false };
-
 const EKSIK_RENK = "#DC2626";
 const EKSIK_ZEMIN = "rgba(220, 38, 38, 0.08)";
 
-/** Tek kategori rozeti — ✓ yeşil / ✗ kırmızı-soluk */
-function KategoriRozet({ ad, tamam }: { ad: string; tamam: boolean }) {
+const BOS: SistemDurum = { EGITIMCI: null, UNIVERSITE: null, LISE: null };
+
+/** Tek birim rozeti — ✓ yeşil / ✗ kırmızı-soluk */
+function Rozet({ ad, tamam }: { ad: string; tamam: boolean }) {
   return (
     <span
       className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap"
@@ -73,19 +74,45 @@ function KategoriRozet({ ad, tamam }: { ad: string; tamam: boolean }) {
   );
 }
 
-export function BolgelerClient({ bolgeler, kategoriDurum, yil, donem, yillar, kilitliKategori }: Props) {
+export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kilitliSistem }: Props) {
   const router = useRouter();
-  const [aktifSekme, setAktifSekme] = useState<Sekme>(kilitliKategori ?? "TUMU");
+  const [aktifSistem, setAktifSistem] = useState<SistemKey>(kilitliSistem ?? "EGITIMCI");
+  const [egitimciAlt, setEgitimciAlt] = useState<EgitimciAlt>("GENEL");
+  const [menuAcik, setMenuAcik] = useState(false);
   const [acikBolgeler, setAcikBolgeler] = useState<Set<string>>(new Set());
   const [arama, setArama] = useState("");
   const [sadeceEksik, setSadeceEksik] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const durumOf = (ilId: string): KategoriDurum => kategoriDurum[ilId] ?? BOS_DURUM;
+  // Eğitimci menüsü: dışarı tıkla/Escape kapat
+  useEffect(() => {
+    if (!menuAcik) return;
+    const onClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuAcik(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuAcik(false); };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("mousedown", onClick); document.removeEventListener("keydown", onKey); };
+  }, [menuAcik]);
 
-  /** Seçili sekmeye göre bir il "tamam" mı? Tümü ⇒ 4 kategori de girildi */
-  const ilTamam = (ilId: string, sekme: Sekme): boolean => {
+  const durumOf = (ilId: string): SistemDurum => sistemDurum[ilId] ?? BOS;
+
+  /** Seçili sistem (+ Eğitimci alt görünümü) için bir il "tamam" mı? */
+  const ilTamam = (ilId: string): boolean => {
     const d = durumOf(ilId);
-    return sekme === "TUMU" ? KATEGORILER.every(k => d[k]) : d[sekme];
+    if (aktifSistem === "EGITIMCI") {
+      const e = d.EGITIMCI;
+      if (!e) return false;
+      switch (egitimciAlt) {
+        case "GENEL":      return e.ILKOGRETIM && e.LISE && e.UNIVERSITE;
+        case "ILKOGRETIM": return e.ILKOGRETIM;
+        case "LISE":       return e.LISE;
+        case "UNIVERSITE": return e.UNIVERSITE;
+      }
+    }
+    if (aktifSistem === "UNIVERSITE") return d.UNIVERSITE === true;
+    return d.LISE === true;
   };
 
   function navigate(yeniYil: number, yeniDonem: string) {
@@ -100,13 +127,17 @@ export function BolgelerClient({ bolgeler, kategoriDurum, yil, donem, yillar, ki
     });
   }
 
-  // Yıl seçenekleri — seçili yıl listede yoksa başa ekle (örn. hiç kayıt yokken içinde bulunulan yıl)
+  function secEgitimci(alt: EgitimciAlt) {
+    setAktifSistem("EGITIMCI");
+    setEgitimciAlt(alt);
+    setMenuAcik(false);
+  }
+
   const yilSecenekleri = useMemo(
     () => (yillar.includes(yil) ? yillar : [yil, ...yillar]),
     [yillar, yil]
   );
 
-  // Arama + "sadece eksikler" filtresi
   const aramaNorm = arama.trim().toLocaleLowerCase("tr");
   const filtreAktif = aramaNorm !== "" || sadeceEksik;
 
@@ -116,24 +147,31 @@ export function BolgelerClient({ bolgeler, kategoriDurum, yil, donem, yillar, ki
         ...b,
         gorunurIller: b.iller.filter(il => {
           if (aramaNorm && !il.ad.toLocaleLowerCase("tr").includes(aramaNorm)) return false;
-          if (sadeceEksik && ilTamam(il.id, aktifSekme)) return false;
+          if (sadeceEksik && ilTamam(il.id)) return false;
           return true;
         }),
       }))
       .filter(b => !filtreAktif || b.gorunurIller.length > 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bolgeler, aramaNorm, sadeceEksik, aktifSekme, kategoriDurum]);
+  }, [bolgeler, aramaNorm, sadeceEksik, aktifSistem, egitimciAlt, sistemDurum]);
 
-  // Üst istatistikler — seçili sekmeye göre
   const tumIller = useMemo(() => bolgeler.flatMap(b => b.iller), [bolgeler]);
-  const tamamSayisi = tumIller.filter(il => ilTamam(il.id, aktifSekme)).length;
+  const tamamSayisi = tumIller.filter(il => ilTamam(il.id)).length;
   const eksikSayisi = tumIller.length - tamamSayisi;
 
-  // Sekme başına eksik sayıları (sekme etiketlerinde gösterilir)
-  const sekmeEksik = (sekme: Sekme) =>
-    tumIller.filter(il => !ilTamam(il.id, sekme)).length;
+  // Aktif görünüm etiketi
+  const aktifLabel =
+    aktifSistem === "EGITIMCI"
+      ? (egitimciAlt === "GENEL" ? "Eğitimci (3 Birim)" : `Eğitimci · ${EGITIMCI_ALT.find(a => a.key === egitimciAlt)!.label}`)
+      : SISTEM_LABEL[aktifSistem];
 
-  const aktifLabel = aktifSekme === "TUMU" ? "Tüm Kategoriler" : KATEGORI_CONFIG[aktifSekme].label;
+  // Eğitimci + GENEL görünümünde il satırında 3 birim rozeti gösterilir
+  const birimRozetGoster = aktifSistem === "EGITIMCI" && egitimciAlt === "GENEL";
+
+  const sekmeBtnStyle = (aktif: boolean) =>
+    aktif
+      ? { background: "var(--accent-solid)", color: "#fff" }
+      : { color: "var(--text-muted)" };
 
   return (
     <div className="p-6 space-y-6 max-w-[1400px]">
@@ -149,77 +187,128 @@ export function BolgelerClient({ bolgeler, kategoriDurum, yil, donem, yillar, ki
           </h1>
         </div>
 
-        {/* Yıl + dönem seçici — değişince sunucu yeniden çeker */}
         <div className="flex items-end gap-2.5">
           <label className="flex flex-col gap-1">
             <span className="text-[10.5px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Yıl</span>
-            <select
-              value={yil}
-              onChange={e => navigate(Number(e.target.value), donem)}
-              className="rounded-xl border border-[var(--border-input)] bg-input text-heading text-[13px] px-3 py-2 focus:border-[var(--accent)] transition"
-            >
-              {yilSecenekleri.map(y => (
-                <option key={y} value={y}>{y}</option>
-              ))}
+            <select value={yil} onChange={e => navigate(Number(e.target.value), donem)}
+              className="rounded-xl border border-[var(--border-input)] bg-input text-heading text-[13px] px-3 py-2 focus:border-[var(--accent)] transition">
+              {yilSecenekleri.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-[10.5px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Dönem</span>
-            <select
-              value={donem}
-              onChange={e => navigate(yil, e.target.value)}
-              className="rounded-xl border border-[var(--border-input)] bg-input text-heading text-[13px] px-3 py-2 focus:border-[var(--accent)] transition"
-            >
-              {(Object.keys(DONEM_LABELS) as Donem[]).map(d => (
-                <option key={d} value={d}>{DONEM_LABELS[d]}</option>
-              ))}
+            <select value={donem} onChange={e => navigate(yil, e.target.value)}
+              className="rounded-xl border border-[var(--border-input)] bg-input text-heading text-[13px] px-3 py-2 focus:border-[var(--accent)] transition">
+              {(Object.keys(DONEM_LABELS) as Donem[]).map(d => <option key={d} value={d}>{DONEM_LABELS[d]}</option>)}
             </select>
           </label>
         </div>
       </div>
 
-      {/* Kategori sekmeleri — kilitli kategori varsa tek başlık göster */}
-      {kilitliKategori ? (
+      {/* Sistem sekmeleri */}
+      {kilitliSistem ? (
         <div className="flex items-center gap-2">
-          <Badge tone="brand">{KATEGORI_CONFIG[kilitliKategori].label}</Badge>
+          <Badge tone="brand">{SISTEM_LABEL[kilitliSistem]}</Badge>
           <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-            kategorisi görüntüleniyor — {yil} / {DONEM_LABELS[donem]}
+            sistemi görüntüleniyor — {yil} / {DONEM_LABELS[donem]}
           </span>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-1 p-1 rounded-xl border w-fit"
+        <div className="flex flex-wrap items-stretch gap-1 p-1 rounded-xl border w-fit"
           style={{ background: "var(--bg-th)", borderColor: "var(--border)" }}>
-          {(["TUMU", ...KATEGORILER] as Sekme[]).map(s => {
-            const aktif = aktifSekme === s;
-            const eksik = sekmeEksik(s);
-            return (
-              <button key={s}
-                onClick={() => setAktifSekme(s)}
-                className="px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5"
-                style={aktif
-                  ? { background: "var(--accent-solid)", color: "#fff" }
-                  : { color: "var(--text-muted)" }}>
-                {s === "TUMU" ? "Tümü" : KATEGORI_CONFIG[s].label}
-                {eksik > 0 && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                    style={aktif
-                      ? { background: "rgba(255,255,255,0.22)", color: "#fff" }
-                      : { background: EKSIK_ZEMIN, color: EKSIK_RENK }}>
-                    {eksik}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+
+          {/* Eğitimci — hover/tıkla ile açılır pencereli */}
+          <div
+            ref={menuRef}
+            className="relative"
+            onMouseEnter={() => setMenuAcik(true)}
+            onMouseLeave={() => setMenuAcik(false)}
+          >
+            <button
+              onClick={() => setMenuAcik(v => !v)}
+              aria-haspopup="menu"
+              aria-expanded={menuAcik}
+              className="h-full px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5"
+              style={sekmeBtnStyle(aktifSistem === "EGITIMCI")}
+            >
+              {aktifSistem === "EGITIMCI" ? aktifLabel : "Eğitimci"}
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d={menuAcik ? "M2 8l4-4 4 4" : "M2 4l4 4 4-4"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+
+            {menuAcik && (
+              <div
+                role="menu"
+                className="absolute left-0 top-[calc(100%+6px)] z-30 w-60 rounded-xl border border-border bg-card shadow-xl py-1.5"
+              >
+                <p className="px-3.5 pt-1 pb-1.5 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                  Eğitimci Sistemi Birimleri
+                </p>
+                {EGITIMCI_ALT.map(alt => {
+                  const aktif = aktifSistem === "EGITIMCI" && egitimciAlt === alt.key;
+                  // o birimde eksik il sayısı
+                  const eksik = tumIller.filter(il => {
+                    const e = durumOf(il.id).EGITIMCI;
+                    if (!e) return true;
+                    if (alt.key === "GENEL") return !(e.ILKOGRETIM && e.LISE && e.UNIVERSITE);
+                    return !e[alt.key];
+                  }).length;
+                  return (
+                    <button
+                      key={alt.key}
+                      role="menuitem"
+                      onClick={() => secEgitimci(alt.key)}
+                      className="w-full flex items-center justify-between px-3.5 py-2 text-left transition hover:bg-[var(--bg-hover)]"
+                      style={aktif ? { background: "var(--bg-active)" } : undefined}
+                    >
+                      <span>
+                        <span className="block text-[13.5px] font-semibold" style={{ color: aktif ? "var(--accent)" : "var(--text-primary)" }}>
+                          {alt.label}
+                        </span>
+                        <span className="block text-[11px]" style={{ color: "var(--text-muted)" }}>{alt.aciklama}</span>
+                      </span>
+                      {eksik > 0 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                          style={{ background: EKSIK_ZEMIN, color: EKSIK_RENK }}>
+                          {eksik} eksik
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Üniversite Gençlik — tıklamalı */}
+          <button
+            onClick={() => setAktifSistem("UNIVERSITE")}
+            className="px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5"
+            style={sekmeBtnStyle(aktifSistem === "UNIVERSITE")}
+          >
+            Üniversite Gençlik
+            <SekmeEksikRozet aktif={aktifSistem === "UNIVERSITE"} sayi={tumIller.filter(il => durumOf(il.id).UNIVERSITE !== true).length} />
+          </button>
+
+          {/* Lise Gençlik — tıklamalı */}
+          <button
+            onClick={() => setAktifSistem("LISE")}
+            className="px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5"
+            style={sekmeBtnStyle(aktifSistem === "LISE")}
+          >
+            Lise Gençlik
+            <SekmeEksikRozet aktif={aktifSistem === "LISE"} sayi={tumIller.filter(il => durumOf(il.id).LISE !== true).length} />
+          </button>
         </div>
       )}
 
-      {/* İstatistik kartları — seçili sekmeye göre */}
+      {/* İstatistik kartları */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Toplam İl",                       value: tumIller.length, renk: "var(--text-primary)", icon: "🗺️" },
-          { label: `Tamamlanan (${aktifLabel})`,      value: tamamSayisi,     renk: "var(--accent)",       icon: "✅" },
-          { label: `Eksik (${aktifLabel})`,           value: eksikSayisi,     renk: EKSIK_RENK,            icon: "⚠️" },
+          { label: "Toplam İl",                  value: tumIller.length, renk: "var(--text-primary)", icon: "🗺️" },
+          { label: `Tamamlanan (${aktifLabel})`, value: tamamSayisi,     renk: "var(--accent)",       icon: "✅" },
+          { label: `Eksik (${aktifLabel})`,      value: eksikSayisi,     renk: EKSIK_RENK,            icon: "⚠️" },
         ].map(s => (
           <div key={s.label} className="sv-section p-5 flex items-center gap-4">
             <div className="text-3xl">{s.icon}</div>
@@ -234,10 +323,7 @@ export function BolgelerClient({ bolgeler, kategoriDurum, yil, donem, yillar, ki
       {/* Arama + sadece eksikler */}
       <div className="flex flex-wrap items-center gap-2.5">
         <input
-          type="text"
-          value={arama}
-          onChange={e => setArama(e.target.value)}
-          placeholder="İl ara…"
+          type="text" value={arama} onChange={e => setArama(e.target.value)} placeholder="İl ara…"
           className="rounded-xl border border-[var(--border-input)] bg-input text-heading text-[13px] px-3 py-2 w-56 focus:border-[var(--accent)] transition"
         />
         <button
@@ -249,10 +335,8 @@ export function BolgelerClient({ bolgeler, kategoriDurum, yil, donem, yillar, ki
           {sadeceEksik ? "✗ " : ""}Sadece eksikleri göster
         </button>
         {filtreAktif && (
-          <button
-            onClick={() => { setArama(""); setSadeceEksik(false); }}
-            className="px-3 py-2 rounded-xl text-[12.5px] font-semibold transition"
-            style={{ color: "var(--text-muted)" }}>
+          <button onClick={() => { setArama(""); setSadeceEksik(false); }}
+            className="px-3 py-2 rounded-xl text-[12.5px] font-semibold transition" style={{ color: "var(--text-muted)" }}>
             Temizle
           </button>
         )}
@@ -268,27 +352,20 @@ export function BolgelerClient({ bolgeler, kategoriDurum, yil, donem, yillar, ki
 
         {gorunurBolgeler.map(bolge => {
           const acik = acikBolgeler.has(bolge.id) || filtreAktif;
-          const bolgeTamam = bolge.iller.filter(il => ilTamam(il.id, aktifSekme)).length;
+          const bolgeTamam = bolge.iller.filter(il => ilTamam(il.id)).length;
           const hepsiTamam = bolgeTamam === bolge.iller.length && bolge.iller.length > 0;
 
           return (
             <div key={bolge.id} className="sv-section overflow-hidden">
-              {/* Bölge başlığı */}
               <button
                 className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-[color:var(--bg-hover)] transition"
                 onClick={() => toggleBolge(bolge.id)}>
                 <div className="flex items-center gap-3">
                   <span className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black text-white"
-                    style={{ background: "var(--accent-solid)" }}>
-                    {bolge.no}
-                  </span>
-                  <span className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>
-                    {bolge.ad}
-                  </span>
+                    style={{ background: "var(--accent-solid)" }}>{bolge.no}</span>
+                  <span className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>{bolge.ad}</span>
                   <Badge tone="neutral">{bolge.iller.length} İl</Badge>
-                  <Badge tone={hepsiTamam ? "brand" : "danger"}>
-                    {bolgeTamam}/{bolge.iller.length} il tamam
-                  </Badge>
+                  <Badge tone={hepsiTamam ? "brand" : "danger"}>{bolgeTamam}/{bolge.iller.length} il tamam</Badge>
                 </div>
                 <div className="flex items-center gap-4 text-xs" style={{ color: "var(--text-muted)" }}>
                   {filtreAktif && <span>{bolge.gorunurIller.length} eşleşme</span>}
@@ -296,51 +373,42 @@ export function BolgelerClient({ bolgeler, kategoriDurum, yil, donem, yillar, ki
                 </div>
               </button>
 
-              {/* İl tablosu */}
               {acik && (
                 <div className="border-t" style={{ borderColor: "var(--border)" }}>
                   <table className="w-full text-sm">
                     <thead>
                       <tr>
-                        {["İl", aktifSekme === "TUMU" ? "Kategori Durumları" : `${aktifLabel} Durumu`].map(h => (
+                        {["İl", birimRozetGoster ? "Birim Durumları (İlk · Lise · Üni)" : `${aktifLabel} Durumu`].map(h => (
                           <th key={h} className="text-left px-5 py-2.5 text-xs font-bold uppercase tracking-wide"
-                            style={{ color: "var(--text-muted)", background: "var(--bg-th)" }}>
-                            {h}
-                          </th>
+                            style={{ color: "var(--text-muted)", background: "var(--bg-th)" }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {bolge.gorunurIller.map(il => {
-                        const d = durumOf(il.id);
-                        const tamam = ilTamam(il.id, aktifSekme);
+                        const e = durumOf(il.id).EGITIMCI;
+                        const tamam = ilTamam(il.id);
                         return (
                           <tr key={il.id}
                             className="border-t hover:bg-[color:var(--bg-hover)] transition"
-                            style={{
-                              borderColor: "var(--border)",
-                              // Tek kategori sekmesinde eksik iller vurgulu
-                              background: aktifSekme !== "TUMU" && !tamam ? "rgba(220, 38, 38, 0.04)" : undefined,
-                            }}>
-                            <td className="px-5 py-3 font-semibold" style={{ color: "var(--text-primary)" }}>
-                              {il.ad}
-                            </td>
+                            style={{ borderColor: "var(--border)", background: !tamam ? "rgba(220, 38, 38, 0.04)" : undefined }}>
+                            <td className="px-5 py-3 font-semibold" style={{ color: "var(--text-primary)" }}>{il.ad}</td>
                             <td className="px-5 py-3">
-                              {aktifSekme === "TUMU" ? (
-                                <div className="flex flex-wrap gap-1.5">
-                                  {KATEGORILER.map(k => (
-                                    <KategoriRozet key={k} ad={KATEGORI_CONFIG[k].kisa} tamam={d[k]} />
-                                  ))}
+                              {birimRozetGoster ? (
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <Rozet ad="İlk"  tamam={!!e?.ILKOGRETIM} />
+                                  <Rozet ad="Lise" tamam={!!e?.LISE} />
+                                  <Rozet ad="Üni"  tamam={!!e?.UNIVERSITE} />
+                                  {tamam && (
+                                    <span className="text-[11px] font-bold ml-1" style={{ color: "var(--accent)" }}>· tamam</span>
+                                  )}
                                 </div>
                               ) : (
-                                <span
-                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
                                   style={tamam
                                     ? { background: "var(--bg-active)", color: "var(--accent)" }
                                     : { background: EKSIK_ZEMIN, color: EKSIK_RENK }}>
-                                  {tamam
-                                    ? `✓ ${aktifLabel} Verileri Girildi`
-                                    : `✗ ${aktifLabel} Verileri Eksik`}
+                                  {tamam ? `✓ ${aktifLabel} Verileri Girildi` : `✗ ${aktifLabel} Verileri Eksik`}
                                 </span>
                               )}
                             </td>
@@ -356,5 +424,18 @@ export function BolgelerClient({ bolgeler, kategoriDurum, yil, donem, yillar, ki
         })}
       </div>
     </div>
+  );
+}
+
+/** Sekme üzerindeki eksik sayısı rozeti */
+function SekmeEksikRozet({ aktif, sayi }: { aktif: boolean; sayi: number }) {
+  if (sayi <= 0) return null;
+  return (
+    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+      style={aktif
+        ? { background: "rgba(255,255,255,0.22)", color: "#fff" }
+        : { background: EKSIK_ZEMIN, color: EKSIK_RENK }}>
+      {sayi}
+    </span>
   );
 }

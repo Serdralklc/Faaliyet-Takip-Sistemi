@@ -256,7 +256,7 @@ export default function BolgeHedeflerClient({
   return (
     <div className="p-6 max-w-5xl space-y-6">
       <div className="sv-page-header">
-        <h1>Hedef Dağıtımı</h1>
+        <h1>Muradımız Dağıtımı</h1>
         <p>{bolge.ad} · İllere dönemlik hedef dağıtın</p>
       </div>
 

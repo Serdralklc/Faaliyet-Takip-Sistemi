@@ -84,6 +84,9 @@ export const authOptions: NextAuthOptions = {
         const valid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!valid) return null;
 
+        // Son aktiflik zamanını güncelle (giriş başarılı) — hata olsa da girişi engelleme
+        prisma.user.update({ where: { id: user.id }, data: { sonAktif: new Date() } }).catch(() => {});
+
         const requestedSistem = credentials.sistem as string | undefined;
 
         // Yönetici kartından giriş: yönetici rolleri olmalı

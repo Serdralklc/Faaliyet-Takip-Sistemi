@@ -75,7 +75,7 @@ export default async function IlHedeflerPage() {
     return (
       <div className="p-6 max-w-4xl">
         <div className="sv-page-header">
-          <h1>Hedef Takip Merkezi</h1>
+          <h1>Muradımız Merkezi</h1>
           <p>{il.ad} · {il.bolge.ad}</p>
         </div>
         <div className="sv-section p-12 text-center">
@@ -91,7 +91,7 @@ export default async function IlHedeflerPage() {
   return (
     <div className="p-6 max-w-4xl space-y-6">
       <div className="sv-page-header">
-        <h1>Hedef Takip Merkezi</h1>
+        <h1>Muradımız Merkezi</h1>
         <p>{il.ad} · {il.bolge.ad} · {hedefler.length} dönem hedefi</p>
       </div>
 

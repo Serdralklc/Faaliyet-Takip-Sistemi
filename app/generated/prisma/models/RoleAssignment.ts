@@ -561,10 +561,6 @@ export type EnumAssignmentStatusFieldUpdateOperationsInput = {
   set?: $Enums.AssignmentStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type RoleAssignmentCreateWithoutUserInput = {
   id?: string
   role: $Enums.Role
