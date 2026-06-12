@@ -156,10 +156,11 @@ function Td({ children, center, bold, green }: { children: React.ReactNode; cent
   );
 }
 
-function SistemSelect({ color, yil, yillar, donem, donemler, onYil, onDonem }: {
+function SistemSelect({ color, yil, yillar, donem, donemler, onYil, onDonem, bolgeId, bolgeler, onBolge }: {
   color: string; yil: string; yillar: number[];
   donem: string; donemler: string[];
   onYil: (y: string) => void; onDonem: (d: string) => void;
+  bolgeId: string; bolgeler: { id: string; no: number; ad: string }[]; onBolge: (id: string) => void;
 }) {
   const selectCls = "border rounded-lg px-3 py-1.5 text-sm font-semibold focus:outline-none cursor-pointer";
   const selectStyle = { borderColor: "var(--border-input)", background: "var(--bg-input)", color: "var(--text-primary)" };
@@ -169,6 +170,13 @@ function SistemSelect({ color, yil, yillar, donem, donemler, onYil, onDonem }: {
         <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Yıl</span>
         <select value={yil} onChange={e => onYil(e.target.value)} className={selectCls} style={selectStyle}>
           {yillar.map(y => <option key={y} value={String(y)}>{y}</option>)}
+        </select>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Bölge</span>
+        <select value={bolgeId} onChange={e => onBolge(e.target.value)} className={selectCls} style={selectStyle}>
+          <option value="TUM">Tüm Bölgeler</option>
+          {bolgeler.map(b => <option key={b.id} value={b.id}>{b.no}. Bölge</option>)}
         </select>
       </div>
       <div className="flex items-center gap-2">
@@ -473,16 +481,18 @@ function BirimTabPanel({
   const thisYear = new Date().getFullYear();
   const [yil, setYil]   = useState(String(yillar[0] ?? thisYear));
   const [donem, setDonem] = useState("TUM");  // TUM = tüm dönemler
+  const [bolgeId, setBolgeId] = useState("TUM"); // TUM = tüm bölgeler
 
   const donemler = DONEMLER_BY_BIRIM[birim];
   const gosterilecekDonemler = donem === "TUM" ? donemler : [donem];
+  const gosterilecekBolgeler = bolgeId === "TUM" ? bolgeler : bolgeler.filter(b => b.id === bolgeId);
 
   /** Ekrandaki (filtrelenmiş) tabloyu kurumsal şablonla dışa aktarır */
   function exportSpec() {
     const cols = birim === "eay" ? EAY_EXPORT_COLS : COLS_BY_BIRIM[birim];
     const rows: Record<string, string | number>[] = [];
     for (const d of gosterilecekDonemler) {
-      for (const bolge of bolgeler) {
+      for (const bolge of gosterilecekBolgeler) {
         for (const il of bolge.iller) {
           const acts = filterActs(il.activities, Number(yil), d);
           if (!acts.length) continue;
@@ -515,6 +525,7 @@ function BirimTabPanel({
           yil={yil} yillar={yillar}
           donem={donem} donemler={donemler}
           onYil={setYil} onDonem={setDonem}
+          bolgeId={bolgeId} bolgeler={bolgeler} onBolge={setBolgeId}
         />
         <ExportButtons getSpec={exportSpec} />
       </div>
@@ -522,9 +533,9 @@ function BirimTabPanel({
       {/* Tablolar (her gösterilen dönem için) */}
       {gosterilecekDonemler.map(d =>
         birim === "eay" ? (
-          <EAYTable key={d} bolgeler={bolgeler} yil={Number(yil)} donem={d} color={color} />
+          <EAYTable key={d} bolgeler={gosterilecekBolgeler} yil={Number(yil)} donem={d} color={color} />
         ) : (
-          <BirimTable key={d} bolgeler={bolgeler} yil={Number(yil)} donem={d} cols={COLS_BY_BIRIM[birim]} color={color} />
+          <BirimTable key={d} bolgeler={gosterilecekBolgeler} yil={Number(yil)} donem={d} cols={COLS_BY_BIRIM[birim]} color={color} />
         )
       )}
     </div>
