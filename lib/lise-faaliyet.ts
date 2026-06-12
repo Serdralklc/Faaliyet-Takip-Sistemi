@@ -1,0 +1,62 @@
+/**
+ * Lise Gençlik faaliyet kategorileri ve kategoriye bağlı faaliyet adları.
+ * Hem giriş formu hem API doğrulaması hem otomatik raporlama burayı kullanır.
+ */
+
+export type LiseKategoriKey =
+  | "ILIM_SOHBET" | "SOSYAL" | "SOSYAL_SORUMLULUK"
+  | "MUHABBET" | "NAMAZ" | "KAFILE" | "DIGER";
+
+export interface LiseKategoriDef {
+  key: LiseKategoriKey;
+  label: string;
+  /** Hazır faaliyet adları (son eleman "Diğer" → manuel giriş açılır) */
+  adlar: string[];
+  renk: string;
+}
+
+export const LISE_KATEGORILER: LiseKategoriDef[] = [
+  {
+    key: "ILIM_SOHBET", label: "İlim / Sohbet Faaliyeti", renk: "#0369A1",
+    adlar: ["İlim Dersi", "Sohbet", "Genel Ders", "Risale Dersi", "Kitap Müzakeresi", "Soru-Cevap Programı", "Diğer"],
+  },
+  {
+    key: "SOSYAL", label: "Sosyal Faaliyet", renk: "#059669",
+    adlar: ["Gezi", "Spor Faaliyeti", "Kamp", "Piknik", "Kahvaltı Programı", "Çay Sohbeti", "Kültürel Etkinlik", "Kitap Okuma Programı", "Sinema Programı", "Turnuva", "Diğer"],
+  },
+  {
+    key: "SOSYAL_SORUMLULUK", label: "Sosyal Sorumluluk Faaliyeti", renk: "#B45309",
+    adlar: ["Yardım Organizasyonu", "Çevre Faaliyeti", "Gönüllülük Çalışması", "Ziyaret Programı", "Kermes Çalışması", "Diğer"],
+  },
+  {
+    key: "MUHABBET", label: "Muhabbet Buluşması", renk: "#7C3AED",
+    adlar: ["Ev Muhabbeti", "Dergâh Muhabbeti", "Çay Muhabbeti", "Tanışma Programı", "İstişare Toplantısı", "Diğer"],
+  },
+  {
+    key: "NAMAZ", label: "Namaz Buluşması", renk: "#0891B2",
+    adlar: ["Sabah Namazı", "Öğle Namazı", "İkindi Namazı", "Akşam Namazı", "Yatsı Namazı", "Cuma Namazı", "Teravih Programı", "Diğer"],
+  },
+  {
+    key: "KAFILE", label: "Kafile", renk: "#DC2626",
+    adlar: ["Menzil", "Tepeören", "Şehir İçi Kafile", "Şehir Dışı Kafile", "Diğer"],
+  },
+  {
+    key: "DIGER", label: "Diğer", renk: "#57534E",
+    adlar: [], // tamamen manuel
+  },
+];
+
+export const KATEGORILER_KEYS: LiseKategoriKey[] =
+  LISE_KATEGORILER.map((k) => k.key);
+
+export const KATEGORI_LABEL: Record<string, string> = Object.fromEntries(
+  LISE_KATEGORILER.map((k) => [k.key, k.label])
+);
+
+export const KATEGORI_RENK: Record<string, string> = Object.fromEntries(
+  LISE_KATEGORILER.map((k) => [k.key, k.renk])
+);
+
+export function gecerliKategori(v: unknown): v is LiseKategoriKey {
+  return typeof v === "string" && (KATEGORILER_KEYS as string[]).includes(v);
+}

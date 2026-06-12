@@ -90,11 +90,12 @@ model Il {
   // işaretleyince true. Ev/Apart/Yurt sayfasından yönetilir; bölge "ev/apart/yurt yok" görür.
   barinmaYok Boolean @default(false)
 
-  bolge        Bolge            @relation(fields: [bolgeId], references: [id])
-  assignments  RoleAssignment[]
-  activities   Activity[]
-  housingUnits HousingUnit[]
-  hedefler     IlHedef[]
+  bolge          Bolge            @relation(fields: [bolgeId], references: [id])
+  assignments    RoleAssignment[]
+  activities     Activity[]
+  housingUnits   HousingUnit[]
+  hedefler       IlHedef[]
+  liseFaaliyetler LiseFaaliyet[]
 }
 
 model RoleAssignment {
@@ -239,6 +240,55 @@ model Activity {
   @@unique([ilId, yil, donem])
   @@index([ilId])
   @@index([yil, donem])
+}
+
+// ── Lise Gençlik — Faaliyet Bazlı Kayıt ────────────────────────
+// Lise Gençlik sistemi (User.sistem = LISE) il sorumluları her faaliyeti tek tek
+// kaydeder; raporlar bu kayıtlardan otomatik toplanır. Eğitimci sisteminden bağımsız.
+enum LiseKategori {
+  ILIM_SOHBET
+  SOSYAL
+  SOSYAL_SORUMLULUK
+  MUHABBET
+  NAMAZ
+  KAFILE
+  DIGER
+}
+
+model LiseFaaliyet {
+  id            String       @id @default(cuid())
+  ilId          String
+  tarih         DateTime
+  yil           Int          // tarih'ten türetilir (raporlama filtresi)
+  kategori      LiseKategori
+  faaliyetAdi   String       // kategori listesinden veya "Diğer"de manuel
+  aciklama      String?
+  yer           String?
+  katilimci     Int          @default(0)
+  ilkKezKatilan Int          @default(0)
+  yeniIntisap   Int          @default(0)
+
+  // Opsiyonel foto + dosya eki (lib/storage; /api/lise-dosya/{id} ile servis)
+  // url: blob mutlak URL (yerelde boş, key ile stream edilir)
+  fotoKey    String?
+  fotoUrl    String?
+  fotoMime   String?
+  dosyaKey   String?
+  dosyaUrl   String?
+  dosyaMime  String?
+  dosyaAd    String?
+  dosyaBoyut Int?
+
+  createdById   String
+  createdByName String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  il Il @relation(fields: [ilId], references: [id])
+
+  @@index([ilId, yil])
+  @@index([ilId, tarih])
+  @@index([kategori])
 }
 
 // ── Barınma Birimleri ──────────────────────────────────────────

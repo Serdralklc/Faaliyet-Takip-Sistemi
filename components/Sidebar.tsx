@@ -303,8 +303,20 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
           </>
         )}
 
-        {/* İl */}
-        {isIl && (
+        {/* İl — Lise Gençlik sistemi: tek birim, faaliyet-bazlı (açılır menü yok) */}
+        {isIl && user.sistem === "LISE" && (
+          <>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+              Lise Gençlik
+            </p>
+            <NavItem href="/panel/il/lise-faaliyet" label="Faaliyet Yönetimi" icon={ClipboardList} />
+            <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
+            <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
+          </>
+        )}
+
+        {/* İl — Eğitimci sistemi (tam yapı) */}
+        {isIl && user.sistem !== "LISE" && (
           <>
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
               Ana Menü

@@ -58,6 +58,19 @@ export const Sistem = {
 export type Sistem = (typeof Sistem)[keyof typeof Sistem]
 
 
+export const LiseKategori = {
+  ILIM_SOHBET: 'ILIM_SOHBET',
+  SOSYAL: 'SOSYAL',
+  SOSYAL_SORUMLULUK: 'SOSYAL_SORUMLULUK',
+  MUHABBET: 'MUHABBET',
+  NAMAZ: 'NAMAZ',
+  KAFILE: 'KAFILE',
+  DIGER: 'DIGER'
+} as const
+
+export type LiseKategori = (typeof LiseKategori)[keyof typeof LiseKategori]
+
+
 export const OgrenimDurum = {
   ILKOKUL: 'ILKOKUL',
   ORTAOKUL: 'ORTAOKUL',

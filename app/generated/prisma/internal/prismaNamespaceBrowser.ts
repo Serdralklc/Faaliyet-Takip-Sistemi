@@ -57,6 +57,7 @@ export const ModelName = {
   RoleAssignment: 'RoleAssignment',
   Invitation: 'Invitation',
   Activity: 'Activity',
+  LiseFaaliyet: 'LiseFaaliyet',
   HousingUnit: 'HousingUnit',
   HousingStudent: 'HousingStudent',
   HousingVisit: 'HousingVisit',
@@ -250,6 +251,35 @@ export const ActivityScalarFieldEnum = {
 } as const
 
 export type ActivityScalarFieldEnum = (typeof ActivityScalarFieldEnum)[keyof typeof ActivityScalarFieldEnum]
+
+
+export const LiseFaaliyetScalarFieldEnum = {
+  id: 'id',
+  ilId: 'ilId',
+  tarih: 'tarih',
+  yil: 'yil',
+  kategori: 'kategori',
+  faaliyetAdi: 'faaliyetAdi',
+  aciklama: 'aciklama',
+  yer: 'yer',
+  katilimci: 'katilimci',
+  ilkKezKatilan: 'ilkKezKatilan',
+  yeniIntisap: 'yeniIntisap',
+  fotoKey: 'fotoKey',
+  fotoUrl: 'fotoUrl',
+  fotoMime: 'fotoMime',
+  dosyaKey: 'dosyaKey',
+  dosyaUrl: 'dosyaUrl',
+  dosyaMime: 'dosyaMime',
+  dosyaAd: 'dosyaAd',
+  dosyaBoyut: 'dosyaBoyut',
+  createdById: 'createdById',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LiseFaaliyetScalarFieldEnum = (typeof LiseFaaliyetScalarFieldEnum)[keyof typeof LiseFaaliyetScalarFieldEnum]
 
 
 export const HousingUnitScalarFieldEnum = {

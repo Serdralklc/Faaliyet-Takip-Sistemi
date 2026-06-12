@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 type Tab = "evler" | "apartlar" | "yurtlar";
@@ -81,6 +82,10 @@ function NumberInput({ label, value, suffix, onChange, color }: {
 
 export function BarinmaForm({ activeTab }: { activeTab: Tab }) {
   const { data: session } = useSession();
+  const router = useRouter();
+  useEffect(() => {
+    if (session?.user?.sistem === "LISE") router.replace("/panel/il/lise-faaliyet");
+  }, [session, router]);
   const [yil, setYil] = useState(THIS_YEAR);
   const [donem, setDonem] = useState("DONEM_1");
   const [form, setForm] = useState<Record<string, number>>({});

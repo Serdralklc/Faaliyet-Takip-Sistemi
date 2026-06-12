@@ -187,6 +187,7 @@ export type IlWhereInput = {
   activities?: Prisma.ActivityListRelationFilter
   housingUnits?: Prisma.HousingUnitListRelationFilter
   hedefler?: Prisma.IlHedefListRelationFilter
+  liseFaaliyetler?: Prisma.LiseFaaliyetListRelationFilter
 }
 
 export type IlOrderByWithRelationInput = {
@@ -200,6 +201,7 @@ export type IlOrderByWithRelationInput = {
   activities?: Prisma.ActivityOrderByRelationAggregateInput
   housingUnits?: Prisma.HousingUnitOrderByRelationAggregateInput
   hedefler?: Prisma.IlHedefOrderByRelationAggregateInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetOrderByRelationAggregateInput
 }
 
 export type IlWhereUniqueInput = Prisma.AtLeast<{
@@ -216,6 +218,7 @@ export type IlWhereUniqueInput = Prisma.AtLeast<{
   activities?: Prisma.ActivityListRelationFilter
   housingUnits?: Prisma.HousingUnitListRelationFilter
   hedefler?: Prisma.IlHedefListRelationFilter
+  liseFaaliyetler?: Prisma.LiseFaaliyetListRelationFilter
 }, "id">
 
 export type IlOrderByWithAggregationInput = {
@@ -250,6 +253,7 @@ export type IlCreateInput = {
   activities?: Prisma.ActivityCreateNestedManyWithoutIlInput
   housingUnits?: Prisma.HousingUnitCreateNestedManyWithoutIlInput
   hedefler?: Prisma.IlHedefCreateNestedManyWithoutIlInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetCreateNestedManyWithoutIlInput
 }
 
 export type IlUncheckedCreateInput = {
@@ -262,6 +266,7 @@ export type IlUncheckedCreateInput = {
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutIlInput
   housingUnits?: Prisma.HousingUnitUncheckedCreateNestedManyWithoutIlInput
   hedefler?: Prisma.IlHedefUncheckedCreateNestedManyWithoutIlInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUncheckedCreateNestedManyWithoutIlInput
 }
 
 export type IlUpdateInput = {
@@ -274,6 +279,7 @@ export type IlUpdateInput = {
   activities?: Prisma.ActivityUpdateManyWithoutIlNestedInput
   housingUnits?: Prisma.HousingUnitUpdateManyWithoutIlNestedInput
   hedefler?: Prisma.IlHedefUpdateManyWithoutIlNestedInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUpdateManyWithoutIlNestedInput
 }
 
 export type IlUncheckedUpdateInput = {
@@ -286,6 +292,7 @@ export type IlUncheckedUpdateInput = {
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutIlNestedInput
   housingUnits?: Prisma.HousingUnitUncheckedUpdateManyWithoutIlNestedInput
   hedefler?: Prisma.IlHedefUncheckedUpdateManyWithoutIlNestedInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUncheckedUpdateManyWithoutIlNestedInput
 }
 
 export type IlCreateManyInput = {
@@ -431,6 +438,20 @@ export type IlUpdateOneRequiredWithoutActivitiesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.IlUpdateToOneWithWhereWithoutActivitiesInput, Prisma.IlUpdateWithoutActivitiesInput>, Prisma.IlUncheckedUpdateWithoutActivitiesInput>
 }
 
+export type IlCreateNestedOneWithoutLiseFaaliyetlerInput = {
+  create?: Prisma.XOR<Prisma.IlCreateWithoutLiseFaaliyetlerInput, Prisma.IlUncheckedCreateWithoutLiseFaaliyetlerInput>
+  connectOrCreate?: Prisma.IlCreateOrConnectWithoutLiseFaaliyetlerInput
+  connect?: Prisma.IlWhereUniqueInput
+}
+
+export type IlUpdateOneRequiredWithoutLiseFaaliyetlerNestedInput = {
+  create?: Prisma.XOR<Prisma.IlCreateWithoutLiseFaaliyetlerInput, Prisma.IlUncheckedCreateWithoutLiseFaaliyetlerInput>
+  connectOrCreate?: Prisma.IlCreateOrConnectWithoutLiseFaaliyetlerInput
+  upsert?: Prisma.IlUpsertWithoutLiseFaaliyetlerInput
+  connect?: Prisma.IlWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.IlUpdateToOneWithWhereWithoutLiseFaaliyetlerInput, Prisma.IlUpdateWithoutLiseFaaliyetlerInput>, Prisma.IlUncheckedUpdateWithoutLiseFaaliyetlerInput>
+}
+
 export type IlCreateNestedOneWithoutHousingUnitsInput = {
   create?: Prisma.XOR<Prisma.IlCreateWithoutHousingUnitsInput, Prisma.IlUncheckedCreateWithoutHousingUnitsInput>
   connectOrCreate?: Prisma.IlCreateOrConnectWithoutHousingUnitsInput
@@ -468,6 +489,7 @@ export type IlCreateWithoutBolgeInput = {
   activities?: Prisma.ActivityCreateNestedManyWithoutIlInput
   housingUnits?: Prisma.HousingUnitCreateNestedManyWithoutIlInput
   hedefler?: Prisma.IlHedefCreateNestedManyWithoutIlInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetCreateNestedManyWithoutIlInput
 }
 
 export type IlUncheckedCreateWithoutBolgeInput = {
@@ -479,6 +501,7 @@ export type IlUncheckedCreateWithoutBolgeInput = {
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutIlInput
   housingUnits?: Prisma.HousingUnitUncheckedCreateNestedManyWithoutIlInput
   hedefler?: Prisma.IlHedefUncheckedCreateNestedManyWithoutIlInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUncheckedCreateNestedManyWithoutIlInput
 }
 
 export type IlCreateOrConnectWithoutBolgeInput = {
@@ -527,6 +550,7 @@ export type IlCreateWithoutAssignmentsInput = {
   activities?: Prisma.ActivityCreateNestedManyWithoutIlInput
   housingUnits?: Prisma.HousingUnitCreateNestedManyWithoutIlInput
   hedefler?: Prisma.IlHedefCreateNestedManyWithoutIlInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetCreateNestedManyWithoutIlInput
 }
 
 export type IlUncheckedCreateWithoutAssignmentsInput = {
@@ -538,6 +562,7 @@ export type IlUncheckedCreateWithoutAssignmentsInput = {
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutIlInput
   housingUnits?: Prisma.HousingUnitUncheckedCreateNestedManyWithoutIlInput
   hedefler?: Prisma.IlHedefUncheckedCreateNestedManyWithoutIlInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUncheckedCreateNestedManyWithoutIlInput
 }
 
 export type IlCreateOrConnectWithoutAssignmentsInput = {
@@ -565,6 +590,7 @@ export type IlUpdateWithoutAssignmentsInput = {
   activities?: Prisma.ActivityUpdateManyWithoutIlNestedInput
   housingUnits?: Prisma.HousingUnitUpdateManyWithoutIlNestedInput
   hedefler?: Prisma.IlHedefUpdateManyWithoutIlNestedInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUpdateManyWithoutIlNestedInput
 }
 
 export type IlUncheckedUpdateWithoutAssignmentsInput = {
@@ -576,6 +602,7 @@ export type IlUncheckedUpdateWithoutAssignmentsInput = {
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutIlNestedInput
   housingUnits?: Prisma.HousingUnitUncheckedUpdateManyWithoutIlNestedInput
   hedefler?: Prisma.IlHedefUncheckedUpdateManyWithoutIlNestedInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUncheckedUpdateManyWithoutIlNestedInput
 }
 
 export type IlCreateWithoutActivitiesInput = {
@@ -587,6 +614,7 @@ export type IlCreateWithoutActivitiesInput = {
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutIlInput
   housingUnits?: Prisma.HousingUnitCreateNestedManyWithoutIlInput
   hedefler?: Prisma.IlHedefCreateNestedManyWithoutIlInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetCreateNestedManyWithoutIlInput
 }
 
 export type IlUncheckedCreateWithoutActivitiesInput = {
@@ -598,6 +626,7 @@ export type IlUncheckedCreateWithoutActivitiesInput = {
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutIlInput
   housingUnits?: Prisma.HousingUnitUncheckedCreateNestedManyWithoutIlInput
   hedefler?: Prisma.IlHedefUncheckedCreateNestedManyWithoutIlInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUncheckedCreateNestedManyWithoutIlInput
 }
 
 export type IlCreateOrConnectWithoutActivitiesInput = {
@@ -625,6 +654,7 @@ export type IlUpdateWithoutActivitiesInput = {
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutIlNestedInput
   housingUnits?: Prisma.HousingUnitUpdateManyWithoutIlNestedInput
   hedefler?: Prisma.IlHedefUpdateManyWithoutIlNestedInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUpdateManyWithoutIlNestedInput
 }
 
 export type IlUncheckedUpdateWithoutActivitiesInput = {
@@ -634,6 +664,71 @@ export type IlUncheckedUpdateWithoutActivitiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   barinmaYok?: Prisma.BoolFieldUpdateOperationsInput | boolean
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutIlNestedInput
+  housingUnits?: Prisma.HousingUnitUncheckedUpdateManyWithoutIlNestedInput
+  hedefler?: Prisma.IlHedefUncheckedUpdateManyWithoutIlNestedInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUncheckedUpdateManyWithoutIlNestedInput
+}
+
+export type IlCreateWithoutLiseFaaliyetlerInput = {
+  id?: string
+  ad: string
+  createdAt?: Date | string
+  barinmaYok?: boolean
+  bolge: Prisma.BolgeCreateNestedOneWithoutIllerInput
+  assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutIlInput
+  activities?: Prisma.ActivityCreateNestedManyWithoutIlInput
+  housingUnits?: Prisma.HousingUnitCreateNestedManyWithoutIlInput
+  hedefler?: Prisma.IlHedefCreateNestedManyWithoutIlInput
+}
+
+export type IlUncheckedCreateWithoutLiseFaaliyetlerInput = {
+  id?: string
+  ad: string
+  bolgeId: string
+  createdAt?: Date | string
+  barinmaYok?: boolean
+  assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutIlInput
+  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutIlInput
+  housingUnits?: Prisma.HousingUnitUncheckedCreateNestedManyWithoutIlInput
+  hedefler?: Prisma.IlHedefUncheckedCreateNestedManyWithoutIlInput
+}
+
+export type IlCreateOrConnectWithoutLiseFaaliyetlerInput = {
+  where: Prisma.IlWhereUniqueInput
+  create: Prisma.XOR<Prisma.IlCreateWithoutLiseFaaliyetlerInput, Prisma.IlUncheckedCreateWithoutLiseFaaliyetlerInput>
+}
+
+export type IlUpsertWithoutLiseFaaliyetlerInput = {
+  update: Prisma.XOR<Prisma.IlUpdateWithoutLiseFaaliyetlerInput, Prisma.IlUncheckedUpdateWithoutLiseFaaliyetlerInput>
+  create: Prisma.XOR<Prisma.IlCreateWithoutLiseFaaliyetlerInput, Prisma.IlUncheckedCreateWithoutLiseFaaliyetlerInput>
+  where?: Prisma.IlWhereInput
+}
+
+export type IlUpdateToOneWithWhereWithoutLiseFaaliyetlerInput = {
+  where?: Prisma.IlWhereInput
+  data: Prisma.XOR<Prisma.IlUpdateWithoutLiseFaaliyetlerInput, Prisma.IlUncheckedUpdateWithoutLiseFaaliyetlerInput>
+}
+
+export type IlUpdateWithoutLiseFaaliyetlerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  barinmaYok?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  bolge?: Prisma.BolgeUpdateOneRequiredWithoutIllerNestedInput
+  assignments?: Prisma.RoleAssignmentUpdateManyWithoutIlNestedInput
+  activities?: Prisma.ActivityUpdateManyWithoutIlNestedInput
+  housingUnits?: Prisma.HousingUnitUpdateManyWithoutIlNestedInput
+  hedefler?: Prisma.IlHedefUpdateManyWithoutIlNestedInput
+}
+
+export type IlUncheckedUpdateWithoutLiseFaaliyetlerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  bolgeId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  barinmaYok?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutIlNestedInput
+  activities?: Prisma.ActivityUncheckedUpdateManyWithoutIlNestedInput
   housingUnits?: Prisma.HousingUnitUncheckedUpdateManyWithoutIlNestedInput
   hedefler?: Prisma.IlHedefUncheckedUpdateManyWithoutIlNestedInput
 }
@@ -647,6 +742,7 @@ export type IlCreateWithoutHousingUnitsInput = {
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutIlInput
   activities?: Prisma.ActivityCreateNestedManyWithoutIlInput
   hedefler?: Prisma.IlHedefCreateNestedManyWithoutIlInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetCreateNestedManyWithoutIlInput
 }
 
 export type IlUncheckedCreateWithoutHousingUnitsInput = {
@@ -658,6 +754,7 @@ export type IlUncheckedCreateWithoutHousingUnitsInput = {
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutIlInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutIlInput
   hedefler?: Prisma.IlHedefUncheckedCreateNestedManyWithoutIlInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUncheckedCreateNestedManyWithoutIlInput
 }
 
 export type IlCreateOrConnectWithoutHousingUnitsInput = {
@@ -685,6 +782,7 @@ export type IlUpdateWithoutHousingUnitsInput = {
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutIlNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutIlNestedInput
   hedefler?: Prisma.IlHedefUpdateManyWithoutIlNestedInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUpdateManyWithoutIlNestedInput
 }
 
 export type IlUncheckedUpdateWithoutHousingUnitsInput = {
@@ -696,6 +794,7 @@ export type IlUncheckedUpdateWithoutHousingUnitsInput = {
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutIlNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutIlNestedInput
   hedefler?: Prisma.IlHedefUncheckedUpdateManyWithoutIlNestedInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUncheckedUpdateManyWithoutIlNestedInput
 }
 
 export type IlCreateWithoutHedeflerInput = {
@@ -707,6 +806,7 @@ export type IlCreateWithoutHedeflerInput = {
   assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutIlInput
   activities?: Prisma.ActivityCreateNestedManyWithoutIlInput
   housingUnits?: Prisma.HousingUnitCreateNestedManyWithoutIlInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetCreateNestedManyWithoutIlInput
 }
 
 export type IlUncheckedCreateWithoutHedeflerInput = {
@@ -718,6 +818,7 @@ export type IlUncheckedCreateWithoutHedeflerInput = {
   assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutIlInput
   activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutIlInput
   housingUnits?: Prisma.HousingUnitUncheckedCreateNestedManyWithoutIlInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUncheckedCreateNestedManyWithoutIlInput
 }
 
 export type IlCreateOrConnectWithoutHedeflerInput = {
@@ -745,6 +846,7 @@ export type IlUpdateWithoutHedeflerInput = {
   assignments?: Prisma.RoleAssignmentUpdateManyWithoutIlNestedInput
   activities?: Prisma.ActivityUpdateManyWithoutIlNestedInput
   housingUnits?: Prisma.HousingUnitUpdateManyWithoutIlNestedInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUpdateManyWithoutIlNestedInput
 }
 
 export type IlUncheckedUpdateWithoutHedeflerInput = {
@@ -756,6 +858,7 @@ export type IlUncheckedUpdateWithoutHedeflerInput = {
   assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutIlNestedInput
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutIlNestedInput
   housingUnits?: Prisma.HousingUnitUncheckedUpdateManyWithoutIlNestedInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUncheckedUpdateManyWithoutIlNestedInput
 }
 
 export type IlCreateManyBolgeInput = {
@@ -774,6 +877,7 @@ export type IlUpdateWithoutBolgeInput = {
   activities?: Prisma.ActivityUpdateManyWithoutIlNestedInput
   housingUnits?: Prisma.HousingUnitUpdateManyWithoutIlNestedInput
   hedefler?: Prisma.IlHedefUpdateManyWithoutIlNestedInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUpdateManyWithoutIlNestedInput
 }
 
 export type IlUncheckedUpdateWithoutBolgeInput = {
@@ -785,6 +889,7 @@ export type IlUncheckedUpdateWithoutBolgeInput = {
   activities?: Prisma.ActivityUncheckedUpdateManyWithoutIlNestedInput
   housingUnits?: Prisma.HousingUnitUncheckedUpdateManyWithoutIlNestedInput
   hedefler?: Prisma.IlHedefUncheckedUpdateManyWithoutIlNestedInput
+  liseFaaliyetler?: Prisma.LiseFaaliyetUncheckedUpdateManyWithoutIlNestedInput
 }
 
 export type IlUncheckedUpdateManyWithoutBolgeInput = {
@@ -804,6 +909,7 @@ export type IlCountOutputType = {
   activities: number
   housingUnits: number
   hedefler: number
+  liseFaaliyetler: number
 }
 
 export type IlCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -811,6 +917,7 @@ export type IlCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.Int
   activities?: boolean | IlCountOutputTypeCountActivitiesArgs
   housingUnits?: boolean | IlCountOutputTypeCountHousingUnitsArgs
   hedefler?: boolean | IlCountOutputTypeCountHedeflerArgs
+  liseFaaliyetler?: boolean | IlCountOutputTypeCountLiseFaaliyetlerArgs
 }
 
 /**
@@ -851,6 +958,13 @@ export type IlCountOutputTypeCountHedeflerArgs<ExtArgs extends runtime.Types.Ext
   where?: Prisma.IlHedefWhereInput
 }
 
+/**
+ * IlCountOutputType without action
+ */
+export type IlCountOutputTypeCountLiseFaaliyetlerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LiseFaaliyetWhereInput
+}
+
 
 export type IlSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -863,6 +977,7 @@ export type IlSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
   activities?: boolean | Prisma.Il$activitiesArgs<ExtArgs>
   housingUnits?: boolean | Prisma.Il$housingUnitsArgs<ExtArgs>
   hedefler?: boolean | Prisma.Il$hedeflerArgs<ExtArgs>
+  liseFaaliyetler?: boolean | Prisma.Il$liseFaaliyetlerArgs<ExtArgs>
   _count?: boolean | Prisma.IlCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["il"]>
 
@@ -899,6 +1014,7 @@ export type IlInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   activities?: boolean | Prisma.Il$activitiesArgs<ExtArgs>
   housingUnits?: boolean | Prisma.Il$housingUnitsArgs<ExtArgs>
   hedefler?: boolean | Prisma.Il$hedeflerArgs<ExtArgs>
+  liseFaaliyetler?: boolean | Prisma.Il$liseFaaliyetlerArgs<ExtArgs>
   _count?: boolean | Prisma.IlCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type IlIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -916,6 +1032,7 @@ export type $IlPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
     activities: Prisma.$ActivityPayload<ExtArgs>[]
     housingUnits: Prisma.$HousingUnitPayload<ExtArgs>[]
     hedefler: Prisma.$IlHedefPayload<ExtArgs>[]
+    liseFaaliyetler: Prisma.$LiseFaaliyetPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1322,6 +1439,7 @@ export interface Prisma__IlClient<T, Null = never, ExtArgs extends runtime.Types
   activities<T extends Prisma.Il$activitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Il$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   housingUnits<T extends Prisma.Il$housingUnitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Il$housingUnitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HousingUnitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   hedefler<T extends Prisma.Il$hedeflerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Il$hedeflerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IlHedefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  liseFaaliyetler<T extends Prisma.Il$liseFaaliyetlerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Il$liseFaaliyetlerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LiseFaaliyetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1850,6 +1968,30 @@ export type Il$hedeflerArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.IlHedefScalarFieldEnum | Prisma.IlHedefScalarFieldEnum[]
+}
+
+/**
+ * Il.liseFaaliyetler
+ */
+export type Il$liseFaaliyetlerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LiseFaaliyet
+   */
+  select?: Prisma.LiseFaaliyetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LiseFaaliyet
+   */
+  omit?: Prisma.LiseFaaliyetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LiseFaaliyetInclude<ExtArgs> | null
+  where?: Prisma.LiseFaaliyetWhereInput
+  orderBy?: Prisma.LiseFaaliyetOrderByWithRelationInput | Prisma.LiseFaaliyetOrderByWithRelationInput[]
+  cursor?: Prisma.LiseFaaliyetWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LiseFaaliyetScalarFieldEnum | Prisma.LiseFaaliyetScalarFieldEnum[]
 }
 
 /**

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Plus, Trash2, Pencil, Check, X } from "lucide-react";
 
 interface HousingUnit {
@@ -153,6 +154,10 @@ function TipSection({ tip, units, ilId, onChange }: {
 
 export default function BarinmaPage() {
   const { data: session } = useSession();
+  const router = useRouter();
+  useEffect(() => {
+    if (session?.user?.sistem === "LISE") router.replace("/panel/il/lise-faaliyet");
+  }, [session, router]);
   const [units, setUnits] = useState<HousingUnit[]>([]);
   const [barinmaYok, setBarinmaYok] = useState(false);
 

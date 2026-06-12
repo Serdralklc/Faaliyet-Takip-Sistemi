@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export type Tab = "ilkogretim" | "lise" | "universite" | "ortak";
 
@@ -155,6 +156,11 @@ function groupFields(fields: FieldDef[]): { title: string; items: FieldDef[] }[]
 
 export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
   const { data: session } = useSession();
+  const router = useRouter();
+  // Lise Gençlik sistemli kullanıcı eğitimci formuna erişemez
+  useEffect(() => {
+    if (session?.user?.sistem === "LISE") router.replace("/panel/il/lise-faaliyet");
+  }, [session, router]);
   const [yil, setYil] = useState(THIS_YEAR);
   const [donem, setDonem] = useState("DONEM_1");
   const [form, setForm] = useState<Record<string, number>>({});

@@ -260,6 +260,50 @@ export type EnumDonemWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumDonemFilter<$PrismaModel>
 }
 
+export type EnumLiseKategoriFilter<$PrismaModel = never> = {
+  equals?: $Enums.LiseKategori | Prisma.EnumLiseKategoriFieldRefInput<$PrismaModel>
+  in?: $Enums.LiseKategori[] | Prisma.ListEnumLiseKategoriFieldRefInput<$PrismaModel>
+  notIn?: $Enums.LiseKategori[] | Prisma.ListEnumLiseKategoriFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumLiseKategoriFilter<$PrismaModel> | $Enums.LiseKategori
+}
+
+export type IntNullableFilter<$PrismaModel = never> = {
+  equals?: number | Prisma.IntFieldRefInput<$PrismaModel> | null
+  in?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel> | null
+  notIn?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel> | null
+  lt?: number | Prisma.IntFieldRefInput<$PrismaModel>
+  lte?: number | Prisma.IntFieldRefInput<$PrismaModel>
+  gt?: number | Prisma.IntFieldRefInput<$PrismaModel>
+  gte?: number | Prisma.IntFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedIntNullableFilter<$PrismaModel> | number | null
+}
+
+export type EnumLiseKategoriWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LiseKategori | Prisma.EnumLiseKategoriFieldRefInput<$PrismaModel>
+  in?: $Enums.LiseKategori[] | Prisma.ListEnumLiseKategoriFieldRefInput<$PrismaModel>
+  notIn?: $Enums.LiseKategori[] | Prisma.ListEnumLiseKategoriFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumLiseKategoriWithAggregatesFilter<$PrismaModel> | $Enums.LiseKategori
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLiseKategoriFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLiseKategoriFilter<$PrismaModel>
+}
+
+export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: number | Prisma.IntFieldRefInput<$PrismaModel> | null
+  in?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel> | null
+  notIn?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel> | null
+  lt?: number | Prisma.IntFieldRefInput<$PrismaModel>
+  lte?: number | Prisma.IntFieldRefInput<$PrismaModel>
+  gt?: number | Prisma.IntFieldRefInput<$PrismaModel>
+  gte?: number | Prisma.IntFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _avg?: Prisma.NestedFloatNullableFilter<$PrismaModel>
+  _sum?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
+}
+
 export type EnumOgrenimDurumFilter<$PrismaModel = never> = {
   equals?: $Enums.OgrenimDurum | Prisma.EnumOgrenimDurumFieldRefInput<$PrismaModel>
   in?: $Enums.OgrenimDurum[] | Prisma.ListEnumOgrenimDurumFieldRefInput<$PrismaModel>
@@ -772,6 +816,50 @@ export type NestedEnumDonemWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumDonemFilter<$PrismaModel>
   _max?: Prisma.NestedEnumDonemFilter<$PrismaModel>
+}
+
+export type NestedEnumLiseKategoriFilter<$PrismaModel = never> = {
+  equals?: $Enums.LiseKategori | Prisma.EnumLiseKategoriFieldRefInput<$PrismaModel>
+  in?: $Enums.LiseKategori[] | Prisma.ListEnumLiseKategoriFieldRefInput<$PrismaModel>
+  notIn?: $Enums.LiseKategori[] | Prisma.ListEnumLiseKategoriFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumLiseKategoriFilter<$PrismaModel> | $Enums.LiseKategori
+}
+
+export type NestedEnumLiseKategoriWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LiseKategori | Prisma.EnumLiseKategoriFieldRefInput<$PrismaModel>
+  in?: $Enums.LiseKategori[] | Prisma.ListEnumLiseKategoriFieldRefInput<$PrismaModel>
+  notIn?: $Enums.LiseKategori[] | Prisma.ListEnumLiseKategoriFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumLiseKategoriWithAggregatesFilter<$PrismaModel> | $Enums.LiseKategori
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLiseKategoriFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLiseKategoriFilter<$PrismaModel>
+}
+
+export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: number | Prisma.IntFieldRefInput<$PrismaModel> | null
+  in?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel> | null
+  notIn?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel> | null
+  lt?: number | Prisma.IntFieldRefInput<$PrismaModel>
+  lte?: number | Prisma.IntFieldRefInput<$PrismaModel>
+  gt?: number | Prisma.IntFieldRefInput<$PrismaModel>
+  gte?: number | Prisma.IntFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _avg?: Prisma.NestedFloatNullableFilter<$PrismaModel>
+  _sum?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
+}
+
+export type NestedFloatNullableFilter<$PrismaModel = never> = {
+  equals?: number | Prisma.FloatFieldRefInput<$PrismaModel> | null
+  in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel> | null
+  notIn?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel> | null
+  lt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  lte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null
 }
 
 export type NestedEnumOgrenimDurumFilter<$PrismaModel = never> = {
