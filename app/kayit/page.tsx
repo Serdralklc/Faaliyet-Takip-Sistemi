@@ -130,7 +130,7 @@ function KayitForm() {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#F6F8F5" }}>
-        <div className="bg-white rounded-2xl shadow-xl p-10 max-w-md w-full text-center border" style={{ borderColor: "#E2E8F0" }}>
+        <div className="bg-card rounded-2xl shadow-xl p-10 max-w-md w-full text-center border" style={{ borderColor: "#E2E8F0" }}>
           <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: sl.renk + "15" }}>
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={sl.renk} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 6 9 17l-5-5"/>
@@ -155,7 +155,7 @@ function KayitForm() {
     );
   }
 
-  const inputCls = "w-full border-2 rounded-xl px-4 py-3 text-[14px] font-medium focus:outline-none transition bg-white"
+  const inputCls = "w-full border-2 rounded-xl px-4 py-3 text-[14px] font-medium focus:outline-none transition bg-card"
     + " border-[#E2E8F0] text-[#0F172A] placeholder-[#94A3B8]";
   const labelCls = "block text-[12px] font-bold mb-1.5 uppercase tracking-wide text-[#64748B]";
 
@@ -318,7 +318,7 @@ function KayitForm() {
                           background:  form.yoneticiRolIdx === idx ? sl.renk : "transparent",
                         }}
                       >
-                        {form.yoneticiRolIdx === idx && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        {form.yoneticiRolIdx === idx && <div className="w-1.5 h-1.5 rounded-full bg-card" />}
                       </div>
                       <span className="text-[14px] font-semibold" style={{ color: form.yoneticiRolIdx === idx ? "#0F172A" : "#475569" }}>
                         {rol.label}
@@ -355,7 +355,7 @@ function KayitForm() {
                             background:  form.gorev === val ? sl.renk : "transparent",
                           }}
                         >
-                          {form.gorev === val && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                          {form.gorev === val && <div className="w-1.5 h-1.5 rounded-full bg-card" />}
                         </div>
                         <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: form.gorev === val ? sl.renk : "#94A3B8" }}>
                           {side}

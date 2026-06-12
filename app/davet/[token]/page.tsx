@@ -40,7 +40,7 @@ export default function DavetPage() {
 
   if (invalid) return (
     <div className="min-h-screen flex items-center justify-center bg-blue-50">
-      <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-md">
+      <div className="bg-card rounded-2xl shadow-lg p-8 text-center max-w-md">
         <p className="text-red-600 font-medium">Bu bağlantı geçersiz veya süresi dolmuş.</p>
       </div>
     </div>
@@ -48,10 +48,10 @@ export default function DavetPage() {
 
   if (success) return (
     <div className="min-h-screen flex items-center justify-center bg-blue-50">
-      <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-md">
+      <div className="bg-card rounded-2xl shadow-lg p-8 text-center max-w-md">
         <div className="text-green-600 text-5xl mb-4">✓</div>
         <h2 className="text-xl font-bold mb-2">Şifreniz Oluşturuldu</h2>
-        <p className="text-gray-500 text-sm mb-4">Artık sisteme giriş yapabilirsiniz.</p>
+        <p className="text-muted text-sm mb-4">Artık sisteme giriş yapabilirsiniz.</p>
         <button onClick={() => router.push("/giris")}
           className="bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800">
           Giriş Yap
@@ -62,29 +62,29 @@ export default function DavetPage() {
 
   if (!info) return (
     <div className="min-h-screen flex items-center justify-center">
-      <p className="text-gray-500">Yükleniyor...</p>
+      <p className="text-muted">Yükleniyor...</p>
     </div>
   );
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+      <div className="w-full max-w-md bg-card rounded-2xl shadow-lg p-8">
         <h1 className="text-2xl font-bold text-blue-900 mb-1">Şifre Oluştur</h1>
-        <p className="text-gray-500 text-sm mb-6">{info.email}</p>
+        <p className="text-muted text-sm mb-6">{info.email}</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Şifre</label>
+            <label className="block text-sm font-medium text-secondary mb-1">Şifre</label>
             <input type="password" required minLength={8} value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="En az 8 karakter" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Şifre Tekrar</label>
+            <label className="block text-sm font-medium text-secondary mb-1">Şifre Tekrar</label>
             <input type="password" required value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           {error && <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
           <button type="submit" disabled={loading}

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { DataTable, type DataTableColumn, type BulkAction } from "@/components/ui/DataTable";
+import { useToast } from "@/components/ui/Toast";
 
-type Durum = "BEKLEMEDE" | "INCELENIYOR" | "ONAYLANDI" | "REDDEDILDI";
+type Durum = "BEKLEMEDE" | "INCELENIYOR" | "GORUSULDU" | "ONAYLANDI" | "REDDEDILDI";
 
 interface Basvuru {
   id: string;
@@ -33,6 +35,7 @@ interface Stats {
 const DURUM_CONFIG: Record<Durum, { label: string; color: string; bg: string }> = {
   BEKLEMEDE:    { label: "Beklemede",    color: "#D97706", bg: "#FEF3C7" },
   INCELENIYOR:  { label: "İnceleniyor",  color: "#2563EB", bg: "#DBEAFE" },
+  GORUSULDU:    { label: "Görüşüldü",    color: "#7C3AED", bg: "#EDE9FE" },
   ONAYLANDI:    { label: "Onaylandı",    color: "#059669", bg: "#D1FAE5" },
   REDDEDILDI:   { label: "Reddedildi",   color: "#DC2626", bg: "#FEE2E2" },
 };
@@ -53,6 +56,62 @@ function timeAgo(iso: string) {
   return `${d} gün önce`;
 }
 
+function durumBadge(durum: Durum) {
+  const dc = DURUM_CONFIG[durum];
+  return (
+    <span className="text-xs px-2 py-1 rounded-full font-semibold whitespace-nowrap"
+      style={{ background: dc.bg, color: dc.color }}>
+      {dc.label}
+    </span>
+  );
+}
+
+const COLUMNS: DataTableColumn<Basvuru>[] = [
+  {
+    key: "adSoyad",
+    header: "Ad Soyad",
+    mobile: true,
+    render: b => <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{b.adSoyad}</span>,
+  },
+  {
+    key: "universite",
+    header: "Üniversite",
+    mobile: true,
+    render: b => <span className="font-medium" style={{ color: "var(--text-primary)" }}>{b.universite}</span>,
+  },
+  {
+    key: "bolumSinif",
+    header: "Bölüm / Sınıf",
+    sortValue: b => b.fakulteBolum,
+    render: b => (
+      <div>
+        <div>{b.fakulteBolum}</div>
+        <div className="text-xs" style={{ color: "var(--text-muted)" }}>{b.sinif}</div>
+      </div>
+    ),
+  },
+  { key: "il", header: "İl" },
+  { key: "telefon", header: "Telefon", defaultHidden: true },
+  {
+    key: "durum",
+    header: "Durum",
+    mobile: true,
+    sortValue: b => DURUM_CONFIG[b.durum].label,
+    render: b => durumBadge(b.durum),
+  },
+  {
+    key: "createdAt",
+    header: "Başvuru Tarihi",
+    sortValue: b => new Date(b.createdAt),
+    render: b => (
+      <div>
+        <div>{new Date(b.createdAt).toLocaleDateString("tr-TR")}</div>
+        <div className="text-xs" style={{ color: "var(--text-muted)" }}>{timeAgo(b.createdAt)}</div>
+      </div>
+    ),
+  },
+];
+
 export function BursBasvurulariClient({ basvurular, stats }: { basvurular: Basvuru[]; stats: Stats }) {
   const [filter, setFilter]       = useState<Durum | "TUMU">("TUMU");
   const [selected, setSelected]   = useState<Basvuru | null>(null);
@@ -61,6 +120,7 @@ export function BursBasvurulariClient({ basvurular, stats }: { basvurular: Basvu
   const [loading, setLoading]      = useState(false);
   const [toast, setToast]          = useState("");
   const [localList, setLocalList]  = useState<Basvuru[]>(basvurular);
+  const { toast: notify }          = useToast();
 
   const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(""), 3000); };
 
@@ -86,6 +146,41 @@ export function BursBasvurulariClient({ basvurular, stats }: { basvurular: Basvu
       showToast("Hata: " + d.error);
     }
   }
+
+  async function handleBulkDurum(rows: Basvuru[], durum: Durum) {
+    const results = await Promise.allSettled(
+      rows.map(b =>
+        fetch(`/api/admin/burs-basvurulari/${b.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          // Mevcut yönetici notunu geri gönder — API, eksik notu null'a çeviriyor.
+          body: JSON.stringify({ durum, ...(b.yoneticiNotu ? { yoneticiNotu: b.yoneticiNotu } : {}) }),
+        }).then(res => {
+          if (!res.ok) throw new Error("Güncelleme başarısız");
+          return b.id;
+        })
+      )
+    );
+    const okIds = new Set(
+      results
+        .filter((r): r is PromiseFulfilledResult<string> => r.status === "fulfilled")
+        .map(r => r.value)
+    );
+    const failedCount = rows.length - okIds.size;
+    if (okIds.size > 0) {
+      setLocalList(prev => prev.map(b => (okIds.has(b.id) ? { ...b, durum } : b)));
+      notify({ type: "success", title: `${okIds.size} başvuru güncellendi` });
+    }
+    if (failedCount > 0) {
+      notify({ type: "error", title: `${failedCount} başvuru güncellenemedi` });
+    }
+  }
+
+  const bulkActions: BulkAction<Basvuru>[] = [
+    { label: "Onayla",        tone: "primary",   onClick: rows => handleBulkDurum(rows, "ONAYLANDI") },
+    { label: "Reddet",        tone: "danger",    onClick: rows => handleBulkDurum(rows, "REDDEDILDI") },
+    { label: "İncelemeye Al", tone: "secondary", onClick: rows => handleBulkDurum(rows, "INCELENIYOR") },
+  ];
 
   const statCards = [
     { label: "Toplam Başvuru", value: stats.toplam,     color: "#6B7280" },
@@ -147,82 +242,42 @@ export function BursBasvurulariClient({ basvurular, stats }: { basvurular: Basvu
       </div>
 
       {/* Tablo */}
-      <div className="sv-section overflow-x-auto">
-        {filtered.length === 0 ? (
-          <div className="p-10 text-center text-sm" style={{ color: "var(--text-muted)" }}>
-            Bu kategoride başvuru bulunmuyor.
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="border-b" style={{ borderColor: "var(--border)" }}>
-              <tr>
-                {["Ad Soyad", "Üniversite / Bölüm", "Sınıf", "İl", "Maddi Durum", "Durum", "Başvuru", ""].map(h => (
-                  <th key={h} className="text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wide"
-                    style={{ color: "var(--text-muted)", background: "var(--bg-th)" }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(b => {
-                const dc = DURUM_CONFIG[b.durum];
-                return (
-                  <tr key={b.id} className="hover:bg-[color:var(--bg-hover)] border-b transition"
-                    style={{ borderColor: "var(--border)" }}>
-                    <td className="px-4 py-3">
-                      <div className="font-semibold" style={{ color: "var(--text-primary)" }}>{b.adSoyad}</div>
-                      <div className="text-xs" style={{ color: "var(--text-muted)" }}>{b.telefon}</div>
-                      {b.email && <div className="text-xs" style={{ color: "var(--text-muted)" }}>{b.email}</div>}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="font-medium" style={{ color: "var(--text-primary)" }}>{b.universite}</div>
-                      <div className="text-xs" style={{ color: "var(--text-muted)" }}>{b.fakulteBolum}</div>
-                    </td>
-                    <td className="px-4 py-3 text-sm" style={{ color: "var(--text-secondary)" }}>{b.sinif}</td>
-                    <td className="px-4 py-3 text-sm" style={{ color: "var(--text-secondary)" }}>{b.il}</td>
-                    <td className="px-4 py-3 text-sm" style={{ color: "var(--text-secondary)" }}>{b.madiDurum}</td>
-                    <td className="px-4 py-3">
-                      <span className="text-xs px-2 py-1 rounded-full font-semibold"
-                        style={{ background: dc.bg, color: dc.color }}>
-                        {dc.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-xs" style={{ color: "var(--text-muted)" }}>
-                      {timeAgo(b.createdAt)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => { setSelected(b); setDurumForm(b.durum); setNotForm(b.yoneticiNotu ?? ""); }}
-                        className="text-xs font-semibold hover:underline"
-                        style={{ color: "#0B6B3A" }}
-                      >
-                        İncele
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      <DataTable
+        id="burs-basvurulari"
+        data={filtered}
+        columns={COLUMNS}
+        rowKey={b => b.id}
+        searchText={b => `${b.adSoyad} ${b.universite} ${b.il} ${b.telefon}`}
+        searchPlaceholder="Ad, üniversite, il veya telefon ara..."
+        selectable
+        bulkActions={bulkActions}
+        emptyText="Bu kategoride başvuru bulunmuyor."
+        rowActions={b => (
+          <button
+            onClick={() => { setSelected(b); setDurumForm(b.durum); setNotForm(b.yoneticiNotu ?? ""); }}
+            className="text-xs font-semibold hover:underline"
+            style={{ color: "#0B6B3A" }}
+          >
+            İncele
+          </button>
         )}
-      </div>
+      />
 
       {/* Detay / Güncelleme Modalı */}
       {selected && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-5 border-b flex items-center justify-between" style={{ borderColor: "#E2E8F0" }}>
-              <h2 className="text-lg font-bold text-gray-900">Burs Başvurusu</h2>
-              <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-xl font-bold">×</button>
+              <h2 className="text-lg font-bold text-heading">Burs Başvurusu</h2>
+              <button onClick={() => setSelected(null)} className="text-muted hover:text-secondary text-xl font-bold">×</button>
             </div>
 
             <div className="p-6 space-y-4">
               {/* Kişi bilgileri */}
-              <div className="bg-gray-50 rounded-xl p-4 space-y-1">
-                <p className="font-bold text-gray-900">{selected.adSoyad}</p>
-                <p className="text-sm text-gray-500">{selected.telefon}</p>
-                {selected.email && <p className="text-sm text-gray-500">{selected.email}</p>}
+              <div className="bg-th rounded-xl p-4 space-y-1">
+                <p className="font-bold text-heading">{selected.adSoyad}</p>
+                <p className="text-sm text-muted">{selected.telefon}</p>
+                {selected.email && <p className="text-sm text-muted">{selected.email}</p>}
               </div>
 
               {/* Başvuru bilgileri */}
@@ -234,27 +289,27 @@ export function BursBasvurulariClient({ basvurular, stats }: { basvurular: Basvu
                   ["İl", selected.il],
                   ["Maddi Durum", selected.madiDurum],
                 ].map(([k, v]) => (
-                  <div key={k} className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-0.5">{k}</p>
-                    <p className="font-semibold text-gray-800">{v}</p>
+                  <div key={k} className="bg-th rounded-lg p-3">
+                    <p className="text-xs font-bold text-muted uppercase tracking-wide mb-0.5">{k}</p>
+                    <p className="font-semibold text-heading">{v}</p>
                   </div>
                 ))}
               </div>
 
               {/* Açıklama */}
               <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Açıklama</p>
-                <p className="text-sm text-gray-700 bg-gray-50 rounded-xl p-3 leading-relaxed">{selected.aciklama}</p>
+                <p className="text-xs font-bold text-muted uppercase tracking-wide mb-1">Açıklama</p>
+                <p className="text-sm text-secondary bg-th rounded-xl p-3 leading-relaxed">{selected.aciklama}</p>
               </div>
 
               {/* Belgeler */}
               {selected.belgeler.length > 0 && (
                 <div>
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Belgeler</p>
+                  <p className="text-xs font-bold text-muted uppercase tracking-wide mb-2">Belgeler</p>
                   <div className="flex flex-wrap gap-2">
                     {selected.belgeler.map((b, i) => (
                       <a key={i} href={b} target="_blank" rel="noreferrer"
-                        className="text-xs px-3 py-1.5 rounded-lg font-semibold border hover:bg-gray-50 transition"
+                        className="text-xs px-3 py-1.5 rounded-lg font-semibold border hover:bg-th transition"
                         style={{ borderColor: "#E2E8F0", color: "#0B6B3A" }}>
                         📎 Belge {i + 1}
                       </a>
@@ -265,7 +320,7 @@ export function BursBasvurulariClient({ basvurular, stats }: { basvurular: Basvu
 
               {/* Durum güncelleme */}
               <div className="border-t pt-4" style={{ borderColor: "#E2E8F0" }}>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Durum Güncelle</p>
+                <p className="text-xs font-bold text-muted uppercase tracking-wide mb-3">Durum Güncelle</p>
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   {(["BEKLEMEDE", "INCELENIYOR", "ONAYLANDI", "REDDEDILDI"] as Durum[]).map(d => {
                     const dc = DURUM_CONFIG[d];
@@ -295,7 +350,7 @@ export function BursBasvurulariClient({ basvurular, stats }: { basvurular: Basvu
 
             <div className="px-6 pb-6 flex gap-2">
               <button onClick={() => setSelected(null)}
-                className="flex-1 border-2 border-gray-200 rounded-xl py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                className="flex-1 border-2 border-border rounded-xl py-2.5 text-sm font-semibold text-secondary hover:bg-th">
                 İptal
               </button>
               <button onClick={handleDurumGuncelle} disabled={loading}

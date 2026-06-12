@@ -1,26 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import { PublicLayout } from "@/components/PublicLayout";
-
-const BRAND = { green: "#0B6B3A", gold: "#D4AF37" };
-
-function useColors() {
-  const { resolvedTheme } = useTheme();
-  const [m, setM] = useState(false);
-  useEffect(() => setM(true), []);
-  const dark = m && resolvedTheme === "dark";
-  return {
-    bg:  dark ? "#081C15" : "#F6F8F5",
-    sr:  dark ? "#142C22" : "#FFFFFF",
-    br:  dark ? "#1F3D31" : "#E2E8F0",
-    h:   dark ? "#F8FAFC" : "#0F172A",
-    b:   dark ? "#CBD5E1" : "#475569",
-    mu:  dark ? "#94A3B8" : "#64748B",
-    su:  dark ? "#0F241C" : "#F1F5F9",
-  };
-}
+import { Reveal } from "@/components/Reveal";
+import { BRAND, useColors } from "@/lib/theme";
 
 type BadgeStatus = "Devam Ediyor" | "Planlanıyor" | "Tamamlandı";
 
@@ -326,8 +309,8 @@ export default function ProjelerPage() {
               const badge = statusStyles[project.status];
               const isHovered = hoveredIndex === idx;
               return (
+                <Reveal key={project.title} delay={(idx % 3) * 80}>
                 <div
-                  key={project.title}
                   onMouseEnter={() => setHoveredIndex(idx)}
                   onMouseLeave={() => setHoveredIndex(-1)}
                   style={{
@@ -342,6 +325,7 @@ export default function ProjelerPage() {
                       : "0 2px 8px rgba(0,0,0,0.06)",
                     display: "flex",
                     flexDirection: "column",
+                    height: "100%",
                   }}
                 >
                   {/* Card image */}
@@ -441,6 +425,7 @@ export default function ProjelerPage() {
                     </div>
                   </div>
                 </div>
+                </Reveal>
               );
             })}
           </div>

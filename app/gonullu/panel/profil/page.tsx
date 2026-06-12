@@ -1,23 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useTheme } from "next-themes";
-
-const BRAND = { green: "#0B6B3A", gold: "#D4AF37" };
-
-function useColors() {
-  const { resolvedTheme } = useTheme();
-  const [m, setM] = useState(false);
-  useEffect(() => setM(true), []);
-  const dark = m && resolvedTheme === "dark";
-  return {
-    card: dark ? "#142C22" : "#FFFFFF",
-    br:   dark ? "#1F3D31" : "#E2E8F0",
-    h:    dark ? "#F8FAFC" : "#0F172A",
-    b:    dark ? "#CBD5E1" : "#475569",
-    mu:   dark ? "#94A3B8" : "#64748B",
-    inp:  dark ? "#0F241C" : "#FFFFFF",
-  };
-}
+import { BRAND, useColors } from "@/lib/theme";
 
 const OGRENIM_LABEL: Record<string, string> = {
   ILKOKUL: "İlkokul", ORTAOKUL: "Ortaokul", LISE: "Lise", UNIVERSITE: "Üniversite",
@@ -145,7 +128,7 @@ export default function ProfilPage() {
               </div>
               <div>
                 <label style={labelSt}>Yeni Şifre</label>
-                <input type="password" style={inputSt} placeholder="En az 6 karakter" value={yeniSifre} onChange={e => setYeniSifre(e.target.value)}
+                <input type="password" style={inputSt} placeholder="En az 8 karakter" value={yeniSifre} onChange={e => setYeniSifre(e.target.value)}
                   onFocus={e => (e.target.style.borderColor = BRAND.green)}
                   onBlur={e  => (e.target.style.borderColor = c.br)} />
               </div>

@@ -2,33 +2,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
-
-const BRAND = { green: "#0B6B3A", gold: "#D4AF37" };
-
-function useColors() {
-  const { resolvedTheme } = useTheme();
-  const [m, setM] = useState(false);
-  useEffect(() => setM(true), []);
-  const dark = m && resolvedTheme === "dark";
-  return {
-    bg:      dark ? "#081C15" : "#F6F8F5",
-    sidebar: dark ? "#0F241C" : "#FFFFFF",
-    card:    dark ? "#142C22" : "#FFFFFF",
-    br:      dark ? "#1F3D31" : "#E2E8F0",
-    h:       dark ? "#F8FAFC" : "#0F172A",
-    b:       dark ? "#CBD5E1" : "#475569",
-    mu:      dark ? "#94A3B8" : "#64748B",
-    hover:   dark ? "#142C22" : "#F6F8F5",
-    active:  dark ? "#1A3428" : "#EBF5EF",
-  };
-}
+import { BRAND, useColors } from "@/lib/theme";
+import { NotificationBell } from "@/components/NotificationBell";
 
 const GONULLU_NAV = [
   { href: "/gonullu/panel",                label: "Ana Sayfa",              icon: "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" },
   { href: "/gonullu/panel/burs-basvurusu",     label: "Nezir Bursu Başvurusu",         icon: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" },
   { href: "/gonullu/panel/ek-kayit-basvurusu", label: "Öğr. Evi / Apart / Yurt Başvurusu", icon: "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10" },
   { href: "/gonullu/panel/basvurularim",   label: "Başvurularım",           icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+  { href: "/gonullu/panel/dokumanlar",     label: "Dokümanlar",             icon: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" },
   { href: "/gonullu/panel/geri-bildirim",  label: "Geri Bildirim Gönder",  icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" },
   { href: "/gonullu/panel/profil",         label: "Profilim",               icon: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 11a4 4 0 100-8 4 4 0 000 8z" },
 ];
@@ -66,7 +48,7 @@ export default function GonulluPanelLayout({ children }: { children: React.React
   const SidebarContent = () => (
     <>
       {/* Logo */}
-      <div style={{ padding: "24px 20px 16px", borderBottom: `1px solid ${c.br}` }}>
+      <div style={{ padding: "24px 20px 16px", borderBottom: `1px solid ${c.br}`, display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
         <Link href="/" className="flex items-center gap-2.5">
           <div style={{ background: "#EBF5EF", width: 32, height: 32, borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <img src="/logo.svg" alt="Serhendi" style={{ width: 18, height: 18 }} />
@@ -76,6 +58,9 @@ export default function GonulluPanelLayout({ children }: { children: React.React
             <p style={{ color: c.mu, fontSize: "11px", marginTop: "2px" }}>Gönüllü Paneli</p>
           </div>
         </Link>
+        <div className="hidden lg:block">
+          <NotificationBell />
+        </div>
       </div>
 
       {/* Kullanıcı */}
@@ -147,12 +132,21 @@ export default function GonulluPanelLayout({ children }: { children: React.React
       {/* Mobile navbar */}
       <div className="lg:hidden fixed top-0 inset-x-0 z-50" style={{ background: c.sidebar, borderBottom: `1px solid ${c.br}`, height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px" }}>
         <span style={{ color: c.h, fontWeight: 700, fontSize: "15px" }}>Serhendi Gönüllü</span>
-        <button onClick={() => setMenuOpen(v => !v)} style={{ color: c.b, background: "none", border: "none", cursor: "pointer" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+        <NotificationBell />
+        <button
+          onClick={() => setMenuOpen(v => !v)}
+          aria-label={menuOpen ? "Menüyü kapat" : "Menüyü aç"}
+          aria-expanded={menuOpen}
+          className="p-2"
+          style={{ color: c.b, background: "none", border: "none", cursor: "pointer" }}
+        >
           {menuOpen
             ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
             : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
           }
         </button>
+        </div>
       </div>
 
       {/* Mobile menu overlay */}

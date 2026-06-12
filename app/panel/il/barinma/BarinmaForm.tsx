@@ -140,7 +140,7 @@ export function BarinmaForm({ activeTab }: { activeTab: Tab }) {
             className={`px-5 py-3 text-sm font-bold border-b-2 -mb-px transition ${
               activeTab === tab.key
                 ? "text-orange-600 border-orange-600"
-                : "border-transparent hover:border-gray-300"
+                : "border-transparent hover:border-border"
             }`}
             style={activeTab !== tab.key ? { color: "var(--text-muted)" } : {}}>
             {tab.label}

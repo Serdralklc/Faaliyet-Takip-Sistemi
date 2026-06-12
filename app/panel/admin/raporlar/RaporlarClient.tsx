@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { ExportButtons } from "@/components/ui/ExportButtons";
 
 /* ── Types ── */
 interface Activity {
@@ -414,6 +415,26 @@ const COLS_BY_BIRIM: Record<string, { label: string; field: keyof Activity }[]> 
   uni:  UNI_COLS,
 };
 
+const BIRIM_LABEL: Record<BirimKey, string> = {
+  ilk: "İlköğretim Birimi", lise: "Lise Birimi", uni: "Üniversite Birimi", eay: "Ev / Apart / Yurt",
+};
+
+/* Ev/Apart/Yurt dışa aktarma sütunları */
+const EAY_EXPORT_COLS: { label: string; field: keyof Activity }[] = [
+  { label: "Mevcut Ev",       field: "eay_mevcutEv" },
+  { label: "Mevcut Apart",    field: "eay_mevcutApart" },
+  { label: "Mevcut Yurt",     field: "eay_mevcutYurt" },
+  { label: "Açılacak Ev",     field: "eay_acilacakEv" },
+  { label: "Açılacak Apart",  field: "eay_acilacakApart" },
+  { label: "Açılacak Yurt",   field: "eay_acilacakYurt" },
+  { label: "Kapanacak Ev",    field: "eay_kapanacakEv" },
+  { label: "Kapanacak Apart", field: "eay_kapanacakApart" },
+  { label: "Kapanacak Yurt",  field: "eay_kapanacakYurt" },
+  { label: "Burs Bağlanan",   field: "eay_bursBalan" },
+  { label: "İlişik Kesme",    field: "eay_iliskiKesme" },
+  { label: "Toplam Ziyaret",  field: "eay_toplamZiyaret" },
+];
+
 function BirimTabPanel({
   bolgeler, yillar, birim, color,
 }: {
@@ -429,16 +450,46 @@ function BirimTabPanel({
   const donemler = DONEMLER_BY_BIRIM[birim];
   const gosterilecekDonemler = donem === "TUM" ? donemler : [donem];
 
+  /** Ekrandaki (filtrelenmiş) tabloyu kurumsal şablonla dışa aktarır */
+  function exportSpec() {
+    const cols = birim === "eay" ? EAY_EXPORT_COLS : COLS_BY_BIRIM[birim];
+    const rows: Record<string, string | number>[] = [];
+    for (const d of gosterilecekDonemler) {
+      for (const bolge of bolgeler) {
+        for (const il of bolge.iller) {
+          const acts = filterActs(il.activities, Number(yil), d);
+          if (!acts.length) continue;
+          const row: Record<string, string | number> = { bolge: bolge.ad, il: il.ad, donem: DONEM_LABEL[d] ?? d };
+          for (const c of cols) row[c.field as string] = sum(acts, c.field);
+          rows.push(row);
+        }
+      }
+    }
+    return {
+      title: `Faaliyet Raporu — ${BIRIM_LABEL[birim]}`,
+      subtitle: `${yil} • ${donem === "TUM" ? "Tüm Dönemler" : DONEM_LABEL[donem] ?? donem}`,
+      fileName: `rapor-${birim}-${yil}`,
+      columns: [
+        { header: "Bölge", key: "bolge" },
+        { header: "İl", key: "il" },
+        { header: "Dönem", key: "donem" },
+        ...cols.map(c => ({ header: c.label, key: c.field as string })),
+      ],
+      rows,
+    };
+  }
+
   return (
     <div className="space-y-5">
-      {/* Filtre */}
-      <div className="sv-section p-4">
+      {/* Filtre + dışa aktarma */}
+      <div className="sv-section p-4 flex flex-wrap items-center justify-between gap-3">
         <SistemSelect
           color={color}
           yil={yil} yillar={yillar}
           donem={donem} donemler={donemler}
           onYil={setYil} onDonem={setDonem}
         />
+        <ExportButtons getSpec={exportSpec} />
       </div>
 
       {/* Tablolar (her gösterilen dönem için) */}

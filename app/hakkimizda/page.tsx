@@ -1,27 +1,10 @@
 "use client";
 
 import { PublicLayout } from "@/components/PublicLayout";
-import { useTheme } from "next-themes";
-import { useState, useEffect } from "react";
+import { Reveal } from "@/components/Reveal";
+import { useState } from "react";
 import Link from "next/link";
-
-const BRAND = { green: "#0B6B3A", gold: "#D4AF37" };
-
-function useColors() {
-  const { resolvedTheme } = useTheme();
-  const [m, setM] = useState(false);
-  useEffect(() => setM(true), []);
-  const dark = m && resolvedTheme === "dark";
-  return {
-    bg:  dark ? "#081C15" : "#F6F8F5",
-    sr:  dark ? "#142C22" : "#FFFFFF",
-    br:  dark ? "#1F3D31" : "#E2E8F0",
-    h:   dark ? "#F8FAFC" : "#0F172A",
-    b:   dark ? "#CBD5E1" : "#475569",
-    mu:  dark ? "#94A3B8" : "#64748B",
-    su:  dark ? "#0F241C" : "#F1F5F9",
-  };
-}
+import { BRAND, useColors } from "@/lib/theme";
 
 const timeline = [
   { year: "2012", title: "Kuruluş", desc: "Küçük bir grup gencin ilim ve hizmet yolculuğu başladı.", side: "left" },
@@ -109,6 +92,7 @@ export default function HakkimizdaPage() {
         <div className="max-w-7xl mx-auto px-5 lg:px-10">
           <div className="grid md:grid-cols-3 gap-6 mb-20">
             {/* Misyon */}
+            <Reveal delay={0}>
             <HoverCard
               style={{
                 background: c.sr,
@@ -130,8 +114,10 @@ export default function HakkimizdaPage() {
                 Türkiye'nin her köşesindeki gencin ilmî, ahlâkî ve manevî gelişimine katkı sağlamak.
               </p>
             </HoverCard>
+            </Reveal>
 
             {/* Vizyon */}
+            <Reveal delay={80}>
             <HoverCard
               style={{
                 background: c.sr,
@@ -154,8 +140,10 @@ export default function HakkimizdaPage() {
                 İlim ve ahlâk sahibi, ülkesine ve insanlığa faydalı bir nesil yetiştirmek.
               </p>
             </HoverCard>
+            </Reveal>
 
             {/* Temel Değerler */}
+            <Reveal delay={160}>
             <HoverCard
               style={{
                 background: c.sr,
@@ -185,10 +173,11 @@ export default function HakkimizdaPage() {
                 ))}
               </div>
             </HoverCard>
+            </Reveal>
           </div>
 
           {/* TIMELINE */}
-          <div className="mb-20">
+          <Reveal className="mb-20">
             <div className="text-center mb-14">
               <span className="text-xs font-black uppercase tracking-widest" style={{ color: BRAND.gold }}>
                 Tarihçemiz
@@ -305,14 +294,14 @@ export default function HakkimizdaPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* STATS */}
       <section style={{ background: "#081C15" }} className="py-16">
         <div className="max-w-7xl mx-auto px-5 lg:px-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px" style={{ background: "#1F3D31" }}>
+          <Reveal className="grid grid-cols-2 lg:grid-cols-4 gap-px" style={{ background: "#1F3D31" }}>
             {[
               { n: "81", l: "İl" },
               { n: "500+", l: "Görevli" },
@@ -329,7 +318,7 @@ export default function HakkimizdaPage() {
                 <p className="text-sm font-medium" style={{ color: BRAND.gold }}>{s.l}</p>
               </div>
             ))}
-          </div>
+          </Reveal>
         </div>
       </section>
     </PublicLayout>

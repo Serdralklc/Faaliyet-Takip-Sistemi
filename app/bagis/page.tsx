@@ -1,23 +1,6 @@
 "use client";
 import { PublicLayout } from "@/components/PublicLayout";
-import { useTheme } from "next-themes";
-import { useState, useEffect } from "react";
-
-const BRAND = { green: "#0B6B3A", gold: "#D4AF37" };
-
-function useColors() {
-  const { resolvedTheme } = useTheme();
-  const [m, setM] = useState(false);
-  useEffect(() => setM(true), []);
-  const dark = m && resolvedTheme === "dark";
-  return {
-    h:  dark ? "#F8FAFC" : "#0F172A",
-    b:  dark ? "#CBD5E1" : "#475569",
-    mu: dark ? "#94A3B8" : "#64748B",
-    sr: dark ? "#142C22" : "#FFFFFF",
-    br: dark ? "#1F3D31" : "#E2E8F0",
-  };
-}
+import { BRAND, useColors } from "@/lib/theme";
 
 export default function BagisPage() {
   const c = useColors();

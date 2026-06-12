@@ -3,8 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const BRAND  = { green: "#0B6B3A", gold: "#D4AF37" };
-const COLORS = { bg: "#F6F8F5", sr: "#FFFFFF", br: "#CBD5E1", h: "#0F172A", b: "#475569", mu: "#64748B" };
+import { BRAND, COLORS } from "@/lib/theme";
 
 const inputSt: React.CSSProperties = {
   background:          COLORS.sr,
@@ -193,7 +192,7 @@ export default function GonulluKayitPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label style={labelSt}>Şifre *</label>
-                <input type="password" required placeholder="En az 6 karakter" style={inputSt}
+                <input type="password" required placeholder="En az 8 karakter" style={inputSt}
                   value={form.sifre} onChange={e => set("sifre", e.target.value)}
                   onFocus={e => (e.target.style.borderColor = BRAND.green)}
                   onBlur={e  => (e.target.style.borderColor = COLORS.br)} />

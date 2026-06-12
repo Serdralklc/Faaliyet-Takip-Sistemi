@@ -1,24 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
-
-const BRAND = { green: "#0B6B3A", gold: "#D4AF37" };
-
-function useColors() {
-  const { resolvedTheme } = useTheme();
-  const [m, setM] = useState(false);
-  useEffect(() => setM(true), []);
-  const dark = m && resolvedTheme === "dark";
-  return {
-    card: dark ? "#142C22" : "#FFFFFF",
-    br:   dark ? "#1F3D31" : "#E2E8F0",
-    h:    dark ? "#F8FAFC" : "#0F172A",
-    b:    dark ? "#CBD5E1" : "#475569",
-    mu:   dark ? "#94A3B8" : "#64748B",
-    bg2:  dark ? "#0F241C" : "#F6F8F5",
-  };
-}
+import { BRAND, useColors } from "@/lib/theme";
 
 interface BursBasvuru {
   id: string; adSoyad: string; universite: string; fakulteBolum: string;

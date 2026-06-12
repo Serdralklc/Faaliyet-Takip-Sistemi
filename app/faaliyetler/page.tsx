@@ -1,26 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import { PublicLayout } from "@/components/PublicLayout";
-
-const BRAND = { green: "#0B6B3A", gold: "#D4AF37" };
-
-function useColors() {
-  const { resolvedTheme } = useTheme();
-  const [m, setM] = useState(false);
-  useEffect(() => setM(true), []);
-  const dark = m && resolvedTheme === "dark";
-  return {
-    bg:  dark ? "#081C15" : "#F6F8F5",
-    sr:  dark ? "#142C22" : "#FFFFFF",
-    br:  dark ? "#1F3D31" : "#E2E8F0",
-    h:   dark ? "#F8FAFC" : "#0F172A",
-    b:   dark ? "#CBD5E1" : "#475569",
-    mu:  dark ? "#94A3B8" : "#64748B",
-    su:  dark ? "#0F241C" : "#F1F5F9",
-  };
-}
+import { Reveal } from "@/components/Reveal";
+import { BRAND, useColors } from "@/lib/theme";
 
 interface ActivityDef {
   title: string;
@@ -341,8 +324,8 @@ export default function FaaliyetlerPage() {
             {activities.map((activity, idx) => {
               const isHovered = hoveredIndex === idx;
               return (
+                <Reveal key={activity.title} delay={(idx % 3) * 80}>
                 <div
-                  key={activity.title}
                   onMouseEnter={() => setHoveredIndex(idx)}
                   onMouseLeave={() => setHoveredIndex(-1)}
                   style={{
@@ -358,6 +341,7 @@ export default function FaaliyetlerPage() {
                     display: "flex",
                     flexDirection: "column",
                     gap: "1rem",
+                    height: "100%",
                   }}
                 >
                   {/* Icon circle */}
@@ -434,6 +418,7 @@ export default function FaaliyetlerPage() {
                     </button>
                   </div>
                 </div>
+                </Reveal>
               );
             })}
           </div>
@@ -470,9 +455,9 @@ export default function FaaliyetlerPage() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "5rem" }}>
-            {features.map((feature) => (
+            {features.map((feature, fi) => (
+              <Reveal key={feature.title} delay={fi * 80}>
               <div
-                key={feature.title}
                 style={{
                   display: "grid",
                   gridTemplateColumns: "1fr 1fr",
@@ -618,6 +603,7 @@ export default function FaaliyetlerPage() {
                   </>
                 )}
               </div>
+              </Reveal>
             ))}
           </div>
         </div>

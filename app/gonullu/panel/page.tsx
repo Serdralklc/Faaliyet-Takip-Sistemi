@@ -1,25 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
-
-const BRAND = { green: "#0B6B3A", gold: "#D4AF37" };
-
-function useColors() {
-  const { resolvedTheme } = useTheme();
-  const [m, setM] = useState(false);
-  useEffect(() => setM(true), []);
-  const dark = m && resolvedTheme === "dark";
-  return {
-    bg:   dark ? "#081C15" : "#F6F8F5",
-    card: dark ? "#142C22" : "#FFFFFF",
-    br:   dark ? "#1F3D31" : "#E2E8F0",
-    h:    dark ? "#F8FAFC" : "#0F172A",
-    b:    dark ? "#CBD5E1" : "#475569",
-    mu:   dark ? "#94A3B8" : "#64748B",
-    su:   dark ? "#0F241C" : "#F8FAFC",
-  };
-}
+import { useQuery } from "@tanstack/react-query";
+import { BRAND, useColors } from "@/lib/theme";
 
 interface VolunteerData {
   adSoyad: string;
@@ -35,82 +18,71 @@ interface VolunteerData {
 }
 
 interface AdminStats {
-  gonulluCount: number;
-  bursCount: number;
-  bekleyenCount: number;
-  geriBildirimCount: number;
+  gonullu: number;
+  burs: number;
+  bursBekleyen: number;
+  ekKayit: number;
+  ekKayitBekleyen: number;
+  geriBildirim: number;
+  geriBildirimYeni: number;
 }
 
 const OGRENIM_LABEL: Record<string, string> = {
   ILKOKUL: "İlkokul", ORTAOKUL: "Ortaokul", LISE: "Lise", UNIVERSITE: "Üniversite",
 };
 
-const DUYURULAR = [
-  { baslik: "2024-2025 Nezir Burs Başvuruları Açıldı", tarih: "1 Haziran 2025", renk: BRAND.green },
-  { baslik: "Yaz Kafile Programı Kayıtları Başladı",   tarih: "20 Mayıs 2025",  renk: "#7C3AED" },
-  { baslik: "Sabah Namazı Buluşması — Haziran Programı", tarih: "15 Mayıs 2025", renk: "#1D4ED8" },
-];
+interface GonulluBildirim {
+  alimId: string;
+  baslik: string;
+  mesaj: string;
+  tip: string;
+  link: string | null;
+  tarih: string;
+  goruldu: boolean;
+}
+
+/** Duyuru kartındaki nokta rengi — bildirim tipine göre sabit */
+const DUYURU_RENK: Record<string, string> = {
+  DUYURU: BRAND.green,
+  BILGILENDIRME: "#1D4ED8",
+};
 
 function AdminDashboard({ vol, c }: { vol: VolunteerData; c: ReturnType<typeof useColors> }) {
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [statsLoading, setStatsLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const [gonulluRes, bursRes, gbRes] = await Promise.all([
-          fetch("/api/admin/gonulluler"),
-          fetch("/api/admin/burs"),
-          fetch("/api/admin/geri-bildirim"),
-        ]);
-        const [gonulluData, bursData, gbData] = await Promise.all([
-          gonulluRes.ok ? gonulluRes.json() : [],
-          bursRes.ok ? bursRes.json() : [],
-          gbRes.ok ? gbRes.json() : [],
-        ]);
-        const gonulluArr = Array.isArray(gonulluData) ? gonulluData : [];
-        const bursArr = Array.isArray(bursData) ? bursData : [];
-        const gbArr = Array.isArray(gbData) ? gbData : [];
-        setStats({
-          gonulluCount: gonulluArr.length,
-          bursCount: bursArr.length,
-          bekleyenCount: bursArr.filter((b: { durum: string }) => b.durum === "BEKLEMEDE").length,
-          geriBildirimCount: gbArr.length,
-        });
-      } catch {
-        setStats({ gonulluCount: 0, bursCount: 0, bekleyenCount: 0, geriBildirimCount: 0 });
-      } finally {
-        setStatsLoading(false);
-      }
-    }
-    fetchStats();
-  }, []);
+  // Tam listeler yerine count tabanlı tek istek — React Query cache'iyle
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["admin-stats"],
+    queryFn: async (): Promise<AdminStats> => {
+      const res = await fetch("/api/admin/stats");
+      if (!res.ok) throw new Error("İstatistikler yüklenemedi.");
+      return res.json();
+    },
+  });
 
   const statCards = [
     {
       label: "Toplam Gönüllü",
-      value: stats?.gonulluCount ?? 0,
+      value: stats?.gonullu ?? 0,
       iconColor: BRAND.green,
       iconBg: BRAND.green + "20",
       icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v2h5m10-2v-2c0-.656.126-1.283.356-1.857M7 20v-2a3 3 0 005.356-1.857M13 7a4 4 0 11-8 0 4 4 0 018 0z",
     },
     {
       label: "Toplam Burs Başvurusu",
-      value: stats?.bursCount ?? 0,
+      value: stats?.burs ?? 0,
       iconColor: "#7C3AED",
       iconBg: "#7C3AED20",
       icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
     },
     {
       label: "Bekleyen Başvuru",
-      value: stats?.bekleyenCount ?? 0,
+      value: stats?.bursBekleyen ?? 0,
       iconColor: "#D97706",
       iconBg: "#D9770620",
       icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
     },
     {
       label: "Geri Bildirim",
-      value: stats?.geriBildirimCount ?? 0,
+      value: stats?.geriBildirim ?? 0,
       iconColor: "#1D4ED8",
       iconBg: "#1D4ED820",
       icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z",
@@ -215,6 +187,20 @@ function AdminDashboard({ vol, c }: { vol: VolunteerData; c: ReturnType<typeof u
 }
 
 function VolunteerDashboard({ vol, c }: { vol: VolunteerData; c: ReturnType<typeof useColors> }) {
+  // Canlı duyurular — Bildirim Merkezi'nden gelen DUYURU/BILGILENDIRME tipleri
+  const { data: bildirimData, isLoading: duyuruLoading } = useQuery({
+    queryKey: ["gonullu-duyurular"],
+    queryFn: async (): Promise<{ okunmamis: number; bildirimler: GonulluBildirim[] }> => {
+      const res = await fetch("/api/bildirimlerim");
+      if (!res.ok) throw new Error("Duyurular yüklenemedi.");
+      return res.json();
+    },
+  });
+
+  const duyurular = (bildirimData?.bildirimler ?? [])
+    .filter(b => b.tip === "DUYURU" || b.tip === "BILGILENDIRME")
+    .slice(0, 3);
+
   return (
     <div style={{ padding: "32px 24px", maxWidth: 900, margin: "0 auto" }}>
       {/* Hoş geldiniz */}
@@ -266,17 +252,23 @@ function VolunteerDashboard({ vol, c }: { vol: VolunteerData; c: ReturnType<type
         {/* Duyurular */}
         <div style={{ background: c.card, border: `1px solid ${c.br}`, borderRadius: "1rem", padding: "20px" }}>
           <h2 style={{ color: c.h, fontWeight: 700, fontSize: "15px", marginBottom: "16px" }}>Güncel Duyurular</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {DUYURULAR.map((d, i) => (
-              <div key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: d.renk, flexShrink: 0, marginTop: "6px" }} />
-                <div>
-                  <p style={{ color: c.h, fontWeight: 600, fontSize: "13.5px" }}>{d.baslik}</p>
-                  <p style={{ color: c.mu, fontSize: "12px", marginTop: "2px" }}>{d.tarih}</p>
+          {duyuruLoading ? (
+            <p style={{ color: c.mu, fontSize: "13px" }}>Yükleniyor...</p>
+          ) : duyurular.length === 0 ? (
+            <p style={{ color: c.mu, fontSize: "13px" }}>Henüz duyuru yok.</p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {duyurular.map(d => (
+                <div key={d.alimId} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: DUYURU_RENK[d.tip] ?? BRAND.green, flexShrink: 0, marginTop: "6px" }} />
+                  <div>
+                    <p style={{ color: c.h, fontWeight: 600, fontSize: "13.5px" }}>{d.baslik}</p>
+                    <p style={{ color: c.mu, fontSize: "12px", marginTop: "2px" }}>{new Date(d.tarih).toLocaleDateString("tr-TR")}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Profil özeti */}

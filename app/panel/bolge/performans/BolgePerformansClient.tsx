@@ -244,9 +244,10 @@ export default function BolgePerformansClient({
                     .map(il => {
                       const ilHedef = secilenHedef.ilHedef.find((ih: IlHedef) => ih.ilId === il.id);
                       const g = gerceklesenFromActivity(il.activities, secilenHedef.yil, secilenHedef.donem);
+                      // pct() hedefi 0/boş olan kategoriler için null döner — yalnızca hedefi olan kategoriler ortalamaya girer
                       const skorlar = HEDEF_ALANLARI
                         .map(a => ilHedef ? pct(g[a.key], ilHedef[a.key] as number) : null)
-                        .filter((v): v is number => v !== null && (ilHedef?.[HEDEF_ALANLARI.find(ax => true)!.key] ?? 0) > 0);
+                        .filter((v): v is number => v !== null);
                       const genel = skorlar.length
                         ? Math.round(skorlar.reduce((s, v) => s + v, 0) / skorlar.length)
                         : null;

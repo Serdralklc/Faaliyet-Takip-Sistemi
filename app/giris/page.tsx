@@ -206,14 +206,15 @@ function LoginForm({
   const [showPass,   setShowPass]   = useState(false);
   const [remember,   setRemember]   = useState(false);
 
-  // Kayıtlı bilgileri yükle
+  // Kayıtlı e-postayı yükle (şifre güvenlik gereği asla saklanmaz)
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const { email: e, password: p } = JSON.parse(saved);
         if (e) { setEmail(e); setRemember(true); }
-        if (p) setPassword(p);
+        // Eski sürümün sakladığı düz metin şifreyi kalıcı olarak temizle
+        if (p) localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: e ?? "" }));
       }
     } catch { /* ignore */ }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -238,9 +239,9 @@ function LoginForm({
         }
         setLoading(false);
       } else {
-        // Beni hatırla
+        // Beni hatırla — yalnızca e-posta saklanır
         if (remember) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({ email, password }));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ email }));
         } else {
           localStorage.removeItem(STORAGE_KEY);
         }
@@ -368,7 +369,8 @@ function LoginForm({
             </div>
           </div>
 
-          {/* Beni hatırla */}
+          {/* Beni hatırla + Şifremi unuttum */}
+          <div className="flex items-center justify-between gap-3">
           <label className="flex items-center gap-2.5 cursor-pointer select-none">
             <div
               onClick={() => setRemember(!remember)}
@@ -386,6 +388,14 @@ function LoginForm({
             </div>
             <span className="text-[13px] font-medium" style={{ color: "#64748B" }}>Beni hatırla</span>
           </label>
+          <Link
+            href="/sifremi-unuttum?tip=yonetici"
+            className="text-[12.5px] font-bold hover:underline flex-shrink-0"
+            style={{ color: role.color }}
+          >
+            Şifremi unuttum
+          </Link>
+          </div>
 
           {/* Hata mesajı */}
           {error && (
@@ -443,7 +453,7 @@ function LoginForm({
               <button
                 type="button"
                 onClick={() => signIn("google", { callbackUrl: "/" })}
-                className="w-full flex items-center justify-center gap-3 border-2 rounded-xl py-3 text-[14px] font-bold transition hover:bg-gray-50"
+                className="w-full flex items-center justify-center gap-3 border-2 rounded-xl py-3 text-[14px] font-bold transition hover:bg-th"
                 style={{ borderColor: "#E2E8F0", color: "#374151" }}
               >
                 <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0">

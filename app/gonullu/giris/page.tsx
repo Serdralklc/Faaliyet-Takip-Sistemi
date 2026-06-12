@@ -3,8 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const BRAND  = { green: "#0B6B3A", gold: "#D4AF37" };
-const COLORS = { bg: "#F6F8F5", sr: "#FFFFFF", br: "#CBD5E1", h: "#0F172A", b: "#475569", mu: "#64748B" };
+import { BRAND, COLORS } from "@/lib/theme";
 
 const inputSt: React.CSSProperties = {
   background:          COLORS.sr,
@@ -78,7 +77,7 @@ export default function GonulluGirisPage() {
           <div>
             <label style={labelSt}>E-posta</label>
             <input
-              type="text" inputMode="email" autoComplete="off" required
+              type="text" inputMode="email" autoComplete="email" required
               placeholder="ornek@email.com"
               className="public-input"
               value={email} onChange={e => setEmail(e.target.value)} />
@@ -86,15 +85,20 @@ export default function GonulluGirisPage() {
           <div>
             <label style={labelSt}>Şifre</label>
             <input
-              type="password" required
+              type="password" required autoComplete="current-password"
               placeholder="Şifreniz"
               className="public-input"
               value={sifre} onChange={e => setSifre(e.target.value)} />
+            <p style={{ textAlign: "right", marginTop: "8px" }}>
+              <Link href="/sifremi-unuttum?tip=gonullu" style={{ color: BRAND.green, fontSize: "12.5px", fontWeight: 700 }}>
+                Şifremi unuttum
+              </Link>
+            </p>
           </div>
           <button
             type="submit"
             disabled={loading}
-            style={{ background: BRAND.green, color: BRAND.gold, width: "100%", padding: "12px", borderRadius: "0.75rem", fontWeight: 700, fontSize: "14px", cursor: loading ? "wait" : "pointer", marginTop: "4px" }}
+            style={{ background: BRAND.green, color: "#FFFFFF", width: "100%", padding: "12px", borderRadius: "0.75rem", fontWeight: 700, fontSize: "14px", cursor: loading ? "wait" : "pointer", marginTop: "4px" }}
           >
             {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
           </button>

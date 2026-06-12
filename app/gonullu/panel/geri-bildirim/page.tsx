@@ -1,24 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useTheme } from "next-themes";
-
-const BRAND = { green: "#0B6B3A", gold: "#D4AF37" };
-
-function useColors() {
-  const { resolvedTheme } = useTheme();
-  const [m, setM] = useState(false);
-  useEffect(() => setM(true), []);
-  const dark = m && resolvedTheme === "dark";
-  return {
-    card: dark ? "#142C22" : "#FFFFFF",
-    br:   dark ? "#1F3D31" : "#E2E8F0",
-    h:    dark ? "#F8FAFC" : "#0F172A",
-    b:    dark ? "#CBD5E1" : "#475569",
-    mu:   dark ? "#94A3B8" : "#64748B",
-    inp:  dark ? "#0F241C" : "#FFFFFF",
-    bg2:  dark ? "#0F241C" : "#F6F8F5",
-  };
-}
+import { BRAND, useColors } from "@/lib/theme";
 
 const DURUM_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
   YENI:        { label: "Yeni",        bg: "#EFF6FF", color: "#1D4ED8" },

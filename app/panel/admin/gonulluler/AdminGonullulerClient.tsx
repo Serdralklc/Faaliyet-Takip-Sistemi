@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-
-const BRAND = { green: "#0B6B3A", gold: "#D4AF37" };
+import { BRAND } from "@/lib/theme";
+import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 
 const DURUM_BURS_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
   BEKLEMEDE:   { label: "Beklemede",   bg: "#FEF3C7", color: "#92400E" },
@@ -22,6 +22,17 @@ const OGRENIM_LABEL: Record<string, string> = {
   ILKOKUL: "İlkokul", ORTAOKUL: "Ortaokul", LISE: "Lise", UNIVERSITE: "Üniversite",
 };
 
+const bursDurum = (d: string) => DURUM_BURS_CONFIG[d] || { label: d, bg: "#F3F4F6", color: "#374151" };
+const fbDurum   = (d: string) => DURUM_FB_CONFIG[d]   || { label: d, bg: "#F3F4F6", color: "#374151" };
+
+function DurumBadge({ config }: { config: { label: string; bg: string; color: string } }) {
+  return (
+    <span style={{ background: config.bg, color: config.color, fontSize: "12px", fontWeight: 700, padding: "2px 10px", borderRadius: "99px", whiteSpace: "nowrap" }}>
+      {config.label}
+    </span>
+  );
+}
+
 type Tab = "gonulluler" | "burslar" | "feedbackler";
 
 interface Stats {
@@ -29,25 +40,128 @@ interface Stats {
   onaylananBurs: number; toplamFeedback: number; buAyFeedback: number;
 }
 
+type Gonullu = {
+  id: string; adSoyad: string; telefon: string; email?: string; ogrenim: string;
+  ogrenimTuru?: string; okul?: string; bolum?: string; il?: string; createdAt: string;
+  _count: { bursBasvurulari: number; geriBildirimler: number };
+};
+type Burs = {
+  id: string; adSoyad: string; telefon: string; email?: string; universite: string;
+  fakulteBolum: string; sinif: string; il: string; madiDurum: string; aciklama: string;
+  durum: string; yoneticiNotu?: string; createdAt: string;
+  volunteer: { adSoyad: string; telefon: string };
+};
+type Feedback = {
+  id: string; konu: string; mesaj: string; durum: string; createdAt: string;
+  volunteer: { adSoyad: string; telefon: string };
+};
+
+const GONULLU_COLUMNS: DataTableColumn<Gonullu>[] = [
+  {
+    key: "adSoyad", header: "Ad Soyad", mobile: true,
+    render: g => <span className="font-semibold text-heading">{g.adSoyad}</span>,
+  },
+  { key: "telefon", header: "Telefon", mobile: true },
+  { key: "email", header: "E-posta", render: g => g.email || "—" },
+  {
+    key: "ogrenim", header: "Öğrenim",
+    render: g => OGRENIM_LABEL[g.ogrenim] || g.ogrenim,
+    sortValue: g => OGRENIM_LABEL[g.ogrenim] || g.ogrenim,
+  },
+  { key: "okul", header: "Okul", render: g => g.okul || "—" },
+  { key: "bolum", header: "Bölüm", render: g => g.bolum || "—" },
+  { key: "il", header: "İl", mobile: true, render: g => g.il || "—" },
+  {
+    key: "createdAt", header: "Kayıt Tarihi",
+    sortValue: g => new Date(g.createdAt),
+    render: g => new Date(g.createdAt).toLocaleDateString("tr-TR"),
+  },
+  {
+    key: "basvuru", header: "Başv.",
+    sortValue: g => g._count.bursBasvurulari + g._count.geriBildirimler,
+    render: g => (
+      <span style={{ background: BRAND.green + "18", color: BRAND.green, fontSize: "12px", fontWeight: 700, padding: "2px 8px", borderRadius: "99px", whiteSpace: "nowrap" }}>
+        {g._count.bursBasvurulari}B / {g._count.geriBildirimler}G
+      </span>
+    ),
+  },
+];
+
+const BURS_COLUMNS: DataTableColumn<Burs>[] = [
+  {
+    key: "adSoyad", header: "Ad Soyad", mobile: true,
+    render: b => <span className="font-semibold text-heading">{b.adSoyad}</span>,
+  },
+  { key: "universite", header: "Üniversite", mobile: true },
+  { key: "sinif", header: "Sınıf" },
+  { key: "il", header: "İl" },
+  {
+    key: "durum", header: "Durum", mobile: true,
+    sortValue: b => bursDurum(b.durum).label,
+    render: b => <DurumBadge config={bursDurum(b.durum)} />,
+  },
+  {
+    key: "createdAt", header: "Tarih",
+    sortValue: b => new Date(b.createdAt),
+    render: b => new Date(b.createdAt).toLocaleDateString("tr-TR"),
+  },
+];
+
+const FB_COLUMNS: DataTableColumn<Feedback>[] = [
+  {
+    key: "gonullu", header: "Gönüllü", mobile: true,
+    sortValue: f => f.volunteer.adSoyad,
+    render: f => <span className="font-semibold text-heading">{f.volunteer.adSoyad}</span>,
+  },
+  {
+    key: "telefon", header: "Telefon",
+    sortValue: f => f.volunteer.telefon,
+    render: f => f.volunteer.telefon,
+  },
+  {
+    key: "konu", header: "Konu", mobile: true,
+    sortValue: f => KONU_LABEL[f.konu] || f.konu,
+    render: f => (
+      <span style={{ background: BRAND.green + "18", color: BRAND.green, fontSize: "12px", fontWeight: 700, padding: "2px 10px", borderRadius: "99px", whiteSpace: "nowrap" }}>
+        {KONU_LABEL[f.konu] || f.konu}
+      </span>
+    ),
+  },
+  {
+    key: "mesaj", header: "Mesaj", sortable: false, mobile: true,
+    render: f => (
+      <span
+        title={f.mesaj}
+        style={{ display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 2, overflow: "hidden", maxWidth: "420px" }}
+      >
+        {f.mesaj}
+      </span>
+    ),
+  },
+  {
+    key: "durum", header: "Durum", mobile: true,
+    sortValue: f => fbDurum(f.durum).label,
+    render: f => <DurumBadge config={fbDurum(f.durum)} />,
+  },
+  {
+    key: "createdAt", header: "Tarih",
+    sortValue: f => new Date(f.createdAt),
+    render: f => new Date(f.createdAt).toLocaleDateString("tr-TR"),
+  },
+];
+
 export default function AdminGonullulerClient({
   initialGonulluler, initialBurslar, initialFeedbackler, stats,
 }: {
-  initialGonulluler: {id:string;adSoyad:string;telefon:string;email?:string;ogrenim:string;ogrenimTuru?:string;okul?:string;bolum?:string;il?:string;createdAt:string;_count:{bursBasvurulari:number;geriBildirimler:number}}[];
-  initialBurslar:    {id:string;adSoyad:string;telefon:string;email?:string;universite:string;fakulteBolum:string;sinif:string;il:string;madiDurum:string;aciklama:string;durum:string;yoneticiNotu?:string;createdAt:string;volunteer:{adSoyad:string;telefon:string}}[];
-  initialFeedbackler:{id:string;konu:string;mesaj:string;durum:string;createdAt:string;volunteer:{adSoyad:string;telefon:string}}[];
+  initialGonulluler: Gonullu[];
+  initialBurslar: Burs[];
+  initialFeedbackler: Feedback[];
   stats: Stats;
 }) {
-  const [tab,        setTab]        = useState<Tab>("gonulluler");
-  const [burslar,    setBurslar]    = useState(initialBurslar);
-  const [feedbacks,  setFeedbacks]  = useState(initialFeedbackler);
-  const [ilFiltre,   setIlFiltre]   = useState("");
-  const [okulFiltre, setOkulFiltre] = useState("");
-  const [selectedBurs, setSelectedBurs] = useState<typeof initialBurslar[0] | null>(null);
-
-  const gonulluler = initialGonulluler.filter(g =>
-    (!ilFiltre   || (g.il   || "").toLowerCase().includes(ilFiltre.toLowerCase())) &&
-    (!okulFiltre || (g.okul || "").toLowerCase().includes(okulFiltre.toLowerCase()))
-  );
+  const [tab,       setTab]       = useState<Tab>("gonulluler");
+  const [burslar,   setBurslar]   = useState(initialBurslar);
+  const [feedbacks, setFeedbacks] = useState(initialFeedbackler);
+  const [selectedBurs, setSelectedBurs] = useState<Burs | null>(null);
 
   async function updateBursDurum(id: string, durum: string, yoneticiNotu?: string) {
     const res = await fetch("/api/admin/burs", {
@@ -112,84 +226,30 @@ export default function AdminGonullulerClient({
 
       {/* ── Gönüllüler Tab ── */}
       {tab === "gonulluler" && (
-        <div>
-          <div style={{ display: "flex", gap: "12px", marginBottom: "16px" }}>
-            <input placeholder="İl filtrele..." style={{ background: "#FFF", border: "1px solid #E2E8F0", borderRadius: "0.75rem", padding: "8px 14px", fontSize: "13.5px", outline: "none", width: 180 }}
-              value={ilFiltre} onChange={e => setIlFiltre(e.target.value)} />
-            <input placeholder="Okul filtrele..." style={{ background: "#FFF", border: "1px solid #E2E8F0", borderRadius: "0.75rem", padding: "8px 14px", fontSize: "13.5px", outline: "none", width: 200 }}
-              value={okulFiltre} onChange={e => setOkulFiltre(e.target.value)} />
-          </div>
-          <div style={{ background: "#FFF", border: "1px solid #E2E8F0", borderRadius: "1rem", overflow: "hidden" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13.5px" }}>
-              <thead>
-                <tr style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" }}>
-                  {["Ad Soyad","Telefon","E-posta","Öğrenim","Okul","İl","Kayıt Tarihi","Başv."].map(h => (
-                    <th key={h} style={{ padding: "12px 16px", textAlign: "left", color: "#64748B", fontWeight: 600, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {gonulluler.map((g, i) => (
-                  <tr key={g.id} style={{ borderBottom: "1px solid #F1F5F9", background: i % 2 === 1 ? "#FAFAFA" : "#FFF" }}>
-                    <td style={{ padding: "12px 16px", fontWeight: 600, color: "#0F172A" }}>{g.adSoyad}</td>
-                    <td style={{ padding: "12px 16px", color: "#475569" }}>{g.telefon}</td>
-                    <td style={{ padding: "12px 16px", color: "#475569" }}>{g.email || "—"}</td>
-                    <td style={{ padding: "12px 16px", color: "#475569" }}>{OGRENIM_LABEL[g.ogrenim] || g.ogrenim}</td>
-                    <td style={{ padding: "12px 16px", color: "#475569" }}>{g.okul || "—"}</td>
-                    <td style={{ padding: "12px 16px", color: "#475569" }}>{g.il || "—"}</td>
-                    <td style={{ padding: "12px 16px", color: "#64748B" }}>{new Date(g.createdAt).toLocaleDateString("tr-TR")}</td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <span style={{ background: BRAND.green + "18", color: BRAND.green, fontSize: "12px", fontWeight: 700, padding: "2px 8px", borderRadius: "99px" }}>
-                        {g._count.bursBasvurulari}B / {g._count.geriBildirimler}G
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-                {gonulluler.length === 0 && (
-                  <tr><td colSpan={8} style={{ padding: "32px", textAlign: "center", color: "#94A3B8" }}>Kayıtlı gönüllü yok.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <DataTable
+          id="admin-gonulluler"
+          data={initialGonulluler}
+          columns={GONULLU_COLUMNS}
+          rowKey={g => g.id}
+          searchText={g => [g.adSoyad, g.telefon, g.email, g.okul, g.il].filter(Boolean).join(" ")}
+          searchPlaceholder="Ad, telefon, e-posta, okul veya il ara..."
+          emptyText="Kayıtlı gönüllü yok."
+        />
       )}
 
       {/* ── Burs Başvuruları Tab ── */}
       {tab === "burslar" && (
-        <div style={{ display: "grid", gridTemplateColumns: selectedBurs ? "1fr 400px" : "1fr", gap: "16px" }}>
-          <div style={{ background: "#FFF", border: "1px solid #E2E8F0", borderRadius: "1rem", overflow: "hidden" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13.5px" }}>
-              <thead>
-                <tr style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" }}>
-                  {["Ad Soyad","Üniversite","Sınıf","İl","Durum","Tarih"].map(h => (
-                    <th key={h} style={{ padding: "12px 16px", textAlign: "left", color: "#64748B", fontWeight: 600, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {burslar.map((b, i) => {
-                  const d = DURUM_BURS_CONFIG[b.durum] || { label: b.durum, bg: "#F3F4F6", color: "#374151" };
-                  return (
-                    <tr key={b.id}
-                      onClick={() => setSelectedBurs(b)}
-                      style={{ borderBottom: "1px solid #F1F5F9", cursor: "pointer", background: selectedBurs?.id === b.id ? BRAND.green + "0A" : i % 2 === 1 ? "#FAFAFA" : "#FFF" }}>
-                      <td style={{ padding: "12px 16px", fontWeight: 600, color: "#0F172A" }}>{b.adSoyad}</td>
-                      <td style={{ padding: "12px 16px", color: "#475569" }}>{b.universite}</td>
-                      <td style={{ padding: "12px 16px", color: "#475569" }}>{b.sinif}</td>
-                      <td style={{ padding: "12px 16px", color: "#475569" }}>{b.il}</td>
-                      <td style={{ padding: "12px 16px" }}>
-                        <span style={{ background: d.bg, color: d.color, fontSize: "12px", fontWeight: 700, padding: "2px 10px", borderRadius: "99px" }}>{d.label}</span>
-                      </td>
-                      <td style={{ padding: "12px 16px", color: "#64748B" }}>{new Date(b.createdAt).toLocaleDateString("tr-TR")}</td>
-                    </tr>
-                  );
-                })}
-                {burslar.length === 0 && (
-                  <tr><td colSpan={6} style={{ padding: "32px", textAlign: "center", color: "#94A3B8" }}>Başvuru yok.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+        <div style={{ display: "grid", gridTemplateColumns: selectedBurs ? "1fr 400px" : "1fr", gap: "16px", alignItems: "start" }}>
+          <DataTable
+            id="admin-gonulluler-burs"
+            data={burslar}
+            columns={BURS_COLUMNS}
+            rowKey={b => b.id}
+            searchText={b => [b.adSoyad, b.telefon, b.universite, b.fakulteBolum, b.il, bursDurum(b.durum).label].filter(Boolean).join(" ")}
+            searchPlaceholder="Başvuru ara (ad, üniversite, il...)"
+            emptyText="Başvuru yok."
+            onRowClick={b => setSelectedBurs(b)}
+          />
 
           {/* Detay paneli */}
           {selectedBurs && (
@@ -204,44 +264,28 @@ export default function AdminGonullulerClient({
 
       {/* ── Geri Bildirimler Tab ── */}
       {tab === "feedbackler" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {feedbacks.map(f => {
-            const d = DURUM_FB_CONFIG[f.durum] || { label: f.durum, bg: "#F3F4F6", color: "#374151" };
-            return (
-              <div key={f.id} style={{ background: "#FFF", border: "1px solid #E2E8F0", borderRadius: "1rem", padding: "18px 22px" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "10px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span style={{ fontWeight: 700, color: "#0F172A", fontSize: "14px" }}>{f.volunteer.adSoyad}</span>
-                    <span style={{ color: "#64748B", fontSize: "13px" }}>{f.volunteer.telefon}</span>
-                    <span style={{ background: BRAND.green + "18", color: BRAND.green, fontSize: "12px", fontWeight: 700, padding: "2px 10px", borderRadius: "99px" }}>
-                      {KONU_LABEL[f.konu] || f.konu}
-                    </span>
-                    <span style={{ background: d.bg, color: d.color, fontSize: "12px", fontWeight: 700, padding: "2px 10px", borderRadius: "99px" }}>{d.label}</span>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ color: "#94A3B8", fontSize: "12px" }}>{new Date(f.createdAt).toLocaleDateString("tr-TR")}</span>
-                    <select
-                      value={f.durum}
-                      onChange={e => updateFbDurum(f.id, e.target.value)}
-                      style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "8px", padding: "4px 8px", fontSize: "12px", cursor: "pointer" }}
-                    >
-                      <option value="YENI">Yeni</option>
-                      <option value="INCELENIYOR">İnceleniyor</option>
-                      <option value="COZULDU">Çözüldü</option>
-                      <option value="KAPATILDI">Kapatıldı</option>
-                    </select>
-                  </div>
-                </div>
-                <p style={{ color: "#475569", fontSize: "13.5px" }}>{f.mesaj}</p>
-              </div>
-            );
-          })}
-          {feedbacks.length === 0 && (
-            <div style={{ background: "#FFF", border: "1px solid #E2E8F0", borderRadius: "1rem", padding: "48px", textAlign: "center" }}>
-              <p style={{ color: "#94A3B8" }}>Geri bildirim yok.</p>
-            </div>
+        <DataTable
+          id="admin-gonulluler-gb"
+          data={feedbacks}
+          columns={FB_COLUMNS}
+          rowKey={f => f.id}
+          searchText={f => [f.volunteer.adSoyad, f.volunteer.telefon, f.mesaj, KONU_LABEL[f.konu] || f.konu, fbDurum(f.durum).label].join(" ")}
+          searchPlaceholder="Geri bildirim ara (gönüllü, mesaj...)"
+          emptyText="Geri bildirim yok."
+          rowActions={f => (
+            <select
+              value={f.durum}
+              onChange={e => updateFbDurum(f.id, e.target.value)}
+              aria-label="Geri bildirim durumu"
+              style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "8px", padding: "4px 8px", fontSize: "12px", cursor: "pointer" }}
+            >
+              <option value="YENI">Yeni</option>
+              <option value="INCELENIYOR">İnceleniyor</option>
+              <option value="COZULDU">Çözüldü</option>
+              <option value="KAPATILDI">Kapatıldı</option>
+            </select>
           )}
-        </div>
+        />
       )}
     </div>
   );
@@ -250,7 +294,7 @@ export default function AdminGonullulerClient({
 function BursDetayPanel({
   b, onClose, onUpdate
 }: {
-  b: { id:string;adSoyad:string;telefon:string;email?:string;universite:string;fakulteBolum:string;sinif:string;il:string;madiDurum:string;aciklama:string;durum:string;yoneticiNotu?:string;createdAt:string };
+  b: Burs;
   onClose: () => void;
   onUpdate: (id: string, durum: string, not?: string) => void;
 }) {
@@ -258,7 +302,7 @@ function BursDetayPanel({
   const [not,   setNot]     = useState(b.yoneticiNotu || "");
   const [saving, setSaving] = useState(false);
 
-  const d = DURUM_BURS_CONFIG[durum] || { label: durum, bg: "#F3F4F6", color: "#374151" };
+  const d = bursDurum(durum);
 
   async function save() {
     setSaving(true);

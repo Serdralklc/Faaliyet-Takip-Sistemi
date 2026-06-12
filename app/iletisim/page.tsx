@@ -1,28 +1,8 @@
 "use client";
 
 import { PublicLayout } from "@/components/PublicLayout";
-import { useTheme } from "next-themes";
-import { useState, useEffect, FormEvent } from "react";
-
-const BRAND = { green: "#0B6B3A", gold: "#D4AF37" };
-
-function useColors() {
-  const { resolvedTheme } = useTheme();
-  const [m, setM] = useState(false);
-  useEffect(() => setM(true), []);
-  const dark = m && resolvedTheme === "dark";
-  return {
-    bg:  dark ? "#081C15" : "#F6F8F5",
-    sr:  dark ? "#142C22" : "#FFFFFF",
-    br:  dark ? "#1F3D31" : "#E2E8F0",
-    h:   dark ? "#F8FAFC" : "#0F172A",
-    b:   dark ? "#CBD5E1" : "#475569",
-    mu:  dark ? "#94A3B8" : "#64748B",
-    su:  dark ? "#0F241C" : "#F1F5F9",
-    inp: dark ? "#193328" : "#FFFFFF",
-    inpBr: dark ? "#2A4E3F" : "#D1D5DB",
-  };
-}
+import { useState, FormEvent } from "react";
+import { BRAND, useColors } from "@/lib/theme";
 
 function MapPinIcon() {
   return (
@@ -114,18 +94,33 @@ export default function IletisimPage() {
   const [form, setForm] = useState({ adSoyad: "", eposta: "", telefon: "", mesaj: "" });
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState("");
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSending(true);
-    setTimeout(() => {
+    setSendError("");
+    try {
+      const res = await fetch("/api/iletisim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        const data = await res.json().catch(() => null);
+        setSendError(data?.error ?? "Mesaj gönderilemedi. Lütfen tekrar deneyin.");
+      }
+    } catch {
+      setSendError("Bağlantı hatası. Lütfen tekrar deneyin.");
+    } finally {
       setSending(false);
-      setSubmitted(true);
-    }, 1200);
+    }
   }
 
   const inputStyle: React.CSSProperties = {
@@ -369,12 +364,27 @@ export default function IletisimPage() {
                         style={{ ...inputStyle, resize: "vertical" as const, fontFamily: "inherit" }}
                       />
                     </div>
+                    {sendError && (
+                      <div
+                        role="alert"
+                        style={{
+                          background: "#FEF2F2",
+                          border: "1px solid #FECACA",
+                          color: "#B91C1C",
+                          borderRadius: 10,
+                          padding: "0.65rem 1rem",
+                          fontSize: 14,
+                        }}
+                      >
+                        {sendError}
+                      </div>
+                    )}
                     <button
                       type="submit"
                       disabled={sending}
                       style={{
                         background: sending ? "#4A9F6E" : BRAND.green,
-                        color: BRAND.gold,
+                        color: "#FFFFFF",
                         border: "none",
                         borderRadius: 12,
                         padding: "0.85rem 2rem",

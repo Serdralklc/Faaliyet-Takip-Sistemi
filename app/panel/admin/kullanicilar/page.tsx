@@ -1,10 +1,12 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ROLE_LABELS } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
+import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
+import { Button } from "@/components/ui/Button";
 
 // ──────────────────────────────────────────────
 // Tipler
@@ -63,7 +65,74 @@ const OGRENIM_LABELS: Record<string, string> = {
   ILKOKUL: "İlkokul", ORTAOKUL: "Ortaokul", LISE: "Lise", UNIVERSITE: "Üniversite",
 };
 
-const inputCls = "w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white";
+const inputCls = "w-full border-2 border-border rounded-lg px-3 py-2 text-sm text-heading focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card";
+
+// ── DataTable sütunları (state'e bağımlı olmayanlar modül seviyesinde) ──
+const GONULLU_COLS: DataTableColumn<Gonullu>[] = [
+  {
+    key: "adSoyad", header: "Ad Soyad", mobile: true,
+    render: g => (
+      <div>
+        <div className="font-semibold text-heading text-sm">{g.adSoyad}</div>
+        {g.email && <div className="text-xs text-muted">{g.email}</div>}
+        <div className="text-xs text-muted">{g.telefon}</div>
+      </div>
+    ),
+  },
+  { key: "ogrenim", header: "Öğrenim", render: g => <span className="text-sm text-secondary">{OGRENIM_LABELS[g.ogrenim] ?? g.ogrenim}</span> },
+  { key: "okul", header: "Okul", render: g => <span className="text-sm text-secondary">{g.okul ?? "—"}</span> },
+  { key: "il", header: "İl", mobile: true, render: g => <span className="text-sm text-secondary">{g.il ?? "—"}</span> },
+  {
+    key: "burs", header: "Burs", align: "center", mobile: true,
+    sortValue: g => g._count.bursBasvurulari,
+    render: g => <span className="text-sm font-semibold text-secondary">{g._count.bursBasvurulari}</span>,
+  },
+  {
+    key: "createdAt", header: "Kayıt",
+    sortValue: g => new Date(g.createdAt).getTime(),
+    render: g => <span className="text-xs text-muted">{new Date(g.createdAt).toLocaleDateString("tr-TR")}</span>,
+  },
+];
+
+const YETKILI_COLS: DataTableColumn<Kullanici>[] = [
+  {
+    key: "ad", header: "Kullanıcı", mobile: true,
+    sortValue: k => `${k.ad} ${k.soyad}`,
+    render: k => (
+      <div>
+        <div className="font-semibold text-heading text-sm">{k.ad} {k.soyad}</div>
+        <div className="text-xs text-muted">{k.email}</div>
+        {k.telefon && <div className="text-xs text-muted">{k.telefon}</div>}
+      </div>
+    ),
+  },
+  {
+    key: "role", header: "Rol", mobile: true,
+    sortValue: k => ROLE_LABELS[k.role] ?? k.role,
+    render: k => <YetkiliRolBadge role={k.role} sistem={k.sistem} />,
+  },
+  {
+    key: "sistem", header: "Sistem",
+    render: k => (
+      <span className="text-xs px-2 py-1 rounded-full font-semibold bg-amber-100 text-amber-800">
+        {k.sistem === "EGITIMCI" ? "Eğitim" : k.sistem === "UNIVERSITE" ? "Üniversite" : k.sistem === "LISE" ? "Lise" : k.sistem ?? "—"}
+      </span>
+    ),
+  },
+  {
+    key: "passwordHash", header: "Şifre",
+    sortValue: k => (k.passwordHash ? 1 : 0),
+    render: k =>
+      k.passwordHash
+        ? <span className="text-xs text-green-600 font-medium">Şifreli</span>
+        : <span className="text-xs text-red-500 font-medium">Şifresiz</span>,
+  },
+  {
+    key: "createdAt", header: "Kayıt", defaultHidden: true,
+    sortValue: k => new Date(k.createdAt).getTime(),
+    render: k => <span className="text-xs text-muted">{new Date(k.createdAt).toLocaleDateString("tr-TR")}</span>,
+  },
+];
 
 // ──────────────────────────────────────────────
 // Yardımcı bileşenler
@@ -76,7 +145,7 @@ function YetkiliRolBadge({ role }: { role: string; sistem?: string | null }) {
     role === "SISTEM_ADMIN"      ? "bg-red-100 text-red-700"       :
     role === "GENEL_MERKEZ"      ? "bg-purple-100 text-purple-700" :
     TURKIYE_ROLLERI.includes(role) ? "bg-amber-100 text-amber-700"   :
-    "bg-gray-100 text-gray-600";
+    "bg-subtle text-secondary";
 
   return (
     <span className={`text-xs px-2 py-1 rounded-full font-semibold ${cls}`}>
@@ -92,7 +161,7 @@ function RolBadge({ role }: { role: string }) {
     TURKIYE_ROLLERI.includes(role) ? "bg-indigo-100 text-indigo-700" :
     role === "BOLGE_SORUMLUSU"   ? "bg-blue-100 text-blue-700" :
     role === "IL_SORUMLUSU"      ? "bg-green-100 text-green-700" :
-    "bg-gray-100 text-gray-600";
+    "bg-subtle text-secondary";
   return (
     <span className={`text-xs px-2 py-1 rounded-full font-semibold ${cls}`}>
       {ROLE_LABELS[role as Role] ?? role}
@@ -136,6 +205,7 @@ export default function KullanicilarPage() {
   const [bolgeler,    setBolgeler]    = useState<Bolge[]>([]);
   const [loading,     setLoading]     = useState(false);
   const [toast,       setToast]       = useState("");
+  const [aktifAra,    setAktifAra]    = useState(""); // bölge gruplu görünüm araması
 
   // Counts per tab
   const [counts, setCounts] = useState<Record<SistemKey, { aktif: number; bekleyen: number }>>({
@@ -299,15 +369,15 @@ export default function KullanicilarPage() {
 
   // ─── Table head ──────────────────────────────
   const tableHead = (isBekleyen: boolean) => (
-    <thead className="bg-gray-50 border-b border-gray-200">
+    <thead className="bg-th border-b border-border">
       <tr>
-        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Kullanıcı</th>
-        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-muted uppercase tracking-wide">Kullanıcı</th>
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-muted uppercase tracking-wide">
           {isBekleyen ? "Başvurulan Görev" : "Rol / Konum"}
         </th>
-        {!isBekleyen && <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Şifre</th>}
-        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Kayıt</th>
-        <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">İşlem</th>
+        {!isBekleyen && <th className="text-left px-4 py-2.5 text-xs font-semibold text-muted uppercase tracking-wide">Şifre</th>}
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-muted uppercase tracking-wide">Kayıt</th>
+        <th className="text-left px-4 py-2.5 text-xs font-semibold text-muted uppercase tracking-wide">İşlem</th>
       </tr>
     </thead>
   );
@@ -317,22 +387,22 @@ export default function KullanicilarPage() {
     const atama = k.assignments[0];
     const konum = atama?.il?.ad || atama?.bolge?.ad || "—";
     return (
-      <tr className="hover:bg-gray-50 border-b border-gray-100 last:border-0">
+      <tr className="hover:bg-th border-b border-border last:border-0">
         <td className="px-4 py-3">
-          <div className="font-semibold text-gray-900 text-sm">{k.ad} {k.soyad}</div>
-          <div className="text-xs text-gray-500">{k.email}</div>
-          {k.telefon && <div className="text-xs text-gray-400">{k.telefon}</div>}
+          <div className="font-semibold text-heading text-sm">{k.ad} {k.soyad}</div>
+          <div className="text-xs text-muted">{k.email}</div>
+          {k.telefon && <div className="text-xs text-muted">{k.telefon}</div>}
         </td>
         <td className="px-4 py-3">
           <RolBadge role={k.role} />
-          {konum !== "—" && <div className="text-xs text-gray-400 mt-1">{konum}</div>}
+          {konum !== "—" && <div className="text-xs text-muted mt-1">{konum}</div>}
         </td>
         <td className="px-4 py-3">
           {k.passwordHash
             ? <span className="text-xs text-green-600 font-medium">Şifreli</span>
             : <span className="text-xs text-red-500 font-medium">Şifresiz</span>}
         </td>
-        <td className="px-4 py-3 text-xs text-gray-400">
+        <td className="px-4 py-3 text-xs text-muted">
           {new Date(k.createdAt).toLocaleDateString("tr-TR")}
         </td>
         <td className="px-4 py-3">
@@ -353,69 +423,90 @@ export default function KullanicilarPage() {
     );
   }
 
-  function BekleyenRow({ k }: { k: Kullanici }) {
-    const basvuruBolge = bolgeler.find(b => b.id === k.basvuruBolgeId);
-    const basvuruIl    = bolgeler.flatMap(b => b.iller).find(il => il.id === k.basvuruIlId);
-    return (
-      <tr className="hover:bg-gray-50 border-b border-gray-100 last:border-0">
-        <td className="px-4 py-3">
-          <div className="font-semibold text-gray-900 text-sm">{k.ad} {k.soyad}</div>
-          <div className="text-xs text-gray-500">{k.email}</div>
-          {k.telefon && <div className="text-xs text-gray-400">{k.telefon}</div>}
-        </td>
-        <td className="px-4 py-3">
-          {k.basvuruGorev ? (
-            <div className="flex flex-wrap gap-1.5">
-              <span className="text-xs px-2 py-1 rounded-full font-semibold bg-blue-100 text-blue-700">
-                {ROLE_LABELS[k.basvuruGorev as Role] ?? k.basvuruGorev}
-              </span>
-              {basvuruBolge && (
-                <span className="text-xs px-2 py-1 rounded-full font-semibold bg-indigo-50 text-indigo-700">
-                  {basvuruBolge.ad}
-                </span>
-              )}
-              {basvuruIl && (
-                <span className="text-xs px-2 py-1 rounded-full font-semibold bg-green-50 text-green-700">
-                  {basvuruIl.ad}
-                </span>
-              )}
-            </div>
-          ) : (
-            <span className="text-xs text-gray-400">Belirtilmedi</span>
-          )}
-        </td>
-        <td className="px-4 py-3 text-xs text-gray-400">
-          {new Date(k.createdAt).toLocaleDateString("tr-TR")}
-        </td>
-        <td className="px-4 py-3">
-          <button
-            onClick={() => {
-              setShowOnayModal(k);
-              setOnayForm({
-                role:    (k.basvuruGorev as Role) || "IL_SORUMLUSU",
-                bolgeId: k.basvuruBolgeId || "",
-                ilId:    k.basvuruIlId    || "",
-                sistem:  k.sistem || "",
-              });
-            }}
-            className="text-blue-600 hover:underline text-xs font-semibold"
-          >
-            İncele
-          </button>
-        </td>
-      </tr>
+  // Bekleyen tablosu sütunları (bölge/il adları için bolgeler state'ine bağlı)
+  const bekleyenCols: DataTableColumn<Kullanici>[] = [
+    {
+      key: "ad", header: "Kullanıcı", mobile: true,
+      sortValue: k => `${k.ad} ${k.soyad}`,
+      render: k => (
+        <div>
+          <div className="font-semibold text-heading text-sm">{k.ad} {k.soyad}</div>
+          <div className="text-xs text-muted">{k.email}</div>
+          {k.telefon && <div className="text-xs text-muted">{k.telefon}</div>}
+        </div>
+      ),
+    },
+    {
+      key: "gorev", header: "Başvurulan Görev", mobile: true, sortable: false,
+      render: k => {
+        const basvuruBolge = bolgeler.find(b => b.id === k.basvuruBolgeId);
+        const basvuruIl    = bolgeler.flatMap(b => b.iller).find(il => il.id === k.basvuruIlId);
+        return k.basvuruGorev ? (
+          <div className="flex flex-wrap gap-1.5">
+            <span className="text-xs px-2 py-1 rounded-full font-semibold bg-blue-100 text-blue-700">
+              {ROLE_LABELS[k.basvuruGorev as Role] ?? k.basvuruGorev}
+            </span>
+            {basvuruBolge && (
+              <span className="text-xs px-2 py-1 rounded-full font-semibold bg-indigo-50 text-indigo-700">{basvuruBolge.ad}</span>
+            )}
+            {basvuruIl && (
+              <span className="text-xs px-2 py-1 rounded-full font-semibold bg-green-50 text-green-700">{basvuruIl.ad}</span>
+            )}
+          </div>
+        ) : (
+          <span className="text-xs text-muted">Belirtilmedi</span>
+        );
+      },
+    },
+    {
+      key: "createdAt", header: "Başvuru",
+      sortValue: k => new Date(k.createdAt).getTime(),
+      render: k => <span className="text-xs text-muted">{new Date(k.createdAt).toLocaleDateString("tr-TR")}</span>,
+    },
+  ];
+
+  /** Seçili bekleyen başvuruları, başvurdukları görev/bölge/il değerleriyle topluca onaylar */
+  async function handleTopluOnay(rows: Kullanici[]) {
+    setLoading(true);
+    const results = await Promise.allSettled(
+      rows.map(k =>
+        fetch(`/api/kullanicilar/${k.id}/onayla`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action:  "onayla",
+            role:    (k.basvuruGorev as Role) || "IL_SORUMLUSU",
+            bolgeId: k.basvuruBolgeId || "",
+            ilId:    k.basvuruIlId    || "",
+            sistem:  k.sistem || "",
+          }),
+        }).then(r => { if (!r.ok) throw new Error("onay başarısız"); })
+      )
     );
+    setLoading(false);
+    const ok = results.filter(r => r.status === "fulfilled").length;
+    const fail = results.length - ok;
+    showToast(fail ? `${ok} başvuru onaylandı, ${fail} başarısız` : `${ok} başvuru onaylandı`);
+    fetchData();
   }
 
-  // ─── Grouped aktif users ─────────────────────
+  // ─── Grouped aktif users (bölge gruplu görünümde arama) ─────────
+  const aktifFiltreli = aktifAra.trim()
+    ? aktifList.filter(k =>
+        `${k.ad} ${k.soyad} ${k.email} ${k.telefon ?? ""}`
+          .toLocaleLowerCase("tr")
+          .includes(aktifAra.trim().toLocaleLowerCase("tr"))
+      )
+    : aktifList;
+
   const grouped = bolgeler.map(b => ({
     bolge: b,
-    ks: aktifList.filter(k =>
+    ks: aktifFiltreli.filter(k =>
       k.assignments.some(a => a.bolge?.id === b.id || b.iller.some(il => il.id === a.il?.id))
     ),
   })).filter(g => g.ks.length > 0);
 
-  const bolgesiz = aktifList.filter(k =>
+  const bolgesiz = aktifFiltreli.filter(k =>
     k.assignments.length === 0 || !k.assignments.some(a => a.bolge || a.il)
   );
 
@@ -436,8 +527,8 @@ export default function KullanicilarPage() {
       {/* Başlık */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Kullanıcı Yönetimi</h1>
-          <p className="text-gray-500 text-sm mt-1">Sistemlere göre kullanıcıları yönetin</p>
+          <h1 className="text-2xl font-bold text-heading">Kullanıcı Yönetimi</h1>
+          <p className="text-muted text-sm mt-1">Sistemlere göre kullanıcıları yönetin</p>
         </div>
         {tab !== "gonullu" && tab !== "yetkili" && (
           <button
@@ -494,11 +585,11 @@ export default function KullanicilarPage() {
       </div>
 
       {/* Panel */}
-      <div className="bg-white rounded-b-xl rounded-tr-xl border border-gray-200 p-0 overflow-hidden">
+      <div className="bg-card rounded-b-xl rounded-tr-xl border border-border p-0 overflow-hidden">
 
         {/* Alt sekmeler (Aktif / Bekleyenler) — gonullu hariç */}
         {!isNoSub && (
-          <div className="flex border-b border-gray-200 px-5 pt-3 gap-4">
+          <div className="flex border-b border-border px-5 pt-3 gap-4">
             <button
               onClick={() => setSubTab("aktif")}
               className="pb-3 text-sm font-semibold border-b-2 transition"
@@ -536,110 +627,84 @@ export default function KullanicilarPage() {
 
         {/* İçerik */}
         {loading ? (
-          <div className="p-12 text-center text-gray-400">Yükleniyor...</div>
+          <div className="p-12 text-center text-muted">Yükleniyor...</div>
         ) : isNoSub ? (
           /* Gönüllüler listesi */
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Ad Soyad</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Öğrenim</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Okul</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">İl</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Burs</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Kayıt</th>
-              </tr>
-            </thead>
-            <tbody>
-              {gonulluler.map(g => (
-                <tr key={g.id} className="hover:bg-gray-50 border-b border-gray-100 last:border-0">
-                  <td className="px-4 py-3">
-                    <div className="font-semibold text-gray-900 text-sm">{g.adSoyad}</div>
-                    {g.email && <div className="text-xs text-gray-500">{g.email}</div>}
-                    <div className="text-xs text-gray-400">{g.telefon}</div>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{OGRENIM_LABELS[g.ogrenim] ?? g.ogrenim}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{g.okul ?? "—"}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{g.il ?? "—"}</td>
-                  <td className="px-4 py-3 text-sm font-semibold text-gray-700">{g._count.bursBasvurulari}</td>
-                  <td className="px-4 py-3 text-xs text-gray-400">{new Date(g.createdAt).toLocaleDateString("tr-TR")}</td>
-                </tr>
-              ))}
-              {gonulluler.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-400">Gönüllü bulunamadı</td></tr>
-              )}
-            </tbody>
-          </table>
+          <DataTable
+            id="kullanicilar-gonullu"
+            data={gonulluler}
+            columns={GONULLU_COLS}
+            rowKey={g => g.id}
+            searchText={g => `${g.adSoyad} ${g.telefon} ${g.email ?? ""} ${g.okul ?? ""} ${g.il ?? ""}`}
+            searchPlaceholder="Ad, telefon, okul veya il ara..."
+            emptyText="Gönüllü bulunamadı"
+          />
         ) : tab === "yetkili" && subTab === "aktif" ? (
-          /* Yetkili aktif kullanıcılar — düz liste */
-          <table className="w-full text-sm">
-            <thead className="bg-amber-50 border-b border-amber-100">
-              <tr>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-amber-800 uppercase tracking-wide">Kullanıcı</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-amber-800 uppercase tracking-wide">Rol</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-amber-800 uppercase tracking-wide">Sistem</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-amber-800 uppercase tracking-wide">Şifre</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-amber-800 uppercase tracking-wide">Kayıt</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold text-amber-800 uppercase tracking-wide">İşlem</th>
-              </tr>
-            </thead>
-            <tbody>
-              {aktifList.map(k => (
-                <tr key={k.id} className="hover:bg-gray-50 border-b border-gray-100 last:border-0">
-                  <td className="px-4 py-3">
-                    <div className="font-semibold text-gray-900 text-sm">{k.ad} {k.soyad}</div>
-                    <div className="text-xs text-gray-500">{k.email}</div>
-                    {k.telefon && <div className="text-xs text-gray-400">{k.telefon}</div>}
-                  </td>
-                  <td className="px-4 py-3">
-                    <YetkiliRolBadge role={k.role} sistem={k.sistem} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-xs px-2 py-1 rounded-full font-semibold bg-amber-100 text-amber-800">
-                      {k.sistem === "EGITIMCI" ? "Eğitim" : k.sistem === "UNIVERSITE" ? "Üniversite" : k.sistem === "LISE" ? "Lise" : k.sistem ?? "—"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {k.passwordHash
-                      ? <span className="text-xs text-green-600 font-medium">Şifreli</span>
-                      : <span className="text-xs text-red-500 font-medium">Şifresiz</span>}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-400">{new Date(k.createdAt).toLocaleDateString("tr-TR")}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2 flex-wrap">
-                      <button onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}
-                        className="text-xs text-blue-600 hover:underline font-medium">Şifre Ata</button>
-                      {k.role !== "SISTEM_ADMIN" && (
-                        <button onClick={() => setShowYetkiKalModal(k)}
-                          className="text-xs text-orange-500 hover:underline font-medium">Yetkiyi Al</button>
-                      )}
-                      {k.role !== "SISTEM_ADMIN" && (
-                        <button onClick={() => setShowSilModal(k)}
-                          className="text-xs text-red-600 hover:underline font-medium">Sil</button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {aktifList.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-400">Yetkili kullanıcı bulunamadı</td></tr>
-              )}
-            </tbody>
-          </table>
+          /* Yetkili aktif kullanıcılar */
+          <DataTable
+            id="kullanicilar-yetkili"
+            data={aktifList}
+            columns={YETKILI_COLS}
+            rowKey={k => k.id}
+            searchText={k => `${k.ad} ${k.soyad} ${k.email} ${k.telefon ?? ""}`}
+            searchPlaceholder="Ad veya e-posta ara..."
+            emptyText="Yetkili kullanıcı bulunamadı"
+            rowActions={k => (
+              <div className="flex gap-1.5 justify-end flex-wrap">
+                <Button size="sm" variant="secondary" onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}>Şifre Ata</Button>
+                {k.role !== "SISTEM_ADMIN" && (
+                  <Button size="sm" variant="ghost" onClick={() => setShowYetkiKalModal(k)}>Yetkiyi Al</Button>
+                )}
+                {k.role !== "SISTEM_ADMIN" && (
+                  <Button size="sm" variant="danger" onClick={() => setShowSilModal(k)}>Sil</Button>
+                )}
+              </div>
+            )}
+          />
         ) : subTab === "bekleyen" ? (
-          /* Bekleyenler alt sekmesi */
-          <table className="w-full text-sm">
-            {tableHead(true)}
-            <tbody>
-              {bekleyenList.map(k => <BekleyenRow key={k.id} k={k} />)}
-              {bekleyenList.length === 0 && (
-                <tr><td colSpan={4} className="px-4 py-10 text-center text-gray-400">Bekleyen başvuru yok</td></tr>
-              )}
-            </tbody>
-          </table>
+          /* Bekleyenler alt sekmesi — toplu onay destekli */
+          <DataTable
+            id={`kullanicilar-${tab}-bekleyen`}
+            data={bekleyenList}
+            columns={bekleyenCols}
+            rowKey={k => k.id}
+            searchText={k => `${k.ad} ${k.soyad} ${k.email}`}
+            searchPlaceholder="Ad veya e-posta ara..."
+            emptyText="Bekleyen başvuru yok"
+            selectable
+            bulkActions={[{ label: "Seçilenleri Onayla", tone: "primary", onClick: handleTopluOnay }]}
+            rowActions={k => (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setShowOnayModal(k);
+                  setOnayForm({
+                    role:    (k.basvuruGorev as Role) || "IL_SORUMLUSU",
+                    bolgeId: k.basvuruBolgeId || "",
+                    ilId:    k.basvuruIlId    || "",
+                    sistem:  k.sistem || "",
+                  });
+                }}
+              >
+                İncele
+              </Button>
+            )}
+          />
         ) : (
           /* Aktif kullanıcılar — bölge gruplu */
-          <div className="divide-y divide-gray-100">
+          <div>
+            <div className="px-4 py-3 border-b border-border">
+              <input
+                type="search"
+                value={aktifAra}
+                onChange={e => setAktifAra(e.target.value)}
+                placeholder="Ad, e-posta veya telefon ara..."
+                aria-label="Aktif kullanıcılarda ara"
+                className="w-full max-w-sm rounded-xl border border-[var(--border-input)] bg-input text-heading text-[13px] px-3.5 py-2 placeholder:text-[var(--text-placeholder)] focus:border-[var(--accent)] transition"
+              />
+            </div>
+          <div className="divide-y divide-border">
             {grouped.map(({ bolge, ks }) => (
               <div key={bolge.id}>
                 <div className="px-5 py-2.5 flex items-center justify-between"
@@ -656,8 +721,8 @@ export default function KullanicilarPage() {
 
             {bolgesiz.length > 0 && (
               <div>
-                <div className="px-5 py-2.5 bg-gray-50">
-                  <h3 className="font-bold text-sm text-gray-500">Genel / Atanmamış</h3>
+                <div className="px-5 py-2.5 bg-th">
+                  <h3 className="font-bold text-sm text-muted">Genel / Atanmamış</h3>
                 </div>
                 <table className="w-full text-sm">
                   {tableHead(false)}
@@ -666,9 +731,12 @@ export default function KullanicilarPage() {
               </div>
             )}
 
-            {aktifList.length === 0 && (
-              <div className="px-4 py-10 text-center text-gray-400">Bu sistemde aktif kullanıcı bulunamadı</div>
+            {aktifFiltreli.length === 0 && (
+              <div className="px-4 py-10 text-center text-muted">
+                {aktifAra ? `"${aktifAra}" için sonuç bulunamadı` : "Bu sistemde aktif kullanıcı bulunamadı"}
+              </div>
             )}
+          </div>
           </div>
         )}
       </div>
@@ -676,8 +744,8 @@ export default function KullanicilarPage() {
       {/* ── DAVET MODAL ── */}
       {showDavetModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Kullanıcı Davet Et</h2>
+          <div className="bg-card rounded-2xl shadow-2xl p-6 w-full max-w-md">
+            <h2 className="text-lg font-bold text-heading mb-4">Kullanıcı Davet Et</h2>
             <form onSubmit={handleDavet} className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
                 <input required placeholder="Ad" value={davetForm.ad}
@@ -715,7 +783,7 @@ export default function KullanicilarPage() {
               )}
               <div className="flex gap-2 pt-2">
                 <button type="button" onClick={() => setShowDavetModal(false)}
-                  className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                  className="flex-1 border-2 border-border rounded-lg py-2.5 text-sm font-semibold text-secondary hover:bg-th">
                   İptal
                 </button>
                 <button type="submit" disabled={loading}
@@ -732,15 +800,15 @@ export default function KullanicilarPage() {
       {/* ── ONAY MODAL ── */}
       {showOnayModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">Başvuruyu İncele</h2>
-            <div className="bg-gray-50 rounded-lg p-3 mb-3 text-sm">
-              <p className="font-semibold text-gray-800">{showOnayModal.ad} {showOnayModal.soyad}</p>
-              <p className="text-gray-500">{showOnayModal.email}</p>
-              {showOnayModal.telefon && <p className="text-gray-500">{showOnayModal.telefon}</p>}
+          <div className="bg-card rounded-2xl shadow-2xl p-6 w-full max-w-md">
+            <h2 className="text-lg font-bold text-heading mb-1">Başvuruyu İncele</h2>
+            <div className="bg-th rounded-lg p-3 mb-3 text-sm">
+              <p className="font-semibold text-heading">{showOnayModal.ad} {showOnayModal.soyad}</p>
+              <p className="text-muted">{showOnayModal.email}</p>
+              {showOnayModal.telefon && <p className="text-muted">{showOnayModal.telefon}</p>}
               {showOnayModal.sistem && (
-                <p className="text-xs text-gray-400 mt-1">
-                  Sistem: <span className="font-medium text-gray-600">
+                <p className="text-xs text-muted mt-1">
+                  Sistem: <span className="font-medium text-secondary">
                     {showOnayModal.sistem === "EGITIMCI" ? "Eğitim Sistemi" :
                      showOnayModal.sistem === "UNIVERSITE" ? "Üniversite Gençliği" :
                      showOnayModal.sistem === "LISE" ? "Lise Gençliği" : showOnayModal.sistem}
@@ -774,7 +842,7 @@ export default function KullanicilarPage() {
               {tab === "yetkili" ? (
                 /* Yetkili sekmesi: sadece 4 özel rol, bölge/il yok */
                 <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">Atanacak Rol</label>
+                  <label className="block text-xs font-bold text-secondary mb-1">Atanacak Rol</label>
                   <select value={yetkiliRol}
                     onChange={e => setYetkiliRol(e.target.value as Role)} className={inputCls}>
                     <option value="TURKIYE_EGITIM_SORUMLUSU">Türkiye Eğitim Sorumlusu</option>
@@ -787,7 +855,7 @@ export default function KullanicilarPage() {
                 /* Normal sistemler: il/bölge eğitimcisi rolleri */
                 <>
                   <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1">Atanacak Rol</label>
+                    <label className="block text-xs font-bold text-secondary mb-1">Atanacak Rol</label>
                     <select value={onayForm.role}
                       onChange={e => setOnayForm({ ...onayForm, role: e.target.value as Role })} className={inputCls}>
                       <option value="IL_SORUMLUSU">İl Eğitimcisi</option>
@@ -795,7 +863,7 @@ export default function KullanicilarPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1">Bölge</label>
+                    <label className="block text-xs font-bold text-secondary mb-1">Bölge</label>
                     <select value={onayForm.bolgeId}
                       onChange={e => setOnayForm({ ...onayForm, bolgeId: e.target.value, ilId: "" })} className={inputCls}>
                       <option value="">Seçiniz</option>
@@ -804,7 +872,7 @@ export default function KullanicilarPage() {
                   </div>
                   {onayBolge && onayForm.role === "IL_SORUMLUSU" && (
                     <div>
-                      <label className="block text-xs font-bold text-gray-600 mb-1">İl</label>
+                      <label className="block text-xs font-bold text-secondary mb-1">İl</label>
                       <select value={onayForm.ilId}
                         onChange={e => setOnayForm({ ...onayForm, ilId: e.target.value })} className={inputCls}>
                         <option value="">Seçiniz</option>
@@ -821,7 +889,7 @@ export default function KullanicilarPage() {
                 Reddet
               </button>
               <button onClick={() => setShowOnayModal(null)}
-                className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                className="flex-1 border-2 border-border rounded-lg py-2.5 text-sm font-semibold text-secondary hover:bg-th">
                 İptal
               </button>
               <button onClick={() => handleOnay("onayla")} disabled={loading}
@@ -836,21 +904,21 @@ export default function KullanicilarPage() {
       {/* ── YETKİ AL MODAL ── */}
       {showYetkiKalModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm text-center">
+          <div className="bg-card rounded-2xl shadow-2xl p-6 w-full max-w-sm text-center">
             <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-7 h-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">Yetkiyi Al</h2>
-            <p className="text-gray-500 text-sm mb-5">
-              <span className="font-semibold text-gray-800">{showYetkiKalModal.ad} {showYetkiKalModal.soyad}</span>{" "}
+            <h2 className="text-lg font-bold text-heading mb-2">Yetkiyi Al</h2>
+            <p className="text-muted text-sm mb-5">
+              <span className="font-semibold text-heading">{showYetkiKalModal.ad} {showYetkiKalModal.soyad}</span>{" "}
               kullanıcısının yetkisi alınacak ve hesabı beklemeye alınacak. Emin misiniz?
             </p>
             <div className="flex gap-2">
               <button onClick={() => setShowYetkiKalModal(null)}
-                className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                className="flex-1 border-2 border-border rounded-lg py-2.5 text-sm font-semibold text-secondary hover:bg-th">
                 İptal
               </button>
               <button onClick={handleYetkiKal} disabled={loading}
@@ -865,22 +933,22 @@ export default function KullanicilarPage() {
       {/* ── SİL MODAL ── */}
       {showSilModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm text-center">
+          <div className="bg-card rounded-2xl shadow-2xl p-6 w-full max-w-sm text-center">
             <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-7 h-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
               </svg>
             </div>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">Hesabı Sil</h2>
-            <p className="text-gray-500 text-sm mb-1">
-              <span className="font-semibold text-gray-800">{showSilModal.ad} {showSilModal.soyad}</span>
+            <h2 className="text-lg font-bold text-heading mb-2">Hesabı Sil</h2>
+            <p className="text-muted text-sm mb-1">
+              <span className="font-semibold text-heading">{showSilModal.ad} {showSilModal.soyad}</span>
             </p>
-            <p className="text-gray-400 text-xs mb-5">
+            <p className="text-muted text-xs mb-5">
               Bu işlem geri alınamaz. Kullanıcının tüm atamaları ve hesap bilgileri kalıcı olarak silinecek.
             </p>
             <div className="flex gap-2">
               <button onClick={() => setShowSilModal(null)}
-                className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                className="flex-1 border-2 border-border rounded-lg py-2.5 text-sm font-semibold text-secondary hover:bg-th">
                 İptal
               </button>
               <button onClick={handleSil} disabled={loading}
@@ -895,14 +963,14 @@ export default function KullanicilarPage() {
       {/* ── ŞİFRE ATA MODAL ── */}
       {showSifreModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">Şifre Ata</h2>
-            <p className="text-gray-500 text-sm mb-4">{showSifreModal.ad} {showSifreModal.soyad} için yeni şifre</p>
+          <div className="bg-card rounded-2xl shadow-2xl p-6 w-full max-w-sm">
+            <h2 className="text-lg font-bold text-heading mb-1">Şifre Ata</h2>
+            <p className="text-muted text-sm mb-4">{showSifreModal.ad} {showSifreModal.soyad} için yeni şifre</p>
             <input type="text" value={yeniSifre} onChange={e => setYeniSifre(e.target.value)}
-              placeholder="Yeni şifre (min 6 karakter)" className={inputCls + " mb-4"} />
+              placeholder="Yeni şifre (min 8 karakter)" className={inputCls + " mb-4"} />
             <div className="flex gap-2">
               <button onClick={() => setShowSifreModal(null)}
-                className="flex-1 border-2 border-gray-300 rounded-lg py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                className="flex-1 border-2 border-border rounded-lg py-2.5 text-sm font-semibold text-secondary hover:bg-th">
                 İptal
               </button>
               <button onClick={handleSifreAta} disabled={loading || yeniSifre.length < 6}

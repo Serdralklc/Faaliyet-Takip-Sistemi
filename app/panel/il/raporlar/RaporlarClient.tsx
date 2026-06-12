@@ -4,6 +4,8 @@ import { useState, useMemo } from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 /* ─── Tipler ─── */
+import { ExportButtons } from "@/components/ui/ExportButtons";
+
 interface Activity {
   id: string; yil: number; donem: string;
   ik_toplamDergah: number | null; ik_kursuYapilanDergah: number | null;
@@ -133,6 +135,34 @@ export default function RaporlarClient({
     return year.map(x => x.donem);
   }, [faaliyetler, selectedYil]);
 
+  /** Seçili yılın dönem kayıtlarını kurumsal şablonla dışa aktarır */
+  function exportSpec() {
+    const cols: { header: string; key: string }[] = [
+      { header: "Dönem", key: "donemAd" },
+      { header: "İlköğr. Elif-Ba", key: "ik_elifBaOgrenci" },
+      { header: "İlköğr. Kur'an", key: "ik_kuranOgrenci" },
+      { header: "Lise Top. Faaliyet", key: "ls_toplamFaaliyet" },
+      { header: "Lise Yeni İntisap", key: "ls_yeniIntisap" },
+      { header: "Lise Kafile", key: "ls_kafileSayisi" },
+      { header: "Lise Sabah Nam.", key: "ls_sabahNamaziSayisi" },
+      { header: "Üni Top. Faaliyet", key: "uni_toplamFaaliyet" },
+      { header: "Üni Yeni İntisap", key: "uni_yeniIntisap" },
+      { header: "Üni Kafile", key: "uni_kafileSayisi" },
+      { header: "Üni KYK Buluşma", key: "uni_kykBulusmaSayisi" },
+      { header: "Toplam Ziyaret", key: "eay_toplamZiyaret" },
+    ];
+    const rows = faaliyetler
+      .filter(x => x.yil === selectedYil)
+      .map(x => ({ ...x, donemAd: DONEM_LABEL[x.donem] ?? x.donem } as unknown as Record<string, string | number>));
+    return {
+      title: `${ilAd} İl Raporu`,
+      subtitle: `${bolgeAd} • ${selectedYil}`,
+      fileName: `il-raporu-${ilAd}-${selectedYil}`,
+      columns: cols,
+      rows,
+    };
+  }
+
   /* ── Render ── */
   return (
     <div className="p-6 max-w-5xl space-y-6">
@@ -153,7 +183,8 @@ export default function RaporlarClient({
 
       {faaliyetler.length > 0 && (
         <>
-          {/* Mod seçici */}
+          {/* Mod seçici + dışa aktarma */}
+          <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex gap-2">
             {[
               { key: "tek",         label: "Dönem Analizi" },
@@ -169,6 +200,8 @@ export default function RaporlarClient({
                 {label}
               </button>
             ))}
+          </div>
+          <ExportButtons getSpec={exportSpec} />
           </div>
 
           {/* Filtreler */}
