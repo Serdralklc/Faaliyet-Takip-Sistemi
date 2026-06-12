@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ROLE_LABELS } from "@/lib/constants";
+import { ROLE_LABELS, rolEtiket } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { Button } from "@/components/ui/Button";
@@ -161,7 +161,7 @@ function YetkiliRolBadge({ role }: { role: string; sistem?: string | null }) {
   );
 }
 
-function RolBadge({ role }: { role: string }) {
+function RolBadge({ role, sistem }: { role: string; sistem?: string | null }) {
   const cls =
     role === "SISTEM_ADMIN"      ? "bg-red-100 text-red-700" :
     role === "GENEL_MERKEZ"      ? "bg-purple-100 text-purple-700" :
@@ -171,7 +171,7 @@ function RolBadge({ role }: { role: string }) {
     "bg-subtle text-secondary";
   return (
     <span className={`text-xs px-2 py-1 rounded-full font-semibold ${cls}`}>
-      {ROLE_LABELS[role as Role] ?? role}
+      {rolEtiket(role, sistem)}
     </span>
   );
 }
@@ -402,7 +402,7 @@ export default function KullanicilarPage() {
           {k.telefon && <div className="text-xs text-muted">{k.telefon}</div>}
         </td>
         <td className="px-4 py-3">
-          <RolBadge role={k.role} />
+          <RolBadge role={k.role} sistem={k.sistem} />
           {konum !== "—" && <div className="text-xs text-muted mt-1">{konum}</div>}
         </td>
         <td className="px-4 py-3">
@@ -457,7 +457,7 @@ export default function KullanicilarPage() {
         return k.basvuruGorev ? (
           <div className="flex flex-wrap gap-1.5">
             <span className="text-xs px-2 py-1 rounded-full font-semibold bg-blue-100 text-blue-700">
-              {ROLE_LABELS[k.basvuruGorev as Role] ?? k.basvuruGorev}
+              {rolEtiket(k.basvuruGorev as Role, k.sistem)}
             </span>
             {basvuruBolge && (
               <span className="text-xs px-2 py-1 rounded-full font-semibold bg-indigo-50 text-indigo-700">{basvuruBolge.ad}</span>
@@ -835,7 +835,7 @@ export default function KullanicilarPage() {
                 <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-1.5">Başvurulan Görev</p>
                 <div className="flex flex-wrap gap-2">
                   <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-semibold">
-                    {ROLE_LABELS[showOnayModal.basvuruGorev as Role] ?? showOnayModal.basvuruGorev}
+                    {rolEtiket(showOnayModal.basvuruGorev as Role, showOnayModal.sistem)}
                   </span>
                   {showOnayModal.basvuruBolgeId && (
                     <span className="bg-indigo-100 text-indigo-800 text-xs px-2.5 py-1 rounded-full font-semibold">
