@@ -83,6 +83,15 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
   const [arama, setArama] = useState("");
   const [sadeceEksik, setSadeceEksik] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const kapatTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Hover menüsü: girince hemen aç, ayrılınca kısa gecikmeyle kapat
+  // (fare buton↔menü boşluğunda gezerken menü kapanmasın)
+  const acMenu = () => { if (kapatTimer.current) clearTimeout(kapatTimer.current); setMenuAcik(true); };
+  const kapatMenuGecikmeli = () => {
+    if (kapatTimer.current) clearTimeout(kapatTimer.current);
+    kapatTimer.current = setTimeout(() => setMenuAcik(false), 160);
+  };
 
   // Eğitimci menüsü: dışarı tıkla/Escape kapat
   useEffect(() => {
@@ -221,8 +230,8 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
           <div
             ref={menuRef}
             className="relative"
-            onMouseEnter={() => setMenuAcik(true)}
-            onMouseLeave={() => setMenuAcik(false)}
+            onMouseEnter={acMenu}
+            onMouseLeave={kapatMenuGecikmeli}
           >
             <button
               onClick={() => setMenuAcik(v => !v)}
@@ -238,10 +247,13 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
             </button>
 
             {menuAcik && (
-              <div
-                role="menu"
-                className="absolute left-0 top-[calc(100%+6px)] z-30 w-60 rounded-xl border border-border bg-card shadow-xl py-1.5"
-              >
+              /* Dış katman butona bitişik (top-full) + üst padding görünmez köprü:
+                 fare buton↔menü arası boşlukta gezerken menü kapanmaz */
+              <div className="absolute left-0 top-full pt-1.5 z-30 w-60">
+                <div
+                  role="menu"
+                  className="rounded-xl border border-border bg-card shadow-xl py-1.5"
+                >
                 <p className="px-3.5 pt-1 pb-1.5 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
                   Eğitimci Sistemi Birimleri
                 </p>
@@ -277,6 +289,7 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
                     </button>
                   );
                 })}
+                </div>
               </div>
             )}
           </div>
