@@ -42,25 +42,19 @@ const FIELDS: Record<Tab, { key: string; label: string; suffix?: string }[]> = {
     { key: "ls_toplamDergah",        label: "Toplam Dergah Sayısı",              suffix: "dergah"   },
     { key: "ls_ilimDersYeri",        label: "İlim Dersleri Yapılan Yer Sayısı",  suffix: "yer"      },
     { key: "ls_ilimDersKatilim",     label: "İlim Derslerine Katılan Öğrenci",   suffix: "öğrenci"  },
-    { key: "ls_sabahNamaziSayisi",   label: "Sabah Namazı Buluşma Sayısı",       suffix: "buluşma"  },
-    { key: "ls_sabahNamaziKatilim",  label: "Sabah Namazına Katılan Öğrenci",    suffix: "öğrenci"  },
-    { key: "ls_kafileSayisi",        label: "Kafile Sayısı",                     suffix: "kafile"   },
-    { key: "ls_kafileOgrenci",       label: "Kafile ile Giden Öğrenci",          suffix: "öğrenci"  },
     { key: "ls_toplamFaaliyet",      label: "Toplam Faaliyet Sayısı",            suffix: "faaliyet" },
     { key: "ls_yeniIntisap",         label: "Yeni İntisap Sayısı",               suffix: "kişi"     },
+    // Sabah namazı ve kafile alanları "Ortak Faaliyetler" sekmesinde girilir
   ],
   universite: [
     { key: "uni_toplamDergah",        label: "Toplam Dergah Sayısı",                     suffix: "dergah"   },
     { key: "uni_ilimDersYeri",        label: "İlim Dersleri Yapılan Yer Sayısı",         suffix: "yer"      },
     { key: "uni_ilimDersKatilim",     label: "İlim Derslerine Katılan Öğrenci",          suffix: "öğrenci"  },
-    { key: "uni_sabahNamaziSayisi",   label: "Sabah Namazı Buluşma Sayısı",              suffix: "buluşma"  },
-    { key: "uni_sabahNamaziKatilim",  label: "Sabah Namazına Katılan Öğrenci",           suffix: "öğrenci"  },
-    { key: "uni_kafileSayisi",        label: "Kafile Sayısı",                            suffix: "kafile"   },
-    { key: "uni_kafileOgrenci",       label: "Kafile ile Giden Öğrenci",                 suffix: "öğrenci"  },
     { key: "uni_toplamFaaliyet",      label: "Toplam Faaliyet Sayısı",                   suffix: "faaliyet" },
     { key: "uni_kykBulusmaSayisi",    label: "KYK Buluşma Sayısı",                       suffix: "buluşma"  },
     { key: "uni_kykKatilim",          label: "KYK Buluşmalarına Katılan Öğrenci",        suffix: "öğrenci"  },
     { key: "uni_yeniIntisap",         label: "Yeni İntisap Sayısı",                      suffix: "kişi"     },
+    // Sabah namazı ve kafile alanları "Ortak Faaliyetler" sekmesinde girilir
   ],
   ortak: [
     { key: "ortakKafileSayisi",           label: "Ortak Kafile Sayısı",                   suffix: "kafile"   },
