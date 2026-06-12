@@ -48,22 +48,28 @@ export function Modal({ open, onClose, title, children, footer, maxWidth = 480 }
     [onClose]
   );
 
+  // Klavye dinleyicisi — onKeyDown değişince yeniden bağlanır (odağa dokunmaz)
+  useEffect(() => {
+    if (!open) return;
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open, onKeyDown]);
+
+  // Açılışta YALNIZCA BİR KEZ: ilk öğeye odak + scroll kilidi (her render'da değil —
+  // aksi halde input'a yazarken her tuşta odak başa zıplar).
   useEffect(() => {
     if (!open) return;
     restoreRef.current = document.activeElement as HTMLElement | null;
-    document.addEventListener("keydown", onKeyDown);
     document.body.style.overflow = "hidden";
-    // İlk odaklanabilir öğeye odaklan
     requestAnimationFrame(() => {
       const first = panelRef.current?.querySelector<HTMLElement>(FOCUSABLE);
       (first ?? panelRef.current)?.focus();
     });
     return () => {
-      document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = "";
       restoreRef.current?.focus?.();
     };
-  }, [open, onKeyDown]);
+  }, [open]);
 
   if (!open) return null;
 
