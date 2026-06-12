@@ -12,7 +12,7 @@ import {
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
   GraduationCap, School, BookOpen, Home, Building2,
   Hotel, BarChart3, Settings, UserCircle, Target, TrendingUp, X,
-  FileSpreadsheet, FolderOpen, Bell, Archive, PenSquare,
+  FolderOpen, Bell, Archive, PenSquare,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 
@@ -295,7 +295,6 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
 
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
 
-            <NavItem href="/panel/admin/veri-import" label="Excel Veri Aktarımı" icon={FileSpreadsheet} />
             <NavItem href="/panel/admin/bolgeler" label="Coğrafi Yapı" icon={MapPin} />
             <NavItem href="/panel/admin/dokumanlar" label="Doküman Merkezi" icon={FolderOpen} />
             <NavItem href="/panel/admin/arsiv" label="Veri Arşivi" icon={Archive} />

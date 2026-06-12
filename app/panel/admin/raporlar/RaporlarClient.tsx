@@ -250,7 +250,7 @@ function BirimTable({
           {bolgeler.flatMap(b => b.iller).filter(il => filterActs(il.activities, yil, donem).length > 0).length} il
         </span>
       </div>
-      <table className="w-full text-sm">
+      <table className="w-max min-w-full text-sm">
         <thead>
           <tr>
             <Th>Bölge</Th>
@@ -342,7 +342,7 @@ function EAYTable({ bolgeler, yil, donem, color }: {
           {bolgeler.flatMap(b => b.iller).filter(il => filterActs(il.activities, yil, donem).length > 0).length} il
         </span>
       </div>
-      <table className="w-full text-sm">
+      <table className="w-max min-w-full text-sm">
         <thead>
           {/* Üst grup başlıkları */}
           <tr>

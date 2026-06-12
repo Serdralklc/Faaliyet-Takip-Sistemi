@@ -48,7 +48,44 @@ export const NAV_LINKS = [
   { href: "/bagis",       label: "Bağış Yap"    },
 ];
 
-/** Oturum Aç açılır menüsü — Görevli / Gönüllü girişleri */
+/** Oturum Aç menüsü — 4 birim grubu, her biri ilgili giriş kartına yönlendirir */
+const LOGIN_GRUPLARI = [
+  {
+    href: "/giris?grup=yonetim", baslik: "Yönetim Merkezi", aciklama: "TR Sorumlusu · Merkez Ekip · TR Gençlik Sorumluları", renk: "#92400E",
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    ),
+  },
+  {
+    href: "/giris?grup=egitim", baslik: "Eğitim Birimi", aciklama: "Bölge / İl Eğitim Sorumlusu", renk: "#0B6B3A",
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+      </svg>
+    ),
+  },
+  {
+    href: "/giris?grup=genclik", baslik: "Gençlik Birimi", aciklama: "Üniversite ve Lise Gençlik Sorumlusu", renk: "#6D28D9",
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+    ),
+  },
+  {
+    href: "/gonullu/giris", baslik: "SerGenç", aciklama: "Üye / Gönüllü katılımcılar", renk: "#B45309",
+    icon: (
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
+  },
+];
+
+/** Oturum Aç açılır menüsü — 4 birim grubu */
 export function LoginDropdown() {
   const t = useTokens();
   const [open, setOpen] = useState(false);
@@ -91,38 +128,24 @@ export function LoginDropdown() {
           <div className="px-4 py-3 border-b" style={{ borderColor: t.border }}>
             <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: t.muted }}>Giriş Türü</p>
           </div>
-          <Link
-            href="/giris"
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-3.5 px-4 py-4 transition-colors hover:bg-[var(--bg-subtle)]"
-          >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--bg-active)" }}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
-            </div>
-            <div>
-              <p className="text-[14px] font-bold" style={{ color: t.heading }}>Görevli Girişi</p>
-              <p className="text-[12px] mt-0.5"    style={{ color: t.muted   }}>İl / Bölge Sorumlusu, Yönetici</p>
-            </div>
-          </Link>
-          <Link
-            href="/gonullu/giris"
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-3.5 px-4 py-4 border-t transition-colors hover:bg-[var(--bg-subtle)]"
-            style={{ borderColor: t.border }}
-          >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "var(--gold-light)" }}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-            </div>
-            <div>
-              <p className="text-[14px] font-bold" style={{ color: t.heading }}>Gönüllü Girişi</p>
-              <p className="text-[12px] mt-0.5" style={{ color: t.muted }}>Gönüllü katılımcılar</p>
-            </div>
-          </Link>
+          {LOGIN_GRUPLARI.map((g, i) => (
+            <Link
+              key={g.href}
+              href={g.href}
+              onClick={() => setOpen(false)}
+              className={`flex items-center gap-3.5 px-4 py-3.5 transition-colors hover:bg-[var(--bg-subtle)] ${i > 0 ? "border-t" : ""}`}
+              style={i > 0 ? { borderColor: t.border } : undefined}
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: g.renk + "18", color: g.renk }}>
+                {g.icon}
+              </div>
+              <div>
+                <p className="text-[14px] font-bold" style={{ color: t.heading }}>{g.baslik}</p>
+                <p className="text-[12px] mt-0.5"    style={{ color: t.muted   }}>{g.aciklama}</p>
+              </div>
+            </Link>
+          ))}
         </div>
       )}
     </div>
@@ -242,7 +265,7 @@ export function PublicNavbar({ transparentAtTop = false }: { transparentAtTop?: 
           <div className="pt-4">
             <Link href="/giris" className="block w-full py-3 text-center text-[14px] font-black rounded-xl"
               style={{ background: BRAND.green, color: "#FFFFFF" }}>
-              Görevli Girişi
+              Oturum Aç
             </Link>
           </div>
         </div>

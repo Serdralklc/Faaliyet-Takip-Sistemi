@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { NotificationBell } from "./NotificationBell";
+import { AsistanBalon } from "./AsistanBalon";
+import { YONETICI_ROLLERI } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 
 interface User {
@@ -105,6 +107,9 @@ export function MobileLayout({ user, aktifGorunum = "merkez", children }: {
           {children}
         </main>
       </div>
+
+      {/* ── Faaliyet Asistanı — yalnızca yöneticilere ── */}
+      {YONETICI_ROLLERI.includes(user.role) && <AsistanBalon />}
     </div>
   );
 }

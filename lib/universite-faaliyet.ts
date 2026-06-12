@@ -21,10 +21,6 @@ export const UNI_KATEGORILER: UniKategoriDef[] = [
     adlar: ["İlim Dersi", "Sohbet", "Genel Ders", "Risale Dersi", "Kitap Müzakeresi", "Soru-Cevap Programı", "Diğer"],
   },
   {
-    key: "KULUP", label: "Kulüp Faaliyeti", renk: "#1D4ED8",
-    adlar: ["Kulüp Toplantısı", "Kulüp Tanıtım Standı", "Akademik Etkinlik", "Seminer", "Konferans", "Panel", "Atölye Çalışması", "Kariyer Programı", "Teknik Gezi", "Sosyal Etkinlik", "Diğer"],
-  },
-  {
     key: "SOSYAL", label: "Sosyal Faaliyet", renk: "#059669",
     adlar: ["Gezi", "Spor Faaliyeti", "Kamp", "Piknik", "Kahvaltı Programı", "Çay Sohbeti", "Kültürel Etkinlik", "Kitap Okuma Programı", "Sinema Programı", "Turnuva", "Diğer"],
   },
@@ -47,6 +43,10 @@ export const UNI_KATEGORILER: UniKategoriDef[] = [
   {
     key: "KYK", label: "KYK Faaliyeti", renk: "#CA8A04",
     adlar: ["KYK Sohbeti", "KYK Oda Ziyareti", "KYK Tanışma Programı", "KYK Çay Programı", "KYK Etkinliği", "KYK İlim Dersi", "Diğer"],
+  },
+  {
+    key: "KULUP", label: "Kulüp Faaliyeti", renk: "#1D4ED8",
+    adlar: ["Kulüp Toplantısı", "Kulüp Tanıtım Standı", "Akademik Etkinlik", "Seminer", "Konferans", "Panel", "Atölye Çalışması", "Kariyer Programı", "Teknik Gezi", "Sosyal Etkinlik", "Diğer"],
   },
   {
     key: "DIGER", label: "Diğer", renk: "#57534E",

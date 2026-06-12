@@ -122,8 +122,11 @@ export async function exportPdf(spec: ExportSpec): Promise<void> {
   ]);
   const autoTable = autoTableMod.default;
 
-  const landscape = spec.columns.length > 6;
-  const doc = new jsPDF({ orientation: landscape ? "landscape" : "portrait", unit: "mm", format: "a4" });
+  // Sütun sayısına göre sayfa: çok sütunlu raporlar A3 yatay (sığsın), orta A4 yatay, az A4 dikey
+  const colCount = spec.columns.length;
+  const landscape = colCount > 6;
+  const format = colCount > 9 ? "a3" : "a4";
+  const doc = new jsPDF({ orientation: landscape ? "landscape" : "portrait", unit: "mm", format });
 
   doc.addFileToVFS("Roboto-Regular.ttf", fontReg);
   doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
