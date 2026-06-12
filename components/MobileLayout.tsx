@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Sidebar } from "./Sidebar";
+import { NotificationBell } from "./NotificationBell";
 import type { Role } from "@/lib/constants";
 
 interface User {
@@ -27,6 +28,14 @@ export function MobileLayout({ user, children }: { user: User; children: React.R
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
+  // Escape ile çekmeceyi kapat
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
   return (
     <div className="panel-layout flex h-screen overflow-hidden" style={{ background: "var(--bg-page)" }}>
 
@@ -44,8 +53,9 @@ export function MobileLayout({ user, children }: { user: User; children: React.R
         />
       )}
 
-      {/* ── Mobile drawer ── */}
+      {/* ── Mobile drawer — kapalıyken inert: klavye/ekran okuyucuya kapalı ── */}
       <div
+        inert={!open}
         className={`
           fixed top-0 left-0 h-full z-50 lg:hidden
           transition-transform duration-300 ease-in-out
@@ -67,6 +77,7 @@ export function MobileLayout({ user, children }: { user: User; children: React.R
             className="p-2 rounded-xl transition"
             style={{ background: "var(--bg-hover)" }}
             aria-label="Menüyü aç"
+            aria-expanded={open}
           >
             <Menu size={20} style={{ color: "var(--text-primary)" }} />
           </button>
@@ -80,6 +91,9 @@ export function MobileLayout({ user, children }: { user: User; children: React.R
                 Serhendi Vakfı
               </p>
             </div>
+          </div>
+          <div className="ml-auto">
+            <NotificationBell />
           </div>
         </div>
 

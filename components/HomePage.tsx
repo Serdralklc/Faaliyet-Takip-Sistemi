@@ -3,346 +3,16 @@
 /**
  * Serhendi Gençlik — Kurumsal Ana Sayfa
  *
- * AÇIK TEMA  → #F6F8F5 zemin | #0F172A başlık | #475569 açıklama
- * KOYU TEMA  → #081C15 zemin | #F8FAFC başlık | #CBD5E1 açıklama
- *
- * Her iki temada marka renkleri korunur:
- *   Primary Green  #0B6B3A
- *   Dark Green     #064E2A
- *   Gold           #D4AF37
+ * Tema: lib/theme.ts TOKENS (CSS değişkenleri) — açık/koyu otomatik.
+ * Navbar: PublicLayout'taki ortak PublicNavbar (transparentAtTop modunda).
  */
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
-
-/* ─── MARKA ─────────────────────────────── */
-const BRAND = {
-  green:     "#0B6B3A",
-  greenDark: "#064E2A",
-  gold:      "#D4AF37",
-};
-
-/* ─── TOKEN TİPİ ─────────────────────────── */
-type Tokens = {
-  bg: string; surface: string; card: string; navbar: string;
-  border: string; borderSubtle: string;
-  heading: string; body: string; muted: string;
-  accent: string; gold: string;
-  /* Hero */
-  heroBg: string; heroBorder: string;
-  heroHeading: string; heroBody: string; heroMuted: string;
-  heroStat: string;
-  /* Slider */
-  imgFilter: string;
-  /* Nav */
-  navLink: string; navLinkHover: string;
-  /* Toggle */
-  toggleBg: string; toggleBorder: string; toggleColor: string;
-  /* Dropdown */
-  dropSurface: string;
-};
-
-/* ─── AÇIK TEMA ─────────────────────────── */
-const LIGHT: Tokens = {
-  bg:           "#F6F8F5",
-  surface:      "#EEF1EC",
-  card:         "#FFFFFF",
-  navbar:       "#FFFFFF",
-  border:       "#E2E8F0",
-  borderSubtle: "#EEF2F7",
-  /* Metin: yüksek kontrast, WCAG AA+ */
-  heading:      "#0F172A",
-  body:         "#475569",
-  muted:        "#64748B",
-  accent:       BRAND.green,
-  gold:         BRAND.gold,
-  /* Hero */
-  heroBg:       "#F6F8F5",
-  heroBorder:   "#D1D9D0",
-  heroHeading:  "#0F172A",
-  heroBody:     "#374151",
-  heroMuted:    "#6B7280",
-  heroStat:     "#0F172A",
-  /* Görsel */
-  imgFilter:    "brightness(0.88) saturate(1.10)",
-  /* Nav */
-  navLink:      "#374151",
-  navLinkHover: "#0F172A",
-  /* Toggle */
-  toggleBg:     "#F1F5F9",
-  toggleBorder: "#E2E8F0",
-  toggleColor:  "#475569",
-  /* Dropdown */
-  dropSurface:  "#F8FAFC",
-};
-
-/* ─── KOYU TEMA ─────────────────────────── */
-const DARK: Tokens = {
-  bg:           "#081C15",
-  surface:      "#0F241C",
-  card:         "#142C22",
-  navbar:       "#10271F",
-  border:       "#1F3D31",
-  borderSubtle: "#193328",
-  /* Metin: WCAG AA+ */
-  heading:      "#F8FAFC",
-  body:         "#CBD5E1",
-  muted:        "#94A3B8",
-  accent:       "#22C55E",
-  gold:         BRAND.gold,
-  /* Hero */
-  heroBg:       "#081C15",
-  heroBorder:   "#1F3D31",
-  heroHeading:  "#F8FAFC",
-  heroBody:     "#CBD5E1",
-  heroMuted:    "#94A3B8",
-  heroStat:     "#F8FAFC",
-  /* Görsel */
-  imgFilter:    "brightness(0.70) saturate(1.20)",
-  /* Nav */
-  navLink:      "#CBD5E1",
-  navLinkHover: "#F8FAFC",
-  /* Toggle */
-  toggleBg:     "rgba(255,255,255,0.06)",
-  toggleBorder: "#1F3D31",
-  toggleColor:  "#CBD5E1",
-  /* Dropdown */
-  dropSurface:  "#142C22",
-};
-
-/* ─── HOOK ───────────────────────────────── */
-function useTokens(): Tokens {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return LIGHT;
-  return resolvedTheme === "dark" ? DARK : LIGHT;
-}
-
-/* ─── TEMA BUTONU ────────────────────────── */
-function ThemeBtn({ t }: { t: Tokens }) {
-  const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return <div className="w-9 h-9" />;
-  const dark = resolvedTheme === "dark";
-  return (
-    <button
-      onClick={() => setTheme(dark ? "light" : "dark")}
-      title={dark ? "Açık temaya geç" : "Koyu temaya geç"}
-      className="w-9 h-9 flex items-center justify-center rounded-xl transition-all hover:opacity-80 active:scale-95"
-      style={{ background: t.toggleBg, border: `1px solid ${t.toggleBorder}`, color: t.toggleColor }}
-    >
-      {dark
-        ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="5"/>
-            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-        : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-      }
-    </button>
-  );
-}
-
-/* ─── NAVBAR ─────────────────────────────── */
-const NAV_LINKS = [
-  { href: "/hakkimizda",  label: "Hakkımızda"  },
-  { href: "/faaliyetler", label: "Faaliyetler"  },
-  { href: "/projeler",    label: "Projeler"     },
-  { href: "/iletisim",    label: "İletişim"     },
-  { href: "/bagis",       label: "Bağış Yap"    },
-];
-
-function Navbar() {
-  const t = useTokens();
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [loginOpen, setLoginOpen] = useState(false);
-  const loginRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
-  }, []);
-
-  useEffect(() => {
-    const fn = (e: MouseEvent) => {
-      if (loginRef.current && !loginRef.current.contains(e.target as Node)) setLoginOpen(false);
-    };
-    document.addEventListener("mousedown", fn);
-    return () => document.removeEventListener("mousedown", fn);
-  }, []);
-
-  return (
-    <nav
-      className="fixed top-0 inset-x-0 z-50 transition-all duration-200"
-      style={{
-        background:   scrolled ? t.navbar : "transparent",
-        boxShadow:    scrolled ? `0 1px 0 ${t.border}` : "none",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
-      }}
-    >
-      <div className="max-w-7xl mx-auto px-5 lg:px-10 h-[66px] flex items-center justify-between gap-6">
-
-        {/* ── Logo: daima beyaz kart, okunabilir ── */}
-        <Link href="/" className="flex-shrink-0 group">
-          <div
-            className="flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all group-hover:shadow-md"
-            style={{
-              background: "#FFFFFF",
-              border:     "1px solid #D1E8DA",
-              boxShadow:  "0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)",
-            }}
-          >
-            <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: "#EBF5EF" }}
-            >
-              <img src="/logo.svg" alt="Serhendi" className="w-[17px] h-[17px]" />
-            </div>
-            <div className="hidden sm:block leading-none">
-              <p className="text-[12.5px] font-bold" style={{ color: "#064E2A" }}>Serhendi Gençlik</p>
-              <p className="text-[10px] mt-[3px]"    style={{ color: "#5A7A68" }}>Serhendi Vakfı - Eğitim Birimi</p>
-            </div>
-          </div>
-        </Link>
-
-        {/* ── Desktop nav ── */}
-        <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
-          {NAV_LINKS.map(l => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="px-4 py-2 text-[13.5px] font-semibold rounded-lg transition-colors"
-              style={{ color: t.navLink }}
-              onMouseEnter={e => (e.currentTarget.style.color = t.navLinkHover)}
-              onMouseLeave={e => (e.currentTarget.style.color = t.navLink)}
-            >
-              {l.label}
-            </Link>
-          ))}
-        </div>
-
-        {/* ── Desktop sağ ── */}
-        <div className="hidden lg:flex items-center gap-2 flex-shrink-0" ref={loginRef}>
-          <ThemeBtn t={t} />
-
-          <div className="relative">
-            <button
-              onClick={() => setLoginOpen(v => !v)}
-              className="flex items-center gap-1.5 px-5 py-2.5 text-[13px] font-black rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
-              style={{ background: BRAND.green, color: BRAND.gold }}
-            >
-              Oturum Aç
-              <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                <path d={loginOpen ? "M2 8l4-4 4 4" : "M2 4l4 4 4-4"} stroke={BRAND.gold} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-
-            {loginOpen && (
-              <div
-                className="absolute top-[calc(100%+10px)] right-0 w-[272px] rounded-2xl overflow-hidden shadow-2xl"
-                style={{ background: t.card, border: `1px solid ${t.border}` }}
-              >
-                <div className="px-4 py-3 border-b" style={{ borderColor: t.border }}>
-                  <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: t.muted }}>Giriş Türü</p>
-                </div>
-
-                <Link
-                  href="/giris"
-                  onClick={() => setLoginOpen(false)}
-                  className="flex items-center gap-3.5 px-4 py-4 transition-colors"
-                  onMouseEnter={e => (e.currentTarget.style.background = t.dropSurface)}
-                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-                >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#E8F5EE" }}>
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={BRAND.green} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-[14px] font-bold"  style={{ color: t.heading }}>Görevli Girişi</p>
-                    <p className="text-[12px] mt-0.5"     style={{ color: t.muted   }}>İl / Bölge Sorumlusu, Yönetici</p>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/gonullu/giris"
-                  onClick={() => setLoginOpen(false)}
-                  className="flex items-center gap-3.5 px-4 py-4 border-t transition-colors"
-                  style={{ borderColor: t.border }}
-                  onMouseEnter={e => (e.currentTarget.style.background = t.dropSurface)}
-                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-                >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#FEF9E7" }}>
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-[14px] font-bold" style={{ color: t.heading }}>Gönüllü Girişi</p>
-                    <p className="text-[12px] mt-0.5" style={{ color: t.muted }}>Gönüllü katılımcılar</p>
-                  </div>
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── Mobil ── */}
-        <div className="lg:hidden flex items-center gap-2">
-          <ThemeBtn t={t} />
-          <button
-            onClick={() => setMenuOpen(v => !v)}
-            className="p-2 rounded-lg"
-            style={{ color: t.navLink }}
-          >
-            {menuOpen
-              ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
-              : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-            }
-          </button>
-        </div>
-      </div>
-
-      {menuOpen && (
-        <div className="lg:hidden px-5 py-5 border-t" style={{ background: t.navbar, borderColor: t.border }}>
-          {NAV_LINKS.map(l => (
-            <Link
-              key={l.href}
-              href={l.href}
-              onClick={() => setMenuOpen(false)}
-              className="block py-3.5 text-[14px] font-semibold border-b last:border-0"
-              style={{ color: t.body, borderColor: t.borderSubtle }}
-            >
-              {l.label}
-            </Link>
-          ))}
-          <div className="pt-4">
-            <Link
-              href="/giris"
-              className="block w-full py-3 text-center text-[14px] font-black rounded-xl"
-              style={{ background: BRAND.green, color: BRAND.gold }}
-            >
-              Görevli Girişi
-            </Link>
-          </div>
-        </div>
-      )}
-    </nav>
-  );
-}
+import { BRAND, useTokens, type Tokens } from "@/lib/theme";
+import { PublicNavbar } from "./PublicLayout";
 
 /* ─── GÖRSEL SLİDER ──────────────────────── */
-// Gerçek görseller: public/images/ klasörüne faaliyet-1.jpg ... faaliyet-5.jpg olarak ekleyin
 const SLIDES = [
   { src: "/images/faaliyet-1.jpg", caption: "Kafile Programları",       sub: "Gençleri birleştiren manevi yolculuklar"   },
   { src: "/images/faaliyet-2.jpg", caption: "İlim Dersleri",            sub: "Haftalık sistematik eğitim programı"       },
@@ -354,6 +24,7 @@ const SLIDES = [
 function ImageSlider({ t }: { t: Tokens }) {
   const [current, setCurrent] = useState(0);
   const [fading,  setFading]  = useState(false);
+  const [paused,  setPaused]  = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const goTo = useCallback((idx: number) => {
@@ -361,15 +32,23 @@ function ImageSlider({ t }: { t: Tokens }) {
     setTimeout(() => { setCurrent(idx); setFading(false); }, 300);
   }, []);
 
+  // Otomatik ilerleme — hover/odak sırasında durur (WCAG 2.2.2)
   useEffect(() => {
+    if (paused) return;
     timer.current = setTimeout(() => goTo((current + 1) % SLIDES.length), 4500);
     return () => { if (timer.current) clearTimeout(timer.current); };
-  }, [current, goTo]);
+  }, [current, paused, goTo]);
 
   const slide = SLIDES[current];
 
   return (
-    <div className="relative w-full h-full select-none">
+    <div
+      className="relative w-full h-full select-none"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={() => setPaused(false)}
+    >
       <div className="absolute inset-0 transition-opacity duration-300" style={{ opacity: fading ? 0 : 1 }}>
         <img
           src={slide.src}
@@ -385,7 +64,7 @@ function ImageSlider({ t }: { t: Tokens }) {
         style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)" }}
       >
         <div
-          className="inline-block px-4 py-3 rounded-xl mb-4 backdrop-blur-sm transition-opacity duration-300"
+          className="inline-block px-4 py-3 rounded-xl mb-2 backdrop-blur-sm transition-opacity duration-300"
           style={{ background: "rgba(0,0,0,0.45)", opacity: fading ? 0 : 1 }}
         >
           <div className="flex items-center gap-2 mb-1">
@@ -395,18 +74,24 @@ function ImageSlider({ t }: { t: Tokens }) {
           <p className="text-[12px] pl-[18px]" style={{ color: "#CBD5E1" }}>{slide.sub}</p>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          {SLIDES.map((_, i) => (
+        <div className="flex items-center" role="tablist" aria-label="Slayt seçimi">
+          {SLIDES.map((s, i) => (
             <button
               key={i}
               onClick={() => goTo(i)}
-              className="rounded-full transition-all duration-300"
-              style={{
-                width:      i === current ? 20 : 6,
-                height:     6,
-                background: i === current ? BRAND.gold : "rgba(255,255,255,0.35)",
-              }}
-            />
+              aria-label={`Slayt ${i + 1}: ${s.caption}`}
+              aria-current={i === current}
+              className="p-2 -my-1 group/dot"
+            >
+              <span
+                className="block rounded-full transition-all duration-300 group-hover/dot:opacity-80"
+                style={{
+                  width:      i === current ? 20 : 6,
+                  height:     6,
+                  background: i === current ? BRAND.gold : "rgba(255,255,255,0.35)",
+                }}
+              />
+            </button>
           ))}
         </div>
       </div>
@@ -482,7 +167,7 @@ function Hero() {
               <Link
                 href="/hakkimizda"
                 className="px-7 py-3 text-[14px] font-bold rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
-                style={{ background: BRAND.green, color: BRAND.gold }}
+                style={{ background: BRAND.green, color: "#FFFFFF" }}
               >
                 Hakkımızda
               </Link>
@@ -548,7 +233,7 @@ function Hero() {
 export function HomePage() {
   return (
     <div>
-      <Navbar />
+      <PublicNavbar transparentAtTop />
       <Hero />
     </div>
   );

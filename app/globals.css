@@ -1,68 +1,118 @@
 @import "tailwindcss";
 
-/* ══════════════════════════════════════
-   SERHENDI VAKFI — LIGHT THEME
-══════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   SERHENDI VAKFI — TASARIM TOKEN'LARI
+   Tek kaynak: bu dosya + lib/theme.ts (var() referansları).
+   Açık tema :root, koyu tema .dark altında tanımlıdır.
+══════════════════════════════════════════════════════════ */
 :root {
-  --green-primary:  #006B3F;
-  --green-hover:    #008C4F;
+  /* Marka */
+  --brand:          #0B6B3A;
+  --brand-dark:     #064E2A;
+  --brand-gold:     #D4AF37;
+  --brand-soft:     rgba(11, 107, 58, 0.10);
+
+  /* Eski adlar (geriye dönük uyum) */
+  --green-primary:  #0B6B3A;
+  --green-hover:    #0E7C44;
   --green-light:    #E8F5EE;
   --green-muted:    #C8E6D5;
-  --gold:           #D9BC4B;
+  --gold:           #D4AF37;
   --gold-light:     #FBF5DC;
 
-  --bg-page:        #F7F8F4;
+  /* Zeminler */
+  --bg-page:        #F6F8F5;
   --bg-card:        #FFFFFF;
   --bg-sidebar:     #FFFFFF;
   --bg-input:       #FFFFFF;
   --bg-th:          #F4F7F5;
   --bg-hover:       #F0F7F4;
+  --bg-subtle:      #F1F5F9;
+  --bg-active:      #EBF5EF;
 
-  --border:         #E2EBE7;
+  /* Kenarlıklar */
+  --border:         #E2E8F0;
+  --border-subtle:  #EEF2F7;
   --border-input:   #A8C4B4;
 
-  --text-primary:   #1F2937;
-  --text-secondary: #374151;
-  --text-muted:     #6B7280;
+  /* Metin */
+  --text-primary:   #0F172A;
+  --text-secondary: #475569;
+  --text-muted:     #64748B;
   --text-placeholder: #9CA3AF;
 
-  --accent:         #006B3F;
-  --accent-hover:   #008C4F;
+  /* Vurgu (metin/ikon vurgusu ve dolgulu yüzeyler) */
+  --accent:         #0B6B3A;
+  --accent-hover:   #0E7C44;
+  --accent-solid:   #0B6B3A;
   --accent-text:    #FFFFFF;
+
+  /* Public navigasyon */
+  --nav-bg:         #FFFFFF;
+  --nav-link:       #374151;
+  --nav-link-hover: #0F172A;
+  --toggle-bg:      #F1F5F9;
+  --hero-border:    #D1D9D0;
+  --img-filter:     brightness(0.88) saturate(1.10);
 
   --sidebar-width: 260px;
 }
 
-/* ══════════════════════════════════════
-   DARK THEME
-══════════════════════════════════════ */
 .dark {
-  --bg-page:        #0D1612;
-  --bg-card:        #162019;
-  --bg-sidebar:     #111A14;
-  --bg-input:       #0D1612;
-  --bg-th:          #1A2B21;
-  --bg-hover:       #1E3328;
-
-  --border:         #2A4035;
-  --border-input:   #3A5A48;
-
-  --text-primary:   #F0F7F3;
-  --text-secondary: #D1E8DB;
-  --text-muted:     #7AAF94;
-  --text-placeholder: #4D7A62;
-
-  --accent:         #00A85E;
-  --accent-hover:   #00C870;
-  --accent-text:    #FFFFFF;
+  --brand-soft:     rgba(34, 197, 94, 0.12);
 
   --green-light:    #1A3526;
   --gold-light:     #2A2510;
+
+  --bg-page:        #081C15;
+  --bg-card:        #142C22;
+  --bg-sidebar:     #10271F;
+  --bg-input:       #0F241C;
+  --bg-th:          #122921;
+  --bg-hover:       #1A3428;
+  --bg-subtle:      #0F241C;
+  --bg-active:      #1A3428;
+
+  --border:         #1F3D31;
+  --border-subtle:  #193328;
+  --border-input:   #2A4E3F;
+
+  --text-primary:   #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted:     #94A3B8;
+  --text-placeholder: #64748B;
+
+  --accent:         #22C55E;
+  --accent-hover:   #4ADE80;
+  --accent-solid:   #0E7C44;
+  --accent-text:    #FFFFFF;
+
+  --nav-bg:         #10271F;
+  --nav-link:       #CBD5E1;
+  --nav-link-hover: #F8FAFC;
+  --toggle-bg:      rgba(255, 255, 255, 0.06);
+  --hero-border:    #1F3D31;
+  --img-filter:     brightness(0.70) saturate(1.20);
 }
 
+/* ── Tailwind utility üretimi: bg-card, text-muted, border-border vb. ── */
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), 'Segoe UI', system-ui, sans-serif;
+
+  --color-brand:     var(--brand);
+  --color-gold:      var(--brand-gold);
+  --color-accent:    var(--accent);
+
+  --color-page:      var(--bg-page);
+  --color-card:      var(--bg-card);
+  --color-subtle:    var(--bg-subtle);
+  --color-th:        var(--bg-th);
+  --color-input:     var(--bg-input);
+
+  --color-border:    var(--border);
+  --color-heading:   var(--text-primary);
+  --color-secondary: var(--text-secondary);
+  --color-muted:     var(--text-muted);
 }
 
 /* ══════════════════════════════════════
@@ -70,32 +120,56 @@
 ══════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Tailwind v4'te varsayılan kenarlık rengi currentColor'dur;
+   renk belirtilmeyen tüm kenarlıkları tema rengine bağla (v3 davranışı). */
+@layer base {
+  *, ::before, ::after { border-color: var(--border); }
+}
+
 html { height: 100%; }
 
 body {
   height: 100%;
   background-color: var(--bg-page);
   color: var(--text-primary);
-  font-family: 'Inter', 'Segoe UI', Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   transition: background-color 0.25s ease, color 0.15s ease;
   -webkit-font-smoothing: antialiased;
 }
 
+/* Klavye odağı her yerde görünür olsun */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Hareket azaltma tercihine saygı */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ══════════════════════════════════════
-   INPUTS
+   PANEL INPUT TEMASI
+   (Faz 4'te ortak Input bileşenine geçince sadeleşecek)
 ══════════════════════════════════════ */
 .panel-layout input, .panel-layout textarea, .panel-layout select {
-  background-color: var(--bg-input) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-input) !important;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  border-color: var(--border-input);
 }
 
 .panel-layout input::placeholder, .panel-layout textarea::placeholder {
-  color: var(--text-placeholder) !important;
-  opacity: 1 !important;
+  color: var(--text-placeholder);
+  opacity: 1;
 }
 
-/* Public giriş formları — tüm override'lara karşı korumalı input stili */
+/* Public giriş formları — Tailwind Preflight'a karşı korumalı input stili
+   (giriş/kayıt sayfaları buna bağımlı; Faz 4'te Input bileşeniyle kalkacak) */
 .public-input {
   background: #FFFFFF !important;
   border: 2px solid #CBD5E1 !important;
@@ -113,7 +187,7 @@ body {
   -webkit-appearance: none !important;
 }
 .public-input:focus {
-  border-color: #0B6B3A !important;
+  border-color: var(--brand) !important;
 }
 
 /* Chrome autofill suggestion butonunu gizle (public giriş formları) */
@@ -131,33 +205,14 @@ select option {
 }
 
 /* ══════════════════════════════════════
-   CARDS
+   PANEL TABLOLARI
+   :where() ile sıfır spesifiklik — utility sınıfları her zaman kazanır
 ══════════════════════════════════════ */
-.bg-white { background-color: var(--bg-card) !important; }
+.panel-layout :where(thead) { background-color: var(--bg-th); }
+.panel-layout :where(tbody tr:hover) { background-color: var(--bg-hover); }
 
-/* ══════════════════════════════════════
-   TABLES
-══════════════════════════════════════ */
-thead, .bg-gray-50 { background-color: var(--bg-th) !important; }
-tr:hover { background-color: var(--bg-hover) !important; }
-
-/* ══════════════════════════════════════
-   TEXT
-══════════════════════════════════════ */
-.text-gray-400 { color: var(--text-muted) !important; }
-.text-gray-500 { color: var(--text-muted) !important; }
-.text-gray-600 { color: var(--text-secondary) !important; }
-/* Panel başlıkları: tema rengini kullan */
-.panel-layout h1, .panel-layout h2, .panel-layout h3, .panel-layout h4 { color: var(--text-primary) !important; }
-/* Public sayfalar: inline style'a dokunma */
-
-/* ══════════════════════════════════════
-   BORDERS
-══════════════════════════════════════ */
-.border,
-.border-gray-200,
-.border-gray-100,
-[class*="border-gray"] { border-color: var(--border) !important; }
+/* Panel başlıkları tema rengini kullanır */
+.panel-layout :where(h1, h2, h3, h4) { color: var(--text-primary); }
 
 /* ══════════════════════════════════════
    STAT CARDS
@@ -173,7 +228,7 @@ tr:hover { background-color: var(--bg-hover) !important; }
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 .sv-stat-card:hover {
-  box-shadow: 0 8px 24px rgba(0,107,63,0.10);
+  box-shadow: 0 8px 24px rgba(11,107,58,0.10);
   transform: translateY(-2px);
 }
 .sv-stat-card .card-bar {
@@ -226,15 +281,15 @@ tr:hover { background-color: var(--bg-hover) !important; }
   background: var(--bg-hover);
   color: var(--text-primary);
 }
+.sv-nav-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
 .sv-nav-item.active {
-  background: var(--green-primary);
+  background: var(--accent-solid);
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(0,107,63,0.25);
-}
-.dark .sv-nav-item.active {
-  background: var(--accent);
-  box-shadow: 0 4px 12px rgba(0,168,94,0.25);
+  box-shadow: 0 4px 12px rgba(11,107,58,0.25);
 }
 
 /* ══════════════════════════════════════
@@ -247,7 +302,7 @@ tr:hover { background-color: var(--bg-hover) !important; }
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--text-primary) !important;
+  color: var(--text-primary);
 }
 .sv-page-header p {
   font-size: 13px;
@@ -275,39 +330,59 @@ tr:hover { background-color: var(--bg-hover) !important; }
 .sv-section-header h2 {
   font-size: 15px;
   font-weight: 700;
-  color: var(--text-primary) !important;
+  color: var(--text-primary);
 }
 
 /* ══════════════════════════════════════
-   TRANSITIONS
+   SKELETON
 ══════════════════════════════════════ */
-.panel-layout * {
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+.sv-skeleton {
+  background: linear-gradient(90deg, var(--bg-subtle) 25%, var(--bg-hover) 50%, var(--bg-subtle) 75%);
+  background-size: 200% 100%;
+  animation: sv-shimmer 1.4s ease infinite;
+  border-radius: 8px;
+}
+@keyframes sv-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* ══════════════════════════════════════
    MOBİL UYUMLULUK
 ══════════════════════════════════════ */
 @media (max-width: 1023px) {
-  /* Sayfa padding'leri küçülsün */
-  .p-6 { padding: 16px !important; }
-  .p-5 { padding: 14px !important; }
-  .max-w-5xl, .max-w-4xl, .max-w-6xl { max-width: 100% !important; }
+  .sv-page-header h1 { font-size: 18px; }
+  .sv-page-header { margin-bottom: 18px; }
 
-  /* Page header küçülsün */
-  .sv-page-header h1 { font-size: 18px !important; }
-  .sv-page-header { margin-bottom: 18px !important; }
-
-  /* Tablo scroll edilebilir olsun */
+  /* Tablolar yatay kaydırılabilir */
   .overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  table { min-width: 500px; }
+  .panel-layout table { min-width: 500px; }
 
-  /* Stat kart değerleri küçülsün */
-  .sv-stat-card .card-value { font-size: 28px !important; }
+  .sv-stat-card .card-value { font-size: 28px; }
 }
 
 @media (max-width: 640px) {
-  .p-6 { padding: 12px !important; }
-  .sv-page-header h1 { font-size: 16px !important; }
-  .sv-stat-card .card-value { font-size: 24px !important; }
+  .sv-page-header h1 { font-size: 16px; }
+  .sv-stat-card .card-value { font-size: 24px; }
+}
+
+/* ══════════════════════════════════════
+   SCROLL REVEAL (giriş animasyonu)
+   IntersectionObserver .is-visible ekler (components/Reveal.tsx)
+══════════════════════════════════════ */
+.sv-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.sv-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sv-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }

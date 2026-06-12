@@ -12,7 +12,9 @@ import {
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
   GraduationCap, School, BookOpen, Home, Building2,
   Hotel, BarChart3, Settings, UserCircle, Target, TrendingUp, X,
+  FileSpreadsheet, FolderOpen, Bell, Archive,
 } from "lucide-react";
+import { NotificationBell } from "./NotificationBell";
 
 interface User {
   id: string; ad: string; soyad: string; role: Role;
@@ -114,8 +116,9 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
     label: "Gönüllü Sistemi",
     icon: Users,
     items: [
-      { href: "/panel/admin/gonulluler",       label: "Gönüllüler",          icon: Users },
-      { href: "/panel/admin/burs-basvurulari", label: "Nezir Burs Başvuruları", icon: FileText },
+      { href: "/panel/admin/gonulluler",            label: "Gönüllüler",              icon: Users },
+      { href: "/panel/admin/burs-basvurulari",      label: "Nezir Burs Başvuruları",  icon: FileText },
+      { href: "/panel/admin/ek-kayit-basvurulari",  label: "Ev / Yurt Başvuruları",   icon: Building2 },
     ],
   };
 
@@ -166,6 +169,7 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
         { href: "/panel/il/barinma", label: "Ev / Apart / Yurt", icon: Home },
         { href: "/panel/il/barinma/ogrenci", label: "Öğrenci Bilgi Sistemi", icon: Users },
         { href: "/panel/il/barinma/ziyaret", label: "Ziyaret Kayıtları", icon: ClipboardList },
+        { href: "/panel/il/ek-kayit-basvurulari", label: "Ev / Yurt Başvuruları", icon: Building2 },
       ],
     },
     {
@@ -211,12 +215,15 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             </p>
           </div>
         </Link>
+        <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+        <NotificationBell />
         {onClose && (
-          <button onClick={onClose} className="p-1.5 rounded-lg flex-shrink-0 ml-2"
+          <button onClick={onClose} aria-label="Menüyü kapat" className="p-1.5 rounded-lg flex-shrink-0"
             style={{ background: "var(--bg-hover)" }}>
             <X size={16} style={{ color: "var(--text-muted)" }} />
           </button>
         )}
+        </div>
       </div>
 
       {/* ── Nav ── */}
@@ -234,11 +241,17 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             <NavGroupComp group={faaliyetGroup} />
             <NavGroupComp group={gonulluGroup} />
 
+            <NavItem href="/panel/admin/form-yonetimi" label="Form Yönetimi" icon={FileText} />
+            <NavItem href="/panel/admin/bildirimler-merkezi" label="Bildirim Merkezi" icon={Bell} />
+            <NavItem href="/panel/admin/analiz" label="Rapor ve Analiz Merkezi" icon={BarChart3} />
             <NavItem href="/panel/admin/hedefler" label="Hedef Yönetimi" icon={Target} />
 
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
 
+            <NavItem href="/panel/admin/veri-import" label="Excel Veri Aktarımı" icon={FileSpreadsheet} />
             <NavItem href="/panel/admin/bolgeler" label="Coğrafi Yapı" icon={MapPin} />
+            <NavItem href="/panel/admin/dokumanlar" label="Doküman Merkezi" icon={FolderOpen} />
+            <NavItem href="/panel/admin/arsiv" label="Veri Arşivi" icon={Archive} />
             <NavItem href="/panel/admin/loglar"   label="Denetim Logları" icon={ClipboardList} />
           </>
         )}
@@ -284,6 +297,9 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
             <NavItem href="/panel/bolge/hedefler" label="Hedef Dağıtımı" icon={Target} />
             <NavItem href="/panel/bolge/performans" label="Performans Paneli" icon={TrendingUp} />
+            <NavItem href="/panel/bolge/ek-kayit-basvurulari" label="Ev / Yurt Başvuruları" icon={Building2} />
+            <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />
+            <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
           </>
         )}
 
@@ -295,6 +311,8 @@ export function Sidebar({ user, onClose }: { user: User; onClose?: () => void })
             </p>
             <NavItem href="/panel/il" label="Ana Sayfa" icon={LayoutDashboard} exact />
             {ilGroups.map(g => <NavGroupComp key={g.label} group={g} />)}
+            <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />
+            <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
           </>
         )}
       </nav>
