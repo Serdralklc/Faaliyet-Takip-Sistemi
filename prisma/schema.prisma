@@ -175,19 +175,36 @@ model Activity {
   ls_sabahNamaziKatilim  Int @default(0)
   ls_toplamFaaliyet      Int @default(0)
 
-  // Üniversite
+  // Üniversite (Eğitimci panelindeki "Üniversite Birimi" sekmesi)
   uni_toplamDergah              Int @default(0)
-  uni_universiteliOgrenciSayisi Int @default(0) // İlimizdeki toplam üniversite öğrenci sayısı
-  uni_ilimDersYeri              Int @default(0)
-  uni_ilimDersKatilim           Int @default(0)
+  uni_universiteliOgrenciSayisi Int @default(0) // Toplam üniversite öğrenci sayısı
+  uni_yeniIntisap               Int @default(0) // Toplam yeni intisap eden öğrenci
+  uni_kafileSayisi              Int @default(0) // Toplam kafile sayısı
+  uni_kafileOgrenci             Int @default(0) // Kafilelere katılan toplam öğrenci
+  uni_kykBulusmaSayisi          Int @default(0) // Toplam KYK buluşması sayısı
+  uni_kykKatilim                Int @default(0) // KYK buluşmalarına katılan
+  // Yeni yapı (faaliyet-türü bazlı; Üniversite Gençlik modülüyle ölçüm uyumu için)
+  uni_ilimSohbetDergah  Int @default(0) // İlim/Sohbet faaliyeti yapılan dergâh
+  uni_sonSinifOgrenci   Int @default(0) // Son sınıf üniversite öğrenci
+  uni_aktifKulup        Int @default(0) // Aktif kulüp sayısı
+  uni_ilimSohbetSayisi  Int @default(0)
+  uni_ilimSohbetKatilim Int @default(0)
+  uni_kulupSayisi       Int @default(0)
+  uni_kulupKatilim      Int @default(0)
+  uni_sosyalSayisi      Int @default(0)
+  uni_sosyalKatilim     Int @default(0)
+  uni_sorumlulukSayisi  Int @default(0)
+  uni_sorumlulukKatilim Int @default(0)
+  uni_muhabbetSayisi    Int @default(0)
+  uni_muhabbetKatilim   Int @default(0)
+  uni_namazSayisi       Int @default(0)
+  uni_namazKatilim      Int @default(0)
+  // Eski alanlar (yeni Üniversite sekmesinde gösterilmiyor; veri korunur)
+  uni_ilimDersYeri      Int @default(0)
+  uni_ilimDersKatilim   Int @default(0)
   uni_sabahNamaziSayisi Int @default(0)
   uni_sabahNamaziKatilim Int @default(0)
-  uni_kafileSayisi      Int @default(0)
-  uni_kafileOgrenci     Int @default(0)
   uni_toplamFaaliyet    Int @default(0)
-  uni_kykBulusmaSayisi  Int @default(0)
-  uni_kykKatilim        Int @default(0)
-  uni_yeniIntisap       Int @default(0)
 
   // Ortak Faaliyet (Lise + Üniversite birlikte — çift sayım önleme)
   ortakKafileSayisi           Int @default(0)

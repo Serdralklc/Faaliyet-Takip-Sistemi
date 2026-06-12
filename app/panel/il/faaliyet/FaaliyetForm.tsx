@@ -66,19 +66,37 @@ const FIELDS: Record<Tab, { key: string; label: string; suffix?: string; group?:
     { key: "ls_kafileOgrenci",       label: "Kafilelere Katılan Toplam Öğrenci",         suffix: "öğrenci",  group: "Kafile Faaliyetleri" },
   ],
   universite: [
-    { key: "uni_universiteliOgrenciSayisi", label: "İlimizdeki Toplam Üniversite Öğrencisi", suffix: "öğrenci" },
-    { key: "uni_toplamDergah",        label: "Toplam Dergah Sayısı",                     suffix: "dergah"   },
-    { key: "uni_ilimDersYeri",        label: "İlim Dersleri Yapılan Yer Sayısı",         suffix: "yer"      },
-    { key: "uni_ilimDersKatilim",     label: "İlim Derslerine Katılan Öğrenci",          suffix: "öğrenci"  },
-    { key: "uni_toplamFaaliyet",      label: "Toplam Faaliyet Sayısı",                   suffix: "faaliyet" },
-    { key: "uni_sabahNamaziSayisi",   label: "Sabah Namazı Buluşması (yalnız üniversite)", suffix: "buluşma" },
-    { key: "uni_sabahNamaziKatilim",  label: "Sabah Namazına Katılan Üniversiteli",      suffix: "öğrenci"  },
-    { key: "uni_kafileSayisi",        label: "Kafile Sayısı (yalnız üniversite)",        suffix: "kafile"   },
-    { key: "uni_kafileOgrenci",       label: "Kafileye Katılan Üniversiteli",            suffix: "öğrenci"  },
-    { key: "uni_kykBulusmaSayisi",    label: "KYK Buluşma Sayısı",                       suffix: "buluşma"  },
-    { key: "uni_kykKatilim",          label: "KYK Buluşmalarına Katılan Öğrenci",        suffix: "öğrenci"  },
-    { key: "uni_yeniIntisap",         label: "Yeni İntisap Sayısı",                      suffix: "kişi"     },
-    // Yalnız üniversite grubuna ait kafile/sabah namazı burada; ortak (lise+üni birlikte) "Ortak Faaliyetler"de
+    // Öğrenci ve Dergâh Bilgileri
+    { key: "uni_toplamDergah",              label: "Toplam Dergâh Sayısı",                  suffix: "dergah",   group: "Öğrenci ve Dergâh Bilgileri" },
+    { key: "uni_ilimSohbetDergah",          label: "İlim/Sohbet Faaliyeti Yapılan Dergâh",  suffix: "dergah",   group: "Öğrenci ve Dergâh Bilgileri" },
+    { key: "uni_universiteliOgrenciSayisi", label: "Toplam Üniversite Öğrenci Sayısı",      suffix: "öğrenci",  group: "Öğrenci ve Dergâh Bilgileri" },
+    { key: "uni_sonSinifOgrenci",           label: "Son Sınıf Üniversite Öğrenci Sayısı",   suffix: "öğrenci",  group: "Öğrenci ve Dergâh Bilgileri" },
+    { key: "uni_yeniIntisap",               label: "Toplam Yeni İntisap Eden Öğrenci",      suffix: "öğrenci",  group: "Öğrenci ve Dergâh Bilgileri" },
+    { key: "uni_aktifKulup",                label: "Aktif Kulüp Sayısı",                    suffix: "kulüp",    group: "Öğrenci ve Dergâh Bilgileri" },
+    // İlim / Sohbet Faaliyetleri
+    { key: "uni_ilimSohbetSayisi",   label: "Toplam İlim/Sohbet Faaliyeti Sayısı",       suffix: "faaliyet", group: "İlim / Sohbet Faaliyetleri" },
+    { key: "uni_ilimSohbetKatilim",  label: "Katılan Toplam Öğrenci Sayısı",             suffix: "öğrenci",  group: "İlim / Sohbet Faaliyetleri" },
+    // Kulüp Faaliyetleri
+    { key: "uni_kulupSayisi",        label: "Toplam Kulüp Faaliyeti Sayısı",             suffix: "faaliyet", group: "Kulüp Faaliyetleri" },
+    { key: "uni_kulupKatilim",       label: "Katılan Toplam Öğrenci Sayısı",             suffix: "öğrenci",  group: "Kulüp Faaliyetleri" },
+    // Sosyal Faaliyetler
+    { key: "uni_sosyalSayisi",       label: "Toplam Sosyal Faaliyet Sayısı",             suffix: "faaliyet", group: "Sosyal Faaliyetler" },
+    { key: "uni_sosyalKatilim",      label: "Katılan Toplam Öğrenci Sayısı",             suffix: "öğrenci",  group: "Sosyal Faaliyetler" },
+    // Sosyal Sorumluluk Faaliyetleri
+    { key: "uni_sorumlulukSayisi",   label: "Toplam Sosyal Sorumluluk Faaliyeti Sayısı", suffix: "faaliyet", group: "Sosyal Sorumluluk Faaliyetleri" },
+    { key: "uni_sorumlulukKatilim",  label: "Katılan Toplam Öğrenci Sayısı",             suffix: "öğrenci",  group: "Sosyal Sorumluluk Faaliyetleri" },
+    // Muhabbet Buluşmaları
+    { key: "uni_muhabbetSayisi",     label: "Toplam Muhabbet Buluşması Sayısı",          suffix: "buluşma",  group: "Muhabbet Buluşmaları" },
+    { key: "uni_muhabbetKatilim",    label: "Katılan Toplam Öğrenci Sayısı",             suffix: "öğrenci",  group: "Muhabbet Buluşmaları" },
+    // Namaz Buluşmaları
+    { key: "uni_namazSayisi",        label: "Toplam Namaz Buluşması Sayısı",             suffix: "buluşma",  group: "Namaz Buluşmaları" },
+    { key: "uni_namazKatilim",       label: "Katılan Toplam Öğrenci Sayısı",             suffix: "öğrenci",  group: "Namaz Buluşmaları" },
+    // Kafile Faaliyetleri
+    { key: "uni_kafileSayisi",       label: "Toplam Kafile Sayısı",                      suffix: "kafile",   group: "Kafile Faaliyetleri" },
+    { key: "uni_kafileOgrenci",      label: "Kafilelere Katılan Toplam Öğrenci",         suffix: "öğrenci",  group: "Kafile Faaliyetleri" },
+    // KYK Faaliyetleri
+    { key: "uni_kykBulusmaSayisi",   label: "Toplam KYK Buluşması Sayısı",               suffix: "buluşma",  group: "KYK Faaliyetleri" },
+    { key: "uni_kykKatilim",         label: "KYK Buluşmalarına Katılan Toplam Öğrenci",  suffix: "öğrenci",  group: "KYK Faaliyetleri" },
   ],
   ortak: [
     { key: "ortakKafileSayisi",           label: "Ortak Kafile Sayısı",                   suffix: "kafile"   },

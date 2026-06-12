@@ -17,11 +17,16 @@ interface Activity {
   ls_sorumlulukSayisi: number; ls_sorumlulukKatilim: number;
   ls_muhabbetSayisi: number; ls_muhabbetKatilim: number;
   ls_namazSayisi: number; ls_namazKatilim: number;
-  uni_toplamDergah: number; uni_ilimDersYeri: number; uni_ilimDersKatilim: number;
-  uni_sabahNamaziSayisi: number; uni_sabahNamaziKatilim: number;
+  uni_toplamDergah: number; uni_universiteliOgrenciSayisi: number; uni_yeniIntisap: number;
   uni_kafileSayisi: number; uni_kafileOgrenci: number;
-  uni_toplamFaaliyet: number; uni_kykBulusmaSayisi: number;
-  uni_kykKatilim: number; uni_yeniIntisap: number;
+  uni_kykBulusmaSayisi: number; uni_kykKatilim: number;
+  uni_ilimSohbetDergah: number; uni_sonSinifOgrenci: number; uni_aktifKulup: number;
+  uni_ilimSohbetSayisi: number; uni_ilimSohbetKatilim: number;
+  uni_kulupSayisi: number; uni_kulupKatilim: number;
+  uni_sosyalSayisi: number; uni_sosyalKatilim: number;
+  uni_sorumlulukSayisi: number; uni_sorumlulukKatilim: number;
+  uni_muhabbetSayisi: number; uni_muhabbetKatilim: number;
+  uni_namazSayisi: number; uni_namazKatilim: number;
   ortakKafileSayisi: number; ortakKafileLiseKatilim: number; ortakKafileUniKatilim: number;
   ortakSabahNamaziSayisi: number; ortakSabahNamaziLiseKatilim: number; ortakSabahNamaziUniKatilim: number;
   eay_mevcutEv: number; eay_mevcutApart: number; eay_mevcutYurt: number;
@@ -108,17 +113,28 @@ const LS_COLS: { label: string; field: keyof Activity }[] = [
   { label: "Kafile Öğr.",         field: "ls_kafileOgrenci" },
 ];
 const UNI_COLS: { label: string; field: keyof Activity }[] = [
-  { label: "Toplam Dergah",    field: "uni_toplamDergah" },
-  { label: "İlim Ders Yeri",   field: "uni_ilimDersYeri" },
-  { label: "Ders Katılım",     field: "uni_ilimDersKatilim" },
-  { label: "Sabah Namazı",     field: "uni_sabahNamaziSayisi" },
-  { label: "SN Katılım",       field: "uni_sabahNamaziKatilim" },
-  { label: "Kafile",           field: "uni_kafileSayisi" },
-  { label: "Kafile Öğr.",      field: "uni_kafileOgrenci" },
-  { label: "Top. Faaliyet",    field: "uni_toplamFaaliyet" },
-  { label: "KYK Buluşma",      field: "uni_kykBulusmaSayisi" },
-  { label: "KYK Katılım",      field: "uni_kykKatilim" },
-  { label: "Yeni İntisap",     field: "uni_yeniIntisap" },
+  { label: "Toplam Dergâh",       field: "uni_toplamDergah" },
+  { label: "İlim/Sohbet Dergâh",  field: "uni_ilimSohbetDergah" },
+  { label: "Üni. Öğrenci",        field: "uni_universiteliOgrenciSayisi" },
+  { label: "Son Sınıf",           field: "uni_sonSinifOgrenci" },
+  { label: "Aktif Kulüp",         field: "uni_aktifKulup" },
+  { label: "Yeni İntisap",        field: "uni_yeniIntisap" },
+  { label: "İlim/Sohbet",         field: "uni_ilimSohbetSayisi" },
+  { label: "İlim/Sohbet Kat.",    field: "uni_ilimSohbetKatilim" },
+  { label: "Kulüp",               field: "uni_kulupSayisi" },
+  { label: "Kulüp Kat.",          field: "uni_kulupKatilim" },
+  { label: "Sosyal",              field: "uni_sosyalSayisi" },
+  { label: "Sosyal Kat.",         field: "uni_sosyalKatilim" },
+  { label: "Sos. Sorumluluk",     field: "uni_sorumlulukSayisi" },
+  { label: "Sos. Sor. Kat.",      field: "uni_sorumlulukKatilim" },
+  { label: "Muhabbet",            field: "uni_muhabbetSayisi" },
+  { label: "Muhabbet Kat.",       field: "uni_muhabbetKatilim" },
+  { label: "Namaz",               field: "uni_namazSayisi" },
+  { label: "Namaz Kat.",          field: "uni_namazKatilim" },
+  { label: "Kafile",              field: "uni_kafileSayisi" },
+  { label: "Kafile Öğr.",         field: "uni_kafileOgrenci" },
+  { label: "KYK Buluşma",         field: "uni_kykBulusmaSayisi" },
+  { label: "KYK Katılım",         field: "uni_kykKatilim" },
 ];
 // Ortak Faaliyetler (lise + üniversite birlikte)
 const ORTAK_COLS: { label: string; field: keyof Activity }[] = [

@@ -29,16 +29,20 @@ function pctColor(v: number) {
 }
 
 function gerceklesen(f: any): Record<HedefKey, number> {
-  // Lise toplam faaliyet = 6 faaliyet türü sayısının toplamı (yeni yapı)
+  // Lise/Üni toplam faaliyet = faaliyet türü sayılarının toplamı (yeni yapı)
   const lsToplamFaaliyet =
     n(f.ls_ilimSohbetSayisi) + n(f.ls_sosyalSayisi) + n(f.ls_sorumlulukSayisi) +
     n(f.ls_muhabbetSayisi) + n(f.ls_namazSayisi) + n(f.ls_kafileSayisi);
+  const uniToplamFaaliyet =
+    n(f.uni_ilimSohbetSayisi) + n(f.uni_kulupSayisi) + n(f.uni_sosyalSayisi) +
+    n(f.uni_sorumlulukSayisi) + n(f.uni_muhabbetSayisi) + n(f.uni_namazSayisi) +
+    n(f.uni_kafileSayisi) + n(f.uni_kykBulusmaSayisi);
   return {
     yeniIntisap:    n(f.ls_yeniIntisap) + n(f.uni_yeniIntisap),
-    sosyalFaaliyet: lsToplamFaaliyet + n(f.uni_toplamFaaliyet),
+    sosyalFaaliyet: lsToplamFaaliyet + uniToplamFaaliyet,
     kafile:         n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi) + n(f.ortakKafileSayisi),
-    sabahNamazi:    n(f.ls_namazSayisi) + n(f.uni_sabahNamaziSayisi) + n(f.ortakSabahNamaziSayisi),
-    ilimDersi:      n(f.ls_ilimSohbetKatilim) + n(f.uni_ilimDersKatilim),
+    sabahNamazi:    n(f.ls_namazSayisi) + n(f.uni_namazSayisi) + n(f.ortakSabahNamaziSayisi),
+    ilimDersi:      n(f.ls_ilimSohbetKatilim) + n(f.uni_ilimSohbetKatilim),
     kykBulusma:     n(f.uni_kykBulusmaSayisi),
     ziyaret:        n(f.eay_toplamZiyaret),
   };

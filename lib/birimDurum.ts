@@ -27,9 +27,15 @@ export const BIRIM_ALANLAR: Record<BirimKey, string[]> = {
     "ls_kafileSayisi", "ls_kafileOgrenci",
   ],
   UNIVERSITE: [
-    "uni_universiteliOgrenciSayisi", "uni_toplamDergah", "uni_ilimDersYeri",
-    "uni_ilimDersKatilim", "uni_toplamFaaliyet", "uni_kykBulusmaSayisi",
-    "uni_kykKatilim", "uni_yeniIntisap",
+    "uni_toplamDergah", "uni_universiteliOgrenciSayisi", "uni_yeniIntisap",
+    "uni_kafileSayisi", "uni_kafileOgrenci", "uni_kykBulusmaSayisi", "uni_kykKatilim",
+    "uni_ilimSohbetDergah", "uni_sonSinifOgrenci", "uni_aktifKulup",
+    "uni_ilimSohbetSayisi", "uni_ilimSohbetKatilim",
+    "uni_kulupSayisi", "uni_kulupKatilim",
+    "uni_sosyalSayisi", "uni_sosyalKatilim",
+    "uni_sorumlulukSayisi", "uni_sorumlulukKatilim",
+    "uni_muhabbetSayisi", "uni_muhabbetKatilim",
+    "uni_namazSayisi", "uni_namazKatilim",
   ],
   BARINMA: [
     // Eklenmiş ev/apart/yurt birim sayısı (Il.housingUnits) — server tarafında enjekte edilir

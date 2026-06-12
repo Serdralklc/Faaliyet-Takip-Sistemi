@@ -76,9 +76,19 @@ async function getStats(userRole: string, userSistem: string | null | undefined)
           some: {
             yil: thisYear,
             createdBy: { sistem: "EGITIMCI" },
-            ls_toplamFaaliyet:  { gt: 0 },
-            uni_toplamFaaliyet: { gt: 0 },
-            eay_mevcutEv:       { gt: 0 },
+            AND: [
+              // Lise birimi (yeni yapı) — en az bir alan dolu
+              { OR: [
+                { ls_toplamDergah: { gt: 0 } }, { ls_liseliOgrenciSayisi: { gt: 0 } }, { ls_yeniIntisap: { gt: 0 } },
+                { ls_ilimSohbetSayisi: { gt: 0 } }, { ls_sosyalSayisi: { gt: 0 } }, { ls_namazSayisi: { gt: 0 } }, { ls_kafileSayisi: { gt: 0 } },
+              ] },
+              // Üniversite birimi (yeni yapı)
+              { OR: [
+                { uni_toplamDergah: { gt: 0 } }, { uni_universiteliOgrenciSayisi: { gt: 0 } }, { uni_yeniIntisap: { gt: 0 } },
+                { uni_ilimSohbetSayisi: { gt: 0 } }, { uni_kulupSayisi: { gt: 0 } }, { uni_sosyalSayisi: { gt: 0 } }, { uni_namazSayisi: { gt: 0 } }, { uni_kafileSayisi: { gt: 0 } }, { uni_kykBulusmaSayisi: { gt: 0 } },
+              ] },
+              { eay_mevcutEv: { gt: 0 } },
+            ],
           },
         },
       },

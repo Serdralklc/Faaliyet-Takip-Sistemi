@@ -18,12 +18,16 @@ interface Activity {
   ls_sorumlulukSayisi: number | null; ls_sorumlulukKatilim: number | null;
   ls_muhabbetSayisi: number | null; ls_muhabbetKatilim: number | null;
   ls_namazSayisi: number | null; ls_namazKatilim: number | null;
-  uni_toplamDergah: number | null; uni_ilimDersYeri: number | null;
-  uni_ilimDersKatilim: number | null; uni_sabahNamaziSayisi: number | null;
-  uni_sabahNamaziKatilim: number | null;
+  uni_toplamDergah: number | null; uni_universiteliOgrenciSayisi: number | null; uni_yeniIntisap: number | null;
   uni_kafileSayisi: number | null; uni_kafileOgrenci: number | null;
   uni_kykBulusmaSayisi: number | null; uni_kykKatilim: number | null;
-  uni_toplamFaaliyet: number | null; uni_yeniIntisap: number | null;
+  uni_ilimSohbetDergah: number | null; uni_sonSinifOgrenci: number | null; uni_aktifKulup: number | null;
+  uni_ilimSohbetSayisi: number | null; uni_ilimSohbetKatilim: number | null;
+  uni_kulupSayisi: number | null; uni_kulupKatilim: number | null;
+  uni_sosyalSayisi: number | null; uni_sosyalKatilim: number | null;
+  uni_sorumlulukSayisi: number | null; uni_sorumlulukKatilim: number | null;
+  uni_muhabbetSayisi: number | null; uni_muhabbetKatilim: number | null;
+  uni_namazSayisi: number | null; uni_namazKatilim: number | null;
   ortakKafileSayisi: number | null; ortakKafileLiseKatilim: number | null; ortakKafileUniKatilim: number | null;
   ortakSabahNamaziSayisi: number | null; ortakSabahNamaziLiseKatilim: number | null; ortakSabahNamaziUniKatilim: number | null;
 }
@@ -150,10 +154,10 @@ export default function RaporlarClient({
       { header: "Lise Yeni İntisap", key: "ls_yeniIntisap" },
       { header: "Lise Kafile", key: "ls_kafileSayisi" },
       { header: "Lise Namaz", key: "ls_namazSayisi" },
-      { header: "Üni Top. Faaliyet", key: "uni_toplamFaaliyet" },
+      { header: "Üni Top. Faaliyet", key: "uniToplamFaaliyet" },
       { header: "Üni Yeni İntisap", key: "uni_yeniIntisap" },
       { header: "Üni Kafile", key: "uni_kafileSayisi" },
-      { header: "Üni Sabah Nam.", key: "uni_sabahNamaziSayisi" },
+      { header: "Üni Namaz", key: "uni_namazSayisi" },
       { header: "Üni KYK Buluşma", key: "uni_kykBulusmaSayisi" },
       { header: "Ortak Kafile", key: "ortakKafileSayisi" },
       { header: "Ortak Sabah Nam.", key: "ortakSabahNamaziSayisi" },
@@ -167,8 +171,9 @@ export default function RaporlarClient({
         ...x,
         donemAd: DONEM_LABEL[x.donem] ?? x.donem,
         lsToplamFaaliyet: n(x.ls_ilimSohbetSayisi) + n(x.ls_sosyalSayisi) + n(x.ls_sorumlulukSayisi) + n(x.ls_muhabbetSayisi) + n(x.ls_namazSayisi) + n(x.ls_kafileSayisi),
+        uniToplamFaaliyet: n(x.uni_ilimSohbetSayisi) + n(x.uni_kulupSayisi) + n(x.uni_sosyalSayisi) + n(x.uni_sorumlulukSayisi) + n(x.uni_muhabbetSayisi) + n(x.uni_namazSayisi) + n(x.uni_kafileSayisi) + n(x.uni_kykBulusmaSayisi),
         toplamKafile: n(x.ls_kafileSayisi) + n(x.uni_kafileSayisi) + n(x.ortakKafileSayisi),
-        toplamSabahNamazi: n(x.ls_namazSayisi) + n(x.uni_sabahNamaziSayisi) + n(x.ortakSabahNamaziSayisi),
+        toplamSabahNamazi: n(x.ls_namazSayisi) + n(x.uni_namazSayisi) + n(x.ortakSabahNamaziSayisi),
       } as unknown as Record<string, string | number>));
     return {
       title: `${ilAd} İl Raporu`,
@@ -326,28 +331,24 @@ export default function RaporlarClient({
                   <BirimSection title="🎯 Üniversite Birimi" color="#7C3AED">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>İlim Dersi</p>
-                        <MetrikRow label="Toplam Dergah" value={n(f.uni_toplamDergah)} bold />
-                        <MetrikRow label="İlim Dersi Yapılan" value={n(f.uni_ilimDersYeri)} />
-                        <div className="mt-2">
-                          <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>İlim Dersi Yaygınlığı</p>
-                          <ProgressBar value={pct(n(f.uni_ilimDersYeri), n(f.uni_toplamDergah))} color="#7C3AED" />
-                        </div>
-                        <MetrikRow label="Toplam Katılımcı" value={n(f.uni_ilimDersKatilim)} bold />
+                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>Öğrenci ve Dergâh</p>
+                        <MetrikRow label="Toplam Dergâh" value={n(f.uni_toplamDergah)} bold />
+                        <MetrikRow label="İlim/Sohbet Yapılan Dergâh" value={n(f.uni_ilimSohbetDergah)} />
+                        <MetrikRow label="Toplam Üniversite Öğrenci" value={n(f.uni_universiteliOgrenciSayisi)} />
+                        <MetrikRow label="Son Sınıf Öğrenci" value={n(f.uni_sonSinifOgrenci)} />
+                        <MetrikRow label="Aktif Kulüp" value={n(f.uni_aktifKulup)} />
+                        <MetrikRow label="Yeni İntisap" value={n(f.uni_yeniIntisap)} bold />
                       </div>
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>Etkinlikler</p>
-                        <MetrikRow label="Sabah Namazı Buluşması"
-                          value={n(f.uni_sabahNamaziSayisi)}
-                          sub={`${n(f.uni_sabahNamaziKatilim)} katılım`} />
-                        <MetrikRow label="Kafile"
-                          value={n(f.uni_kafileSayisi)}
-                          sub={`${n(f.uni_kafileOgrenci)} öğrenci`} />
-                        <MetrikRow label="KYK Buluşması"
-                          value={n(f.uni_kykBulusmaSayisi)}
-                          sub={`${n(f.uni_kykKatilim)} katılım`} />
-                        <MetrikRow label="Sosyal Faaliyet" value={n(f.uni_toplamFaaliyet)} />
-                        <MetrikRow label="Yeni İntisap" value={n(f.uni_yeniIntisap)} bold />
+                        <p className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: "var(--text-muted)" }}>Faaliyetler (sayı · katılan)</p>
+                        <MetrikRow label="İlim / Sohbet"      value={n(f.uni_ilimSohbetSayisi)} sub={`${n(f.uni_ilimSohbetKatilim)} katılım`} />
+                        <MetrikRow label="Kulüp"              value={n(f.uni_kulupSayisi)}      sub={`${n(f.uni_kulupKatilim)} katılım`} />
+                        <MetrikRow label="Sosyal"             value={n(f.uni_sosyalSayisi)}     sub={`${n(f.uni_sosyalKatilim)} katılım`} />
+                        <MetrikRow label="Sosyal Sorumluluk"  value={n(f.uni_sorumlulukSayisi)} sub={`${n(f.uni_sorumlulukKatilim)} katılım`} />
+                        <MetrikRow label="Muhabbet"           value={n(f.uni_muhabbetSayisi)}   sub={`${n(f.uni_muhabbetKatilim)} katılım`} />
+                        <MetrikRow label="Namaz Buluşması"    value={n(f.uni_namazSayisi)}      sub={`${n(f.uni_namazKatilim)} katılım`} />
+                        <MetrikRow label="Kafile"             value={n(f.uni_kafileSayisi)}     sub={`${n(f.uni_kafileOgrenci)} öğrenci`} />
+                        <MetrikRow label="KYK Buluşması"      value={n(f.uni_kykBulusmaSayisi)} sub={`${n(f.uni_kykKatilim)} katılım`} />
                       </div>
                     </div>
                   </BirimSection>
@@ -380,7 +381,7 @@ export default function RaporlarClient({
                         },
                         {
                           label: "Toplam Namaz Buluşması",
-                          ls: n(f.ls_namazSayisi), uni: n(f.uni_sabahNamaziSayisi), ortak: n(f.ortakSabahNamaziSayisi),
+                          ls: n(f.ls_namazSayisi), uni: n(f.uni_namazSayisi), ortak: n(f.ortakSabahNamaziSayisi),
                         },
                       ].map(c => (
                         <div key={c.label} className="rounded-2xl border p-4"
@@ -468,11 +469,11 @@ export default function RaporlarClient({
                               🎯 Üniversite
                             </p>
                             <Delta
-                              label="İlim Yaygınlığı %"
-                              prev={pct(n(d1.uni_ilimDersYeri), n(d1.uni_toplamDergah))}
-                              curr={pct(n(d2.uni_ilimDersYeri), n(d2.uni_toplamDergah))}
+                              label="İlim/Sohbet Dergâh Yaygınlığı %"
+                              prev={pct(n(d1.uni_ilimSohbetDergah), n(d1.uni_toplamDergah))}
+                              curr={pct(n(d2.uni_ilimSohbetDergah), n(d2.uni_toplamDergah))}
                             />
-                            <Delta label="Katılımcı"  prev={n(d1.uni_ilimDersKatilim)} curr={n(d2.uni_ilimDersKatilim)} />
+                            <Delta label="İlim/Sohbet Katılım" prev={n(d1.uni_ilimSohbetKatilim)} curr={n(d2.uni_ilimSohbetKatilim)} />
                             <Delta label="KYK Buluşma" prev={n(d1.uni_kykBulusmaSayisi)} curr={n(d2.uni_kykBulusmaSayisi)} />
                             <Delta label="Yeni İntisap" prev={n(d1.uni_yeniIntisap)}  curr={n(d2.uni_yeniIntisap)} />
                           </div>

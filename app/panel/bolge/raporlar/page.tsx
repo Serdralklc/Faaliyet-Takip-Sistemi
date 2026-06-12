@@ -81,7 +81,8 @@ export default async function BolgeRaporlarPage({
         // Lise toplam faaliyet = 6 faaliyet türü sayısının toplamı (yeni yapı)
         ls_toplamFaaliyet: (a?.ls_ilimSohbetSayisi ?? 0) + (a?.ls_sosyalSayisi ?? 0) + (a?.ls_sorumlulukSayisi ?? 0) + (a?.ls_muhabbetSayisi ?? 0) + (a?.ls_namazSayisi ?? 0) + (a?.ls_kafileSayisi ?? 0),
         ls_yeniIntisap: a?.ls_yeniIntisap ?? 0,
-        uni_toplamFaaliyet: a?.uni_toplamFaaliyet ?? 0,
+        // Üni toplam faaliyet = 8 faaliyet türü sayısının toplamı (yeni yapı)
+        uni_toplamFaaliyet: (a?.uni_ilimSohbetSayisi ?? 0) + (a?.uni_kulupSayisi ?? 0) + (a?.uni_sosyalSayisi ?? 0) + (a?.uni_sorumlulukSayisi ?? 0) + (a?.uni_muhabbetSayisi ?? 0) + (a?.uni_namazSayisi ?? 0) + (a?.uni_kafileSayisi ?? 0) + (a?.uni_kykBulusmaSayisi ?? 0),
         uni_yeniIntisap: a?.uni_yeniIntisap ?? 0,
         uni_kykBulusmaSayisi: a?.uni_kykBulusmaSayisi ?? 0,
         eay_toplamZiyaret: a?.eay_toplamZiyaret ?? 0,

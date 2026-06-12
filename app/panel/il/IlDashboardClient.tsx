@@ -21,10 +21,11 @@ interface Activity {
   ls_ilimSohbetSayisi: number | null; ls_ilimSohbetKatilim: number | null;
   ls_sosyalSayisi: number | null; ls_sorumlulukSayisi: number | null;
   ls_muhabbetSayisi: number | null; ls_namazSayisi: number | null;
-  uni_toplamDergah: number | null; uni_ilimDersYeri: number | null;
-  uni_ilimDersKatilim: number | null; uni_sabahNamaziSayisi: number | null;
-  uni_kafileSayisi: number | null; uni_kykBulusmaSayisi: number | null;
-  uni_toplamFaaliyet: number | null; uni_yeniIntisap: number | null;
+  uni_toplamDergah: number | null; uni_ilimSohbetDergah: number | null;
+  uni_kafileSayisi: number | null; uni_kykBulusmaSayisi: number | null; uni_yeniIntisap: number | null;
+  uni_ilimSohbetSayisi: number | null; uni_ilimSohbetKatilim: number | null;
+  uni_kulupSayisi: number | null; uni_sosyalSayisi: number | null;
+  uni_sorumlulukSayisi: number | null; uni_muhabbetSayisi: number | null; uni_namazSayisi: number | null;
   ortakKafileSayisi: number | null;
   ortakSabahNamaziSayisi: number | null;
 }
@@ -131,11 +132,16 @@ function lsToplamFaaliyet(f: Activity): number {
   return n(f.ls_ilimSohbetSayisi) + n(f.ls_sosyalSayisi) + n(f.ls_sorumlulukSayisi) +
     n(f.ls_muhabbetSayisi) + n(f.ls_namazSayisi) + n(f.ls_kafileSayisi);
 }
+function uniToplamFaaliyet(f: Activity): number {
+  return n(f.uni_ilimSohbetSayisi) + n(f.uni_kulupSayisi) + n(f.uni_sosyalSayisi) +
+    n(f.uni_sorumlulukSayisi) + n(f.uni_muhabbetSayisi) + n(f.uni_namazSayisi) +
+    n(f.uni_kafileSayisi) + n(f.uni_kykBulusmaSayisi);
+}
 
 function hedefGerceklesen(f: Activity, key: string): number {
   const m: Record<string, number> = {
     yeniIntisap:    n(f.ls_yeniIntisap) + n(f.uni_yeniIntisap),
-    sosyalFaaliyet: lsToplamFaaliyet(f) + n(f.uni_toplamFaaliyet),
+    sosyalFaaliyet: lsToplamFaaliyet(f) + uniToplamFaaliyet(f),
     kafile:         n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi) + n(f.ortakKafileSayisi),
     kykBulusma:     n(f.uni_kykBulusmaSayisi),
   };
@@ -163,11 +169,11 @@ export default function IlDashboardClient({
     for (const f of faaliyetler) {
       ikOgrenci    += n(f.ik_elifBaOgrenci) + n(f.ik_kuranOgrenci);
       lsOgrenci    += n(f.ls_ilimSohbetKatilim);
-      uniOgrenci   += n(f.uni_ilimDersKatilim);
+      uniOgrenci   += n(f.uni_ilimSohbetKatilim);
       toplamIntisap   += n(f.ls_yeniIntisap) + n(f.uni_yeniIntisap);
-      toplamFaaliyet  += lsToplamFaaliyet(f) + n(f.uni_toplamFaaliyet);
+      toplamFaaliyet  += lsToplamFaaliyet(f) + uniToplamFaaliyet(f);
       toplamKafile    += n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi) + n(f.ortakKafileSayisi);
-      toplamSabah     += n(f.ls_namazSayisi) + n(f.uni_sabahNamaziSayisi) + n(f.ortakSabahNamaziSayisi);
+      toplamSabah     += n(f.ls_namazSayisi) + n(f.uni_namazSayisi) + n(f.ortakSabahNamaziSayisi);
     }
     return { ikOgrenci, lsOgrenci, uniOgrenci, toplamIntisap, toplamFaaliyet, toplamKafile, toplamSabah };
   }, [faaliyetler]);
@@ -178,14 +184,14 @@ export default function IlDashboardClient({
       name: `${f.yil} ${DONEM_SHORT[f.donem]}`,
       "Yeni İntisap": n(f.ls_yeniIntisap) + n(f.uni_yeniIntisap),
       "Öğrenci (İK)": n(f.ik_elifBaOgrenci) + n(f.ik_kuranOgrenci),
-      "Faaliyet": lsToplamFaaliyet(f) + n(f.uni_toplamFaaliyet),
+      "Faaliyet": lsToplamFaaliyet(f) + uniToplamFaaliyet(f),
     }))
   , [faaliyetler]);
 
   /* Son dönem hesapları */
   const ikPct  = son ? pct(n(son.ik_kursuYapilanDergah),  n(son.ik_toplamDergah))  : 0;
   const lsPct  = son ? pct(n(son.ls_ilimSohbetDergah),  n(son.ls_toplamDergah))  : 0;
-  const uniPct = son ? pct(n(son.uni_ilimDersYeri), n(son.uni_toplamDergah)) : 0;
+  const uniPct = son ? pct(n(son.uni_ilimSohbetDergah), n(son.uni_toplamDergah)) : 0;
   const ikGecis = son ? pct(n(son.ik_gecisOgrenci), n(son.ik_elifBaOgrenci) + n(son.ik_kuranOgrenci)) : 0;
   const sonLabel = son ? `${son.yil} / ${DONEM_LABEL[son.donem]}` : "";
 
@@ -301,9 +307,9 @@ export default function IlDashboardClient({
                   <PctBadge value={uniPct} color="#7C3AED" />
                 </div>
               </div>
-              <PerfRow label="Toplam Katılımcı" value={n(son.uni_ilimDersKatilim)} />
+              <PerfRow label="İlim/Sohbet Katılım" value={n(son.uni_ilimSohbetKatilim)} />
               <PerfRow label="Yeni İntisap" value={n(son.uni_yeniIntisap)} color="#059669" />
-              <PerfRow label="Toplam Faaliyet" value={n(son.uni_toplamFaaliyet)} />
+              <PerfRow label="Toplam Faaliyet" value={uniToplamFaaliyet(son)} />
             </PerfCard>
 
           </div>

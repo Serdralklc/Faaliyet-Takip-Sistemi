@@ -9,16 +9,20 @@ import { AnalizClient } from "./AnalizClient";
 
 /** Bir activity kaydından türetilmiş metrikler */
 function metrikler(a: Record<string, number>) {
-  // Lise toplam faaliyet = 6 faaliyet türü sayısının toplamı (yeni yapı)
+  // Lise/Üni toplam faaliyet = faaliyet türü sayılarının toplamı (yeni yapı)
   const lsToplamFaaliyet =
     (a.ls_ilimSohbetSayisi ?? 0) + (a.ls_sosyalSayisi ?? 0) + (a.ls_sorumlulukSayisi ?? 0) +
     (a.ls_muhabbetSayisi ?? 0) + (a.ls_namazSayisi ?? 0) + (a.ls_kafileSayisi ?? 0);
+  const uniToplamFaaliyet =
+    (a.uni_ilimSohbetSayisi ?? 0) + (a.uni_kulupSayisi ?? 0) + (a.uni_sosyalSayisi ?? 0) +
+    (a.uni_sorumlulukSayisi ?? 0) + (a.uni_muhabbetSayisi ?? 0) + (a.uni_namazSayisi ?? 0) +
+    (a.uni_kafileSayisi ?? 0) + (a.uni_kykBulusmaSayisi ?? 0);
   return {
-    toplamFaaliyet: lsToplamFaaliyet + (a.uni_toplamFaaliyet ?? 0),
+    toplamFaaliyet: lsToplamFaaliyet + uniToplamFaaliyet,
     yeniIntisap:    (a.ls_yeniIntisap ?? 0) + (a.uni_yeniIntisap ?? 0),
     kafile:         (a.ls_kafileSayisi ?? 0) + (a.uni_kafileSayisi ?? 0) + (a.ortakKafileSayisi ?? 0),
-    sabahNamazi:    (a.ls_namazSayisi ?? 0) + (a.uni_sabahNamaziSayisi ?? 0) + (a.ortakSabahNamaziSayisi ?? 0),
-    ilimDersi:      (a.ls_ilimSohbetSayisi ?? 0) + (a.uni_ilimDersYeri ?? 0),
+    sabahNamazi:    (a.ls_namazSayisi ?? 0) + (a.uni_namazSayisi ?? 0) + (a.ortakSabahNamaziSayisi ?? 0),
+    ilimDersi:      (a.ls_ilimSohbetSayisi ?? 0) + (a.uni_ilimSohbetSayisi ?? 0),
     kykBulusma:     a.uni_kykBulusmaSayisi ?? 0,
     ziyaret:        a.eay_toplamZiyaret ?? 0,
   };
@@ -28,11 +32,11 @@ const ACT_SELECT = {
   yil: true, donem: true, ilId: true,
   ls_ilimSohbetSayisi: true, ls_sosyalSayisi: true, ls_sorumlulukSayisi: true,
   ls_muhabbetSayisi: true, ls_namazSayisi: true,
-  uni_toplamFaaliyet: true,
+  uni_ilimSohbetSayisi: true, uni_kulupSayisi: true, uni_sosyalSayisi: true,
+  uni_sorumlulukSayisi: true, uni_muhabbetSayisi: true, uni_namazSayisi: true,
   ls_yeniIntisap: true, uni_yeniIntisap: true,
   ls_kafileSayisi: true, uni_kafileSayisi: true, ortakKafileSayisi: true,
-  uni_sabahNamaziSayisi: true, ortakSabahNamaziSayisi: true,
-  uni_ilimDersYeri: true,
+  ortakSabahNamaziSayisi: true,
   uni_kykBulusmaSayisi: true,
   eay_toplamZiyaret: true,
 } as const;

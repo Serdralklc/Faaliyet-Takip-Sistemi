@@ -23,10 +23,15 @@ const LS_ALANLAR = [
   "ls_kafileSayisi", "ls_kafileOgrenci",
 ] as const;
 const UNI_ALANLAR = [
-  "uni_toplamDergah", "uni_ilimDersYeri", "uni_ilimDersKatilim",
-  "uni_sabahNamaziSayisi", "uni_sabahNamaziKatilim", "uni_kafileSayisi",
-  "uni_kafileOgrenci", "uni_toplamFaaliyet", "uni_kykBulusmaSayisi",
-  "uni_kykKatilim", "uni_yeniIntisap",
+  "uni_toplamDergah", "uni_universiteliOgrenciSayisi", "uni_yeniIntisap",
+  "uni_kafileSayisi", "uni_kafileOgrenci", "uni_kykBulusmaSayisi", "uni_kykKatilim",
+  "uni_ilimSohbetDergah", "uni_sonSinifOgrenci", "uni_aktifKulup",
+  "uni_ilimSohbetSayisi", "uni_ilimSohbetKatilim",
+  "uni_kulupSayisi", "uni_kulupKatilim",
+  "uni_sosyalSayisi", "uni_sosyalKatilim",
+  "uni_sorumlulukSayisi", "uni_sorumlulukKatilim",
+  "uni_muhabbetSayisi", "uni_muhabbetKatilim",
+  "uni_namazSayisi", "uni_namazKatilim",
 ] as const;
 
 // Sistem kısıtlı roller yalnızca kendi sistem sekmesini görür
@@ -89,10 +94,15 @@ export default async function BolgelerPage({
         ls_muhabbetSayisi: true, ls_muhabbetKatilim: true,
         ls_namazSayisi: true, ls_namazKatilim: true,
         ls_kafileSayisi: true, ls_kafileOgrenci: true,
-        uni_toplamDergah: true, uni_ilimDersYeri: true, uni_ilimDersKatilim: true,
-        uni_sabahNamaziSayisi: true, uni_sabahNamaziKatilim: true, uni_kafileSayisi: true,
-        uni_kafileOgrenci: true, uni_toplamFaaliyet: true, uni_kykBulusmaSayisi: true,
-        uni_kykKatilim: true, uni_yeniIntisap: true,
+        uni_toplamDergah: true, uni_universiteliOgrenciSayisi: true, uni_yeniIntisap: true,
+        uni_kafileSayisi: true, uni_kafileOgrenci: true, uni_kykBulusmaSayisi: true, uni_kykKatilim: true,
+        uni_ilimSohbetDergah: true, uni_sonSinifOgrenci: true, uni_aktifKulup: true,
+        uni_ilimSohbetSayisi: true, uni_ilimSohbetKatilim: true,
+        uni_kulupSayisi: true, uni_kulupKatilim: true,
+        uni_sosyalSayisi: true, uni_sosyalKatilim: true,
+        uni_sorumlulukSayisi: true, uni_sorumlulukKatilim: true,
+        uni_muhabbetSayisi: true, uni_muhabbetKatilim: true,
+        uni_namazSayisi: true, uni_namazKatilim: true,
       },
     }),
     // Lise Gençlik: faaliyet-bazlı kayıt sayısı (il başına)
