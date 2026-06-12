@@ -188,6 +188,9 @@ model Activity {
   eay_iliskiKesme   Int @default(0)
   eay_toplamZiyaret Int @default(0)
 
+  // Arşiv: geçmiş dönem kapatılınca true → salt-okunur (veri asla silinmez)
+  arsivlendi Boolean @default(false)
+
   // Değişmez audit alanları
   createdById      String
   createdByName    String
@@ -330,6 +333,7 @@ enum OgrenimTuru {
 enum BursBasvuruDurum {
   BEKLEMEDE
   INCELENIYOR
+  GORUSULDU
   ONAYLANDI
   REDDEDILDI
 }
@@ -349,18 +353,19 @@ enum GeriBildirimDurum {
 }
 
 model Volunteer {
-  id           String       @id @default(cuid())
-  adSoyad      String
-  telefon      String       @unique
-  email        String?      @unique
-  passwordHash String
-  ogrenim      OgrenimDurum
-  ogrenimTuru  OgrenimTuru?
-  bolum        String?
-  okul         String?
-  il           String?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id            String       @id @default(cuid())
+  adSoyad       String
+  telefon       String       @unique
+  email         String?      @unique
+  emailVerified DateTime?
+  passwordHash  String
+  ogrenim       OgrenimDurum
+  ogrenimTuru   OgrenimTuru?
+  bolum         String?
+  okul          String?
+  il            String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
   bursBasvurulari  BursBasvuru[]
   ekKayitBasvurulari EkKayitBasvuru[]
@@ -439,6 +444,235 @@ model GeriBildirim {
   @@index([volunteerId])
   @@index([durum])
   @@index([createdAt])
+}
+
+// ── Doküman Merkezi (Drive benzeri klasör/dosya yönetimi) ──────
+
+model DokumanKlasor {
+  id       String  @id @default(cuid())
+  ad       String
+  parentId String?
+
+  // Hedef kitle erişimi — false ise yalnızca yönetici görür
+  erisimEgitim     Boolean @default(false)
+  erisimUniversite Boolean @default(false)
+  erisimLise       Boolean @default(false)
+  erisimGonullu    Boolean @default(false)
+
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  parent     DokumanKlasor?  @relation("KlasorHiyerarsi", fields: [parentId], references: [id])
+  children   DokumanKlasor[] @relation("KlasorHiyerarsi")
+  dokumanlar Dokuman[]
+  paylasimlar DokumanPaylasim[]
+
+  @@index([parentId])
+}
+
+model Dokuman {
+  id       String  @id @default(cuid())
+  ad       String
+  klasorId String?
+  /** Blob URL'i (Vercel Blob) veya local sürücüde /api/dosya/{id} */
+  url      String
+  /** Depolama anahtarı — silme işlemi için (blob pathname / local dosya adı) */
+  storageKey String
+  boyut    Int
+  mimeTipi String
+  uzanti   String
+
+  erisimEgitim     Boolean @default(false)
+  erisimUniversite Boolean @default(false)
+  erisimLise       Boolean @default(false)
+  erisimGonullu    Boolean @default(false)
+
+  createdById   String
+  createdByName String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  klasor      DokumanKlasor?    @relation(fields: [klasorId], references: [id])
+  paylasimlar DokumanPaylasim[]
+
+  @@index([klasorId])
+}
+
+/** Üyeliksiz görüntüleme için paylaşım linki (klasör VEYA dosya) */
+model DokumanPaylasim {
+  id          String    @id @default(cuid())
+  token       String    @unique
+  klasorId    String?
+  dokumanId   String?
+  expiresAt   DateTime?
+  createdById String
+  createdAt   DateTime  @default(now())
+
+  klasor  DokumanKlasor? @relation(fields: [klasorId], references: [id], onDelete: Cascade)
+  dokuman Dokuman?       @relation(fields: [dokumanId], references: [id], onDelete: Cascade)
+}
+
+// ── Dinamik Form Yönetimi ──────────────────────────────────────
+
+enum SoruTipi {
+  KISA_METIN
+  UZUN_METIN
+  SAYI
+  TARIH
+  TEK_SECIM
+  COKLU_SECIM
+  DOSYA
+}
+
+enum FormDurum {
+  TASLAK
+  YAYINDA
+  KAPALI
+}
+
+model DinamikForm {
+  id       String    @id @default(cuid())
+  baslik   String
+  aciklama String?
+  durum    FormDurum @default(TASLAK)
+
+  // Görünürlük: hangi roller + hangi sistemler
+  hedefBolge       Boolean @default(false)
+  hedefIl          Boolean @default(false)
+  sistemEgitim     Boolean @default(false)
+  sistemUniversite Boolean @default(false)
+  sistemLise       Boolean @default(false)
+
+  createdById   String
+  createdByName String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sorular  FormSoru[]
+  yanitlar FormYanit[]
+
+  @@index([durum])
+}
+
+model FormSoru {
+  id         String   @id @default(cuid())
+  formId     String
+  sira       Int
+  etiket     String
+  tip        SoruTipi
+  zorunlu    Boolean  @default(false)
+  /** TEK_SECIM / COKLU_SECIM için seçenekler */
+  secenekler String[]
+
+  form DinamikForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@index([formId, sira])
+}
+
+model FormYanit {
+  id       String @id @default(cuid())
+  formId   String
+  userId   String
+  userName String
+  /** { [soruId]: string | string[] | number | { dosyaId, ad, url } } */
+  cevaplar Json
+  createdAt DateTime @default(now())
+
+  form DinamikForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@unique([formId, userId])
+  @@index([formId])
+}
+
+/** Form yanıtlarındaki dosya yüklemeleri (Doküman Merkezi'nden bağımsız) */
+model FormYanitDosya {
+  id         String   @id @default(cuid())
+  ad         String
+  storageKey String
+  url        String
+  mimeTipi   String
+  boyut      Int
+  yukleyenId String
+  createdAt  DateTime @default(now())
+}
+
+// ── Duyuru & Bildirim Merkezi ──────────────────────────────────
+
+enum BildirimTipi {
+  DUYURU
+  BILGILENDIRME
+  DOSYA
+  FORM
+}
+
+model Bildirim {
+  id     String       @id @default(cuid())
+  baslik String
+  mesaj  String
+  tip    BildirimTipi @default(DUYURU)
+  /** Tıklanınca gidilecek sayfa (ör. /panel/formlarim/abc) */
+  link   String?
+
+  // Hedef kitle
+  hedefBolge       Boolean @default(false)
+  hedefIl          Boolean @default(false)
+  hedefGonullu     Boolean @default(false)
+  sistemEgitim     Boolean @default(false)
+  sistemUniversite Boolean @default(false)
+  sistemLise       Boolean @default(false)
+
+  // Kanallar (SMS/WhatsApp sağlayıcı bağlanınca açılacak)
+  kanalEposta      Boolean @default(false)
+  epostaGonderilen Int     @default(0)
+
+  createdById   String
+  createdByName String
+  createdAt     DateTime @default(now())
+
+  alimlar BildirimAlim[]
+
+  @@index([createdAt])
+}
+
+/** Alıcı başına teslim + görüldü kaydı */
+model BildirimAlim {
+  id          String    @id @default(cuid())
+  bildirimId  String
+  userId      String?
+  volunteerId String?
+  aliciAd     String
+  goruldu     DateTime?
+
+  bildirim Bildirim @relation(fields: [bildirimId], references: [id], onDelete: Cascade)
+
+  @@unique([bildirimId, userId])
+  @@unique([bildirimId, volunteerId])
+  @@index([userId, goruldu])
+  @@index([volunteerId, goruldu])
+}
+
+// ── Kimlik Doğrulama Token'ları (şifre sıfırlama + e-posta doğrulama) ──
+
+enum AuthTokenType {
+  SIFRE_SIFIRLAMA_USER
+  SIFRE_SIFIRLAMA_VOLUNTEER
+  EPOSTA_DOGRULAMA_VOLUNTEER
+}
+
+model AuthToken {
+  id          String        @id @default(cuid())
+  /** Ham token'ın SHA-256 hash'i — ham değer yalnızca e-posta linkinde bulunur */
+  tokenHash   String        @unique
+  type        AuthTokenType
+  userId      String?
+  volunteerId String?
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime      @default(now())
+
+  @@index([userId, type])
+  @@index([volunteerId, type])
 }
 
 model AuditLog {

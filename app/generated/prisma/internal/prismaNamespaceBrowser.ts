@@ -64,7 +64,18 @@ export const ModelName = {
   IlHedef: 'IlHedef',
   Volunteer: 'Volunteer',
   BursBasvuru: 'BursBasvuru',
+  EkKayitBasvuru: 'EkKayitBasvuru',
   GeriBildirim: 'GeriBildirim',
+  DokumanKlasor: 'DokumanKlasor',
+  Dokuman: 'Dokuman',
+  DokumanPaylasim: 'DokumanPaylasim',
+  DinamikForm: 'DinamikForm',
+  FormSoru: 'FormSoru',
+  FormYanit: 'FormYanit',
+  FormYanitDosya: 'FormYanitDosya',
+  Bildirim: 'Bildirim',
+  BildirimAlim: 'BildirimAlim',
+  AuthToken: 'AuthToken',
   AuditLog: 'AuditLog'
 } as const
 
@@ -206,6 +217,7 @@ export const ActivityScalarFieldEnum = {
   eay_bursBalan: 'eay_bursBalan',
   eay_iliskiKesme: 'eay_iliskiKesme',
   eay_toplamZiyaret: 'eay_toplamZiyaret',
+  arsivlendi: 'arsivlendi',
   createdById: 'createdById',
   createdByName: 'createdByName',
   createdByRole: 'createdByRole',
@@ -306,6 +318,7 @@ export const VolunteerScalarFieldEnum = {
   adSoyad: 'adSoyad',
   telefon: 'telefon',
   email: 'email',
+  emailVerified: 'emailVerified',
   passwordHash: 'passwordHash',
   ogrenim: 'ogrenim',
   ogrenimTuru: 'ogrenimTuru',
@@ -341,6 +354,36 @@ export const BursBasvuruScalarFieldEnum = {
 export type BursBasvuruScalarFieldEnum = (typeof BursBasvuruScalarFieldEnum)[keyof typeof BursBasvuruScalarFieldEnum]
 
 
+export const EkKayitBasvuruScalarFieldEnum = {
+  id: 'id',
+  volunteerId: 'volunteerId',
+  ogrenciAd: 'ogrenciAd',
+  ogrenciSoyad: 'ogrenciSoyad',
+  telefon: 'telefon',
+  geldigiUlke: 'geldigiUlke',
+  geldigiIl: 'geldigiIl',
+  geldigiIlce: 'geldigiIlce',
+  gidecegiBolge: 'gidecegiBolge',
+  gidecegiIl: 'gidecegiIl',
+  gidecegiIlce: 'gidecegiIlce',
+  universite: 'universite',
+  fakulte: 'fakulte',
+  bolum: 'bolum',
+  kayitTipi: 'kayitTipi',
+  veliAdSoyad: 'veliAdSoyad',
+  veliTelefon: 'veliTelefon',
+  referansAdSoyad: 'referansAdSoyad',
+  referansTelefon: 'referansTelefon',
+  referansGorev: 'referansGorev',
+  durum: 'durum',
+  yoneticiNotu: 'yoneticiNotu',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EkKayitBasvuruScalarFieldEnum = (typeof EkKayitBasvuruScalarFieldEnum)[keyof typeof EkKayitBasvuruScalarFieldEnum]
+
+
 export const GeriBildirimScalarFieldEnum = {
   id: 'id',
   volunteerId: 'volunteerId',
@@ -352,6 +395,163 @@ export const GeriBildirimScalarFieldEnum = {
 } as const
 
 export type GeriBildirimScalarFieldEnum = (typeof GeriBildirimScalarFieldEnum)[keyof typeof GeriBildirimScalarFieldEnum]
+
+
+export const DokumanKlasorScalarFieldEnum = {
+  id: 'id',
+  ad: 'ad',
+  parentId: 'parentId',
+  erisimEgitim: 'erisimEgitim',
+  erisimUniversite: 'erisimUniversite',
+  erisimLise: 'erisimLise',
+  erisimGonullu: 'erisimGonullu',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DokumanKlasorScalarFieldEnum = (typeof DokumanKlasorScalarFieldEnum)[keyof typeof DokumanKlasorScalarFieldEnum]
+
+
+export const DokumanScalarFieldEnum = {
+  id: 'id',
+  ad: 'ad',
+  klasorId: 'klasorId',
+  url: 'url',
+  storageKey: 'storageKey',
+  boyut: 'boyut',
+  mimeTipi: 'mimeTipi',
+  uzanti: 'uzanti',
+  erisimEgitim: 'erisimEgitim',
+  erisimUniversite: 'erisimUniversite',
+  erisimLise: 'erisimLise',
+  erisimGonullu: 'erisimGonullu',
+  createdById: 'createdById',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DokumanScalarFieldEnum = (typeof DokumanScalarFieldEnum)[keyof typeof DokumanScalarFieldEnum]
+
+
+export const DokumanPaylasimScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  klasorId: 'klasorId',
+  dokumanId: 'dokumanId',
+  expiresAt: 'expiresAt',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type DokumanPaylasimScalarFieldEnum = (typeof DokumanPaylasimScalarFieldEnum)[keyof typeof DokumanPaylasimScalarFieldEnum]
+
+
+export const DinamikFormScalarFieldEnum = {
+  id: 'id',
+  baslik: 'baslik',
+  aciklama: 'aciklama',
+  durum: 'durum',
+  hedefBolge: 'hedefBolge',
+  hedefIl: 'hedefIl',
+  sistemEgitim: 'sistemEgitim',
+  sistemUniversite: 'sistemUniversite',
+  sistemLise: 'sistemLise',
+  createdById: 'createdById',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DinamikFormScalarFieldEnum = (typeof DinamikFormScalarFieldEnum)[keyof typeof DinamikFormScalarFieldEnum]
+
+
+export const FormSoruScalarFieldEnum = {
+  id: 'id',
+  formId: 'formId',
+  sira: 'sira',
+  etiket: 'etiket',
+  tip: 'tip',
+  zorunlu: 'zorunlu',
+  secenekler: 'secenekler'
+} as const
+
+export type FormSoruScalarFieldEnum = (typeof FormSoruScalarFieldEnum)[keyof typeof FormSoruScalarFieldEnum]
+
+
+export const FormYanitScalarFieldEnum = {
+  id: 'id',
+  formId: 'formId',
+  userId: 'userId',
+  userName: 'userName',
+  cevaplar: 'cevaplar',
+  createdAt: 'createdAt'
+} as const
+
+export type FormYanitScalarFieldEnum = (typeof FormYanitScalarFieldEnum)[keyof typeof FormYanitScalarFieldEnum]
+
+
+export const FormYanitDosyaScalarFieldEnum = {
+  id: 'id',
+  ad: 'ad',
+  storageKey: 'storageKey',
+  url: 'url',
+  mimeTipi: 'mimeTipi',
+  boyut: 'boyut',
+  yukleyenId: 'yukleyenId',
+  createdAt: 'createdAt'
+} as const
+
+export type FormYanitDosyaScalarFieldEnum = (typeof FormYanitDosyaScalarFieldEnum)[keyof typeof FormYanitDosyaScalarFieldEnum]
+
+
+export const BildirimScalarFieldEnum = {
+  id: 'id',
+  baslik: 'baslik',
+  mesaj: 'mesaj',
+  tip: 'tip',
+  link: 'link',
+  hedefBolge: 'hedefBolge',
+  hedefIl: 'hedefIl',
+  hedefGonullu: 'hedefGonullu',
+  sistemEgitim: 'sistemEgitim',
+  sistemUniversite: 'sistemUniversite',
+  sistemLise: 'sistemLise',
+  kanalEposta: 'kanalEposta',
+  epostaGonderilen: 'epostaGonderilen',
+  createdById: 'createdById',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt'
+} as const
+
+export type BildirimScalarFieldEnum = (typeof BildirimScalarFieldEnum)[keyof typeof BildirimScalarFieldEnum]
+
+
+export const BildirimAlimScalarFieldEnum = {
+  id: 'id',
+  bildirimId: 'bildirimId',
+  userId: 'userId',
+  volunteerId: 'volunteerId',
+  aliciAd: 'aliciAd',
+  goruldu: 'goruldu'
+} as const
+
+export type BildirimAlimScalarFieldEnum = (typeof BildirimAlimScalarFieldEnum)[keyof typeof BildirimAlimScalarFieldEnum]
+
+
+export const AuthTokenScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  type: 'type',
+  userId: 'userId',
+  volunteerId: 'volunteerId',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type AuthTokenScalarFieldEnum = (typeof AuthTokenScalarFieldEnum)[keyof typeof AuthTokenScalarFieldEnum]
 
 
 export const AuditLogScalarFieldEnum = {
@@ -376,6 +576,13 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const NullableJsonNullValueInput = {

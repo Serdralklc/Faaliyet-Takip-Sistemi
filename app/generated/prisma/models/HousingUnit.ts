@@ -422,10 +422,6 @@ export type HousingUnitUncheckedUpdateManyWithoutIlNestedInput = {
   deleteMany?: Prisma.HousingUnitScalarWhereInput | Prisma.HousingUnitScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type HousingUnitCreateNestedOneWithoutOgrencilerInput = {
   create?: Prisma.XOR<Prisma.HousingUnitCreateWithoutOgrencilerInput, Prisma.HousingUnitUncheckedCreateWithoutOgrencilerInput>
   connectOrCreate?: Prisma.HousingUnitCreateOrConnectWithoutOgrencilerInput

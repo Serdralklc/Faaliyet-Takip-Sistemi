@@ -174,6 +174,7 @@ export type ActivityMinAggregateOutputType = {
   eay_bursBalan: number | null
   eay_iliskiKesme: number | null
   eay_toplamZiyaret: number | null
+  arsivlendi: boolean | null
   createdById: string | null
   createdByName: string | null
   createdByRole: $Enums.Role | null
@@ -235,6 +236,7 @@ export type ActivityMaxAggregateOutputType = {
   eay_bursBalan: number | null
   eay_iliskiKesme: number | null
   eay_toplamZiyaret: number | null
+  arsivlendi: boolean | null
   createdById: string | null
   createdByName: string | null
   createdByRole: $Enums.Role | null
@@ -296,6 +298,7 @@ export type ActivityCountAggregateOutputType = {
   eay_bursBalan: number
   eay_iliskiKesme: number
   eay_toplamZiyaret: number
+  arsivlendi: number
   createdById: number
   createdByName: number
   createdByRole: number
@@ -457,6 +460,7 @@ export type ActivityMinAggregateInputType = {
   eay_bursBalan?: true
   eay_iliskiKesme?: true
   eay_toplamZiyaret?: true
+  arsivlendi?: true
   createdById?: true
   createdByName?: true
   createdByRole?: true
@@ -518,6 +522,7 @@ export type ActivityMaxAggregateInputType = {
   eay_bursBalan?: true
   eay_iliskiKesme?: true
   eay_toplamZiyaret?: true
+  arsivlendi?: true
   createdById?: true
   createdByName?: true
   createdByRole?: true
@@ -579,6 +584,7 @@ export type ActivityCountAggregateInputType = {
   eay_bursBalan?: true
   eay_iliskiKesme?: true
   eay_toplamZiyaret?: true
+  arsivlendi?: true
   createdById?: true
   createdByName?: true
   createdByRole?: true
@@ -727,6 +733,7 @@ export type ActivityGroupByOutputType = {
   eay_bursBalan: number
   eay_iliskiKesme: number
   eay_toplamZiyaret: number
+  arsivlendi: boolean
   createdById: string
   createdByName: string
   createdByRole: $Enums.Role
@@ -811,6 +818,7 @@ export type ActivityWhereInput = {
   eay_bursBalan?: Prisma.IntFilter<"Activity"> | number
   eay_iliskiKesme?: Prisma.IntFilter<"Activity"> | number
   eay_toplamZiyaret?: Prisma.IntFilter<"Activity"> | number
+  arsivlendi?: Prisma.BoolFilter<"Activity"> | boolean
   createdById?: Prisma.StringFilter<"Activity"> | string
   createdByName?: Prisma.StringFilter<"Activity"> | string
   createdByRole?: Prisma.EnumRoleFilter<"Activity"> | $Enums.Role
@@ -875,6 +883,7 @@ export type ActivityOrderByWithRelationInput = {
   eay_bursBalan?: Prisma.SortOrder
   eay_iliskiKesme?: Prisma.SortOrder
   eay_toplamZiyaret?: Prisma.SortOrder
+  arsivlendi?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
   createdByRole?: Prisma.SortOrder
@@ -943,6 +952,7 @@ export type ActivityWhereUniqueInput = Prisma.AtLeast<{
   eay_bursBalan?: Prisma.IntFilter<"Activity"> | number
   eay_iliskiKesme?: Prisma.IntFilter<"Activity"> | number
   eay_toplamZiyaret?: Prisma.IntFilter<"Activity"> | number
+  arsivlendi?: Prisma.BoolFilter<"Activity"> | boolean
   createdById?: Prisma.StringFilter<"Activity"> | string
   createdByName?: Prisma.StringFilter<"Activity"> | string
   createdByRole?: Prisma.EnumRoleFilter<"Activity"> | $Enums.Role
@@ -1007,6 +1017,7 @@ export type ActivityOrderByWithAggregationInput = {
   eay_bursBalan?: Prisma.SortOrder
   eay_iliskiKesme?: Prisma.SortOrder
   eay_toplamZiyaret?: Prisma.SortOrder
+  arsivlendi?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
   createdByRole?: Prisma.SortOrder
@@ -1076,6 +1087,7 @@ export type ActivityScalarWhereWithAggregatesInput = {
   eay_bursBalan?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   eay_iliskiKesme?: Prisma.IntWithAggregatesFilter<"Activity"> | number
   eay_toplamZiyaret?: Prisma.IntWithAggregatesFilter<"Activity"> | number
+  arsivlendi?: Prisma.BoolWithAggregatesFilter<"Activity"> | boolean
   createdById?: Prisma.StringWithAggregatesFilter<"Activity"> | string
   createdByName?: Prisma.StringWithAggregatesFilter<"Activity"> | string
   createdByRole?: Prisma.EnumRoleWithAggregatesFilter<"Activity"> | $Enums.Role
@@ -1136,6 +1148,7 @@ export type ActivityCreateInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  arsivlendi?: boolean
   createdByName: string
   createdByRole: $Enums.Role
   createdByIlId?: string | null
@@ -1198,6 +1211,7 @@ export type ActivityUncheckedCreateInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  arsivlendi?: boolean
   createdById: string
   createdByName: string
   createdByRole: $Enums.Role
@@ -1258,6 +1272,7 @@ export type ActivityUpdateInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdByIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1320,6 +1335,7 @@ export type ActivityUncheckedUpdateInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1381,6 +1397,7 @@ export type ActivityCreateManyInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  arsivlendi?: boolean
   createdById: string
   createdByName: string
   createdByRole: $Enums.Role
@@ -1441,6 +1458,7 @@ export type ActivityUpdateManyMutationInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdByIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1500,6 +1518,7 @@ export type ActivityUncheckedUpdateManyInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -1577,6 +1596,7 @@ export type ActivityCountOrderByAggregateInput = {
   eay_bursBalan?: Prisma.SortOrder
   eay_iliskiKesme?: Prisma.SortOrder
   eay_toplamZiyaret?: Prisma.SortOrder
+  arsivlendi?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
   createdByRole?: Prisma.SortOrder
@@ -1687,6 +1707,7 @@ export type ActivityMaxOrderByAggregateInput = {
   eay_bursBalan?: Prisma.SortOrder
   eay_iliskiKesme?: Prisma.SortOrder
   eay_toplamZiyaret?: Prisma.SortOrder
+  arsivlendi?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
   createdByRole?: Prisma.SortOrder
@@ -1748,6 +1769,7 @@ export type ActivityMinOrderByAggregateInput = {
   eay_bursBalan?: Prisma.SortOrder
   eay_iliskiKesme?: Prisma.SortOrder
   eay_toplamZiyaret?: Prisma.SortOrder
+  arsivlendi?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
   createdByRole?: Prisma.SortOrder
@@ -1938,6 +1960,10 @@ export type EnumDonemFieldUpdateOperationsInput = {
   set?: $Enums.Donem
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type ActivityCreateWithoutCreatedByInput = {
   id?: string
   yil: number
@@ -1987,6 +2013,7 @@ export type ActivityCreateWithoutCreatedByInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  arsivlendi?: boolean
   createdByName: string
   createdByRole: $Enums.Role
   createdByIlId?: string | null
@@ -2048,6 +2075,7 @@ export type ActivityUncheckedCreateWithoutCreatedByInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  arsivlendi?: boolean
   createdByName: string
   createdByRole: $Enums.Role
   createdByIlId?: string | null
@@ -2117,6 +2145,7 @@ export type ActivityCreateWithoutUpdatedByInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  arsivlendi?: boolean
   createdByName: string
   createdByRole: $Enums.Role
   createdByIlId?: string | null
@@ -2178,6 +2207,7 @@ export type ActivityUncheckedCreateWithoutUpdatedByInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  arsivlendi?: boolean
   createdById: string
   createdByName: string
   createdByRole: $Enums.Role
@@ -2267,6 +2297,7 @@ export type ActivityScalarWhereInput = {
   eay_bursBalan?: Prisma.IntFilter<"Activity"> | number
   eay_iliskiKesme?: Prisma.IntFilter<"Activity"> | number
   eay_toplamZiyaret?: Prisma.IntFilter<"Activity"> | number
+  arsivlendi?: Prisma.BoolFilter<"Activity"> | boolean
   createdById?: Prisma.StringFilter<"Activity"> | string
   createdByName?: Prisma.StringFilter<"Activity"> | string
   createdByRole?: Prisma.EnumRoleFilter<"Activity"> | $Enums.Role
@@ -2343,6 +2374,7 @@ export type ActivityCreateWithoutIlInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  arsivlendi?: boolean
   createdByName: string
   createdByRole: $Enums.Role
   createdByIlId?: string | null
@@ -2403,6 +2435,7 @@ export type ActivityUncheckedCreateWithoutIlInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  arsivlendi?: boolean
   createdById: string
   createdByName: string
   createdByRole: $Enums.Role
@@ -2490,6 +2523,7 @@ export type ActivityCreateManyCreatedByInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  arsivlendi?: boolean
   createdByName: string
   createdByRole: $Enums.Role
   createdByIlId?: string | null
@@ -2550,6 +2584,7 @@ export type ActivityCreateManyUpdatedByInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  arsivlendi?: boolean
   createdById: string
   createdByName: string
   createdByRole: $Enums.Role
@@ -2609,6 +2644,7 @@ export type ActivityUpdateWithoutCreatedByInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdByIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2670,6 +2706,7 @@ export type ActivityUncheckedUpdateWithoutCreatedByInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdByIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2730,6 +2767,7 @@ export type ActivityUncheckedUpdateManyWithoutCreatedByInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdByIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2789,6 +2827,7 @@ export type ActivityUpdateWithoutUpdatedByInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdByIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2850,6 +2889,7 @@ export type ActivityUncheckedUpdateWithoutUpdatedByInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2910,6 +2950,7 @@ export type ActivityUncheckedUpdateManyWithoutUpdatedByInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -2969,6 +3010,7 @@ export type ActivityCreateManyIlInput = {
   eay_bursBalan?: number
   eay_iliskiKesme?: number
   eay_toplamZiyaret?: number
+  arsivlendi?: boolean
   createdById: string
   createdByName: string
   createdByRole: $Enums.Role
@@ -3029,6 +3071,7 @@ export type ActivityUpdateWithoutIlInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   createdByIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3089,6 +3132,7 @@ export type ActivityUncheckedUpdateWithoutIlInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -3149,6 +3193,7 @@ export type ActivityUncheckedUpdateManyWithoutIlInput = {
   eay_bursBalan?: Prisma.IntFieldUpdateOperationsInput | number
   eay_iliskiKesme?: Prisma.IntFieldUpdateOperationsInput | number
   eay_toplamZiyaret?: Prisma.IntFieldUpdateOperationsInput | number
+  arsivlendi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdByName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByRole?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -3212,6 +3257,7 @@ export type ActivitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   eay_bursBalan?: boolean
   eay_iliskiKesme?: boolean
   eay_toplamZiyaret?: boolean
+  arsivlendi?: boolean
   createdById?: boolean
   createdByName?: boolean
   createdByRole?: boolean
@@ -3276,6 +3322,7 @@ export type ActivitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   eay_bursBalan?: boolean
   eay_iliskiKesme?: boolean
   eay_toplamZiyaret?: boolean
+  arsivlendi?: boolean
   createdById?: boolean
   createdByName?: boolean
   createdByRole?: boolean
@@ -3340,6 +3387,7 @@ export type ActivitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   eay_bursBalan?: boolean
   eay_iliskiKesme?: boolean
   eay_toplamZiyaret?: boolean
+  arsivlendi?: boolean
   createdById?: boolean
   createdByName?: boolean
   createdByRole?: boolean
@@ -3404,6 +3452,7 @@ export type ActivitySelectScalar = {
   eay_bursBalan?: boolean
   eay_iliskiKesme?: boolean
   eay_toplamZiyaret?: boolean
+  arsivlendi?: boolean
   createdById?: boolean
   createdByName?: boolean
   createdByRole?: boolean
@@ -3415,7 +3464,7 @@ export type ActivitySelectScalar = {
   updatedAt?: boolean
 }
 
-export type ActivityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ilId" | "yil" | "donem" | "ik_toplamDergah" | "ik_kursuYapilanDergah" | "ik_egitmenSayisi" | "ik_egitmenYardimciSayisi" | "ik_elifBaOgrenci" | "ik_kuranOgrenci" | "ik_gecisOgrenci" | "ls_toplamDergah" | "ls_ilimDersYeri" | "ls_ilimDersKatilim" | "ls_sabahNamaziSayisi" | "ls_sabahNamaziKatilim" | "ls_kafileSayisi" | "ls_kafileOgrenci" | "ls_toplamFaaliyet" | "ls_yeniIntisap" | "uni_toplamDergah" | "uni_ilimDersYeri" | "uni_ilimDersKatilim" | "uni_sabahNamaziSayisi" | "uni_sabahNamaziKatilim" | "uni_kafileSayisi" | "uni_kafileOgrenci" | "uni_toplamFaaliyet" | "uni_kykBulusmaSayisi" | "uni_kykKatilim" | "uni_yeniIntisap" | "ortakKafileSayisi" | "ortakKafileLiseKatilim" | "ortakKafileUniKatilim" | "ortakSabahNamaziSayisi" | "ortakSabahNamaziLiseKatilim" | "ortakSabahNamaziUniKatilim" | "eay_mevcutEv" | "eay_mevcutApart" | "eay_mevcutYurt" | "eay_acilacakEv" | "eay_acilacakApart" | "eay_acilacakYurt" | "eay_kapanacakEv" | "eay_kapanacakApart" | "eay_kapanacakYurt" | "eay_bursBalan" | "eay_iliskiKesme" | "eay_toplamZiyaret" | "createdById" | "createdByName" | "createdByRole" | "createdByIlId" | "createdByBolgeId" | "createdAt" | "updatedById" | "updatedByName" | "updatedAt", ExtArgs["result"]["activity"]>
+export type ActivityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ilId" | "yil" | "donem" | "ik_toplamDergah" | "ik_kursuYapilanDergah" | "ik_egitmenSayisi" | "ik_egitmenYardimciSayisi" | "ik_elifBaOgrenci" | "ik_kuranOgrenci" | "ik_gecisOgrenci" | "ls_toplamDergah" | "ls_ilimDersYeri" | "ls_ilimDersKatilim" | "ls_sabahNamaziSayisi" | "ls_sabahNamaziKatilim" | "ls_kafileSayisi" | "ls_kafileOgrenci" | "ls_toplamFaaliyet" | "ls_yeniIntisap" | "uni_toplamDergah" | "uni_ilimDersYeri" | "uni_ilimDersKatilim" | "uni_sabahNamaziSayisi" | "uni_sabahNamaziKatilim" | "uni_kafileSayisi" | "uni_kafileOgrenci" | "uni_toplamFaaliyet" | "uni_kykBulusmaSayisi" | "uni_kykKatilim" | "uni_yeniIntisap" | "ortakKafileSayisi" | "ortakKafileLiseKatilim" | "ortakKafileUniKatilim" | "ortakSabahNamaziSayisi" | "ortakSabahNamaziLiseKatilim" | "ortakSabahNamaziUniKatilim" | "eay_mevcutEv" | "eay_mevcutApart" | "eay_mevcutYurt" | "eay_acilacakEv" | "eay_acilacakApart" | "eay_acilacakYurt" | "eay_kapanacakEv" | "eay_kapanacakApart" | "eay_kapanacakYurt" | "eay_bursBalan" | "eay_iliskiKesme" | "eay_toplamZiyaret" | "arsivlendi" | "createdById" | "createdByName" | "createdByRole" | "createdByIlId" | "createdByBolgeId" | "createdAt" | "updatedById" | "updatedByName" | "updatedAt", ExtArgs["result"]["activity"]>
 export type ActivityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   il?: boolean | Prisma.IlDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -3489,6 +3538,7 @@ export type $ActivityPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     eay_bursBalan: number
     eay_iliskiKesme: number
     eay_toplamZiyaret: number
+    arsivlendi: boolean
     createdById: string
     createdByName: string
     createdByRole: $Enums.Role
@@ -3973,6 +4023,7 @@ export interface ActivityFieldRefs {
   readonly eay_bursBalan: Prisma.FieldRef<"Activity", 'Int'>
   readonly eay_iliskiKesme: Prisma.FieldRef<"Activity", 'Int'>
   readonly eay_toplamZiyaret: Prisma.FieldRef<"Activity", 'Int'>
+  readonly arsivlendi: Prisma.FieldRef<"Activity", 'Boolean'>
   readonly createdById: Prisma.FieldRef<"Activity", 'String'>
   readonly createdByName: Prisma.FieldRef<"Activity", 'String'>
   readonly createdByRole: Prisma.FieldRef<"Activity", 'Role'>

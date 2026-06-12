@@ -29,6 +29,7 @@ export type VolunteerMinAggregateOutputType = {
   adSoyad: string | null
   telefon: string | null
   email: string | null
+  emailVerified: Date | null
   passwordHash: string | null
   ogrenim: $Enums.OgrenimDurum | null
   ogrenimTuru: $Enums.OgrenimTuru | null
@@ -44,6 +45,7 @@ export type VolunteerMaxAggregateOutputType = {
   adSoyad: string | null
   telefon: string | null
   email: string | null
+  emailVerified: Date | null
   passwordHash: string | null
   ogrenim: $Enums.OgrenimDurum | null
   ogrenimTuru: $Enums.OgrenimTuru | null
@@ -59,6 +61,7 @@ export type VolunteerCountAggregateOutputType = {
   adSoyad: number
   telefon: number
   email: number
+  emailVerified: number
   passwordHash: number
   ogrenim: number
   ogrenimTuru: number
@@ -76,6 +79,7 @@ export type VolunteerMinAggregateInputType = {
   adSoyad?: true
   telefon?: true
   email?: true
+  emailVerified?: true
   passwordHash?: true
   ogrenim?: true
   ogrenimTuru?: true
@@ -91,6 +95,7 @@ export type VolunteerMaxAggregateInputType = {
   adSoyad?: true
   telefon?: true
   email?: true
+  emailVerified?: true
   passwordHash?: true
   ogrenim?: true
   ogrenimTuru?: true
@@ -106,6 +111,7 @@ export type VolunteerCountAggregateInputType = {
   adSoyad?: true
   telefon?: true
   email?: true
+  emailVerified?: true
   passwordHash?: true
   ogrenim?: true
   ogrenimTuru?: true
@@ -194,6 +200,7 @@ export type VolunteerGroupByOutputType = {
   adSoyad: string
   telefon: string
   email: string | null
+  emailVerified: Date | null
   passwordHash: string
   ogrenim: $Enums.OgrenimDurum
   ogrenimTuru: $Enums.OgrenimTuru | null
@@ -230,6 +237,7 @@ export type VolunteerWhereInput = {
   adSoyad?: Prisma.StringFilter<"Volunteer"> | string
   telefon?: Prisma.StringFilter<"Volunteer"> | string
   email?: Prisma.StringNullableFilter<"Volunteer"> | string | null
+  emailVerified?: Prisma.DateTimeNullableFilter<"Volunteer"> | Date | string | null
   passwordHash?: Prisma.StringFilter<"Volunteer"> | string
   ogrenim?: Prisma.EnumOgrenimDurumFilter<"Volunteer"> | $Enums.OgrenimDurum
   ogrenimTuru?: Prisma.EnumOgrenimTuruNullableFilter<"Volunteer"> | $Enums.OgrenimTuru | null
@@ -239,6 +247,7 @@ export type VolunteerWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Volunteer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Volunteer"> | Date | string
   bursBasvurulari?: Prisma.BursBasvuruListRelationFilter
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruListRelationFilter
   geriBildirimler?: Prisma.GeriBildirimListRelationFilter
 }
 
@@ -247,6 +256,7 @@ export type VolunteerOrderByWithRelationInput = {
   adSoyad?: Prisma.SortOrder
   telefon?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerified?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   ogrenim?: Prisma.SortOrder
   ogrenimTuru?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -256,6 +266,7 @@ export type VolunteerOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   bursBasvurulari?: Prisma.BursBasvuruOrderByRelationAggregateInput
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruOrderByRelationAggregateInput
   geriBildirimler?: Prisma.GeriBildirimOrderByRelationAggregateInput
 }
 
@@ -267,6 +278,7 @@ export type VolunteerWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.VolunteerWhereInput[]
   NOT?: Prisma.VolunteerWhereInput | Prisma.VolunteerWhereInput[]
   adSoyad?: Prisma.StringFilter<"Volunteer"> | string
+  emailVerified?: Prisma.DateTimeNullableFilter<"Volunteer"> | Date | string | null
   passwordHash?: Prisma.StringFilter<"Volunteer"> | string
   ogrenim?: Prisma.EnumOgrenimDurumFilter<"Volunteer"> | $Enums.OgrenimDurum
   ogrenimTuru?: Prisma.EnumOgrenimTuruNullableFilter<"Volunteer"> | $Enums.OgrenimTuru | null
@@ -276,6 +288,7 @@ export type VolunteerWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Volunteer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Volunteer"> | Date | string
   bursBasvurulari?: Prisma.BursBasvuruListRelationFilter
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruListRelationFilter
   geriBildirimler?: Prisma.GeriBildirimListRelationFilter
 }, "id" | "telefon" | "email">
 
@@ -284,6 +297,7 @@ export type VolunteerOrderByWithAggregationInput = {
   adSoyad?: Prisma.SortOrder
   telefon?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerified?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   ogrenim?: Prisma.SortOrder
   ogrenimTuru?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -305,6 +319,7 @@ export type VolunteerScalarWhereWithAggregatesInput = {
   adSoyad?: Prisma.StringWithAggregatesFilter<"Volunteer"> | string
   telefon?: Prisma.StringWithAggregatesFilter<"Volunteer"> | string
   email?: Prisma.StringNullableWithAggregatesFilter<"Volunteer"> | string | null
+  emailVerified?: Prisma.DateTimeNullableWithAggregatesFilter<"Volunteer"> | Date | string | null
   passwordHash?: Prisma.StringWithAggregatesFilter<"Volunteer"> | string
   ogrenim?: Prisma.EnumOgrenimDurumWithAggregatesFilter<"Volunteer"> | $Enums.OgrenimDurum
   ogrenimTuru?: Prisma.EnumOgrenimTuruNullableWithAggregatesFilter<"Volunteer"> | $Enums.OgrenimTuru | null
@@ -320,6 +335,7 @@ export type VolunteerCreateInput = {
   adSoyad: string
   telefon: string
   email?: string | null
+  emailVerified?: Date | string | null
   passwordHash: string
   ogrenim: $Enums.OgrenimDurum
   ogrenimTuru?: $Enums.OgrenimTuru | null
@@ -329,6 +345,7 @@ export type VolunteerCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   bursBasvurulari?: Prisma.BursBasvuruCreateNestedManyWithoutVolunteerInput
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruCreateNestedManyWithoutVolunteerInput
   geriBildirimler?: Prisma.GeriBildirimCreateNestedManyWithoutVolunteerInput
 }
 
@@ -337,6 +354,7 @@ export type VolunteerUncheckedCreateInput = {
   adSoyad: string
   telefon: string
   email?: string | null
+  emailVerified?: Date | string | null
   passwordHash: string
   ogrenim: $Enums.OgrenimDurum
   ogrenimTuru?: $Enums.OgrenimTuru | null
@@ -346,6 +364,7 @@ export type VolunteerUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   bursBasvurulari?: Prisma.BursBasvuruUncheckedCreateNestedManyWithoutVolunteerInput
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruUncheckedCreateNestedManyWithoutVolunteerInput
   geriBildirimler?: Prisma.GeriBildirimUncheckedCreateNestedManyWithoutVolunteerInput
 }
 
@@ -354,6 +373,7 @@ export type VolunteerUpdateInput = {
   adSoyad?: Prisma.StringFieldUpdateOperationsInput | string
   telefon?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   ogrenim?: Prisma.EnumOgrenimDurumFieldUpdateOperationsInput | $Enums.OgrenimDurum
   ogrenimTuru?: Prisma.NullableEnumOgrenimTuruFieldUpdateOperationsInput | $Enums.OgrenimTuru | null
@@ -363,6 +383,7 @@ export type VolunteerUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bursBasvurulari?: Prisma.BursBasvuruUpdateManyWithoutVolunteerNestedInput
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruUpdateManyWithoutVolunteerNestedInput
   geriBildirimler?: Prisma.GeriBildirimUpdateManyWithoutVolunteerNestedInput
 }
 
@@ -371,6 +392,7 @@ export type VolunteerUncheckedUpdateInput = {
   adSoyad?: Prisma.StringFieldUpdateOperationsInput | string
   telefon?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   ogrenim?: Prisma.EnumOgrenimDurumFieldUpdateOperationsInput | $Enums.OgrenimDurum
   ogrenimTuru?: Prisma.NullableEnumOgrenimTuruFieldUpdateOperationsInput | $Enums.OgrenimTuru | null
@@ -380,6 +402,7 @@ export type VolunteerUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bursBasvurulari?: Prisma.BursBasvuruUncheckedUpdateManyWithoutVolunteerNestedInput
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruUncheckedUpdateManyWithoutVolunteerNestedInput
   geriBildirimler?: Prisma.GeriBildirimUncheckedUpdateManyWithoutVolunteerNestedInput
 }
 
@@ -388,6 +411,7 @@ export type VolunteerCreateManyInput = {
   adSoyad: string
   telefon: string
   email?: string | null
+  emailVerified?: Date | string | null
   passwordHash: string
   ogrenim: $Enums.OgrenimDurum
   ogrenimTuru?: $Enums.OgrenimTuru | null
@@ -403,6 +427,7 @@ export type VolunteerUpdateManyMutationInput = {
   adSoyad?: Prisma.StringFieldUpdateOperationsInput | string
   telefon?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   ogrenim?: Prisma.EnumOgrenimDurumFieldUpdateOperationsInput | $Enums.OgrenimDurum
   ogrenimTuru?: Prisma.NullableEnumOgrenimTuruFieldUpdateOperationsInput | $Enums.OgrenimTuru | null
@@ -418,6 +443,7 @@ export type VolunteerUncheckedUpdateManyInput = {
   adSoyad?: Prisma.StringFieldUpdateOperationsInput | string
   telefon?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   ogrenim?: Prisma.EnumOgrenimDurumFieldUpdateOperationsInput | $Enums.OgrenimDurum
   ogrenimTuru?: Prisma.NullableEnumOgrenimTuruFieldUpdateOperationsInput | $Enums.OgrenimTuru | null
@@ -433,6 +459,7 @@ export type VolunteerCountOrderByAggregateInput = {
   adSoyad?: Prisma.SortOrder
   telefon?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   ogrenim?: Prisma.SortOrder
   ogrenimTuru?: Prisma.SortOrder
@@ -448,6 +475,7 @@ export type VolunteerMaxOrderByAggregateInput = {
   adSoyad?: Prisma.SortOrder
   telefon?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   ogrenim?: Prisma.SortOrder
   ogrenimTuru?: Prisma.SortOrder
@@ -463,6 +491,7 @@ export type VolunteerMinOrderByAggregateInput = {
   adSoyad?: Prisma.SortOrder
   telefon?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   ogrenim?: Prisma.SortOrder
   ogrenimTuru?: Prisma.SortOrder
@@ -500,6 +529,20 @@ export type VolunteerUpdateOneRequiredWithoutBursBasvurulariNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.VolunteerUpdateToOneWithWhereWithoutBursBasvurulariInput, Prisma.VolunteerUpdateWithoutBursBasvurulariInput>, Prisma.VolunteerUncheckedUpdateWithoutBursBasvurulariInput>
 }
 
+export type VolunteerCreateNestedOneWithoutEkKayitBasvurulariInput = {
+  create?: Prisma.XOR<Prisma.VolunteerCreateWithoutEkKayitBasvurulariInput, Prisma.VolunteerUncheckedCreateWithoutEkKayitBasvurulariInput>
+  connectOrCreate?: Prisma.VolunteerCreateOrConnectWithoutEkKayitBasvurulariInput
+  connect?: Prisma.VolunteerWhereUniqueInput
+}
+
+export type VolunteerUpdateOneRequiredWithoutEkKayitBasvurulariNestedInput = {
+  create?: Prisma.XOR<Prisma.VolunteerCreateWithoutEkKayitBasvurulariInput, Prisma.VolunteerUncheckedCreateWithoutEkKayitBasvurulariInput>
+  connectOrCreate?: Prisma.VolunteerCreateOrConnectWithoutEkKayitBasvurulariInput
+  upsert?: Prisma.VolunteerUpsertWithoutEkKayitBasvurulariInput
+  connect?: Prisma.VolunteerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.VolunteerUpdateToOneWithWhereWithoutEkKayitBasvurulariInput, Prisma.VolunteerUpdateWithoutEkKayitBasvurulariInput>, Prisma.VolunteerUncheckedUpdateWithoutEkKayitBasvurulariInput>
+}
+
 export type VolunteerCreateNestedOneWithoutGeriBildirimlerInput = {
   create?: Prisma.XOR<Prisma.VolunteerCreateWithoutGeriBildirimlerInput, Prisma.VolunteerUncheckedCreateWithoutGeriBildirimlerInput>
   connectOrCreate?: Prisma.VolunteerCreateOrConnectWithoutGeriBildirimlerInput
@@ -519,6 +562,7 @@ export type VolunteerCreateWithoutBursBasvurulariInput = {
   adSoyad: string
   telefon: string
   email?: string | null
+  emailVerified?: Date | string | null
   passwordHash: string
   ogrenim: $Enums.OgrenimDurum
   ogrenimTuru?: $Enums.OgrenimTuru | null
@@ -527,6 +571,7 @@ export type VolunteerCreateWithoutBursBasvurulariInput = {
   il?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruCreateNestedManyWithoutVolunteerInput
   geriBildirimler?: Prisma.GeriBildirimCreateNestedManyWithoutVolunteerInput
 }
 
@@ -535,6 +580,7 @@ export type VolunteerUncheckedCreateWithoutBursBasvurulariInput = {
   adSoyad: string
   telefon: string
   email?: string | null
+  emailVerified?: Date | string | null
   passwordHash: string
   ogrenim: $Enums.OgrenimDurum
   ogrenimTuru?: $Enums.OgrenimTuru | null
@@ -543,6 +589,7 @@ export type VolunteerUncheckedCreateWithoutBursBasvurulariInput = {
   il?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruUncheckedCreateNestedManyWithoutVolunteerInput
   geriBildirimler?: Prisma.GeriBildirimUncheckedCreateNestedManyWithoutVolunteerInput
 }
 
@@ -567,6 +614,7 @@ export type VolunteerUpdateWithoutBursBasvurulariInput = {
   adSoyad?: Prisma.StringFieldUpdateOperationsInput | string
   telefon?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   ogrenim?: Prisma.EnumOgrenimDurumFieldUpdateOperationsInput | $Enums.OgrenimDurum
   ogrenimTuru?: Prisma.NullableEnumOgrenimTuruFieldUpdateOperationsInput | $Enums.OgrenimTuru | null
@@ -575,6 +623,7 @@ export type VolunteerUpdateWithoutBursBasvurulariInput = {
   il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruUpdateManyWithoutVolunteerNestedInput
   geriBildirimler?: Prisma.GeriBildirimUpdateManyWithoutVolunteerNestedInput
 }
 
@@ -583,6 +632,7 @@ export type VolunteerUncheckedUpdateWithoutBursBasvurulariInput = {
   adSoyad?: Prisma.StringFieldUpdateOperationsInput | string
   telefon?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   ogrenim?: Prisma.EnumOgrenimDurumFieldUpdateOperationsInput | $Enums.OgrenimDurum
   ogrenimTuru?: Prisma.NullableEnumOgrenimTuruFieldUpdateOperationsInput | $Enums.OgrenimTuru | null
@@ -591,14 +641,16 @@ export type VolunteerUncheckedUpdateWithoutBursBasvurulariInput = {
   il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruUncheckedUpdateManyWithoutVolunteerNestedInput
   geriBildirimler?: Prisma.GeriBildirimUncheckedUpdateManyWithoutVolunteerNestedInput
 }
 
-export type VolunteerCreateWithoutGeriBildirimlerInput = {
+export type VolunteerCreateWithoutEkKayitBasvurulariInput = {
   id?: string
   adSoyad: string
   telefon: string
   email?: string | null
+  emailVerified?: Date | string | null
   passwordHash: string
   ogrenim: $Enums.OgrenimDurum
   ogrenimTuru?: $Enums.OgrenimTuru | null
@@ -608,13 +660,15 @@ export type VolunteerCreateWithoutGeriBildirimlerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   bursBasvurulari?: Prisma.BursBasvuruCreateNestedManyWithoutVolunteerInput
+  geriBildirimler?: Prisma.GeriBildirimCreateNestedManyWithoutVolunteerInput
 }
 
-export type VolunteerUncheckedCreateWithoutGeriBildirimlerInput = {
+export type VolunteerUncheckedCreateWithoutEkKayitBasvurulariInput = {
   id?: string
   adSoyad: string
   telefon: string
   email?: string | null
+  emailVerified?: Date | string | null
   passwordHash: string
   ogrenim: $Enums.OgrenimDurum
   ogrenimTuru?: $Enums.OgrenimTuru | null
@@ -624,6 +678,95 @@ export type VolunteerUncheckedCreateWithoutGeriBildirimlerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   bursBasvurulari?: Prisma.BursBasvuruUncheckedCreateNestedManyWithoutVolunteerInput
+  geriBildirimler?: Prisma.GeriBildirimUncheckedCreateNestedManyWithoutVolunteerInput
+}
+
+export type VolunteerCreateOrConnectWithoutEkKayitBasvurulariInput = {
+  where: Prisma.VolunteerWhereUniqueInput
+  create: Prisma.XOR<Prisma.VolunteerCreateWithoutEkKayitBasvurulariInput, Prisma.VolunteerUncheckedCreateWithoutEkKayitBasvurulariInput>
+}
+
+export type VolunteerUpsertWithoutEkKayitBasvurulariInput = {
+  update: Prisma.XOR<Prisma.VolunteerUpdateWithoutEkKayitBasvurulariInput, Prisma.VolunteerUncheckedUpdateWithoutEkKayitBasvurulariInput>
+  create: Prisma.XOR<Prisma.VolunteerCreateWithoutEkKayitBasvurulariInput, Prisma.VolunteerUncheckedCreateWithoutEkKayitBasvurulariInput>
+  where?: Prisma.VolunteerWhereInput
+}
+
+export type VolunteerUpdateToOneWithWhereWithoutEkKayitBasvurulariInput = {
+  where?: Prisma.VolunteerWhereInput
+  data: Prisma.XOR<Prisma.VolunteerUpdateWithoutEkKayitBasvurulariInput, Prisma.VolunteerUncheckedUpdateWithoutEkKayitBasvurulariInput>
+}
+
+export type VolunteerUpdateWithoutEkKayitBasvurulariInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  adSoyad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefon?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ogrenim?: Prisma.EnumOgrenimDurumFieldUpdateOperationsInput | $Enums.OgrenimDurum
+  ogrenimTuru?: Prisma.NullableEnumOgrenimTuruFieldUpdateOperationsInput | $Enums.OgrenimTuru | null
+  bolum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  okul?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bursBasvurulari?: Prisma.BursBasvuruUpdateManyWithoutVolunteerNestedInput
+  geriBildirimler?: Prisma.GeriBildirimUpdateManyWithoutVolunteerNestedInput
+}
+
+export type VolunteerUncheckedUpdateWithoutEkKayitBasvurulariInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  adSoyad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefon?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ogrenim?: Prisma.EnumOgrenimDurumFieldUpdateOperationsInput | $Enums.OgrenimDurum
+  ogrenimTuru?: Prisma.NullableEnumOgrenimTuruFieldUpdateOperationsInput | $Enums.OgrenimTuru | null
+  bolum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  okul?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bursBasvurulari?: Prisma.BursBasvuruUncheckedUpdateManyWithoutVolunteerNestedInput
+  geriBildirimler?: Prisma.GeriBildirimUncheckedUpdateManyWithoutVolunteerNestedInput
+}
+
+export type VolunteerCreateWithoutGeriBildirimlerInput = {
+  id?: string
+  adSoyad: string
+  telefon: string
+  email?: string | null
+  emailVerified?: Date | string | null
+  passwordHash: string
+  ogrenim: $Enums.OgrenimDurum
+  ogrenimTuru?: $Enums.OgrenimTuru | null
+  bolum?: string | null
+  okul?: string | null
+  il?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  bursBasvurulari?: Prisma.BursBasvuruCreateNestedManyWithoutVolunteerInput
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruCreateNestedManyWithoutVolunteerInput
+}
+
+export type VolunteerUncheckedCreateWithoutGeriBildirimlerInput = {
+  id?: string
+  adSoyad: string
+  telefon: string
+  email?: string | null
+  emailVerified?: Date | string | null
+  passwordHash: string
+  ogrenim: $Enums.OgrenimDurum
+  ogrenimTuru?: $Enums.OgrenimTuru | null
+  bolum?: string | null
+  okul?: string | null
+  il?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  bursBasvurulari?: Prisma.BursBasvuruUncheckedCreateNestedManyWithoutVolunteerInput
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruUncheckedCreateNestedManyWithoutVolunteerInput
 }
 
 export type VolunteerCreateOrConnectWithoutGeriBildirimlerInput = {
@@ -647,6 +790,7 @@ export type VolunteerUpdateWithoutGeriBildirimlerInput = {
   adSoyad?: Prisma.StringFieldUpdateOperationsInput | string
   telefon?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   ogrenim?: Prisma.EnumOgrenimDurumFieldUpdateOperationsInput | $Enums.OgrenimDurum
   ogrenimTuru?: Prisma.NullableEnumOgrenimTuruFieldUpdateOperationsInput | $Enums.OgrenimTuru | null
@@ -656,6 +800,7 @@ export type VolunteerUpdateWithoutGeriBildirimlerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bursBasvurulari?: Prisma.BursBasvuruUpdateManyWithoutVolunteerNestedInput
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruUpdateManyWithoutVolunteerNestedInput
 }
 
 export type VolunteerUncheckedUpdateWithoutGeriBildirimlerInput = {
@@ -663,6 +808,7 @@ export type VolunteerUncheckedUpdateWithoutGeriBildirimlerInput = {
   adSoyad?: Prisma.StringFieldUpdateOperationsInput | string
   telefon?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   ogrenim?: Prisma.EnumOgrenimDurumFieldUpdateOperationsInput | $Enums.OgrenimDurum
   ogrenimTuru?: Prisma.NullableEnumOgrenimTuruFieldUpdateOperationsInput | $Enums.OgrenimTuru | null
@@ -672,6 +818,7 @@ export type VolunteerUncheckedUpdateWithoutGeriBildirimlerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bursBasvurulari?: Prisma.BursBasvuruUncheckedUpdateManyWithoutVolunteerNestedInput
+  ekKayitBasvurulari?: Prisma.EkKayitBasvuruUncheckedUpdateManyWithoutVolunteerNestedInput
 }
 
 
@@ -681,11 +828,13 @@ export type VolunteerUncheckedUpdateWithoutGeriBildirimlerInput = {
 
 export type VolunteerCountOutputType = {
   bursBasvurulari: number
+  ekKayitBasvurulari: number
   geriBildirimler: number
 }
 
 export type VolunteerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bursBasvurulari?: boolean | VolunteerCountOutputTypeCountBursBasvurulariArgs
+  ekKayitBasvurulari?: boolean | VolunteerCountOutputTypeCountEkKayitBasvurulariArgs
   geriBildirimler?: boolean | VolunteerCountOutputTypeCountGeriBildirimlerArgs
 }
 
@@ -709,6 +858,13 @@ export type VolunteerCountOutputTypeCountBursBasvurulariArgs<ExtArgs extends run
 /**
  * VolunteerCountOutputType without action
  */
+export type VolunteerCountOutputTypeCountEkKayitBasvurulariArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EkKayitBasvuruWhereInput
+}
+
+/**
+ * VolunteerCountOutputType without action
+ */
 export type VolunteerCountOutputTypeCountGeriBildirimlerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.GeriBildirimWhereInput
 }
@@ -719,6 +875,7 @@ export type VolunteerSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   adSoyad?: boolean
   telefon?: boolean
   email?: boolean
+  emailVerified?: boolean
   passwordHash?: boolean
   ogrenim?: boolean
   ogrenimTuru?: boolean
@@ -728,6 +885,7 @@ export type VolunteerSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   createdAt?: boolean
   updatedAt?: boolean
   bursBasvurulari?: boolean | Prisma.Volunteer$bursBasvurulariArgs<ExtArgs>
+  ekKayitBasvurulari?: boolean | Prisma.Volunteer$ekKayitBasvurulariArgs<ExtArgs>
   geriBildirimler?: boolean | Prisma.Volunteer$geriBildirimlerArgs<ExtArgs>
   _count?: boolean | Prisma.VolunteerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["volunteer"]>
@@ -737,6 +895,7 @@ export type VolunteerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   adSoyad?: boolean
   telefon?: boolean
   email?: boolean
+  emailVerified?: boolean
   passwordHash?: boolean
   ogrenim?: boolean
   ogrenimTuru?: boolean
@@ -752,6 +911,7 @@ export type VolunteerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   adSoyad?: boolean
   telefon?: boolean
   email?: boolean
+  emailVerified?: boolean
   passwordHash?: boolean
   ogrenim?: boolean
   ogrenimTuru?: boolean
@@ -767,6 +927,7 @@ export type VolunteerSelectScalar = {
   adSoyad?: boolean
   telefon?: boolean
   email?: boolean
+  emailVerified?: boolean
   passwordHash?: boolean
   ogrenim?: boolean
   ogrenimTuru?: boolean
@@ -777,9 +938,10 @@ export type VolunteerSelectScalar = {
   updatedAt?: boolean
 }
 
-export type VolunteerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "adSoyad" | "telefon" | "email" | "passwordHash" | "ogrenim" | "ogrenimTuru" | "bolum" | "okul" | "il" | "createdAt" | "updatedAt", ExtArgs["result"]["volunteer"]>
+export type VolunteerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "adSoyad" | "telefon" | "email" | "emailVerified" | "passwordHash" | "ogrenim" | "ogrenimTuru" | "bolum" | "okul" | "il" | "createdAt" | "updatedAt", ExtArgs["result"]["volunteer"]>
 export type VolunteerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bursBasvurulari?: boolean | Prisma.Volunteer$bursBasvurulariArgs<ExtArgs>
+  ekKayitBasvurulari?: boolean | Prisma.Volunteer$ekKayitBasvurulariArgs<ExtArgs>
   geriBildirimler?: boolean | Prisma.Volunteer$geriBildirimlerArgs<ExtArgs>
   _count?: boolean | Prisma.VolunteerCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -790,6 +952,7 @@ export type $VolunteerPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   name: "Volunteer"
   objects: {
     bursBasvurulari: Prisma.$BursBasvuruPayload<ExtArgs>[]
+    ekKayitBasvurulari: Prisma.$EkKayitBasvuruPayload<ExtArgs>[]
     geriBildirimler: Prisma.$GeriBildirimPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -797,6 +960,7 @@ export type $VolunteerPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     adSoyad: string
     telefon: string
     email: string | null
+    emailVerified: Date | null
     passwordHash: string
     ogrenim: $Enums.OgrenimDurum
     ogrenimTuru: $Enums.OgrenimTuru | null
@@ -1200,6 +1364,7 @@ readonly fields: VolunteerFieldRefs;
 export interface Prisma__VolunteerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   bursBasvurulari<T extends Prisma.Volunteer$bursBasvurulariArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Volunteer$bursBasvurulariArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BursBasvuruPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ekKayitBasvurulari<T extends Prisma.Volunteer$ekKayitBasvurulariArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Volunteer$ekKayitBasvurulariArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EkKayitBasvuruPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   geriBildirimler<T extends Prisma.Volunteer$geriBildirimlerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Volunteer$geriBildirimlerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GeriBildirimPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1234,6 +1399,7 @@ export interface VolunteerFieldRefs {
   readonly adSoyad: Prisma.FieldRef<"Volunteer", 'String'>
   readonly telefon: Prisma.FieldRef<"Volunteer", 'String'>
   readonly email: Prisma.FieldRef<"Volunteer", 'String'>
+  readonly emailVerified: Prisma.FieldRef<"Volunteer", 'DateTime'>
   readonly passwordHash: Prisma.FieldRef<"Volunteer", 'String'>
   readonly ogrenim: Prisma.FieldRef<"Volunteer", 'OgrenimDurum'>
   readonly ogrenimTuru: Prisma.FieldRef<"Volunteer", 'OgrenimTuru'>
@@ -1656,6 +1822,30 @@ export type Volunteer$bursBasvurulariArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.BursBasvuruScalarFieldEnum | Prisma.BursBasvuruScalarFieldEnum[]
+}
+
+/**
+ * Volunteer.ekKayitBasvurulari
+ */
+export type Volunteer$ekKayitBasvurulariArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EkKayitBasvuru
+   */
+  select?: Prisma.EkKayitBasvuruSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EkKayitBasvuru
+   */
+  omit?: Prisma.EkKayitBasvuruOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EkKayitBasvuruInclude<ExtArgs> | null
+  where?: Prisma.EkKayitBasvuruWhereInput
+  orderBy?: Prisma.EkKayitBasvuruOrderByWithRelationInput | Prisma.EkKayitBasvuruOrderByWithRelationInput[]
+  cursor?: Prisma.EkKayitBasvuruWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EkKayitBasvuruScalarFieldEnum | Prisma.EkKayitBasvuruScalarFieldEnum[]
 }
 
 /**

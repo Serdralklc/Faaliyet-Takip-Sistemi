@@ -83,10 +83,65 @@ export type Volunteer = Prisma.VolunteerModel
  */
 export type BursBasvuru = Prisma.BursBasvuruModel
 /**
+ * Model EkKayitBasvuru
+ * 
+ */
+export type EkKayitBasvuru = Prisma.EkKayitBasvuruModel
+/**
  * Model GeriBildirim
  * 
  */
 export type GeriBildirim = Prisma.GeriBildirimModel
+/**
+ * Model DokumanKlasor
+ * 
+ */
+export type DokumanKlasor = Prisma.DokumanKlasorModel
+/**
+ * Model Dokuman
+ * 
+ */
+export type Dokuman = Prisma.DokumanModel
+/**
+ * Model DokumanPaylasim
+ * * Üyeliksiz görüntüleme için paylaşım linki (klasör VEYA dosya)
+ */
+export type DokumanPaylasim = Prisma.DokumanPaylasimModel
+/**
+ * Model DinamikForm
+ * 
+ */
+export type DinamikForm = Prisma.DinamikFormModel
+/**
+ * Model FormSoru
+ * 
+ */
+export type FormSoru = Prisma.FormSoruModel
+/**
+ * Model FormYanit
+ * 
+ */
+export type FormYanit = Prisma.FormYanitModel
+/**
+ * Model FormYanitDosya
+ * * Form yanıtlarındaki dosya yüklemeleri (Doküman Merkezi'nden bağımsız)
+ */
+export type FormYanitDosya = Prisma.FormYanitDosyaModel
+/**
+ * Model Bildirim
+ * 
+ */
+export type Bildirim = Prisma.BildirimModel
+/**
+ * Model BildirimAlim
+ * * Alıcı başına teslim + görüldü kaydı
+ */
+export type BildirimAlim = Prisma.BildirimAlimModel
+/**
+ * Model AuthToken
+ * 
+ */
+export type AuthToken = Prisma.AuthTokenModel
 /**
  * Model AuditLog
  * 

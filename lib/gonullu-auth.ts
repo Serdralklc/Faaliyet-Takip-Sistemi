@@ -8,9 +8,14 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
-const SECRET = new TextEncoder().encode(
-  process.env.NEXTAUTH_SECRET ?? "serhendi-gonullu-secret-key-2024"
-);
+/** İmza anahtarı — env zorunlu; sabit fallback güvenlik gereği kaldırıldı */
+function getSecret(): Uint8Array {
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error("NEXTAUTH_SECRET tanımlı değil — gönüllü oturum imzası için zorunludur.");
+  }
+  return new TextEncoder().encode(secret);
+}
 
 const COOKIE_NAME = "gonullu-token";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 gün
@@ -29,7 +34,7 @@ export async function setGonulluCookie(payload: GonulluPayload): Promise<string>
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(SECRET);
+    .sign(getSecret());
 
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, {
@@ -55,7 +60,7 @@ export async function getGonulluFromCookie(): Promise<GonulluPayload | null> {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
     if (!token) return null;
-    const { payload } = await jwtVerify(token, SECRET);
+    const { payload } = await jwtVerify(token, getSecret());
     return payload as unknown as GonulluPayload;
   } catch {
     return null;
@@ -67,7 +72,7 @@ export async function getGonulluFromRequest(req: NextRequest): Promise<GonulluPa
   try {
     const token = req.cookies.get(COOKIE_NAME)?.value;
     if (!token) return null;
-    const { payload } = await jwtVerify(token, SECRET);
+    const { payload } = await jwtVerify(token, getSecret());
     return payload as unknown as GonulluPayload;
   } catch {
     return null;

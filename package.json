@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
@@ -18,7 +18,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^8.0.0",
     "@types/pg": "^8.20.0",
-    "axios": "^1.17.0",
+    "@vercel/blob": "^2.4.0",
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.4.0",
     "dotenv": "^17.4.2",
@@ -35,8 +35,7 @@
     "react-dom": "19.2.4",
     "recharts": "^3.8.1",
     "server-only": "^0.0.1",
-    "xlsx": "^0.18.5",
-    "zustand": "^5.0.14"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Router Cache'i tamamen kapat
   experimental: {
     staleTimes: {
       dynamic: 0,
@@ -9,11 +8,30 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // Vercel CDN ve tarayıcı cache'ini kapat — her F5'te taze sayfa gelsin
   async headers() {
     return [
+      // Statik görseller: değişmedikleri için agresif cache (~1,4 MB tekrar indirme önlenir)
       {
-        source: "/(.*)",
+        source: "/images/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/fonts/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/logo.svg",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400" },
+        ],
+      },
+      // Geri kalan her şey (HTML/RSC/API): taze veri için cache yok
+      {
+        source: "/((?!images/|fonts/|logo\\.svg).*)",
         headers: [
           { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, proxy-revalidate" },
           { key: "Pragma",        value: "no-cache" },

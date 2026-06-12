@@ -81,6 +81,7 @@ export type OgrenimTuru = (typeof OgrenimTuru)[keyof typeof OgrenimTuru]
 export const BursBasvuruDurum = {
   BEKLEMEDE: 'BEKLEMEDE',
   INCELENIYOR: 'INCELENIYOR',
+  GORUSULDU: 'GORUSULDU',
   ONAYLANDI: 'ONAYLANDI',
   REDDEDILDI: 'REDDEDILDI'
 } as const
@@ -106,3 +107,44 @@ export const GeriBildirimDurum = {
 } as const
 
 export type GeriBildirimDurum = (typeof GeriBildirimDurum)[keyof typeof GeriBildirimDurum]
+
+
+export const SoruTipi = {
+  KISA_METIN: 'KISA_METIN',
+  UZUN_METIN: 'UZUN_METIN',
+  SAYI: 'SAYI',
+  TARIH: 'TARIH',
+  TEK_SECIM: 'TEK_SECIM',
+  COKLU_SECIM: 'COKLU_SECIM',
+  DOSYA: 'DOSYA'
+} as const
+
+export type SoruTipi = (typeof SoruTipi)[keyof typeof SoruTipi]
+
+
+export const FormDurum = {
+  TASLAK: 'TASLAK',
+  YAYINDA: 'YAYINDA',
+  KAPALI: 'KAPALI'
+} as const
+
+export type FormDurum = (typeof FormDurum)[keyof typeof FormDurum]
+
+
+export const BildirimTipi = {
+  DUYURU: 'DUYURU',
+  BILGILENDIRME: 'BILGILENDIRME',
+  DOSYA: 'DOSYA',
+  FORM: 'FORM'
+} as const
+
+export type BildirimTipi = (typeof BildirimTipi)[keyof typeof BildirimTipi]
+
+
+export const AuthTokenType = {
+  SIFRE_SIFIRLAMA_USER: 'SIFRE_SIFIRLAMA_USER',
+  SIFRE_SIFIRLAMA_VOLUNTEER: 'SIFRE_SIFIRLAMA_VOLUNTEER',
+  EPOSTA_DOGRULAMA_VOLUNTEER: 'EPOSTA_DOGRULAMA_VOLUNTEER'
+} as const
+
+export type AuthTokenType = (typeof AuthTokenType)[keyof typeof AuthTokenType]
