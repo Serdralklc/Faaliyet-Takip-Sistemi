@@ -245,14 +245,15 @@ function LoginForm({
         } else {
           localStorage.removeItem(STORAGE_KEY);
         }
+        // Tam sayfa navigasyonu (router.push değil) — tarayıcının
+        // "şifreyi kaydet?" önerisini tetikler; sonraki girişlerde
+        // e-posta + şifre otomatik dolar, tek tıkla giriş yapılır.
         if (gonulluRedirect) {
           window.location.href = "/api/gonullu/staff-giris";
         } else if (isYonetici) {
-          router.push("/panel/admin");
-          router.refresh();
+          window.location.href = "/panel/admin";
         } else {
-          router.push(redirectTo);
-          router.refresh();
+          window.location.href = redirectTo;
         }
       }
     } catch {
@@ -324,7 +325,8 @@ function LoginForm({
                 type="email" required value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="ornek@email.com"
-                autoComplete="email"
+                name="email"
+                autoComplete="username"
                 className="flex-1 rounded-xl px-4 py-3 text-[14px] font-medium focus:outline-none"
                 style={{ background: "transparent", border: "none", color: "#0F172A", minWidth: 0 }}
               />
@@ -354,6 +356,7 @@ function LoginForm({
                 required value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
+                name="password"
                 autoComplete="current-password"
                 className="flex-1 rounded-xl px-4 py-3 text-[14px] font-medium focus:outline-none"
                 style={{ background: "transparent", border: "none", color: "#0F172A", minWidth: 0 }}
