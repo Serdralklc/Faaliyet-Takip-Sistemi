@@ -25,9 +25,9 @@ const ROLES: {
 }[] = [
   {
     key:   "egitimci",
-    title: "Eğitimci",
-    sub:   "Serhendi Eğitim Kadrosu",
-    desc:  "İl / bölge sorumlusu, yönetici ve eğitim kadrosu üyeleri için faaliyet takip ve raporlama sistemi.",
+    title: "Eğitim Birimi",
+    sub:   "Eğitim Kadrosu",
+    desc:  "İl / bölge eğitim sorumluları için faaliyet takip ve raporlama sistemi.",
     color: "#0B6B3A",
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -66,9 +66,9 @@ const ROLES: {
 
 const YONETICI_CARD = {
   key:   "yonetici" as RoleKey,
-  title: "Yönetici Paneli",
+  title: "Yönetim Merkezi",
   sub:   "Merkez Yönetimi",
-  desc:  "Admin, Merkez Ekibi ve Türkiye Sorumluları için giriş ve başvuru.",
+  desc:  "TR Sorumlusu, Merkez Ekip ve TR Üniversite / Lise Gençlik Sorumluları için giriş ve başvuru.",
   color: "#92400E",
   bg:    "#FFFBF0",
   icon: (
@@ -78,10 +78,29 @@ const YONETICI_CARD = {
   ),
 };
 
-/* Tüm kartlar — Yönetici solda (ilk), sistemler sağda */
-const ALL_CARDS = [
-  YONETICI_CARD,
-  ...ROLES.map(r => ({ ...r, bg: "#fff" })),
+/* SerGenç — gönüllü/üye sistemi (ayrı giriş akışı) */
+const SERGENC_CARD = {
+  key:   "sergenc" as const,
+  href:  "/gonullu/giris",
+  title: "SerGenç",
+  sub:   "Üye / Gönüllü",
+  desc:  "Öğrenci, gönüllü ve üyeler için başvuru ve giriş. Burs ve ev/yurt başvuruları buradan yapılır.",
+  color: "#0891B2",
+  bg:    "#fff",
+  icon: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
+};
+
+/* Giriş menüsü — birim gruplarına ayrılmış */
+const GRUPLAR = [
+  { baslik: "Yönetim Merkezi", aciklama: "TR Sorumlusu · Merkez Ekip · TR Gençlik Sorumluları", kartlar: [YONETICI_CARD] },
+  { baslik: "Eğitim Birimi",   aciklama: "Bölge / İl Eğitim Sorumlusu",                          kartlar: [ROLES.find(r => r.key === "egitimci")!] },
+  { baslik: "Gençlik Birimi",  aciklama: "Bölge / İl Üniversite ve Lise Gençlik Sorumlusu",      kartlar: [ROLES.find(r => r.key === "universite")!, ROLES.find(r => r.key === "lise")!] },
+  { baslik: "SerGenç",         aciklama: "Üye / Gönüllü başvuru ve giriş",                       kartlar: [SERGENC_CARD] },
 ];
 
 /* ── Üst bar ── */
@@ -111,49 +130,55 @@ function TopBar() {
   );
 }
 
-/* ── Adım 1: Rol seçim kartları ── */
+/* ── Adım 1: Birim gruplarına ayrılmış giriş menüsü ── */
 function RoleSelect({ onSelect }: { onSelect: (r: RoleKey) => void }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+    <div className="flex-1 flex flex-col items-center px-4 py-10">
       {/* Başlık */}
-      <div className="text-center mb-10 max-w-md">
+      <div className="text-center mb-8 max-w-md">
         <div className="flex justify-center mb-5">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center"
-            style={{ background: "#EAF5EE", border: "1px solid #C6E6D5" }}
-          >
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
+            style={{ background: "#EAF5EE", border: "1px solid #C6E6D5" }}>
             <img src="/logo.svg" alt="Serhendi" className="w-8 h-8" />
           </div>
         </div>
         <h1 className="text-[22px] font-black mb-2" style={{ color: "#0F172A", letterSpacing: "-0.02em" }}>
-          Sisteme Giriş
+          Oturum Aç
         </h1>
         <p className="text-[14px] leading-[1.65]" style={{ color: "#64748B" }}>
-          Hangi faaliyet takip sistemine girmek istediğinizi seçin.
+          Hangi birimden giriş yapmak veya başvurmak istediğinizi seçin.
         </p>
       </div>
 
-      {/* 4 kart: Yönetici (sol) + 3 sistem */}
-      <div className="w-full max-w-5xl grid grid-cols-2 xl:grid-cols-4 gap-4">
-        {ALL_CARDS.map(card => (
-          <RoleCard key={card.key} role={card} onSelect={onSelect} />
+      {/* Birim grupları */}
+      <div className="w-full max-w-5xl space-y-7">
+        {GRUPLAR.map(grup => (
+          <div key={grup.baslik}>
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 mb-3 px-1">
+              <h2 className="text-[15px] font-black" style={{ color: "#0F172A", letterSpacing: "-0.01em" }}>{grup.baslik}</h2>
+              <span className="text-[12px]" style={{ color: "#94A3B8" }}>{grup.aciklama}</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {grup.kartlar.map(card => (
+                <RoleCard key={card.key} role={card} onSelect={onSelect} />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </div>
   );
 }
 
-function RoleCard({ role, onSelect }: { role: { key: RoleKey; title: string; sub: string; desc: string; color: string; bg?: string; icon: React.ReactNode }; onSelect: (r: RoleKey) => void }) {
+function RoleCard({ role, onSelect }: {
+  role: { key: string; title: string; sub: string; desc: string; color: string; bg?: string; icon: React.ReactNode; href?: string };
+  onSelect: (r: RoleKey) => void;
+}) {
   const isYon = role.key === "yonetici";
-  return (
-    <button
-      onClick={() => onSelect(role.key)}
-      className="group text-left rounded-2xl border-2 overflow-hidden transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
-      style={{ background: role.bg ?? "#fff", borderColor: "#E2E8F0" }}
-      onMouseEnter={e => (e.currentTarget.style.borderColor = role.color + "60")}
-      onMouseLeave={e => (e.currentTarget.style.borderColor = "#E2E8F0")}
-    >
-      {/* Renk bandı — yönetici için gradient */}
+  const cta = role.key === "sergenc" ? "Başvuru / Giriş" : isYon ? "Giriş / Başvuru" : "Giriş Yap";
+
+  const ic = (
+    <>
       <div className="h-1.5 w-full" style={{
         background: isYon ? `linear-gradient(90deg, ${role.color}, #D4AF37)` : role.color
       }} />
@@ -169,16 +194,28 @@ function RoleCard({ role, onSelect }: { role: { key: RoleKey; title: string; sub
         </p>
         <p className="text-[12px] leading-[1.6]" style={{ color: "#64748B" }}>{role.desc}</p>
         <div className="flex items-center gap-1.5 mt-5 transition-all group-hover:gap-2.5">
-          <span className="text-[11px] font-bold" style={{ color: role.color }}>
-            {isYon ? "Giriş / Başvuru" : "Giriş Yap"}
-          </span>
+          <span className="text-[11px] font-bold" style={{ color: role.color }}>{cta}</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
             stroke={role.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </div>
       </div>
-    </button>
+    </>
+  );
+
+  const cls = "group block text-left rounded-2xl border-2 overflow-hidden transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]";
+  const sty = { background: role.bg ?? "#fff", borderColor: "#E2E8F0" };
+  const hover = {
+    onMouseEnter: (e: React.MouseEvent<HTMLElement>) => (e.currentTarget.style.borderColor = role.color + "60"),
+    onMouseLeave: (e: React.MouseEvent<HTMLElement>) => (e.currentTarget.style.borderColor = "#E2E8F0"),
+  };
+
+  // SerGenç ayrı sayfaya gider; diğerleri giriş formunu açar
+  return role.href ? (
+    <Link href={role.href} className={cls} style={sty} {...hover}>{ic}</Link>
+  ) : (
+    <button onClick={() => onSelect(role.key as RoleKey)} className={`${cls} w-full`} style={sty} {...hover}>{ic}</button>
   );
 }
 
