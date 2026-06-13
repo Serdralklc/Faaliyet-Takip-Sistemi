@@ -15,6 +15,7 @@ declare module "next-auth" {
       role: Role;
       sistem: Sistem;
       icerikYoneticisi: boolean;
+      teknikYetkisi: boolean;
       merkezGorev: MerkezGorev | null;
       activeIlId?: string | null;
       activeBolgeId?: string | null;
@@ -30,6 +31,7 @@ declare module "next-auth" {
     role: Role;
     sistem: Sistem;
     icerikYoneticisi: boolean;
+    teknikYetkisi: boolean;
     merkezGorev: MerkezGorev | null;
     activeIlId?: string | null;
     activeBolgeId?: string | null;
@@ -44,6 +46,7 @@ declare module "next-auth/jwt" {
     role: Role;
     sistem: Sistem;
     icerikYoneticisi: boolean;
+    teknikYetkisi: boolean;
     merkezGorev: MerkezGorev | null;
     ad: string;
     soyad: string;
@@ -106,7 +109,7 @@ export const authOptions: NextAuthOptions = {
           return {
             id: user.id, email: user.email, ad: user.ad, soyad: user.soyad,
             role: user.role, sistem: user.sistem, icerikYoneticisi: user.icerikYoneticisi,
-            merkezGorev: user.merkezGorev,
+            merkezGorev: user.merkezGorev, teknikYetkisi: user.teknikYetkisi,
             activeIlId: a?.ilId ?? null, activeBolgeId: a?.bolgeId ?? null,
             activeIlAd: a?.il?.ad ?? null, activeBolgeAd: a?.bolge?.ad ?? null,
           };
@@ -139,6 +142,7 @@ export const authOptions: NextAuthOptions = {
           sistem:        sessionSistem,
           icerikYoneticisi: user.icerikYoneticisi,
           merkezGorev:   user.merkezGorev,
+          teknikYetkisi: user.teknikYetkisi,
           activeIlId:    a?.ilId      ?? null,
           activeBolgeId: a?.bolgeId   ?? null,
           activeIlAd:    a?.il?.ad    ?? null,
@@ -183,6 +187,7 @@ export const authOptions: NextAuthOptions = {
         token.sistem        = user.sistem;
         token.icerikYoneticisi = user.icerikYoneticisi;
         token.merkezGorev   = user.merkezGorev;
+        token.teknikYetkisi = user.teknikYetkisi;
         token.ad            = user.ad;
         token.soyad         = user.soyad;
         token.activeIlId    = user.activeIlId;
@@ -201,6 +206,7 @@ export const authOptions: NextAuthOptions = {
           token.sistem        = dbUser.sistem;
           token.icerikYoneticisi = dbUser.icerikYoneticisi;
           token.merkezGorev   = dbUser.merkezGorev;
+          token.teknikYetkisi = dbUser.teknikYetkisi;
           token.ad            = dbUser.ad;
           token.soyad         = dbUser.soyad;
           token.activeIlId    = a?.ilId      ?? null;
@@ -213,14 +219,20 @@ export const authOptions: NextAuthOptions = {
 
       // İçerik Yöneticisi yetkisi anlık yansısın: Merkez Ekip için her istekte
       // DB'den tazele (atama/kaldırma sonraki girişi beklemeden etkili olur).
-      if (token?.role === "GENEL_MERKEZ" && token.id) {
+      // Merkez-tier rollerde ana rol + yan roller (içerik/teknik) anlık yansısın:
+      // her istekte DB'den role/sistem/görev/yan-rol tazelenir.
+      const MERKEZ_TIER = ["GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "TEKNIK"];
+      if (token?.id && MERKEZ_TIER.includes(token.role as string)) {
         const fresh = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { icerikYoneticisi: true, merkezGorev: true },
+          select: { role: true, sistem: true, merkezGorev: true, icerikYoneticisi: true, teknikYetkisi: true },
         });
         if (fresh) {
-          token.icerikYoneticisi = fresh.icerikYoneticisi;
+          token.role = fresh.role;
+          token.sistem = fresh.sistem;
           token.merkezGorev = fresh.merkezGorev;
+          token.icerikYoneticisi = fresh.icerikYoneticisi;
+          token.teknikYetkisi = fresh.teknikYetkisi;
         }
       }
 
@@ -233,6 +245,7 @@ export const authOptions: NextAuthOptions = {
       session.user.sistem        = token.sistem;
       session.user.icerikYoneticisi = token.icerikYoneticisi ?? false;
       session.user.merkezGorev   = token.merkezGorev ?? null;
+      session.user.teknikYetkisi = token.teknikYetkisi ?? false;
       session.user.ad            = token.ad;
       session.user.soyad         = token.soyad;
       session.user.activeIlId    = token.activeIlId;

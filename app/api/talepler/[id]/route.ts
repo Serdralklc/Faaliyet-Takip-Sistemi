@@ -31,7 +31,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   if (!talep) return NextResponse.json({ error: "Talep bulunamadı" }, { status: 404 });
 
   // Erişim: oluşturan veya karşılayan taraf
-  const erisim = talep.olusturanId === userId || talepKarsilayanMi(talep.birim as TalepBirim, role);
+  const erisim = talep.olusturanId === userId || talepKarsilayanMi(talep.birim as TalepBirim, role, session.user.teknikYetkisi);
   if (!erisim) return NextResponse.json({ error: "Bu talebe erişiminiz yok" }, { status: 403 });
 
   return NextResponse.json(talep);

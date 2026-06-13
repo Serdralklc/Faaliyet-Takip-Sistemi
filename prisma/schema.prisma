@@ -89,6 +89,8 @@ model User {
   // Ek yardımcı rol (teşkilat rolü değildir): belirli Merkez Ekip üyelerine
   // içerik yönetimi yetkisi (Form Yönetimi, Bildirim, Muradımız, Doküman, Arşiv) verir
   icerikYoneticisi Boolean @default(false)
+  // Yan rol: Teknik (İstişare'de teknik talepleri karşılar; ana rolden bağımsız ek yetki)
+  teknikYetkisi Boolean @default(false)
   // Merkez Ekip görev ayrımı (yalnızca GENEL_MERKEZ için anlamlı; boş = düz Merkez Ekibi)
   merkezGorev  MerkezGorev?
   // Kayıt sırasında başvurulan görev bilgisi (onay sürecinde admin görsün)

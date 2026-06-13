@@ -121,6 +121,14 @@ export async function bildirimKullanicilara(opts: {
 
 /** Bir talep biriminin karşılayan (merkez) sorumlularının kullanıcı id'leri */
 export async function talepHedefKullaniciIdleri(birim: TalepBirim): Promise<string[]> {
+  // Teknik talepleri "Teknik" yan rolü olan kullanıcılara (veya eski TEKNIK rolüne) düşer
+  if (birim === "TEKNIK") {
+    const users = await prisma.user.findMany({
+      where: { status: "AKTIF", OR: [{ teknikYetkisi: true }, { role: "TEKNIK" as never }] },
+      select: { id: true },
+    });
+    return users.map(u => u.id);
+  }
   const hedef = TALEP_HEDEF[birim];
   const users = await prisma.user.findMany({
     where: {

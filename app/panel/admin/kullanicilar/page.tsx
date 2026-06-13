@@ -24,6 +24,7 @@ interface Kullanici {
   id: string; ad: string; soyad: string; email: string;
   telefon?: string; role: Role; status: string; sistem?: string;
   icerikYoneticisi?: boolean;
+  teknikYetkisi?: boolean;
   merkezGorev?: string | null;
   passwordHash?: string | null; createdAt: string; sonAktif?: string | null;
   assignments: Assignment[];
@@ -173,6 +174,85 @@ function YetkiliRolBadge({ role, sistem, merkezGorev }: { role: string; sistem?:
   );
 }
 
+// ── Ana rol (8 seçenek) ──
+const MERKEZ_TIER_ROLLER = ["GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "TEKNIK"];
+const ANA_ROL_OPSIYON: { value: string; label: string }[] = [
+  { value: "MERKEZ_EKIP",     label: "Merkez Ekibi" },
+  { value: "ILKOGRETIM",      label: "Merkez İlköğretim Sorumlusu" },
+  { value: "LISE",            label: "Merkez Lise Sorumlusu" },
+  { value: "UNIVERSITE",      label: "Merkez Üniversite Sorumlusu" },
+  { value: "SEKRETERYA",      label: "Merkez Sekreterya" },
+  { value: "TR_UNI_GENCLIK",  label: "Merkez Üniversite Gençlik Sorumlusu" },
+  { value: "TR_LISE_GENCLIK", label: "Merkez Lise Gençlik Sorumlusu" },
+  { value: "TR_EGITIM",       label: "Türkiye Eğitim Sorumlusu" },
+];
+function anaRolKey(role: string, merkezGorev?: string | null): string {
+  if (role === "GENEL_MERKEZ") return merkezGorev ?? "MERKEZ_EKIP";
+  if (role === "TURKIYE_UNIVERSITE_SORUMLUSU") return "TR_UNI_GENCLIK";
+  if (role === "TURKIYE_LISE_SORUMLUSU") return "TR_LISE_GENCLIK";
+  if (role === "TURKIYE_EGITIM_SORUMLUSU") return "TR_EGITIM";
+  return "";
+}
+
+// Yan rol rozetleri
+function YanRolRozetleri({ k }: { k: Kullanici }) {
+  return (
+    <>
+      {k.icerikYoneticisi && <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-cyan-100 text-cyan-700">İçerik Yön.</span>}
+      {k.teknikYetkisi && <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-slate-200 text-slate-700">Teknik</span>}
+    </>
+  );
+}
+
+// Rol sütunu: merkez-tier + yetkili ise ana rolü tıklayarak değiştir; değilse rozet
+function AnaRolHucre({ k, canRol, onChange }: { k: Kullanici; canRol: boolean; onChange: (gorev: string) => void }) {
+  const editable = canRol && MERKEZ_TIER_ROLLER.includes(k.role);
+  if (!editable) {
+    return <div className="flex flex-wrap items-center gap-1.5"><YetkiliRolBadge role={k.role} sistem={k.sistem} merkezGorev={k.merkezGorev} /><YanRolRozetleri k={k} /></div>;
+  }
+  const cur = anaRolKey(k.role, k.merkezGorev);
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <select value={cur} onClick={e => e.stopPropagation()} onChange={e => onChange(e.target.value)}
+        title="Ana rolü değiştir"
+        className="text-xs border-2 border-purple-200 rounded-lg px-2 py-1 bg-card text-heading font-semibold focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer">
+        {cur === "" && <option value="" disabled>Teknik (eski) — ana rol seçin</option>}
+        {ANA_ROL_OPSIYON.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+      <YanRolRozetleri k={k} />
+    </div>
+  );
+}
+
+// Yan rol açılır menüsü (İçerik Yöneticisi + Teknik) — yalnızca admin
+function YanRolMenu({ k, onToggle }: { k: Kullanici; onToggle: (yanRol: "ICERIK" | "TEKNIK", deger: boolean) => void }) {
+  const [open, setOpen] = useState(false);
+  const sayi = (k.icerikYoneticisi ? 1 : 0) + (k.teknikYetkisi ? 1 : 0);
+  return (
+    <div className="relative">
+      <button onClick={() => setOpen(o => !o)}
+        className="text-xs border-2 border-border rounded-lg px-2.5 py-1.5 bg-card text-heading font-semibold hover:bg-th flex items-center gap-1">
+        Yan Roller{sayi > 0 && <span className="px-1.5 rounded-full bg-cyan-100 text-cyan-700 text-[10px]">{sayi}</span>}<span style={{ fontSize: 9, opacity: 0.6 }}>▾</span>
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-full mt-1 z-40 w-48 rounded-xl border shadow-lg p-2 bg-card" style={{ borderColor: "var(--border)" }}>
+            <label className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-th cursor-pointer">
+              <input type="checkbox" checked={!!k.icerikYoneticisi} onChange={e => onToggle("ICERIK", e.target.checked)} />
+              <span className="text-sm text-heading">İçerik Yöneticisi</span>
+            </label>
+            <label className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-th cursor-pointer">
+              <input type="checkbox" checked={!!k.teknikYetkisi} onChange={e => onToggle("TEKNIK", e.target.checked)} />
+              <span className="text-sm text-heading">Teknik</span>
+            </label>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function RolBadge({ role, sistem }: { role: string; sistem?: string | null }) {
   const cls =
     role === "SISTEM_ADMIN"      ? "bg-red-100 text-red-700" :
@@ -201,6 +281,12 @@ export default function KullanicilarPage() {
   // Yetkiler: rol atama (admin + TR Eğitim Sor. + İçerik Yöneticisi), İçerik Yöneticisi verme (yalnız admin)
   const canRol    = rolAtayabilir(sessionRole, session?.user?.icerikYoneticisi);
   const canIcerik = icerikYoneticisiAtayabilir(sessionRole);
+  // Yetkili tablo sütunları: "Rol" sütununu ana rol seçici ile değiştir
+  const yetkiliColumns: DataTableColumn<Kullanici>[] = YETKILI_COLS.map(col =>
+    col.key === "role"
+      ? { ...col, render: (k: Kullanici) => <AnaRolHucre k={k} canRol={canRol} onChange={g => handleGorev(k, g)} /> }
+      : col
+  );
   // Sistem kısıtlı roller yalnızca kendi sistemini yönetir
   const isTuriyeSorumlusu = SISTEM_KISITLI_ROLLER.includes(sessionRole);
 
@@ -390,16 +476,16 @@ export default function KullanicilarPage() {
   }
 
   // İçerik Yöneticisi ek rolünü ver / al (yalnızca Merkez Ekip)
-  async function handleIcerikToggle(k: Kullanici) {
+  async function handleYanRol(k: Kullanici, yanRol: "ICERIK" | "TEKNIK", deger: boolean) {
     setLoading(true);
-    const res = await fetch(`/api/kullanicilar/${k.id}/icerik-yoneticisi`, {
+    const res = await fetch(`/api/kullanicilar/${k.id}/yan-rol`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ deger: !k.icerikYoneticisi }),
+      body: JSON.stringify({ yanRol, deger }),
     });
     setLoading(false);
     if (res.ok) {
-      showToast(k.icerikYoneticisi ? "İçerik Yöneticisi yetkisi alındı" : "İçerik Yöneticisi yetkisi verildi");
+      showToast("Yan rol güncellendi");
       fetchData();
     } else {
       const d = await res.json();
@@ -703,34 +789,17 @@ export default function KullanicilarPage() {
           <DataTable
             id="kullanicilar-yetkili"
             data={aktifList}
-            columns={YETKILI_COLS}
+            columns={yetkiliColumns}
             rowKey={k => k.id}
             searchText={k => `${k.ad} ${k.soyad} ${k.email} ${k.telefon ?? ""}`}
             searchPlaceholder="Ad veya e-posta ara..."
             emptyText="Yetkili kullanıcı bulunamadı"
             rowActions={k => (
               <div className="flex gap-1.5 justify-end flex-wrap items-center">
-                {canRol && (k.role === "GENEL_MERKEZ" || k.role === "TEKNIK") && (
-                  <select
-                    value={k.role === "TEKNIK" ? "TEKNIK" : (k.merkezGorev ?? "MERKEZ_EKIP")}
-                    onChange={e => handleGorev(k, e.target.value)}
-                    title="Merkez görevi ata"
-                    className="text-xs border-2 border-border rounded-lg px-2 py-1.5 bg-card text-heading focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  >
-                    <option value="MERKEZ_EKIP">Merkez Ekibi</option>
-                    <option value="ILKOGRETIM">Merkez İlköğretim Sor.</option>
-                    <option value="LISE">Merkez Lise Sor.</option>
-                    <option value="UNIVERSITE">Merkez Üniversite Sor.</option>
-                    <option value="SEKRETERYA">Merkez Sekreterya</option>
-                    <option value="TEKNIK">Teknik</option>
-                  </select>
+                {canIcerik && MERKEZ_TIER_ROLLER.includes(k.role) && (
+                  <YanRolMenu k={k} onToggle={(yr, d) => handleYanRol(k, yr, d)} />
                 )}
                 <Button size="sm" variant="secondary" onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}>Şifre Ata</Button>
-                {canIcerik && k.role === "GENEL_MERKEZ" && (
-                  <Button size="sm" variant={k.icerikYoneticisi ? "ghost" : "primary"} onClick={() => handleIcerikToggle(k)}>
-                    {k.icerikYoneticisi ? "İçerik Yön. Al" : "İçerik Yön. Ver"}
-                  </Button>
-                )}
                 {canRol && k.role !== "SISTEM_ADMIN" && (
                   <Button size="sm" variant="ghost" onClick={() => setShowYetkiKalModal(k)}>Yetkiyi Al</Button>
                 )}

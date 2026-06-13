@@ -81,20 +81,20 @@ export const TALEP_PANEL_ROLLERI: string[] = [
   ...TALEP_HEPSI_ROLLERI, "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "TEKNIK",
 ];
 
-/** Prisma where: kullanıcının erişebileceği talepler */
-export function talepGorunurlukWhere(userId: string, role: string): Record<string, unknown> {
+/** Prisma where: kullanıcının erişebileceği talepler (teknikYetkisi = Teknik yan rolü) */
+export function talepGorunurlukWhere(userId: string, role: string, teknikYetkisi?: boolean): Record<string, unknown> {
   if (TALEP_HEPSI_ROLLERI.includes(role)) return {};
   const or: Record<string, unknown>[] = [{ olusturanId: userId }];
-  if (role === "TEKNIK") or.push({ birim: "TEKNIK" });
+  if (role === "TEKNIK" || teknikYetkisi) or.push({ birim: "TEKNIK" });
   if (role === "TURKIYE_UNIVERSITE_SORUMLUSU") or.push({ birim: "UNIVERSITE_GENCLIK" });
   if (role === "TURKIYE_LISE_SORUMLUSU") or.push({ birim: "LISE_GENCLIK" });
   return { OR: or };
 }
 
 /** Bir talebe yanıt verebilir / durumunu değiştirebilir mi (karşılayan taraf mı) */
-export function talepKarsilayanMi(birim: TalepBirim, role: string): boolean {
+export function talepKarsilayanMi(birim: TalepBirim, role: string, teknikYetkisi?: boolean): boolean {
   if (TALEP_HEPSI_ROLLERI.includes(role)) return true;
-  if (role === "TEKNIK") return birim === "TEKNIK";
+  if ((role === "TEKNIK" || teknikYetkisi) && birim === "TEKNIK") return true;
   if (role === "TURKIYE_UNIVERSITE_SORUMLUSU") return birim === "UNIVERSITE_GENCLIK";
   if (role === "TURKIYE_LISE_SORUMLUSU") return birim === "LISE_GENCLIK";
   return false;

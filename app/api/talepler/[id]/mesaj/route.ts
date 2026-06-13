@@ -26,7 +26,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!talep) return NextResponse.json({ error: "Talep bulunamadı" }, { status: 404 });
 
   const olusturanMi = talep.olusturanId === userId;
-  const karsilayanMi = talepKarsilayanMi(talep.birim as TalepBirim, role);
+  const karsilayanMi = talepKarsilayanMi(talep.birim as TalepBirim, role, session.user.teknikYetkisi);
   if (!olusturanMi && !karsilayanMi) {
     return NextResponse.json({ error: "Bu talebe yanıt veremezsiniz" }, { status: 403 });
   }
