@@ -8,36 +8,47 @@ import {
   GeminiError,
 } from "@/lib/asistan/gemini";
 import type { GeminiMesaj, GeminiRol } from "@/lib/asistan/gemini";
-import { ARAC_TANIMLARI, aracCalistir } from "@/lib/asistan/araclar";
+import { aracTanimlari, aracCalistir } from "@/lib/asistan/araclar";
+import { asistanSistemleri, SISTEM_ETIKET } from "@/lib/asistan/kapsam";
+import type { AsistanSistem } from "@/lib/asistan/kapsam";
 
 export const dynamic = "force-dynamic";
 
 const MAKS_MESAJ = 30;
 const MAKS_UZUNLUK = 4000;
 
-const SISTEM_TALIMATI = `Sen "Serhendi Vakfı Faaliyet Takip Sistemi"nin yapay zekâ asistanısın.
+/** Kullanıcının erişebildiği sistemlere göre sistem talimatı üretir. */
+function sistemTalimati(sistemler: AsistanSistem[]): string {
+  const erisim = sistemler.map((s) => `- ${SISTEM_ETIKET[s]}`).join("\n");
+  return `Sen "Serhendi Vakfı Faaliyet Takip Sistemi"nin yapay zekâ asistanısın.
 Adın "Faaliyet Asistanı". Türkçe, kısa, net ve nazik konuşursun. Yöneticilere yardımcı olursun.
 
-VERİYE ERİŞİM — elindeki araçlarla (function calling) sistemin gerçek verisini sorgulayabilirsin:
-- bolgeleriListele: tüm bölgeler ve numaraları
-- bolgeOzeti: bir bölgenin ilköğretim/lise/üniversite/barınma faaliyet özeti
-- ilOzeti: bir İLİN/ŞEHRİN (ör. Samsun, Ankara) faaliyet özeti — dergah sayıları dahil
-- bolgeDonemKiyas: bir bölgenin 1. ve 2. dönem karşılaştırması
-- hedefGerceklesme: bir bölgenin hedef vs gerçekleşen performansı (yüzde)
-- barinmaOgrencileri: bir bölgenin ev/apart/yurtlarında kalan öğrenci isimleri
+ERİŞİM YETKİN — yalnızca şu sistem(ler)in verisini sorgulayabilirsin:
+${erisim}
+
+Bu kapsam dışında bir sistemin verisi sorulursa (örn. yalnız Lise Gençlik yetkin varken üniversite verisi),
+kibarca "Bu sisteme erişim yetkim yok" de. Elindeki araçlar zaten yalnızca yetkili olduğun sistemlere aittir.
 
 KURALLAR:
 - Veri gerektiren her soruda MUTLAKA uygun aracı çağır. ASLA sayı/isim uydurma.
-- Araç "hata" alanı dönerse kullanıcıya nazikçe sebebini söyle (ör. bölge yok, veri girilmemiş).
+- Araç "hata" alanı dönerse kullanıcıya nazikçe sebebini söyle (ör. bölge yok, veri girilmemiş, yetki yok).
 - Sayıları sade ve okunaklı sun; uygun yerde kısa tablo/madde işareti kullan.
 - Kullanıcı yıl belirtmezse araç en güncel yılı kullanır; cevapta hangi yıl/dönem olduğunu belirt.
 - Bölge adı verilip numara bilinmiyorsa önce bolgeleriListele ile numarayı bul.
+- Eğitimci Kadrosu sistemi ile Lise/Üniversite Gençlik sistemleri AYRIDIR; doğru aracı seç.
 - Veriyle ilgisi olmayan genel sorulara (sistem nasıl kullanılır vb.) normal yanıt ver.`;
+}
 
 export async function POST(req: Request) {
   // ── Yetki: yalnızca yöneticiler ──
   const session = await getSession();
   if (!session?.user || !YONETICI_ROLLERI.includes(session.user.role as Role)) {
+    return NextResponse.json({ error: "Bu özelliğe erişim yetkiniz yok." }, { status: 403 });
+  }
+
+  // ── Kapsam: rol + içerik yöneticisi → erişilebilir sistemler ──
+  const sistemler = asistanSistemleri(session.user.role, session.user.icerikYoneticisi);
+  if (sistemler.length === 0) {
     return NextResponse.json({ error: "Bu özelliğe erişim yetkiniz yok." }, { status: 403 });
   }
 
@@ -79,10 +90,10 @@ export async function POST(req: Request) {
 
   try {
     const { metin, aracCagrilari } = await geminiSohbetAraclarla(
-      SISTEM_TALIMATI,
+      sistemTalimati(sistemler),
       mesajlar,
-      ARAC_TANIMLARI,
-      aracCalistir,
+      aracTanimlari(sistemler),
+      (isim, args) => aracCalistir(isim, args, sistemler),
     );
     // aracCagrilari: PDF/Excel indirme (Faz 3) için sonuçları da döndürüyoruz
     return NextResponse.json({

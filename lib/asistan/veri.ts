@@ -1,5 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { liseOzet, KATEGORI_LABEL } from "@/lib/lise-faaliyet";
+import { uniOzet, UNI_KATEGORI_LABEL } from "@/lib/universite-faaliyet";
 
 /**
  * Asistan veri katmanı — Gemini'nin çağırdığı güvenli sorgu fonksiyonları.
@@ -365,5 +367,99 @@ export async function barinmaOgrencileri(args: { bolgeNo: number; tip?: string |
     ogrenciSayisi: ogrenciler.length,
     ogrenciler,
     not: ogrenciler.length === 0 ? "Bu bölgede kayıtlı barınma öğrencisi bulunamadı." : undefined,
+  };
+}
+
+// ── 6) Lise Gençlik sistemi özeti (faaliyet-bazlı) ─────────────────
+function genclikIlFiltresi(bolgeNo?: number, ilAdi?: string) {
+  if (bolgeNo) return { bolge: { no: bolgeNo } };
+  if (ilAdi && ilAdi.trim()) return { ad: { contains: ilAdi.trim(), mode: "insensitive" as const } };
+  return undefined;
+}
+
+function kapsamEtiketi(bolgeNo?: number, ilAdi?: string) {
+  if (bolgeNo) return `${bolgeNo}. Bölge`;
+  if (ilAdi && ilAdi.trim()) return ilAdi.trim();
+  return "Türkiye geneli";
+}
+
+export async function liseGenclikOzeti(args: { bolgeNo?: number; ilAdi?: string; yil?: number; donem?: string | null }) {
+  const donem = donemNormalize(args.donem);
+  const ilFiltre = genclikIlFiltresi(args.bolgeNo, args.ilAdi);
+  let yil = args.yil;
+  if (!yil) {
+    const son = await prisma.liseFaaliyet.findFirst({
+      where: { ...(ilFiltre ? { il: ilFiltre } : {}) },
+      orderBy: { yil: "desc" },
+      select: { yil: true },
+    });
+    yil = son?.yil ?? new Date().getFullYear();
+  }
+  const kayitlar = await prisma.liseFaaliyet.findMany({
+    where: { yil, ...(donem ? { donem } : {}), ...(ilFiltre ? { il: ilFiltre } : {}) },
+    select: { kategori: true, katilimci: true, ilkKezKatilan: true, yeniIntisap: true },
+  });
+  const ozet = liseOzet(kayitlar);
+  const kategoriler = Object.entries(ozet.perKat)
+    .filter(([, v]) => v.sayi > 0)
+    .map(([k, v]) => ({
+      kategori: KATEGORI_LABEL[k] ?? k,
+      faaliyetSayisi: v.sayi,
+      katilimci: v.katilimci,
+      ilkKezKatilan: v.ilkKez,
+      yeniIntisap: v.yeniIntisap,
+    }));
+  return {
+    sistem: "Lise Gençlik",
+    kapsam: kapsamEtiketi(args.bolgeNo, args.ilAdi),
+    yil,
+    donem: donem ? DONEM_LABEL[donem] : "Tüm dönemler",
+    toplamFaaliyet: ozet.toplam,
+    toplamKatilimci: ozet.toplamKatilimci,
+    toplamIlkKezKatilan: ozet.toplamIlkKez,
+    toplamYeniIntisap: ozet.toplamIntisap,
+    kategoriler,
+    not: ozet.toplam === 0 ? "Bu kapsam/dönem için Lise Gençlik sistemine faaliyet girilmemiş." : undefined,
+  };
+}
+
+// ── 7) Üniversite Gençlik sistemi özeti (faaliyet-bazlı) ───────────
+export async function universiteGenclikOzeti(args: { bolgeNo?: number; ilAdi?: string; yil?: number; donem?: string | null }) {
+  const donem = donemNormalize(args.donem);
+  const ilFiltre = genclikIlFiltresi(args.bolgeNo, args.ilAdi);
+  let yil = args.yil;
+  if (!yil) {
+    const son = await prisma.universiteFaaliyet.findFirst({
+      where: { ...(ilFiltre ? { il: ilFiltre } : {}) },
+      orderBy: { yil: "desc" },
+      select: { yil: true },
+    });
+    yil = son?.yil ?? new Date().getFullYear();
+  }
+  const kayitlar = await prisma.universiteFaaliyet.findMany({
+    where: { yil, ...(donem ? { donem } : {}), ...(ilFiltre ? { il: ilFiltre } : {}) },
+    select: { kategori: true, katilimci: true, ilkKezKatilan: true, yeniIntisap: true },
+  });
+  const ozet = uniOzet(kayitlar);
+  const kategoriler = Object.entries(ozet.perKat)
+    .filter(([, v]) => v.sayi > 0)
+    .map(([k, v]) => ({
+      kategori: UNI_KATEGORI_LABEL[k] ?? k,
+      faaliyetSayisi: v.sayi,
+      katilimci: v.katilimci,
+      ilkKezKatilan: v.ilkKez,
+      yeniIntisap: v.yeniIntisap,
+    }));
+  return {
+    sistem: "Üniversite Gençlik",
+    kapsam: kapsamEtiketi(args.bolgeNo, args.ilAdi),
+    yil,
+    donem: donem ? DONEM_LABEL[donem] : "Tüm dönemler",
+    toplamFaaliyet: ozet.toplam,
+    toplamKatilimci: ozet.toplamKatilimci,
+    toplamIlkKezKatilan: ozet.toplamIlkKez,
+    toplamYeniIntisap: ozet.toplamIntisap,
+    kategoriler,
+    not: ozet.toplam === 0 ? "Bu kapsam/dönem için Üniversite Gençlik sistemine faaliyet girilmemiş." : undefined,
   };
 }
