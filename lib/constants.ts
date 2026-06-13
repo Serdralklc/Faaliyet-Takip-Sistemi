@@ -77,6 +77,67 @@ export function sistemSorumlusu(role: string): boolean {
   return role === "TURKIYE_UNIVERSITE_SORUMLUSU" || role === "TURKIYE_LISE_SORUMLUSU";
 }
 
+// ──────────────────────────────────────────────
+// F2: Ana Rol / Yan Rol katalogları (Yönetim Merkezi) — ayrı tablolarda saklanır;
+// burada UI/etiket + uyum-köprüsü (eski role/flag alanlarıyla senkron) için sabitler.
+// ──────────────────────────────────────────────
+export type AnaRolKod = "ADMIN" | "MERKEZ" | "UNIVERSITE_GENCLIK" | "LISE_GENCLIK";
+export type YanRolKod =
+  | "TR_EGITIM" | "TR_EGITIM_YRD" | "MERKEZ_UNI" | "MERKEZ_LISE" | "MERKEZ_ILKOGRETIM"
+  | "SEKRETERYA" | "MERKEZ_UNI_GENCLIK" | "MERKEZ_LISE_GENCLIK" | "ICERIK_YONETICISI";
+
+export const ANA_ROLLER: { kod: AnaRolKod; ad: string }[] = [
+  { kod: "ADMIN",              ad: "Admin" },
+  { kod: "MERKEZ",             ad: "Merkez" },
+  { kod: "UNIVERSITE_GENCLIK", ad: "Üniversite Gençlik" },
+  { kod: "LISE_GENCLIK",       ad: "Lise Gençlik" },
+];
+
+export const YAN_ROLLER: { kod: YanRolKod; ad: string }[] = [
+  { kod: "TR_EGITIM",           ad: "Türkiye Eğitim Sorumlusu" },
+  { kod: "TR_EGITIM_YRD",       ad: "Türkiye Eğitim Sorumlu Yardımcısı" },
+  { kod: "MERKEZ_UNI",          ad: "Merkez Üniversite Sorumlusu" },
+  { kod: "MERKEZ_LISE",         ad: "Merkez Lise Sorumlusu" },
+  { kod: "MERKEZ_ILKOGRETIM",   ad: "Merkez İlköğretim Sorumlusu" },
+  { kod: "SEKRETERYA",          ad: "Sekreterya Sorumlusu" },
+  { kod: "MERKEZ_UNI_GENCLIK",  ad: "Merkez Üniversite Gençlik Sorumlusu" },
+  { kod: "MERKEZ_LISE_GENCLIK", ad: "Merkez Lise Gençlik Sorumlusu" },
+  { kod: "ICERIK_YONETICISI",   ad: "İçerik Yöneticisi" },
+];
+
+export const ANA_ROL_LABEL: Record<string, string> = Object.fromEntries(ANA_ROLLER.map(a => [a.kod, a.ad]));
+export const YAN_ROL_LABEL: Record<string, string> = Object.fromEntries(YAN_ROLLER.map(y => [y.kod, y.ad]));
+
+// Ana rol kodu → uyum köprüsü (eski `role` + `sistem`). Ana rol değişince bu alanlar senkronlanır.
+export const ANA_ROL_COMPAT: Record<AnaRolKod, { role: Role; sistem: string }> = {
+  ADMIN:              { role: "SISTEM_ADMIN",                 sistem: "EGITIMCI" },
+  MERKEZ:             { role: "GENEL_MERKEZ",                 sistem: "EGITIMCI" },
+  UNIVERSITE_GENCLIK: { role: "TURKIYE_UNIVERSITE_SORUMLUSU", sistem: "UNIVERSITE" },
+  LISE_GENCLIK:       { role: "TURKIYE_LISE_SORUMLUSU",       sistem: "LISE" },
+};
+
+/**
+ * Yan rol kodlarından eski uyum alanları (icerikYoneticisi / teknikYetkisi / merkezGorev).
+ * merkezGorev tek değerdir → öncelik: İlköğretim > Lise > Üniversite > Sekreterya.
+ * teknikYetkisi: İstişare'de teknik birimi Merkez İlköğretim ile birleşik (spec).
+ */
+export function yanRolCompat(yanKods: string[]): {
+  icerikYoneticisi: boolean; teknikYetkisi: boolean; merkezGorev: string | null;
+} {
+  const has = (k: string) => yanKods.includes(k);
+  const merkezGorev =
+    has("MERKEZ_ILKOGRETIM") ? "ILKOGRETIM" :
+    has("MERKEZ_LISE")       ? "LISE" :
+    has("MERKEZ_UNI")        ? "UNIVERSITE" :
+    has("SEKRETERYA")        ? "SEKRETERYA" :
+    null;
+  return {
+    icerikYoneticisi: has("ICERIK_YONETICISI"),
+    teknikYetkisi:    has("MERKEZ_ILKOGRETIM"),
+    merkezGorev,
+  };
+}
+
 /** Sistem-kısıtlı sorumlunun bağlı olduğu sistem (UNIVERSITE/LISE); değilse null (tam erişim). */
 export function rolSistemi(role: string): "UNIVERSITE" | "LISE" | null {
   if (role === "TURKIYE_UNIVERSITE_SORUMLUSU") return "UNIVERSITE";

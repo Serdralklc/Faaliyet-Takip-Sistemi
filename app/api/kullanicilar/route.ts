@@ -87,13 +87,20 @@ export async function GET(req: NextRequest) {
       include: { il: true, bolge: true },
       take: 1,
     },
+    anaRol: { select: { kod: true } },
+    yanRoller: { select: { yanRol: { select: { kod: true } } } },
   };
   const orderByClause = { createdAt: "desc" as const };
 
-  // passwordHash'i boolean'a çevir (güvenlik için hash değerini döndürme)
-  const toSafe = <T extends { passwordHash: string | null }>(u: T) => ({
+  // passwordHash'i boolean'a çevir + ana/yan rol kodlarını düzleştir
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const toSafe = (u: any) => ({
     ...u,
     passwordHash: u.passwordHash ? "SET" : null,
+    anaRolKod: u.anaRol?.kod ?? null,
+    yanRolKods: (u.yanRoller ?? []).map((r: { yanRol: { kod: string } }) => r.yanRol.kod),
+    anaRol: undefined,
+    yanRoller: undefined,
   });
 
   if (!pag.paged) {

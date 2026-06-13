@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ROLE_LABELS, rolEtiket, gorevEtiket, rolAtayabilir, icerikYoneticisiAtayabilir, sistemSorumlusu } from "@/lib/constants";
+import { ROLE_LABELS, rolEtiket, gorevEtiket, rolAtayabilir, icerikYoneticisiAtayabilir, sistemSorumlusu, ANA_ROLLER, YAN_ROLLER, YAN_ROL_LABEL } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { Button } from "@/components/ui/Button";
@@ -26,6 +26,8 @@ interface Kullanici {
   icerikYoneticisi?: boolean;
   teknikYetkisi?: boolean;
   merkezGorev?: string | null;
+  anaRolKod?: string | null;
+  yanRolKods?: string[];
   passwordHash?: string | null; createdAt: string; sonAktif?: string | null;
   assignments: Assignment[];
   basvuruGorev?: string | null;
@@ -174,78 +176,64 @@ function YetkiliRolBadge({ role, sistem, merkezGorev }: { role: string; sistem?:
   );
 }
 
-// ── Ana rol (8 seçenek) ──
+// ── Ana rol (4) / Yan rol (9) — F2: ayrı tablolar ──
 const MERKEZ_TIER_ROLLER = ["GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "TEKNIK"];
-const ANA_ROL_OPSIYON: { value: string; label: string }[] = [
-  { value: "MERKEZ_EKIP",     label: "Merkez Ekibi" },
-  { value: "ILKOGRETIM",      label: "Merkez İlköğretim Sorumlusu" },
-  { value: "LISE",            label: "Merkez Lise Sorumlusu" },
-  { value: "UNIVERSITE",      label: "Merkez Üniversite Sorumlusu" },
-  { value: "SEKRETERYA",      label: "Merkez Sekreterya" },
-  { value: "TR_UNI_GENCLIK",  label: "Merkez Üniversite Gençlik Sorumlusu" },
-  { value: "TR_LISE_GENCLIK", label: "Merkez Lise Gençlik Sorumlusu" },
-  { value: "TR_EGITIM",       label: "Türkiye Eğitim Sorumlusu" },
-];
-function anaRolKey(role: string, merkezGorev?: string | null): string {
-  if (role === "GENEL_MERKEZ") return merkezGorev ?? "MERKEZ_EKIP";
-  if (role === "TURKIYE_UNIVERSITE_SORUMLUSU") return "TR_UNI_GENCLIK";
-  if (role === "TURKIYE_LISE_SORUMLUSU") return "TR_LISE_GENCLIK";
-  if (role === "TURKIYE_EGITIM_SORUMLUSU") return "TR_EGITIM";
-  return "";
-}
 
-// Yan rol rozetleri
+// Yan rol rozetleri (atanmış yan rol kodları)
 function YanRolRozetleri({ k }: { k: Kullanici }) {
+  const kods = k.yanRolKods ?? [];
+  if (!kods.length) return null;
   return (
     <>
-      {k.icerikYoneticisi && <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-cyan-100 text-cyan-700">İçerik Yön.</span>}
-      {k.teknikYetkisi && <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-slate-200 text-slate-700">Teknik</span>}
+      {kods.map(kod => (
+        <span key={kod} className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-cyan-100 text-cyan-700">
+          {YAN_ROL_LABEL[kod] ?? kod}
+        </span>
+      ))}
     </>
   );
 }
 
-// Rol sütunu: merkez-tier + yetkili ise ana rolü tıklayarak değiştir; değilse rozet
-function AnaRolHucre({ k, canRol, onChange }: { k: Kullanici; canRol: boolean; onChange: (gorev: string) => void }) {
+// Rol sütunu: yetkili + yönetim katmanı ise ana rolü (4) tıklayarak değiştir; değilse rozet
+function AnaRolHucre({ k, canRol, onChange }: { k: Kullanici; canRol: boolean; onChange: (anaRol: string) => void }) {
   const editable = canRol && MERKEZ_TIER_ROLLER.includes(k.role);
   if (!editable) {
     return <div className="flex flex-wrap items-center gap-1.5"><YetkiliRolBadge role={k.role} sistem={k.sistem} merkezGorev={k.merkezGorev} /><YanRolRozetleri k={k} /></div>;
   }
-  const cur = anaRolKey(k.role, k.merkezGorev);
+  const cur = k.anaRolKod ?? "";
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <select value={cur} onClick={e => e.stopPropagation()} onChange={e => onChange(e.target.value)}
         title="Ana rolü değiştir"
         className="text-xs border-2 border-purple-200 rounded-lg px-2 py-1 bg-card text-heading font-semibold focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer">
-        {cur === "" && <option value="" disabled>Teknik (eski) — ana rol seçin</option>}
-        {ANA_ROL_OPSIYON.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        {cur === "" && <option value="" disabled>Ana rol seçin</option>}
+        {ANA_ROLLER.map(o => <option key={o.kod} value={o.kod}>{o.ad}</option>)}
       </select>
       <YanRolRozetleri k={k} />
     </div>
   );
 }
 
-// Yan rol açılır menüsü (İçerik Yöneticisi + Teknik) — yalnızca admin
-function YanRolMenu({ k, onToggle }: { k: Kullanici; onToggle: (yanRol: "ICERIK" | "TEKNIK", deger: boolean) => void }) {
+// Yan rol açılır menüsü (9 yan rol, çoklu) — yalnızca admin
+function YanRolMenu({ k, onToggle }: { k: Kullanici; onToggle: (yanRol: string, deger: boolean) => void }) {
   const [open, setOpen] = useState(false);
-  const sayi = (k.icerikYoneticisi ? 1 : 0) + (k.teknikYetkisi ? 1 : 0);
+  const secili = new Set(k.yanRolKods ?? []);
   return (
     <div className="relative">
       <button onClick={() => setOpen(o => !o)}
         className="text-xs border-2 border-border rounded-lg px-2.5 py-1.5 bg-card text-heading font-semibold hover:bg-th flex items-center gap-1">
-        Yan Roller{sayi > 0 && <span className="px-1.5 rounded-full bg-cyan-100 text-cyan-700 text-[10px]">{sayi}</span>}<span style={{ fontSize: 9, opacity: 0.6 }}>▾</span>
+        Yan Roller{secili.size > 0 && <span className="px-1.5 rounded-full bg-cyan-100 text-cyan-700 text-[10px]">{secili.size}</span>}<span style={{ fontSize: 9, opacity: 0.6 }}>▾</span>
       </button>
       {open && (
         <>
           <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full mt-1 z-40 w-48 rounded-xl border shadow-lg p-2 bg-card" style={{ borderColor: "var(--border)" }}>
-            <label className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-th cursor-pointer">
-              <input type="checkbox" checked={!!k.icerikYoneticisi} onChange={e => onToggle("ICERIK", e.target.checked)} />
-              <span className="text-sm text-heading">İçerik Yöneticisi</span>
-            </label>
-            <label className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-th cursor-pointer">
-              <input type="checkbox" checked={!!k.teknikYetkisi} onChange={e => onToggle("TEKNIK", e.target.checked)} />
-              <span className="text-sm text-heading">Teknik</span>
-            </label>
+          <div className="absolute right-0 top-full mt-1 z-40 w-72 rounded-xl border shadow-lg p-2 bg-card max-h-80 overflow-y-auto" style={{ borderColor: "var(--border)" }}>
+            {YAN_ROLLER.map(y => (
+              <label key={y.kod} className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-th cursor-pointer">
+                <input type="checkbox" checked={secili.has(y.kod)} onChange={e => onToggle(y.kod, e.target.checked)} />
+                <span className="text-sm text-heading">{y.ad}</span>
+              </label>
+            ))}
           </div>
         </>
       )}
@@ -480,7 +468,7 @@ export default function KullanicilarPage() {
   }
 
   // İçerik Yöneticisi ek rolünü ver / al (yalnızca Merkez Ekip)
-  async function handleYanRol(k: Kullanici, yanRol: "ICERIK" | "TEKNIK", deger: boolean) {
+  async function handleYanRol(k: Kullanici, yanRol: string, deger: boolean) {
     setLoading(true);
     const res = await fetch(`/api/kullanicilar/${k.id}/yan-rol`, {
       method: "POST",
@@ -503,7 +491,7 @@ export default function KullanicilarPage() {
     const res = await fetch(`/api/kullanicilar/${k.id}/gorev`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gorev }),
+      body: JSON.stringify({ anaRol: gorev }),
     });
     setLoading(false);
     if (res.ok) { showToast("Görev güncellendi"); fetchData(); }
@@ -1007,12 +995,11 @@ export default function KullanicilarPage() {
                 /* Normal sistemler: il/bölge eğitimcisi rolleri */
                 <>
                   <div>
-                    <label className="block text-xs font-bold text-secondary mb-1">Atanacak Rol</label>
-                    <select value={onayForm.role}
-                      onChange={e => setOnayForm({ ...onayForm, role: e.target.value as Role })} className={inputCls}>
-                      <option value="IL_SORUMLUSU">{rolEtiket("IL_SORUMLUSU", showOnayModal.sistem)}</option>
-                      <option value="BOLGE_SORUMLUSU">{rolEtiket("BOLGE_SORUMLUSU", showOnayModal.sistem)}</option>
-                    </select>
+                    <label className="block text-xs font-bold text-secondary mb-1">Başvurulan Rol</label>
+                    <div className="px-3 py-2 rounded-lg bg-th border-2 border-border text-sm font-semibold text-heading">
+                      {rolEtiket((onayForm.role || "IL_SORUMLUSU") as Role, showOnayModal.sistem)}
+                    </div>
+                    <p className="text-[11px] text-muted mt-1">Sistem içinde yalnızca başvurulan rol vardır; değiştirilemez.</p>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-secondary mb-1">Bölge</label>
