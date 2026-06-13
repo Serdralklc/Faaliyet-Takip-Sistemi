@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ROLE_LABELS, rolEtiket, gorevEtiket, rolAtayabilir, icerikYoneticisiAtayabilir } from "@/lib/constants";
+import { ROLE_LABELS, rolEtiket, gorevEtiket, rolAtayabilir, icerikYoneticisiAtayabilir, sistemSorumlusu } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { Button } from "@/components/ui/Button";
@@ -281,6 +281,10 @@ export default function KullanicilarPage() {
   // Yetkiler: rol atama (admin + TR Eğitim Sor. + İçerik Yöneticisi), İçerik Yöneticisi verme (yalnız admin)
   const canRol    = rolAtayabilir(sessionRole, session?.user?.icerikYoneticisi);
   const canIcerik = icerikYoneticisiAtayabilir(sessionRole);
+  // Sistem sorumlusu (Merkez Üni/Lise Gençlik) kendi sistemindeki başvuruları onaylar + saha kullanıcılarını yönetir
+  const canYonet  = canRol || sistemSorumlusu(sessionRole);
+  // Silme: yalnızca Sistem Admini (yıkıcı işlem)
+  const canSil    = sessionRole === "SISTEM_ADMIN";
   // Yetkili tablo sütunları: "Rol" sütununu ana rol seçici ile değiştir
   const yetkiliColumns: DataTableColumn<Kullanici>[] = YETKILI_COLS.map(col =>
     col.key === "role"
@@ -554,11 +558,11 @@ export default function KullanicilarPage() {
           <div className="flex gap-2 flex-wrap">
             <button onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}
               className="text-xs text-blue-600 hover:underline font-medium">Şifre Ata</button>
-            {canRol && k.role !== "SISTEM_ADMIN" && (
+            {canYonet && k.role !== "SISTEM_ADMIN" && (
               <button onClick={() => setShowYetkiKalModal(k)}
                 className="text-xs text-orange-500 hover:underline font-medium">Yetkiyi Al</button>
             )}
-            {k.role !== "SISTEM_ADMIN" && (
+            {canSil && k.role !== "SISTEM_ADMIN" && (
               <button onClick={() => setShowSilModal(k)}
                 className="text-xs text-red-600 hover:underline font-medium">Sil</button>
             )}
@@ -803,7 +807,7 @@ export default function KullanicilarPage() {
                 {canRol && k.role !== "SISTEM_ADMIN" && (
                   <Button size="sm" variant="ghost" onClick={() => setShowYetkiKalModal(k)}>Yetkiyi Al</Button>
                 )}
-                {k.role !== "SISTEM_ADMIN" && (
+                {canSil && k.role !== "SISTEM_ADMIN" && (
                   <Button size="sm" variant="danger" onClick={() => setShowSilModal(k)}>Sil</Button>
                 )}
               </div>
@@ -819,9 +823,9 @@ export default function KullanicilarPage() {
             searchText={k => `${k.ad} ${k.soyad} ${k.email}`}
             searchPlaceholder="Ad veya e-posta ara..."
             emptyText="Bekleyen başvuru yok"
-            selectable={canRol}
-            bulkActions={canRol ? [{ label: "Seçilenleri Onayla", tone: "primary", onClick: handleTopluOnay }] : []}
-            rowActions={k => canRol ? (
+            selectable={canYonet}
+            bulkActions={canYonet ? [{ label: "Seçilenleri Onayla", tone: "primary", onClick: handleTopluOnay }] : []}
+            rowActions={k => canYonet ? (
               <Button
                 size="sm"
                 variant="secondary"

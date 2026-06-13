@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import bcrypt from "bcryptjs";
 import { parseJson, zPassword } from "@/lib/validation";
+import { sistemSorumlusu, sistemKapsamindaYonetebilir } from "@/lib/constants";
 
 const sifreAtaSchema = z.object({ sifre: zPassword });
 
@@ -15,8 +16,19 @@ export async function POST(
   const { id } = await params;
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(session.user.role)) {
+
+  const tamYetki = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(session.user.role);
+  if (!tamYetki && !sistemSorumlusu(session.user.role)) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
+  }
+
+  // Sistem sorumlusu yalnızca kendi sistemindeki saha kullanıcısına şifre atayabilir
+  if (!tamYetki) {
+    const hedef = await prisma.user.findUnique({ where: { id }, select: { role: true, sistem: true } });
+    if (!hedef) return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
+    if (!sistemKapsamindaYonetebilir(session.user.role, session.user.sistem, hedef.role, hedef.sistem)) {
+      return NextResponse.json({ error: "Bu kullanıcı sizin sisteminize ait değil" }, { status: 403 });
+    }
   }
 
   const r = await parseJson(req, sifreAtaSchema);

@@ -72,6 +72,30 @@ export function icerikYoneticisiAtayabilir(role: string): boolean {
   return role === "SISTEM_ADMIN";
 }
 
+/** Sistem sorumlusu (Merkez Üni/Lise Gençlik Sorumlusu): yalnızca kendi sistemini görür/yönetir. */
+export function sistemSorumlusu(role: string): boolean {
+  return role === "TURKIYE_UNIVERSITE_SORUMLUSU" || role === "TURKIYE_LISE_SORUMLUSU";
+}
+
+/** Sistem sorumlusunun kendi sisteminde yönetebileceği saha rolleri (başvuran/il/bölge). */
+export const SAHA_ROLLERI: Role[] = ["IL_SORUMLUSU", "BOLGE_SORUMLUSU", "BEKLEYEN"];
+
+/**
+ * Sistem sorumlusunun, hedef kullanıcıyı kendi sistemi kapsamında yönetip
+ * yönetemeyeceği (onaylama / yetki alma / şifre atama). Yalnızca kendi sistemindeki
+ * saha (il/bölge/bekleyen) kullanıcıları için geçerlidir.
+ */
+export function sistemKapsamindaYonetebilir(
+  actorRole: string,
+  actorSistem: string | null | undefined,
+  hedefRole: string,
+  hedefSistem: string | null | undefined,
+): boolean {
+  if (!sistemSorumlusu(actorRole)) return false;
+  if (!actorSistem || actorSistem !== hedefSistem) return false;
+  return SAHA_ROLLERI.includes(hedefRole as Role);
+}
+
 // Yönetici panelinden giriş yapan roller
 export const YONETICI_ROLLERI: Role[] = [
   "SISTEM_ADMIN",
