@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ROLE_LABELS, rolEtiket, gorevEtiket, rolAtayabilir, icerikYoneticisiAtayabilir, sistemSorumlusu, ANA_ROLLER, YAN_ROLLER, YAN_ROL_LABEL } from "@/lib/constants";
@@ -217,25 +218,43 @@ function AnaRolHucre({ k, canRol, onChange }: { k: Kullanici; canRol: boolean; o
 // Yan rol açılır menüsü (9 yan rol, çoklu) — yalnızca admin
 function YanRolMenu({ k, onToggle }: { k: Kullanici; onToggle: (yanRol: string, deger: boolean) => void }) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
   const secili = new Set(k.yanRolKods ?? []);
+
+  // Portal + fixed konum: tablo overflow'u kırpmaz, açılır kutu her zaman üstte kalır
+  function ac() {
+    const r = btnRef.current?.getBoundingClientRect();
+    if (r) {
+      const w = 288; // w-72
+      const left = Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8));
+      setPos({ top: r.bottom + 4, left });
+    }
+    setOpen(true);
+  }
+
   return (
     <div className="relative">
-      <button onClick={() => setOpen(o => !o)}
+      <button ref={btnRef} onClick={() => (open ? setOpen(false) : ac())}
         className="text-xs border-2 border-border rounded-lg px-2.5 py-1.5 bg-card text-heading font-semibold hover:bg-th flex items-center gap-1">
         Yan Roller{secili.size > 0 && <span className="px-1.5 rounded-full bg-cyan-100 text-cyan-700 text-[10px]">{secili.size}</span>}<span style={{ fontSize: 9, opacity: 0.6 }}>▾</span>
       </button>
-      {open && (
+      {open && pos && createPortal(
         <>
-          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full mt-1 z-40 w-72 rounded-xl border shadow-lg p-2 bg-card max-h-80 overflow-y-auto" style={{ borderColor: "var(--border)" }}>
+          <div className="fixed inset-0 z-[100]" onClick={() => setOpen(false)} />
+          <div
+            className="fixed z-[101] w-72 rounded-xl border shadow-xl p-2 bg-card max-h-80 overflow-y-auto text-left"
+            style={{ top: pos.top, left: pos.left, borderColor: "var(--border)" }}
+          >
             {YAN_ROLLER.map(y => (
-              <label key={y.kod} className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-th cursor-pointer">
-                <input type="checkbox" checked={secili.has(y.kod)} onChange={e => onToggle(y.kod, e.target.checked)} />
-                <span className="text-sm text-heading">{y.ad}</span>
+              <label key={y.kod} className="flex items-start gap-2 px-2 py-2 rounded-lg hover:bg-th cursor-pointer text-left">
+                <input type="checkbox" className="mt-0.5 shrink-0" checked={secili.has(y.kod)} onChange={e => onToggle(y.kod, e.target.checked)} />
+                <span className="text-sm text-heading leading-snug">{y.ad}</span>
               </label>
             ))}
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );
