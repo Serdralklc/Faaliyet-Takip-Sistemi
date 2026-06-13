@@ -9,6 +9,7 @@ import {
   TALEP_OLUSTURAN_ROLLERI, TALEP_PANEL_ROLLERI, TALEP_HEDEF,
 } from "@/lib/istisare";
 import type { TalepBirim, TalepDurum } from "@/lib/istisare";
+import { bildirimKullanicilara, talepHedefKullaniciIdleri, talepLink } from "@/lib/bildirim";
 import type { Sistem, TalepBirim as PBirim } from "@/app/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -87,6 +88,21 @@ export async function POST(req: NextRequest) {
     ipAddress: req.headers.get("x-forwarded-for") ?? undefined,
     description: `İstişare talebi oluşturuldu: ${baslik}`,
   }).catch(() => {});
+
+  // Karşılayan merkez sorumlusuna otomatik bildirim
+  try {
+    const ad = `${session.user.ad} ${session.user.soyad}`;
+    const hedefIds = await talepHedefKullaniciIdleri(birim as TalepBirim);
+    await bildirimKullanicilara({
+      userIds: hedefIds.filter(x => x !== userId),
+      baslik: "🔔 Yeni Talep Oluşturuldu",
+      mesaj: `Gönderen: ${ad}\nKonu: ${baslik}`,
+      tip: "BILGILENDIRME",
+      link: talepLink(talep.id),
+      createdById: userId,
+      createdByName: ad,
+    });
+  } catch (e) { console.error("Talep bildirimi:", e); }
 
   return NextResponse.json({ id: talep.id }, { status: 201 });
 }

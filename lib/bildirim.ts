@@ -1,4 +1,6 @@
 import { prisma } from "./prisma";
+import { TALEP_HEDEF } from "./istisare";
+import type { TalepBirim } from "./istisare";
 
 /**
  * Bildirim oluşturup hedef kitleye dağıtır (BildirimAlim kayıtları).
@@ -81,6 +83,59 @@ export async function bildirimDagit(opts: {
  */
 export function dokumanKlasorLink(klasorId: string | null | undefined): string {
   return klasorId ? `/panel/dokumanlar?klasorId=${encodeURIComponent(klasorId)}` : "/panel/dokumanlar";
+}
+
+/**
+ * Belirli kullanıcılara doğrudan bildirim gönderir (Talep Merkezi entegrasyonu gibi
+ * tek/birkaç alıcılı durumlar). Boş/geçersiz id'ler ve alıcı yoksa sessizce geçer.
+ */
+export async function bildirimKullanicilara(opts: {
+  userIds: string[];
+  baslik: string;
+  mesaj: string;
+  tip?: "DUYURU" | "BILGILENDIRME" | "DOSYA" | "FORM";
+  link?: string | null;
+  createdById: string;
+  createdByName: string;
+}): Promise<void> {
+  const ids = [...new Set(opts.userIds.filter(Boolean))];
+  if (!ids.length) return;
+
+  const users = await prisma.user.findMany({ where: { id: { in: ids } }, select: { id: true, ad: true, soyad: true } });
+  if (!users.length) return;
+
+  const bildirim = await prisma.bildirim.create({
+    data: {
+      baslik: opts.baslik,
+      mesaj: opts.mesaj,
+      tip: opts.tip ?? "BILGILENDIRME",
+      link: opts.link || null,
+      createdById: opts.createdById,
+      createdByName: opts.createdByName,
+    },
+  });
+  await prisma.bildirimAlim.createMany({
+    data: users.map(u => ({ bildirimId: bildirim.id, userId: u.id, aliciAd: `${u.ad} ${u.soyad}` })),
+  });
+}
+
+/** Bir talep biriminin karşılayan (merkez) sorumlularının kullanıcı id'leri */
+export async function talepHedefKullaniciIdleri(birim: TalepBirim): Promise<string[]> {
+  const hedef = TALEP_HEDEF[birim];
+  const users = await prisma.user.findMany({
+    where: {
+      status: "AKTIF",
+      role: hedef.role as never,
+      ...(hedef.merkezGorev ? { merkezGorev: hedef.merkezGorev as never } : {}),
+    },
+    select: { id: true },
+  });
+  return users.map(u => u.id);
+}
+
+/** Talep bildirim linki — tıklanınca ilgili talebin sohbet ekranı açılır */
+export function talepLink(talepId: string): string {
+  return `/panel/istisare/${talepId}`;
 }
 
 /**

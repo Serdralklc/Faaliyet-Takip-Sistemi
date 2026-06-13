@@ -6,6 +6,7 @@ import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { parseJson } from "@/lib/validation";
 import { talepKarsilayanMi, TALEP_DURUMLAR, TALEP_DURUM_LABEL } from "@/lib/istisare";
 import type { TalepBirim, TalepDurum } from "@/lib/istisare";
+import { bildirimKullanicilara, talepHedefKullaniciIdleri, talepLink } from "@/lib/bildirim";
 import type { TalepDurum as PDurum } from "@/app/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
   const { id: userId, role } = session.user;
 
-  const talep = await prisma.talep.findUnique({ where: { id }, select: { olusturanId: true, birim: true, durum: true } });
+  const talep = await prisma.talep.findUnique({ where: { id }, select: { olusturanId: true, birim: true, durum: true, baslik: true } });
   if (!talep) return NextResponse.json({ error: "Talep bulunamadı" }, { status: 404 });
 
   const r = await parseJson(req, bodySchema);
@@ -41,6 +42,28 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     ipAddress: req.headers.get("x-forwarded-for") ?? undefined,
     description: `İstişare talebi durumu: ${TALEP_DURUM_LABEL[durum]}`,
   }).catch(() => {});
+
+  // Karşı tarafa durum bildirimi
+  try {
+    const ad = `${session.user.ad} ${session.user.soyad}`;
+    const baslikBildirim = durum === "COZULDU" ? "✅ Talep Çözüldü"
+      : durum === "KAPATILDI" ? "🔒 Talep Kapatıldı"
+      : "🔔 Talep Durumu Güncellendi";
+    let hedefIds: string[];
+    if (karsilayanMi && !olusturanMi) hedefIds = [talep.olusturanId];
+    else if (olusturanMi && !karsilayanMi) hedefIds = await talepHedefKullaniciIdleri(talep.birim as TalepBirim);
+    else hedefIds = [talep.olusturanId, ...(await talepHedefKullaniciIdleri(talep.birim as TalepBirim))];
+
+    await bildirimKullanicilara({
+      userIds: hedefIds.filter(x => x !== userId),
+      baslik: baslikBildirim,
+      mesaj: `${talep.baslik} — ${TALEP_DURUM_LABEL[durum]}`,
+      tip: "BILGILENDIRME",
+      link: talepLink(id),
+      createdById: userId,
+      createdByName: ad,
+    });
+  } catch (e) { console.error("Talep durum bildirimi:", e); }
 
   return NextResponse.json({ success: true });
 }

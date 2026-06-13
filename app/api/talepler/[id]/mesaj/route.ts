@@ -6,6 +6,7 @@ import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { parseJson } from "@/lib/validation";
 import { talepKarsilayanMi } from "@/lib/istisare";
 import type { TalepBirim, TalepDurum } from "@/lib/istisare";
+import { bildirimKullanicilara, talepHedefKullaniciIdleri, talepLink } from "@/lib/bildirim";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
   const { id: userId, role } = session.user;
 
-  const talep = await prisma.talep.findUnique({ where: { id }, select: { olusturanId: true, birim: true, durum: true } });
+  const talep = await prisma.talep.findUnique({ where: { id }, select: { olusturanId: true, birim: true, durum: true, baslik: true } });
   if (!talep) return NextResponse.json({ error: "Talep bulunamadı" }, { status: 404 });
 
   const olusturanMi = talep.olusturanId === userId;
@@ -58,6 +59,30 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     ipAddress: req.headers.get("x-forwarded-for") ?? undefined,
     description: `İstişare talebine yanıt verildi`,
   }).catch(() => {});
+
+  // Karşı tarafa otomatik bildirim (kapanana kadar her mesajda)
+  try {
+    const ad = `${session.user.ad} ${session.user.soyad}`;
+    const link = talepLink(id);
+    if (olusturanMi) {
+      // oluşturan yazdı → karşılayan merkeze "Yeni Mesaj"
+      const ids = (await talepHedefKullaniciIdleri(talep.birim as TalepBirim)).filter(x => x !== userId);
+      await bildirimKullanicilara({
+        userIds: ids,
+        baslik: "🔔 Talebe Yeni Mesaj",
+        mesaj: `Gönderen: ${ad}\nKonu: ${talep.baslik}`,
+        tip: "BILGILENDIRME", link, createdById: userId, createdByName: ad,
+      });
+    } else {
+      // karşılayan yazdı → talebi açana "Yeni Cevap"
+      await bildirimKullanicilara({
+        userIds: [talep.olusturanId],
+        baslik: "🔔 Talebinize Yeni Cevap Geldi",
+        mesaj: `Gönderen: ${ad}\nKonu: ${talep.baslik}`,
+        tip: "BILGILENDIRME", link, createdById: userId, createdByName: ad,
+      });
+    }
+  } catch (e) { console.error("Talep mesaj bildirimi:", e); }
 
   return NextResponse.json({ success: true, durum: yeniDurum });
 }
