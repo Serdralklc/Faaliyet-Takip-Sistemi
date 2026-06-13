@@ -92,7 +92,10 @@ model User {
   // Yan rol: Teknik (İstişare'de teknik talepleri karşılar; ana rolden bağımsız ek yetki)
   teknikYetkisi Boolean @default(false)
   // Merkez Ekip görev ayrımı (yalnızca GENEL_MERKEZ için anlamlı; boş = düz Merkez Ekibi)
+  // (F2 geçiş: yan rol tablosuna taşındı; bu alan uyum-köprüsü olarak senkron tutulur)
   merkezGorev  MerkezGorev?
+  // F2: Ana Rol (yönetim paneli birincil rolü) — ayrı tablo. `role` alanı uyum köprüsü olarak senkron tutulur.
+  anaRolId     String?
   // Kayıt sırasında başvurulan görev bilgisi (onay sürecinde admin görsün)
   basvuruGorev   String?
   basvuruBolgeId String?
@@ -109,6 +112,40 @@ model User {
   invitations       Invitation[]     @relation("InvitedBy")
   talepler          Talep[]          @relation("TalepOlusturan")
   talepMesajlari    TalepMesaj[]     @relation("TalepMesajGonderen")
+  anaRol            AnaRol?          @relation(fields: [anaRolId], references: [id])
+  yanRoller         UserYanRol[]
+}
+
+// ── F2: Ana Rol / Yan Rol ayrı tabloları ──────────────────────────────
+// Ana Rol: yönetim paneli birincil rolü (kullanıcı başına TEK). Saha (bölge/il)
+// ve bekleyen kullanıcılar role+sistem ile yönetilir; onlarda anaRolId boştur.
+model AnaRol {
+  id    String @id @default(cuid())
+  kod   String @unique // ADMIN | MERKEZ | UNIVERSITE_GENCLIK | LISE_GENCLIK
+  ad    String
+  sira  Int    @default(0)
+  users User[]
+}
+
+// Yan Rol: ek içerik/yetki rolleri (kullanıcı başına ÇOKLU). Katalog tablo.
+model YanRol {
+  id    String       @id @default(cuid())
+  kod   String       @unique
+  ad    String
+  sira  Int          @default(0)
+  users UserYanRol[]
+}
+
+// Kullanıcı ↔ Yan Rol çoklu ilişki (join tablo).
+model UserYanRol {
+  id       String @id @default(cuid())
+  userId   String
+  yanRolId String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  yanRol   YanRol @relation(fields: [yanRolId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, yanRolId])
+  @@index([userId])
 }
 
 model Bolge {

@@ -37,6 +37,7 @@ export type UserMinAggregateOutputType = {
   icerikYoneticisi: boolean | null
   teknikYetkisi: boolean | null
   merkezGorev: $Enums.MerkezGorev | null
+  anaRolId: string | null
   basvuruGorev: string | null
   basvuruBolgeId: string | null
   basvuruIlId: string | null
@@ -58,6 +59,7 @@ export type UserMaxAggregateOutputType = {
   icerikYoneticisi: boolean | null
   teknikYetkisi: boolean | null
   merkezGorev: $Enums.MerkezGorev | null
+  anaRolId: string | null
   basvuruGorev: string | null
   basvuruBolgeId: string | null
   basvuruIlId: string | null
@@ -79,6 +81,7 @@ export type UserCountAggregateOutputType = {
   icerikYoneticisi: number
   teknikYetkisi: number
   merkezGorev: number
+  anaRolId: number
   basvuruGorev: number
   basvuruBolgeId: number
   basvuruIlId: number
@@ -102,6 +105,7 @@ export type UserMinAggregateInputType = {
   icerikYoneticisi?: true
   teknikYetkisi?: true
   merkezGorev?: true
+  anaRolId?: true
   basvuruGorev?: true
   basvuruBolgeId?: true
   basvuruIlId?: true
@@ -123,6 +127,7 @@ export type UserMaxAggregateInputType = {
   icerikYoneticisi?: true
   teknikYetkisi?: true
   merkezGorev?: true
+  anaRolId?: true
   basvuruGorev?: true
   basvuruBolgeId?: true
   basvuruIlId?: true
@@ -144,6 +149,7 @@ export type UserCountAggregateInputType = {
   icerikYoneticisi?: true
   teknikYetkisi?: true
   merkezGorev?: true
+  anaRolId?: true
   basvuruGorev?: true
   basvuruBolgeId?: true
   basvuruIlId?: true
@@ -238,6 +244,7 @@ export type UserGroupByOutputType = {
   icerikYoneticisi: boolean
   teknikYetkisi: boolean
   merkezGorev: $Enums.MerkezGorev | null
+  anaRolId: string | null
   basvuruGorev: string | null
   basvuruBolgeId: string | null
   basvuruIlId: string | null
@@ -280,6 +287,7 @@ export type UserWhereInput = {
   icerikYoneticisi?: Prisma.BoolFilter<"User"> | boolean
   teknikYetkisi?: Prisma.BoolFilter<"User"> | boolean
   merkezGorev?: Prisma.EnumMerkezGorevNullableFilter<"User"> | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.StringNullableFilter<"User"> | string | null
   basvuruGorev?: Prisma.StringNullableFilter<"User"> | string | null
   basvuruBolgeId?: Prisma.StringNullableFilter<"User"> | string | null
   basvuruIlId?: Prisma.StringNullableFilter<"User"> | string | null
@@ -293,6 +301,8 @@ export type UserWhereInput = {
   invitations?: Prisma.InvitationListRelationFilter
   talepler?: Prisma.TalepListRelationFilter
   talepMesajlari?: Prisma.TalepMesajListRelationFilter
+  anaRol?: Prisma.XOR<Prisma.AnaRolNullableScalarRelationFilter, Prisma.AnaRolWhereInput> | null
+  yanRoller?: Prisma.UserYanRolListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -308,6 +318,7 @@ export type UserOrderByWithRelationInput = {
   icerikYoneticisi?: Prisma.SortOrder
   teknikYetkisi?: Prisma.SortOrder
   merkezGorev?: Prisma.SortOrderInput | Prisma.SortOrder
+  anaRolId?: Prisma.SortOrderInput | Prisma.SortOrder
   basvuruGorev?: Prisma.SortOrderInput | Prisma.SortOrder
   basvuruBolgeId?: Prisma.SortOrderInput | Prisma.SortOrder
   basvuruIlId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -321,6 +332,8 @@ export type UserOrderByWithRelationInput = {
   invitations?: Prisma.InvitationOrderByRelationAggregateInput
   talepler?: Prisma.TalepOrderByRelationAggregateInput
   talepMesajlari?: Prisma.TalepMesajOrderByRelationAggregateInput
+  anaRol?: Prisma.AnaRolOrderByWithRelationInput
+  yanRoller?: Prisma.UserYanRolOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -339,6 +352,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   icerikYoneticisi?: Prisma.BoolFilter<"User"> | boolean
   teknikYetkisi?: Prisma.BoolFilter<"User"> | boolean
   merkezGorev?: Prisma.EnumMerkezGorevNullableFilter<"User"> | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.StringNullableFilter<"User"> | string | null
   basvuruGorev?: Prisma.StringNullableFilter<"User"> | string | null
   basvuruBolgeId?: Prisma.StringNullableFilter<"User"> | string | null
   basvuruIlId?: Prisma.StringNullableFilter<"User"> | string | null
@@ -352,6 +366,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   invitations?: Prisma.InvitationListRelationFilter
   talepler?: Prisma.TalepListRelationFilter
   talepMesajlari?: Prisma.TalepMesajListRelationFilter
+  anaRol?: Prisma.XOR<Prisma.AnaRolNullableScalarRelationFilter, Prisma.AnaRolWhereInput> | null
+  yanRoller?: Prisma.UserYanRolListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -367,6 +383,7 @@ export type UserOrderByWithAggregationInput = {
   icerikYoneticisi?: Prisma.SortOrder
   teknikYetkisi?: Prisma.SortOrder
   merkezGorev?: Prisma.SortOrderInput | Prisma.SortOrder
+  anaRolId?: Prisma.SortOrderInput | Prisma.SortOrder
   basvuruGorev?: Prisma.SortOrderInput | Prisma.SortOrder
   basvuruBolgeId?: Prisma.SortOrderInput | Prisma.SortOrder
   basvuruIlId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -394,6 +411,7 @@ export type UserScalarWhereWithAggregatesInput = {
   icerikYoneticisi?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   teknikYetkisi?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   merkezGorev?: Prisma.EnumMerkezGorevNullableWithAggregatesFilter<"User"> | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   basvuruGorev?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   basvuruBolgeId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   basvuruIlId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -428,6 +446,8 @@ export type UserCreateInput = {
   invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
   talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
   talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
+  anaRol?: Prisma.AnaRolCreateNestedOneWithoutUsersInput
+  yanRoller?: Prisma.UserYanRolCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -443,6 +463,7 @@ export type UserUncheckedCreateInput = {
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: $Enums.MerkezGorev | null
+  anaRolId?: string | null
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
@@ -456,6 +477,7 @@ export type UserUncheckedCreateInput = {
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
   talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
+  yanRoller?: Prisma.UserYanRolUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -484,6 +506,8 @@ export type UserUpdateInput = {
   invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
   talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
   talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
+  anaRol?: Prisma.AnaRolUpdateOneWithoutUsersNestedInput
+  yanRoller?: Prisma.UserYanRolUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -499,6 +523,7 @@ export type UserUncheckedUpdateInput = {
   icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -512,6 +537,7 @@ export type UserUncheckedUpdateInput = {
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
   talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
+  yanRoller?: Prisma.UserYanRolUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -527,6 +553,7 @@ export type UserCreateManyInput = {
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: $Enums.MerkezGorev | null
+  anaRolId?: string | null
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
@@ -569,6 +596,7 @@ export type UserUncheckedUpdateManyInput = {
   icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -590,6 +618,7 @@ export type UserCountOrderByAggregateInput = {
   icerikYoneticisi?: Prisma.SortOrder
   teknikYetkisi?: Prisma.SortOrder
   merkezGorev?: Prisma.SortOrder
+  anaRolId?: Prisma.SortOrder
   basvuruGorev?: Prisma.SortOrder
   basvuruBolgeId?: Prisma.SortOrder
   basvuruIlId?: Prisma.SortOrder
@@ -611,6 +640,7 @@ export type UserMaxOrderByAggregateInput = {
   icerikYoneticisi?: Prisma.SortOrder
   teknikYetkisi?: Prisma.SortOrder
   merkezGorev?: Prisma.SortOrder
+  anaRolId?: Prisma.SortOrder
   basvuruGorev?: Prisma.SortOrder
   basvuruBolgeId?: Prisma.SortOrder
   basvuruIlId?: Prisma.SortOrder
@@ -632,12 +662,23 @@ export type UserMinOrderByAggregateInput = {
   icerikYoneticisi?: Prisma.SortOrder
   teknikYetkisi?: Prisma.SortOrder
   merkezGorev?: Prisma.SortOrder
+  anaRolId?: Prisma.SortOrder
   basvuruGorev?: Prisma.SortOrder
   basvuruBolgeId?: Prisma.SortOrder
   basvuruIlId?: Prisma.SortOrder
   sonAktif?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserListRelationFilter = {
+  every?: Prisma.UserWhereInput
+  some?: Prisma.UserWhereInput
+  none?: Prisma.UserWhereInput
+}
+
+export type UserOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -684,6 +725,62 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type UserCreateNestedManyWithoutAnaRolInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAnaRolInput, Prisma.UserUncheckedCreateWithoutAnaRolInput> | Prisma.UserCreateWithoutAnaRolInput[] | Prisma.UserUncheckedCreateWithoutAnaRolInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAnaRolInput | Prisma.UserCreateOrConnectWithoutAnaRolInput[]
+  createMany?: Prisma.UserCreateManyAnaRolInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUncheckedCreateNestedManyWithoutAnaRolInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAnaRolInput, Prisma.UserUncheckedCreateWithoutAnaRolInput> | Prisma.UserCreateWithoutAnaRolInput[] | Prisma.UserUncheckedCreateWithoutAnaRolInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAnaRolInput | Prisma.UserCreateOrConnectWithoutAnaRolInput[]
+  createMany?: Prisma.UserCreateManyAnaRolInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUpdateManyWithoutAnaRolNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAnaRolInput, Prisma.UserUncheckedCreateWithoutAnaRolInput> | Prisma.UserCreateWithoutAnaRolInput[] | Prisma.UserUncheckedCreateWithoutAnaRolInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAnaRolInput | Prisma.UserCreateOrConnectWithoutAnaRolInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutAnaRolInput | Prisma.UserUpsertWithWhereUniqueWithoutAnaRolInput[]
+  createMany?: Prisma.UserCreateManyAnaRolInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutAnaRolInput | Prisma.UserUpdateWithWhereUniqueWithoutAnaRolInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutAnaRolInput | Prisma.UserUpdateManyWithWhereWithoutAnaRolInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserUncheckedUpdateManyWithoutAnaRolNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAnaRolInput, Prisma.UserUncheckedCreateWithoutAnaRolInput> | Prisma.UserCreateWithoutAnaRolInput[] | Prisma.UserUncheckedCreateWithoutAnaRolInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAnaRolInput | Prisma.UserCreateOrConnectWithoutAnaRolInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutAnaRolInput | Prisma.UserUpsertWithWhereUniqueWithoutAnaRolInput[]
+  createMany?: Prisma.UserCreateManyAnaRolInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutAnaRolInput | Prisma.UserUpdateWithWhereUniqueWithoutAnaRolInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutAnaRolInput | Prisma.UserUpdateManyWithWhereWithoutAnaRolInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserCreateNestedOneWithoutYanRollerInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutYanRollerInput, Prisma.UserUncheckedCreateWithoutYanRollerInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutYanRollerInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutYanRollerNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutYanRollerInput, Prisma.UserUncheckedCreateWithoutYanRollerInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutYanRollerInput
+  upsert?: Prisma.UserUpsertWithoutYanRollerInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutYanRollerInput, Prisma.UserUpdateWithoutYanRollerInput>, Prisma.UserUncheckedUpdateWithoutYanRollerInput>
 }
 
 export type UserCreateNestedOneWithoutAssignmentsInput = {
@@ -786,6 +883,247 @@ export type UserUpdateOneRequiredWithoutTalepMesajlariNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTalepMesajlariInput, Prisma.UserUpdateWithoutTalepMesajlariInput>, Prisma.UserUncheckedUpdateWithoutTalepMesajlariInput>
 }
 
+export type UserCreateWithoutAnaRolInput = {
+  id?: string
+  ad: string
+  soyad: string
+  email: string
+  telefon?: string | null
+  passwordHash?: string | null
+  role?: $Enums.Role
+  status?: $Enums.UserStatus
+  sistem?: $Enums.Sistem
+  icerikYoneticisi?: boolean
+  teknikYetkisi?: boolean
+  merkezGorev?: $Enums.MerkezGorev | null
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
+  sonAktif?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
+  createdActivities?: Prisma.ActivityCreateNestedManyWithoutCreatedByInput
+  updatedActivities?: Prisma.ActivityCreateNestedManyWithoutUpdatedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
+  yanRoller?: Prisma.UserYanRolCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAnaRolInput = {
+  id?: string
+  ad: string
+  soyad: string
+  email: string
+  telefon?: string | null
+  passwordHash?: string | null
+  role?: $Enums.Role
+  status?: $Enums.UserStatus
+  sistem?: $Enums.Sistem
+  icerikYoneticisi?: boolean
+  teknikYetkisi?: boolean
+  merkezGorev?: $Enums.MerkezGorev | null
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
+  sonAktif?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
+  createdActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUpdatedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
+  yanRoller?: Prisma.UserYanRolUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAnaRolInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAnaRolInput, Prisma.UserUncheckedCreateWithoutAnaRolInput>
+}
+
+export type UserCreateManyAnaRolInputEnvelope = {
+  data: Prisma.UserCreateManyAnaRolInput | Prisma.UserCreateManyAnaRolInput[]
+  skipDuplicates?: boolean
+}
+
+export type UserUpsertWithWhereUniqueWithoutAnaRolInput = {
+  where: Prisma.UserWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAnaRolInput, Prisma.UserUncheckedUpdateWithoutAnaRolInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAnaRolInput, Prisma.UserUncheckedCreateWithoutAnaRolInput>
+}
+
+export type UserUpdateWithWhereUniqueWithoutAnaRolInput = {
+  where: Prisma.UserWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAnaRolInput, Prisma.UserUncheckedUpdateWithoutAnaRolInput>
+}
+
+export type UserUpdateManyWithWhereWithoutAnaRolInput = {
+  where: Prisma.UserScalarWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutAnaRolInput>
+}
+
+export type UserScalarWhereInput = {
+  AND?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+  OR?: Prisma.UserScalarWhereInput[]
+  NOT?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+  id?: Prisma.StringFilter<"User"> | string
+  ad?: Prisma.StringFilter<"User"> | string
+  soyad?: Prisma.StringFilter<"User"> | string
+  email?: Prisma.StringFilter<"User"> | string
+  telefon?: Prisma.StringNullableFilter<"User"> | string | null
+  passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
+  status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
+  sistem?: Prisma.EnumSistemFilter<"User"> | $Enums.Sistem
+  icerikYoneticisi?: Prisma.BoolFilter<"User"> | boolean
+  teknikYetkisi?: Prisma.BoolFilter<"User"> | boolean
+  merkezGorev?: Prisma.EnumMerkezGorevNullableFilter<"User"> | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.StringNullableFilter<"User"> | string | null
+  basvuruGorev?: Prisma.StringNullableFilter<"User"> | string | null
+  basvuruBolgeId?: Prisma.StringNullableFilter<"User"> | string | null
+  basvuruIlId?: Prisma.StringNullableFilter<"User"> | string | null
+  sonAktif?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+}
+
+export type UserCreateWithoutYanRollerInput = {
+  id?: string
+  ad: string
+  soyad: string
+  email: string
+  telefon?: string | null
+  passwordHash?: string | null
+  role?: $Enums.Role
+  status?: $Enums.UserStatus
+  sistem?: $Enums.Sistem
+  icerikYoneticisi?: boolean
+  teknikYetkisi?: boolean
+  merkezGorev?: $Enums.MerkezGorev | null
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
+  sonAktif?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
+  createdActivities?: Prisma.ActivityCreateNestedManyWithoutCreatedByInput
+  updatedActivities?: Prisma.ActivityCreateNestedManyWithoutUpdatedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
+  anaRol?: Prisma.AnaRolCreateNestedOneWithoutUsersInput
+}
+
+export type UserUncheckedCreateWithoutYanRollerInput = {
+  id?: string
+  ad: string
+  soyad: string
+  email: string
+  telefon?: string | null
+  passwordHash?: string | null
+  role?: $Enums.Role
+  status?: $Enums.UserStatus
+  sistem?: $Enums.Sistem
+  icerikYoneticisi?: boolean
+  teknikYetkisi?: boolean
+  merkezGorev?: $Enums.MerkezGorev | null
+  anaRolId?: string | null
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
+  sonAktif?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
+  createdActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUpdatedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
+}
+
+export type UserCreateOrConnectWithoutYanRollerInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutYanRollerInput, Prisma.UserUncheckedCreateWithoutYanRollerInput>
+}
+
+export type UserUpsertWithoutYanRollerInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutYanRollerInput, Prisma.UserUncheckedUpdateWithoutYanRollerInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutYanRollerInput, Prisma.UserUncheckedCreateWithoutYanRollerInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutYanRollerInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutYanRollerInput, Prisma.UserUncheckedUpdateWithoutYanRollerInput>
+}
+
+export type UserUpdateWithoutYanRollerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  soyad?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
+  createdActivities?: Prisma.ActivityUpdateManyWithoutCreatedByNestedInput
+  updatedActivities?: Prisma.ActivityUpdateManyWithoutUpdatedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
+  anaRol?: Prisma.AnaRolUpdateOneWithoutUsersNestedInput
+}
+
+export type UserUncheckedUpdateWithoutYanRollerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  soyad?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
+  createdActivities?: Prisma.ActivityUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutUpdatedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
+}
+
 export type UserCreateWithoutAssignmentsInput = {
   id?: string
   ad: string
@@ -811,6 +1149,8 @@ export type UserCreateWithoutAssignmentsInput = {
   invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
   talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
   talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
+  anaRol?: Prisma.AnaRolCreateNestedOneWithoutUsersInput
+  yanRoller?: Prisma.UserYanRolCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssignmentsInput = {
@@ -826,6 +1166,7 @@ export type UserUncheckedCreateWithoutAssignmentsInput = {
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: $Enums.MerkezGorev | null
+  anaRolId?: string | null
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
@@ -838,6 +1179,7 @@ export type UserUncheckedCreateWithoutAssignmentsInput = {
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
   talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
+  yanRoller?: Prisma.UserYanRolUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssignmentsInput = {
@@ -881,6 +1223,8 @@ export type UserUpdateWithoutAssignmentsInput = {
   invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
   talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
   talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
+  anaRol?: Prisma.AnaRolUpdateOneWithoutUsersNestedInput
+  yanRoller?: Prisma.UserYanRolUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignmentsInput = {
@@ -896,6 +1240,7 @@ export type UserUncheckedUpdateWithoutAssignmentsInput = {
   icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -908,6 +1253,7 @@ export type UserUncheckedUpdateWithoutAssignmentsInput = {
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
   talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
+  yanRoller?: Prisma.UserYanRolUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutInvitationsInput = {
@@ -935,6 +1281,8 @@ export type UserCreateWithoutInvitationsInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
   talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
+  anaRol?: Prisma.AnaRolCreateNestedOneWithoutUsersInput
+  yanRoller?: Prisma.UserYanRolCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutInvitationsInput = {
@@ -950,6 +1298,7 @@ export type UserUncheckedCreateWithoutInvitationsInput = {
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: $Enums.MerkezGorev | null
+  anaRolId?: string | null
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
@@ -962,6 +1311,7 @@ export type UserUncheckedCreateWithoutInvitationsInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
   talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
+  yanRoller?: Prisma.UserYanRolUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutInvitationsInput = {
@@ -1005,6 +1355,8 @@ export type UserUpdateWithoutInvitationsInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
   talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
+  anaRol?: Prisma.AnaRolUpdateOneWithoutUsersNestedInput
+  yanRoller?: Prisma.UserYanRolUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInvitationsInput = {
@@ -1020,6 +1372,7 @@ export type UserUncheckedUpdateWithoutInvitationsInput = {
   icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1032,6 +1385,7 @@ export type UserUncheckedUpdateWithoutInvitationsInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
   talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
+  yanRoller?: Prisma.UserYanRolUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCreatedActivitiesInput = {
@@ -1059,6 +1413,8 @@ export type UserCreateWithoutCreatedActivitiesInput = {
   invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
   talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
   talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
+  anaRol?: Prisma.AnaRolCreateNestedOneWithoutUsersInput
+  yanRoller?: Prisma.UserYanRolCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedActivitiesInput = {
@@ -1074,6 +1430,7 @@ export type UserUncheckedCreateWithoutCreatedActivitiesInput = {
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: $Enums.MerkezGorev | null
+  anaRolId?: string | null
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
@@ -1086,6 +1443,7 @@ export type UserUncheckedCreateWithoutCreatedActivitiesInput = {
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
   talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
+  yanRoller?: Prisma.UserYanRolUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedActivitiesInput = {
@@ -1118,6 +1476,8 @@ export type UserCreateWithoutUpdatedActivitiesInput = {
   invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
   talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
   talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
+  anaRol?: Prisma.AnaRolCreateNestedOneWithoutUsersInput
+  yanRoller?: Prisma.UserYanRolCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedActivitiesInput = {
@@ -1133,6 +1493,7 @@ export type UserUncheckedCreateWithoutUpdatedActivitiesInput = {
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: $Enums.MerkezGorev | null
+  anaRolId?: string | null
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
@@ -1145,6 +1506,7 @@ export type UserUncheckedCreateWithoutUpdatedActivitiesInput = {
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
   talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
+  yanRoller?: Prisma.UserYanRolUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedActivitiesInput = {
@@ -1188,6 +1550,8 @@ export type UserUpdateWithoutCreatedActivitiesInput = {
   invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
   talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
   talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
+  anaRol?: Prisma.AnaRolUpdateOneWithoutUsersNestedInput
+  yanRoller?: Prisma.UserYanRolUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedActivitiesInput = {
@@ -1203,6 +1567,7 @@ export type UserUncheckedUpdateWithoutCreatedActivitiesInput = {
   icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1215,6 +1580,7 @@ export type UserUncheckedUpdateWithoutCreatedActivitiesInput = {
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
   talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
+  yanRoller?: Prisma.UserYanRolUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedActivitiesInput = {
@@ -1253,6 +1619,8 @@ export type UserUpdateWithoutUpdatedActivitiesInput = {
   invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
   talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
   talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
+  anaRol?: Prisma.AnaRolUpdateOneWithoutUsersNestedInput
+  yanRoller?: Prisma.UserYanRolUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedActivitiesInput = {
@@ -1268,6 +1636,7 @@ export type UserUncheckedUpdateWithoutUpdatedActivitiesInput = {
   icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1280,6 +1649,7 @@ export type UserUncheckedUpdateWithoutUpdatedActivitiesInput = {
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
   talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
+  yanRoller?: Prisma.UserYanRolUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuditLogsInput = {
@@ -1307,6 +1677,8 @@ export type UserCreateWithoutAuditLogsInput = {
   invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
   talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
   talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
+  anaRol?: Prisma.AnaRolCreateNestedOneWithoutUsersInput
+  yanRoller?: Prisma.UserYanRolCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -1322,6 +1694,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: $Enums.MerkezGorev | null
+  anaRolId?: string | null
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
@@ -1334,6 +1707,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
   talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
+  yanRoller?: Prisma.UserYanRolUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -1377,6 +1751,8 @@ export type UserUpdateWithoutAuditLogsInput = {
   invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
   talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
   talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
+  anaRol?: Prisma.AnaRolUpdateOneWithoutUsersNestedInput
+  yanRoller?: Prisma.UserYanRolUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -1392,6 +1768,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1404,6 +1781,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
   talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
+  yanRoller?: Prisma.UserYanRolUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTaleplerInput = {
@@ -1431,6 +1809,8 @@ export type UserCreateWithoutTaleplerInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
   talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
+  anaRol?: Prisma.AnaRolCreateNestedOneWithoutUsersInput
+  yanRoller?: Prisma.UserYanRolCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTaleplerInput = {
@@ -1446,6 +1826,7 @@ export type UserUncheckedCreateWithoutTaleplerInput = {
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: $Enums.MerkezGorev | null
+  anaRolId?: string | null
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
@@ -1458,6 +1839,7 @@ export type UserUncheckedCreateWithoutTaleplerInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
+  yanRoller?: Prisma.UserYanRolUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTaleplerInput = {
@@ -1501,6 +1883,8 @@ export type UserUpdateWithoutTaleplerInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
   talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
+  anaRol?: Prisma.AnaRolUpdateOneWithoutUsersNestedInput
+  yanRoller?: Prisma.UserYanRolUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTaleplerInput = {
@@ -1516,6 +1900,7 @@ export type UserUncheckedUpdateWithoutTaleplerInput = {
   icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1528,6 +1913,7 @@ export type UserUncheckedUpdateWithoutTaleplerInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
+  yanRoller?: Prisma.UserYanRolUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTalepMesajlariInput = {
@@ -1555,6 +1941,8 @@ export type UserCreateWithoutTalepMesajlariInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
   talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
+  anaRol?: Prisma.AnaRolCreateNestedOneWithoutUsersInput
+  yanRoller?: Prisma.UserYanRolCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTalepMesajlariInput = {
@@ -1570,6 +1958,7 @@ export type UserUncheckedCreateWithoutTalepMesajlariInput = {
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: $Enums.MerkezGorev | null
+  anaRolId?: string | null
   basvuruGorev?: string | null
   basvuruBolgeId?: string | null
   basvuruIlId?: string | null
@@ -1582,6 +1971,7 @@ export type UserUncheckedCreateWithoutTalepMesajlariInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
   talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
+  yanRoller?: Prisma.UserYanRolUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTalepMesajlariInput = {
@@ -1625,9 +2015,90 @@ export type UserUpdateWithoutTalepMesajlariInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
   talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
+  anaRol?: Prisma.AnaRolUpdateOneWithoutUsersNestedInput
+  yanRoller?: Prisma.UserYanRolUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTalepMesajlariInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  soyad?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  anaRolId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
+  createdActivities?: Prisma.ActivityUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutUpdatedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
+  yanRoller?: Prisma.UserYanRolUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateManyAnaRolInput = {
+  id?: string
+  ad: string
+  soyad: string
+  email: string
+  telefon?: string | null
+  passwordHash?: string | null
+  role?: $Enums.Role
+  status?: $Enums.UserStatus
+  sistem?: $Enums.Sistem
+  icerikYoneticisi?: boolean
+  teknikYetkisi?: boolean
+  merkezGorev?: $Enums.MerkezGorev | null
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
+  sonAktif?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type UserUpdateWithoutAnaRolInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  soyad?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
+  createdActivities?: Prisma.ActivityUpdateManyWithoutCreatedByNestedInput
+  updatedActivities?: Prisma.ActivityUpdateManyWithoutUpdatedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
+  yanRoller?: Prisma.UserYanRolUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAnaRolInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   ad?: Prisma.StringFieldUpdateOperationsInput | string
   soyad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1652,6 +2123,29 @@ export type UserUncheckedUpdateWithoutTalepMesajlariInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
   talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
+  yanRoller?: Prisma.UserYanRolUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateManyWithoutAnaRolInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  soyad?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  teknikYetkisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1667,6 +2161,7 @@ export type UserCountOutputType = {
   invitations: number
   talepler: number
   talepMesajlari: number
+  yanRoller: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1677,6 +2172,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   invitations?: boolean | UserCountOutputTypeCountInvitationsArgs
   talepler?: boolean | UserCountOutputTypeCountTaleplerArgs
   talepMesajlari?: boolean | UserCountOutputTypeCountTalepMesajlariArgs
+  yanRoller?: boolean | UserCountOutputTypeCountYanRollerArgs
 }
 
 /**
@@ -1738,6 +2234,13 @@ export type UserCountOutputTypeCountTalepMesajlariArgs<ExtArgs extends runtime.T
   where?: Prisma.TalepMesajWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountYanRollerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserYanRolWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1752,6 +2255,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: boolean
+  anaRolId?: boolean
   basvuruGorev?: boolean
   basvuruBolgeId?: boolean
   basvuruIlId?: boolean
@@ -1765,6 +2269,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   invitations?: boolean | Prisma.User$invitationsArgs<ExtArgs>
   talepler?: boolean | Prisma.User$taleplerArgs<ExtArgs>
   talepMesajlari?: boolean | Prisma.User$talepMesajlariArgs<ExtArgs>
+  anaRol?: boolean | Prisma.User$anaRolArgs<ExtArgs>
+  yanRoller?: boolean | Prisma.User$yanRollerArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1781,12 +2287,14 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: boolean
+  anaRolId?: boolean
   basvuruGorev?: boolean
   basvuruBolgeId?: boolean
   basvuruIlId?: boolean
   sonAktif?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  anaRol?: boolean | Prisma.User$anaRolArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1802,12 +2310,14 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: boolean
+  anaRolId?: boolean
   basvuruGorev?: boolean
   basvuruBolgeId?: boolean
   basvuruIlId?: boolean
   sonAktif?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  anaRol?: boolean | Prisma.User$anaRolArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -1823,6 +2333,7 @@ export type UserSelectScalar = {
   icerikYoneticisi?: boolean
   teknikYetkisi?: boolean
   merkezGorev?: boolean
+  anaRolId?: boolean
   basvuruGorev?: boolean
   basvuruBolgeId?: boolean
   basvuruIlId?: boolean
@@ -1831,7 +2342,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ad" | "soyad" | "email" | "telefon" | "passwordHash" | "role" | "status" | "sistem" | "icerikYoneticisi" | "teknikYetkisi" | "merkezGorev" | "basvuruGorev" | "basvuruBolgeId" | "basvuruIlId" | "sonAktif" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ad" | "soyad" | "email" | "telefon" | "passwordHash" | "role" | "status" | "sistem" | "icerikYoneticisi" | "teknikYetkisi" | "merkezGorev" | "anaRolId" | "basvuruGorev" | "basvuruBolgeId" | "basvuruIlId" | "sonAktif" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignments?: boolean | Prisma.User$assignmentsArgs<ExtArgs>
   createdActivities?: boolean | Prisma.User$createdActivitiesArgs<ExtArgs>
@@ -1840,10 +2351,16 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   invitations?: boolean | Prisma.User$invitationsArgs<ExtArgs>
   talepler?: boolean | Prisma.User$taleplerArgs<ExtArgs>
   talepMesajlari?: boolean | Prisma.User$talepMesajlariArgs<ExtArgs>
+  anaRol?: boolean | Prisma.User$anaRolArgs<ExtArgs>
+  yanRoller?: boolean | Prisma.User$yanRollerArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  anaRol?: boolean | Prisma.User$anaRolArgs<ExtArgs>
+}
+export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  anaRol?: boolean | Prisma.User$anaRolArgs<ExtArgs>
+}
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
@@ -1855,6 +2372,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     invitations: Prisma.$InvitationPayload<ExtArgs>[]
     talepler: Prisma.$TalepPayload<ExtArgs>[]
     talepMesajlari: Prisma.$TalepMesajPayload<ExtArgs>[]
+    anaRol: Prisma.$AnaRolPayload<ExtArgs> | null
+    yanRoller: Prisma.$UserYanRolPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1869,6 +2388,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     icerikYoneticisi: boolean
     teknikYetkisi: boolean
     merkezGorev: $Enums.MerkezGorev | null
+    anaRolId: string | null
     basvuruGorev: string | null
     basvuruBolgeId: string | null
     basvuruIlId: string | null
@@ -2276,6 +2796,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   invitations<T extends Prisma.User$invitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   talepler<T extends Prisma.User$taleplerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$taleplerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TalepPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   talepMesajlari<T extends Prisma.User$talepMesajlariArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$talepMesajlariArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TalepMesajPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  anaRol<T extends Prisma.User$anaRolArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$anaRolArgs<ExtArgs>>): Prisma.Prisma__AnaRolClient<runtime.Types.Result.GetResult<Prisma.$AnaRolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  yanRoller<T extends Prisma.User$yanRollerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$yanRollerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserYanRolPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2317,6 +2839,7 @@ export interface UserFieldRefs {
   readonly icerikYoneticisi: Prisma.FieldRef<"User", 'Boolean'>
   readonly teknikYetkisi: Prisma.FieldRef<"User", 'Boolean'>
   readonly merkezGorev: Prisma.FieldRef<"User", 'MerkezGorev'>
+  readonly anaRolId: Prisma.FieldRef<"User", 'String'>
   readonly basvuruGorev: Prisma.FieldRef<"User", 'String'>
   readonly basvuruBolgeId: Prisma.FieldRef<"User", 'String'>
   readonly basvuruIlId: Prisma.FieldRef<"User", 'String'>
@@ -2577,6 +3100,10 @@ export type UserCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    */
   data: Prisma.UserCreateManyInput | Prisma.UserCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2647,6 +3174,10 @@ export type UserUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many Users to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2881,6 +3412,49 @@ export type User$talepMesajlariArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.TalepMesajScalarFieldEnum | Prisma.TalepMesajScalarFieldEnum[]
+}
+
+/**
+ * User.anaRol
+ */
+export type User$anaRolArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AnaRol
+   */
+  select?: Prisma.AnaRolSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AnaRol
+   */
+  omit?: Prisma.AnaRolOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnaRolInclude<ExtArgs> | null
+  where?: Prisma.AnaRolWhereInput
+}
+
+/**
+ * User.yanRoller
+ */
+export type User$yanRollerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserYanRol
+   */
+  select?: Prisma.UserYanRolSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserYanRol
+   */
+  omit?: Prisma.UserYanRolOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserYanRolInclude<ExtArgs> | null
+  where?: Prisma.UserYanRolWhereInput
+  orderBy?: Prisma.UserYanRolOrderByWithRelationInput | Prisma.UserYanRolOrderByWithRelationInput[]
+  cursor?: Prisma.UserYanRolWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserYanRolScalarFieldEnum | Prisma.UserYanRolScalarFieldEnum[]
 }
 
 /**

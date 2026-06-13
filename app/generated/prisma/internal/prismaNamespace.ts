@@ -385,6 +385,9 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  AnaRol: 'AnaRol',
+  YanRol: 'YanRol',
+  UserYanRol: 'UserYanRol',
   Bolge: 'Bolge',
   Il: 'Il',
   RoleAssignment: 'RoleAssignment',
@@ -434,7 +437,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "bolge" | "il" | "roleAssignment" | "invitation" | "activity" | "liseFaaliyet" | "universiteFaaliyet" | "housingUnit" | "housingStudent" | "housingVisit" | "bolgeHedef" | "ilHedef" | "genclikBolgeHedef" | "genclikIlHedef" | "volunteer" | "bursBasvuru" | "ekKayitBasvuru" | "geriBildirim" | "dokumanKlasor" | "dokuman" | "dokumanPaylasim" | "dinamikForm" | "formSoru" | "formYanit" | "formYanitDosya" | "bildirim" | "bildirimAlim" | "duyuru" | "popup" | "popupGorulme" | "authToken" | "auditLog" | "talep" | "talepMesaj"
+    modelProps: "user" | "anaRol" | "yanRol" | "userYanRol" | "bolge" | "il" | "roleAssignment" | "invitation" | "activity" | "liseFaaliyet" | "universiteFaaliyet" | "housingUnit" | "housingStudent" | "housingVisit" | "bolgeHedef" | "ilHedef" | "genclikBolgeHedef" | "genclikIlHedef" | "volunteer" | "bursBasvuru" | "ekKayitBasvuru" | "geriBildirim" | "dokumanKlasor" | "dokuman" | "dokumanPaylasim" | "dinamikForm" | "formSoru" | "formYanit" | "formYanitDosya" | "bildirim" | "bildirimAlim" | "duyuru" | "popup" | "popupGorulme" | "authToken" | "auditLog" | "talep" | "talepMesaj"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -509,6 +512,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    AnaRol: {
+      payload: Prisma.$AnaRolPayload<ExtArgs>
+      fields: Prisma.AnaRolFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AnaRolFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnaRolPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AnaRolFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnaRolPayload>
+        }
+        findFirst: {
+          args: Prisma.AnaRolFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnaRolPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AnaRolFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnaRolPayload>
+        }
+        findMany: {
+          args: Prisma.AnaRolFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnaRolPayload>[]
+        }
+        create: {
+          args: Prisma.AnaRolCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnaRolPayload>
+        }
+        createMany: {
+          args: Prisma.AnaRolCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AnaRolCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnaRolPayload>[]
+        }
+        delete: {
+          args: Prisma.AnaRolDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnaRolPayload>
+        }
+        update: {
+          args: Prisma.AnaRolUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnaRolPayload>
+        }
+        deleteMany: {
+          args: Prisma.AnaRolDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AnaRolUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AnaRolUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnaRolPayload>[]
+        }
+        upsert: {
+          args: Prisma.AnaRolUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnaRolPayload>
+        }
+        aggregate: {
+          args: Prisma.AnaRolAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAnaRol>
+        }
+        groupBy: {
+          args: Prisma.AnaRolGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnaRolGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AnaRolCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnaRolCountAggregateOutputType> | number
+        }
+      }
+    }
+    YanRol: {
+      payload: Prisma.$YanRolPayload<ExtArgs>
+      fields: Prisma.YanRolFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.YanRolFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$YanRolPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.YanRolFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$YanRolPayload>
+        }
+        findFirst: {
+          args: Prisma.YanRolFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$YanRolPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.YanRolFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$YanRolPayload>
+        }
+        findMany: {
+          args: Prisma.YanRolFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$YanRolPayload>[]
+        }
+        create: {
+          args: Prisma.YanRolCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$YanRolPayload>
+        }
+        createMany: {
+          args: Prisma.YanRolCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.YanRolCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$YanRolPayload>[]
+        }
+        delete: {
+          args: Prisma.YanRolDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$YanRolPayload>
+        }
+        update: {
+          args: Prisma.YanRolUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$YanRolPayload>
+        }
+        deleteMany: {
+          args: Prisma.YanRolDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.YanRolUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.YanRolUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$YanRolPayload>[]
+        }
+        upsert: {
+          args: Prisma.YanRolUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$YanRolPayload>
+        }
+        aggregate: {
+          args: Prisma.YanRolAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateYanRol>
+        }
+        groupBy: {
+          args: Prisma.YanRolGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.YanRolGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.YanRolCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.YanRolCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserYanRol: {
+      payload: Prisma.$UserYanRolPayload<ExtArgs>
+      fields: Prisma.UserYanRolFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserYanRolFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserYanRolPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserYanRolFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserYanRolPayload>
+        }
+        findFirst: {
+          args: Prisma.UserYanRolFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserYanRolPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserYanRolFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserYanRolPayload>
+        }
+        findMany: {
+          args: Prisma.UserYanRolFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserYanRolPayload>[]
+        }
+        create: {
+          args: Prisma.UserYanRolCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserYanRolPayload>
+        }
+        createMany: {
+          args: Prisma.UserYanRolCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserYanRolCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserYanRolPayload>[]
+        }
+        delete: {
+          args: Prisma.UserYanRolDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserYanRolPayload>
+        }
+        update: {
+          args: Prisma.UserYanRolUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserYanRolPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserYanRolDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserYanRolUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserYanRolUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserYanRolPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserYanRolUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserYanRolPayload>
+        }
+        aggregate: {
+          args: Prisma.UserYanRolAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserYanRol>
+        }
+        groupBy: {
+          args: Prisma.UserYanRolGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserYanRolGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserYanRolCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserYanRolCountAggregateOutputType> | number
         }
       }
     }
@@ -3080,6 +3305,7 @@ export const UserScalarFieldEnum = {
   icerikYoneticisi: 'icerikYoneticisi',
   teknikYetkisi: 'teknikYetkisi',
   merkezGorev: 'merkezGorev',
+  anaRolId: 'anaRolId',
   basvuruGorev: 'basvuruGorev',
   basvuruBolgeId: 'basvuruBolgeId',
   basvuruIlId: 'basvuruIlId',
@@ -3089,6 +3315,35 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const AnaRolScalarFieldEnum = {
+  id: 'id',
+  kod: 'kod',
+  ad: 'ad',
+  sira: 'sira'
+} as const
+
+export type AnaRolScalarFieldEnum = (typeof AnaRolScalarFieldEnum)[keyof typeof AnaRolScalarFieldEnum]
+
+
+export const YanRolScalarFieldEnum = {
+  id: 'id',
+  kod: 'kod',
+  ad: 'ad',
+  sira: 'sira'
+} as const
+
+export type YanRolScalarFieldEnum = (typeof YanRolScalarFieldEnum)[keyof typeof YanRolScalarFieldEnum]
+
+
+export const UserYanRolScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  yanRolId: 'yanRolId'
+} as const
+
+export type UserYanRolScalarFieldEnum = (typeof UserYanRolScalarFieldEnum)[keyof typeof UserYanRolScalarFieldEnum]
 
 
 export const BolgeScalarFieldEnum = {
@@ -4264,6 +4519,9 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  anaRol?: Prisma.AnaRolOmit
+  yanRol?: Prisma.YanRolOmit
+  userYanRol?: Prisma.UserYanRolOmit
   bolge?: Prisma.BolgeOmit
   il?: Prisma.IlOmit
   roleAssignment?: Prisma.RoleAssignmentOmit

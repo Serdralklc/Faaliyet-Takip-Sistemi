@@ -52,6 +52,9 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  AnaRol: 'AnaRol',
+  YanRol: 'YanRol',
+  UserYanRol: 'UserYanRol',
   Bolge: 'Bolge',
   Il: 'Il',
   RoleAssignment: 'RoleAssignment',
@@ -117,6 +120,7 @@ export const UserScalarFieldEnum = {
   icerikYoneticisi: 'icerikYoneticisi',
   teknikYetkisi: 'teknikYetkisi',
   merkezGorev: 'merkezGorev',
+  anaRolId: 'anaRolId',
   basvuruGorev: 'basvuruGorev',
   basvuruBolgeId: 'basvuruBolgeId',
   basvuruIlId: 'basvuruIlId',
@@ -126,6 +130,35 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const AnaRolScalarFieldEnum = {
+  id: 'id',
+  kod: 'kod',
+  ad: 'ad',
+  sira: 'sira'
+} as const
+
+export type AnaRolScalarFieldEnum = (typeof AnaRolScalarFieldEnum)[keyof typeof AnaRolScalarFieldEnum]
+
+
+export const YanRolScalarFieldEnum = {
+  id: 'id',
+  kod: 'kod',
+  ad: 'ad',
+  sira: 'sira'
+} as const
+
+export type YanRolScalarFieldEnum = (typeof YanRolScalarFieldEnum)[keyof typeof YanRolScalarFieldEnum]
+
+
+export const UserYanRolScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  yanRolId: 'yanRolId'
+} as const
+
+export type UserYanRolScalarFieldEnum = (typeof UserYanRolScalarFieldEnum)[keyof typeof UserYanRolScalarFieldEnum]
 
 
 export const BolgeScalarFieldEnum = {
