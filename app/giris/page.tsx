@@ -145,10 +145,12 @@ function TopBar() {
 }
 
 /* ── Adım 1: Birim gruplarına ayrılmış giriş menüsü ── */
-function RoleSelect({ groups, baslik, aciklama, onSelect }: {
+function RoleSelect({ groups, baslik, aciklama, genis, onSelect }: {
   groups: typeof GRUPLAR;
   baslik?: string;
   aciklama?: string;
+  /** 4 kartı tek sırada göster (lg:4 sütun, daha geniş container) */
+  genis?: boolean;
   onSelect: (r: RoleKey) => void;
 }) {
   return (
@@ -170,7 +172,7 @@ function RoleSelect({ groups, baslik, aciklama, onSelect }: {
       </div>
 
       {/* Birim grupları */}
-      <div className="w-full max-w-5xl space-y-7">
+      <div className={`w-full space-y-7 ${genis ? "max-w-6xl" : "max-w-5xl"}`}>
         {groups.map(grup => (
           <div key={grup.baslik}>
             {grup.baslik && (
@@ -179,7 +181,7 @@ function RoleSelect({ groups, baslik, aciklama, onSelect }: {
                 <span className="text-[12px]" style={{ color: "#94A3B8" }}>{grup.aciklama}</span>
               </div>
             )}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${genis ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
               {grup.kartlar.map(card => (
                 <RoleCard key={card.key} role={card} onSelect={onSelect} />
               ))}
@@ -600,6 +602,7 @@ function GirisInner() {
           groups={GOREVLI_GRUBU}
           baslik="Görevli Girişi"
           aciklama="Hangi birimden giriş yapmak veya başvurmak istediğinizi seçin."
+          genis
           onSelect={setSelectedRole}
         />
       )}

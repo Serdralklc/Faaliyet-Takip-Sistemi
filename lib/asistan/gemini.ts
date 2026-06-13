@@ -40,13 +40,21 @@ export class GeminiError extends Error {
   }
 }
 
+/**
+ * API anahtarını döner. İki isim de kabul edilir: GEMINI_API_KEY (öncelikli)
+ * veya GEMINI_API_KEY_SV. Böylece Railway'de hangisi tanımlıysa çalışır.
+ */
+function apiKey(): string {
+  return (process.env.GEMINI_API_KEY?.trim() || process.env.GEMINI_API_KEY_SV?.trim() || "");
+}
+
 export function geminiYapilandirildiMi(): boolean {
-  return Boolean(process.env.GEMINI_API_KEY?.trim());
+  return Boolean(apiKey());
 }
 
 /** Düşük seviyeli tek API çağrısı — ilk adayın content'ini döner. */
 async function callGemini(body: Record<string, unknown>): Promise<Content> {
-  const key = process.env.GEMINI_API_KEY?.trim();
+  const key = apiKey();
   if (!key) throw new GeminiError("GEMINI_API_KEY tanımlı değil.", 500);
   const model = process.env.GEMINI_MODEL?.trim() || DEFAULT_MODEL;
 
