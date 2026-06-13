@@ -327,3 +327,231 @@ export async function exportWord(spec: ExportSpec): Promise<void> {
   const blob = await Packer.toBlob(doc);
   downloadBlob(blob, `${dosyaAdi(spec)}.docx`);
 }
+
+/* ══════════════════════ BİRLEŞİK (çok bölümlü) ══════════════════════ */
+/* Genel Rapor: birden çok birim tek dosyada, üst üste bölümler hâlinde. */
+
+export interface ExportSection {
+  heading: string;
+  /** Bölüm başlığı rengi (hex) — verilmezse marka yeşili */
+  renk?: string;
+  columns: ExportColumn[];
+  rows: Record<string, string | number | null | undefined>[];
+}
+export interface CombinedSpec {
+  title: string;
+  subtitle?: string;
+  fileName?: string;
+  sections: ExportSection[];
+}
+
+function fileStamp(base: string): string {
+  const tarih = new Date().toISOString().slice(0, 10);
+  return `${base.replace(/[^\p{L}\p{N}\-_ ]/gu, "").trim().replace(/\s+/g, "-")}-${tarih}`;
+}
+function hexToRgb(h: string): [number, number, number] {
+  const m = h.replace("#", "");
+  return [parseInt(m.slice(0, 2), 16), parseInt(m.slice(2, 4), 16), parseInt(m.slice(4, 6), 16)];
+}
+function argb(h: string): string {
+  return "FF" + h.replace("#", "").toUpperCase();
+}
+
+export async function exportCombinedPdf(spec: CombinedSpec): Promise<void> {
+  const [{ jsPDF }, autoTableMod, logo, fontReg, fontBold] = await Promise.all([
+    import("jspdf"),
+    import("jspdf-autotable"),
+    logoPng(),
+    fontBase64("/fonts/Roboto-Regular.ttf"),
+    fontBase64("/fonts/Roboto-Bold.ttf"),
+  ]);
+  const autoTable = autoTableMod.default;
+
+  // En geniş bölüme göre sayfa boyutu — çok sütunlu birimler için A3 yatay
+  const maxCols = Math.max(4, ...spec.sections.map(s => s.columns.length));
+  const format = maxCols > 9 ? "a3" : "a4";
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format });
+
+  doc.addFileToVFS("Roboto-Regular.ttf", fontReg);
+  doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
+  doc.addFileToVFS("Roboto-Bold.ttf", fontBold);
+  doc.addFont("Roboto-Bold.ttf", "Roboto", "bold");
+  doc.setFont("Roboto", "normal");
+
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const totalPagesExp = "{total_pages_count_string}";
+
+  // Marka başlık bandı
+  const bandH = 22;
+  doc.setFillColor(...BRAND_GREEN_RGB);
+  doc.rect(0, 0, pageW, bandH, "F");
+  if (logo) doc.addImage(logo.dataUrl, "PNG", 8, 4, 14, 14);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("Roboto", "bold");
+  doc.setFontSize(14);
+  doc.text(spec.title, logo ? 26 : 10, spec.subtitle ? 10 : 13);
+  if (spec.subtitle) {
+    doc.setFont("Roboto", "normal");
+    doc.setFontSize(9);
+    doc.text(spec.subtitle, logo ? 26 : 10, 16);
+  }
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(9);
+  doc.text(bugun(), pageW - 8, 10, { align: "right" });
+  doc.setFontSize(8);
+  doc.text("Serhendi Gençlik — Faaliyet Takip Sistemi", pageW - 8, 15.5, { align: "right" });
+
+  const drawFooter = () => {
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text(`Sayfa ${doc.getCurrentPageInfo().pageNumber} / ${totalPagesExp}`, pageW - 8, pageH - 6, { align: "right" });
+  };
+
+  let y = bandH + 6;
+  for (const section of spec.sections) {
+    const rgb = hexToRgb(section.renk ?? BRAND_GREEN);
+    // Yeni bölüm başlığı sayfaya sığmıyorsa yeni sayfa
+    if (y > pageH - 30) { doc.addPage(); y = 12; }
+    doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+    doc.roundedRect(8, y, pageW - 16, 8, 1.5, 1.5, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("Roboto", "bold");
+    doc.setFontSize(10);
+    doc.text(`${section.heading}  (${section.rows.length} kayıt)`, 12, y + 5.5);
+    y += 11;
+
+    autoTable(doc, {
+      startY: y,
+      head: [section.columns.map(c => c.header)],
+      body: section.rows.map(r => section.columns.map(c => hucre(r[c.key]))),
+      styles: { font: "Roboto", fontSize: 7.5, cellPadding: 1.8, textColor: [31, 41, 55], overflow: "linebreak" },
+      headStyles: { font: "Roboto", fontStyle: "bold", fillColor: rgb, textColor: [255, 255, 255], fontSize: 7.5 },
+      alternateRowStyles: { fillColor: [244, 247, 245] },
+      margin: { left: 8, right: 8, top: 12 },
+      didDrawPage: drawFooter,
+    });
+    // @ts-expect-error lastAutoTable jspdf-autotable tarafından eklenir
+    y = (doc.lastAutoTable?.finalY ?? y) + 9;
+  }
+
+  doc.putTotalPages(totalPagesExp);
+  doc.save(`${fileStamp(spec.fileName ?? spec.title)}.pdf`);
+}
+
+export async function exportCombinedExcel(spec: CombinedSpec): Promise<void> {
+  const [ExcelJS, logo] = await Promise.all([import("exceljs"), logoPng()]);
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "Serhendi Gençlik — Faaliyet Takip Sistemi";
+
+  const used = new Set<string>();
+  spec.sections.forEach((section, idx) => {
+    let name = (section.heading || `Bölüm ${idx + 1}`).slice(0, 28).replace(/[\\/?*[\]:]/g, " ");
+    while (used.has(name)) name = name.slice(0, 26) + " " + (idx + 1);
+    used.add(name);
+    const ws = wb.addWorksheet(name, { views: [{ state: "frozen", ySplit: 4 }] });
+    const fill = argb(section.renk ?? BRAND_GREEN);
+    const colCount = section.columns.length;
+    const lastCol = ws.getColumn(colCount).letter;
+
+    ws.mergeCells(`A1:${lastCol}1`);
+    const titleCell = ws.getCell("A1");
+    titleCell.value = `  ${section.heading}`;
+    titleCell.font = { name: "Calibri", size: 14, bold: true, color: { argb: "FFFFFFFF" } };
+    titleCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: fill } };
+    titleCell.alignment = { vertical: "middle" };
+    ws.getRow(1).height = 30;
+
+    ws.mergeCells(`A2:${lastCol}2`);
+    const subCell = ws.getCell("A2");
+    subCell.value = `  ${spec.subtitle ? spec.subtitle + "  •  " : ""}${bugun()}  •  ${section.rows.length} kayıt`;
+    subCell.font = { size: 10, italic: true, color: { argb: "FF64748B" } };
+    ws.getRow(2).height = 18;
+    ws.getRow(3).height = 6;
+
+    if (logo) {
+      const imgId = wb.addImage({ base64: logo.dataUrl, extension: "png" });
+      ws.addImage(imgId, { tl: { col: 0.05, row: 0.05 }, ext: { width: 26, height: 26 } });
+    }
+
+    const headRow = ws.getRow(4);
+    section.columns.forEach((c, i) => {
+      const cell = headRow.getCell(i + 1);
+      cell.value = c.header;
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10 };
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: fill } };
+      cell.alignment = { vertical: "middle", horizontal: "left", wrapText: true };
+    });
+    headRow.height = 20;
+
+    section.rows.forEach((r, ri) => {
+      const row = ws.getRow(5 + ri);
+      section.columns.forEach((c, ci) => {
+        const cell = row.getCell(ci + 1);
+        const v = r[c.key];
+        cell.value = v === null || v === undefined || v === "" ? "—" : (v as string | number);
+        cell.font = { size: 10 };
+        if (ri % 2 === 1) cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF4F7F5" } };
+        if (typeof v === "number") cell.alignment = { horizontal: "right" };
+      });
+    });
+
+    section.columns.forEach((c, i) => {
+      const maxLen = Math.max(c.header.length, ...section.rows.slice(0, 200).map(r => hucre(r[c.key]).length));
+      ws.getColumn(i + 1).width = Math.min(40, Math.max(10, maxLen + 3));
+    });
+  });
+
+  const buf = await wb.xlsx.writeBuffer();
+  downloadBlob(
+    new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }),
+    `${fileStamp(spec.fileName ?? spec.title)}.xlsx`
+  );
+}
+
+export async function exportCombinedWord(spec: CombinedSpec): Promise<void> {
+  const [docx, logo] = await Promise.all([import("docx"), logoPng()]);
+  const {
+    Document, Packer, Paragraph, TextRun, ImageRun, Table, TableRow, TableCell,
+    WidthType, AlignmentType, BorderStyle, ShadingType,
+  } = docx;
+
+  const children: unknown[] = [
+    ...(logo
+      ? [new Paragraph({ alignment: AlignmentType.CENTER, children: [new ImageRun({ type: "png", data: logo.bytes, transformation: { width: 48, height: 48 } })] })]
+      : []),
+    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: spec.title, bold: true, size: 32, color: "0B6B3A" })] }),
+    ...(spec.subtitle ? [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: spec.subtitle, size: 20, color: "475569" })] })] : []),
+    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, children: [new TextRun({ text: `${bugun()}  •  Serhendi Gençlik — Faaliyet Takip Sistemi`, size: 16, color: "64748B", italics: true })] }),
+  ];
+
+  for (const section of spec.sections) {
+    const fill = section.renk ? section.renk.replace("#", "") : "0B6B3A";
+    children.push(
+      new Paragraph({ spacing: { before: 200, after: 80 }, children: [new TextRun({ text: section.heading, bold: true, size: 24, color: fill })] }),
+    );
+    const headerCells = section.columns.map(c =>
+      new TableCell({ shading: { type: ShadingType.SOLID, fill }, children: [new Paragraph({ children: [new TextRun({ text: c.header, bold: true, color: "FFFFFF", size: 16 })] })] })
+    );
+    const dataRows = section.rows.map((r, ri) =>
+      new TableRow({ children: section.columns.map(c =>
+        new TableCell({ shading: ri % 2 === 1 ? { type: ShadingType.SOLID, fill: "F4F7F5" } : undefined, children: [new Paragraph({ children: [new TextRun({ text: hucre(r[c.key]), size: 16 })] })] })
+      ) })
+    );
+    children.push(
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.SINGLE, size: 2, color: "E2E8F0" }, bottom: { style: BorderStyle.SINGLE, size: 2, color: "E2E8F0" },
+          left: { style: BorderStyle.SINGLE, size: 2, color: "E2E8F0" }, right: { style: BorderStyle.SINGLE, size: 2, color: "E2E8F0" },
+          insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "E2E8F0" }, insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "E2E8F0" },
+        },
+        rows: [new TableRow({ tableHeader: true, children: headerCells }), ...dataRows],
+      }),
+    );
+  }
+
+  const doc = new Document({ sections: [{ children: children as never }] });
+  const blob = await Packer.toBlob(doc);
+  downloadBlob(blob, `${fileStamp(spec.fileName ?? spec.title)}.docx`);
+}

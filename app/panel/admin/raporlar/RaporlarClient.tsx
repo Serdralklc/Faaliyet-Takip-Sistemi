@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ExportButtons } from "@/components/ui/ExportButtons";
+import { LayoutGrid, BookOpen, School, GraduationCap, Users, Home } from "lucide-react";
+import { ExportButtons, CombinedExportButtons } from "@/components/ui/ExportButtons";
+import type { CombinedSpec } from "@/lib/export/corporate";
 
 /* ── Types ── */
 interface Activity {
@@ -54,14 +56,28 @@ const SISTEM_INFO: Record<string, { title: string; color: string }> = {
   LISE:       { title: "Lise Gençlik Sistemi",       color: "#7C3AED" },
 };
 
-// Eğitimci sistem sekmeleri (5 birim)
+// Eğitimci sistem sekmeleri — Genel Rapor + 5 birim
 const EGITIMCI_TABS = [
-  { key: "uni",   label: "Üniversite Birimi" },
-  { key: "lise",  label: "Lise Birimi" },
-  { key: "ilk",   label: "İlköğretim Birimi" },
-  { key: "ortak", label: "Ortak Faaliyetler" },
+  { key: "genel", label: "Genel Rapor" },
+  { key: "ilk",   label: "İlköğretim Raporu" },
+  { key: "lise",  label: "Lise Raporu" },
+  { key: "uni",   label: "Üniversite Raporu" },
+  { key: "ortak", label: "Ortak Faaliyet" },
   { key: "eay",   label: "Ev / Apart / Yurt" },
 ] as const;
+
+// Sekme renkleri + ikonları (premium görsel)
+const TAB_META: Record<string, { renk: string; icon: React.ElementType }> = {
+  genel: { renk: "#4F46E5", icon: LayoutGrid },
+  ilk:   { renk: "#0B6B3A", icon: BookOpen },
+  lise:  { renk: "#7C3AED", icon: School },
+  uni:   { renk: "#1D4ED8", icon: GraduationCap },
+  ortak: { renk: "#B45309", icon: Users },
+  eay:   { renk: "#0891B2", icon: Home },
+};
+
+// Genel Rapor'a dahil edilebilecek birimler (akademik 4 birim)
+const GENEL_BIRIMLER = ["ilk", "lise", "uni", "ortak"] as const;
 
 const UNIVERSITE_TABS = [
   { key: "uni", label: "Üniversite Birimi" },
@@ -885,6 +901,148 @@ function BirimTabPanel({
 }
 
 /* ══════════════════════════════════════
+   GENEL RAPOR PANELİ — çok birimli, birleşik filtre + birleşik dışa aktarma
+══════════════════════════════════════ */
+function GenelRaporPanel({ bolgeler, yillar }: { bolgeler: Bolge[]; yillar: number[] }) {
+  const thisYear = new Date().getFullYear();
+  const [yil, setYil]     = useState(String(yillar[0] ?? thisYear));
+  const [donem, setDonem] = useState("TUM");
+  const [scope, setScope] = useState<Scope>("region");
+  const [regionIds, setRegionIds] = useState<string[]>([]);
+  const [sortDir, setSortDir] = useState<SortDir>(null);
+  const [birimler, setBirimler] = useState<BirimKey[]>([...GENEL_BIRIMLER]);
+
+  const color = TAB_META.genel.renk;
+  const ALL_DONEM = ["DONEM_1", "DONEM_2", "YAZ_DONEMI"];
+
+  const gosterilecekBolgeler = useMemo(
+    () => (regionIds.length === 0 ? bolgeler : bolgeler.filter(b => regionIds.includes(b.id))),
+    [bolgeler, regionIds],
+  );
+  const seciliBirimler = GENEL_BIRIMLER.filter(b => birimler.includes(b));
+  const birimDonemler = (b: BirimKey) =>
+    (donem === "TUM" ? DONEMLER_BY_BIRIM[b] : [donem]).filter(d => DONEMLER_BY_BIRIM[b].includes(d));
+
+  function toggleBirim(b: BirimKey) {
+    setBirimler(prev => prev.includes(b) ? prev.filter(x => x !== b) : [...prev, b]);
+  }
+
+  function combinedSpec(): CombinedSpec {
+    const sections = seciliBirimler.map(b => {
+      const cols = COLS_BY_BIRIM[b];
+      const rows: Record<string, string | number>[] = [];
+      for (const d of birimDonemler(b)) {
+        for (const bolge of gosterilecekBolgeler) {
+          for (const il of bolge.iller) {
+            const acts = filterActs(il.activities, Number(yil), d);
+            if (!acts.length) continue;
+            const row: Record<string, string | number> = { bolge: bolge.ad, il: il.ad, donem: DONEM_LABEL[d] ?? d };
+            for (const c of cols) row[c.field as string] = sum(acts, c.field);
+            rows.push(row);
+          }
+        }
+      }
+      return {
+        heading: BIRIM_LABEL[b],
+        renk: TAB_META[b].renk,
+        columns: [
+          { header: "Bölge", key: "bolge" }, { header: "İl", key: "il" }, { header: "Dönem", key: "donem" },
+          ...cols.map(c => ({ header: c.label, key: c.field as string })),
+        ],
+        rows,
+      };
+    }).filter(s => s.rows.length > 0);
+    return {
+      title: "Genel Faaliyet Raporu",
+      subtitle: `${yil} • ${donem === "TUM" ? "Tüm Dönemler" : DONEM_LABEL[donem] ?? donem} • ${regionIds.length ? gosterilecekBolgeler.length + " Bölge" : "Türkiye geneli"}`,
+      fileName: `genel-rapor-${yil}`,
+      sections,
+    };
+  }
+
+  const chips: { id: string; label: string; onRemove: () => void }[] = [];
+  if (scope !== "region") chips.push({ id: "scope", label: `Kapsam: ${SCOPE_OPTS.find(s => s.key === scope)!.label}`, onRemove: () => setScope("region") });
+  if (donem !== "TUM") chips.push({ id: "donem", label: DONEM_LABEL[donem] ?? donem, onRemove: () => setDonem("TUM") });
+  if (regionIds.length > 0) {
+    const noLabel = bolgeler.filter(b => regionIds.includes(b.id)).sort((a, b) => a.no - b.no).map(b => b.no).join(", ");
+    chips.push({ id: "regions", label: `Bölge: ${noLabel}`, onRemove: () => setRegionIds([]) });
+  }
+  if (sortDir) chips.push({ id: "sort", label: sortDir === "desc" ? "En Yüksek" : "En Düşük", onRemove: () => setSortDir(null) });
+  function clearAll() { setDonem("TUM"); setScope("region"); setRegionIds([]); setSortDir(null); }
+
+  const selectCls = "border rounded-lg px-3 py-1.5 text-sm font-semibold focus:outline-none cursor-pointer";
+  const selectStyle = { borderColor: "var(--border-input)", background: "var(--bg-input)", color: "var(--text-primary)" } as const;
+
+  return (
+    <div className="space-y-5">
+      <div className="sv-section p-4 space-y-3 sticky top-0 z-20" style={{ background: "var(--bg-card)", overflow: "visible" }}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <ScopeToggle scope={scope} onScope={setScope} color={color} />
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Yıl</span>
+              <select value={yil} onChange={e => setYil(e.target.value)} className={selectCls} style={selectStyle}>
+                {yillar.map(y => <option key={y} value={String(y)}>{y}</option>)}
+              </select>
+            </div>
+            <MultiRegionSelect bolgeler={bolgeler} selected={regionIds} onChange={setRegionIds} color={color} />
+            <DonemChips donem={donem} donemler={ALL_DONEM} onDonem={setDonem} color={color} />
+            <SortQuick sortDir={sortDir} onSort={setSortDir} color={color} />
+          </div>
+          <CombinedExportButtons getSpec={combinedSpec} renk={color} />
+        </div>
+
+        {/* Birim seçici (çoklu) — istediğin birimleri dahil et */}
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <span className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>Birimler</span>
+          {GENEL_BIRIMLER.map(b => {
+            const active = birimler.includes(b);
+            const m = TAB_META[b];
+            const Icon = m.icon;
+            return (
+              <button key={b} onClick={() => toggleBirim(b)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition border"
+                style={active
+                  ? { background: m.renk, color: "#fff", borderColor: m.renk, boxShadow: `0 2px 6px ${m.renk}40` }
+                  : { background: m.renk + "10", color: m.renk, borderColor: m.renk + "30" }}>
+                <Icon size={14} strokeWidth={active ? 2.5 : 2} />
+                {BIRIM_LABEL[b]}
+                {active && <span style={{ opacity: 0.85 }}>✓</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        <FilterChips items={chips} onClear={clearAll} />
+      </div>
+
+      {seciliBirimler.length === 0 ? (
+        <div className="sv-section p-10 text-center text-sm" style={{ color: "var(--text-muted)" }}>
+          Görüntülemek için en az bir birim seçin.
+        </div>
+      ) : seciliBirimler.map(b => {
+        const m = TAB_META[b];
+        const Icon = m.icon;
+        return (
+          <div key={b} className="space-y-3">
+            <div className="flex items-center gap-2.5 px-1 pt-1">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: m.renk + "15", color: m.renk }}>
+                <Icon size={17} />
+              </div>
+              <h2 className="text-lg font-black" style={{ color: m.renk, letterSpacing: "-0.01em" }}>{BIRIM_LABEL[b]}</h2>
+            </div>
+            {birimDonemler(b).map(d => (
+              <BirimTable key={`${b}-${d}-${scope}`} bolgeler={gosterilecekBolgeler} yil={Number(yil)} donem={d}
+                cols={COLS_BY_BIRIM[b]} color={m.renk} scope={scope} sortDir={sortDir} />
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
    ANA COMPONENT
 ══════════════════════════════════════ */
 export function RaporlarClient({ sistem, bolgeler, yillar }: Props) {
@@ -911,31 +1069,44 @@ export function RaporlarClient({ sistem, bolgeler, yillar }: Props) {
         </p>
       </div>
 
-      {/* Birim sekmeleri */}
-      <div className="flex gap-1 p-1 rounded-xl border w-fit" style={{ background: "var(--bg-th)", borderColor: "var(--border)" }}>
-        {tabs.map(t => (
-          <button
-            key={t.key}
-            onClick={() => setActiveTab(t.key)}
-            className="px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap"
-            style={activeTab === t.key
-              ? { background: color, color: "#fff", boxShadow: `0 2px 8px ${color}40` }
-              : { color: "var(--text-muted)" }
-            }
-          >
-            {t.label}
-          </button>
-        ))}
+      {/* Birim sekmeleri — premium renkli butonlar */}
+      <div className="flex flex-wrap gap-2">
+        {tabs.map(t => {
+          const m = TAB_META[t.key] ?? { renk: color, icon: LayoutGrid };
+          const active = activeTab === t.key;
+          const Icon = m.icon;
+          const isGenel = t.key === "genel";
+          return (
+            <button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap active:scale-[0.98]"
+              style={active
+                ? {
+                    background: isGenel ? `linear-gradient(135deg, ${m.renk}, #7C3AED)` : m.renk,
+                    color: "#fff", boxShadow: `0 4px 14px ${m.renk}55`,
+                  }
+                : { background: m.renk + "12", color: m.renk }}
+            >
+              <Icon size={16} strokeWidth={active ? 2.5 : 2} />
+              {t.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab içeriği */}
-      <BirimTabPanel
-        key={activeTab}
-        bolgeler={bolgeler}
-        yillar={yillar}
-        birim={activeTab as BirimKey}
-        color={color}
-      />
+      {activeTab === "genel" ? (
+        <GenelRaporPanel key="genel" bolgeler={bolgeler} yillar={yillar} />
+      ) : (
+        <BirimTabPanel
+          key={activeTab}
+          bolgeler={bolgeler}
+          yillar={yillar}
+          birim={activeTab as BirimKey}
+          color={(TAB_META[activeTab] ?? { renk: color }).renk}
+        />
+      )}
     </div>
   );
 }
