@@ -2,6 +2,7 @@ import "server-only";
 import {
   bolgeleriListele,
   bolgeOzeti,
+  ilOzeti,
   bolgeDonemKiyas,
   hedefGerceklesme,
   barinmaOgrencileri,
@@ -39,6 +40,24 @@ export const ARAC_TANIMLARI = [
             },
           },
           required: ["bolgeNo"],
+        },
+      },
+      {
+        name: "ilOzeti",
+        description:
+          "Bir İLİN/ŞEHRİN (örn. Samsun, Ankara, İstanbul) faaliyet özetini döner: ilköğretim/lise/üniversite/barınma sayıları — DERGAH SAYILARI dahil. Kullanıcı bölge numarası yerine bir il/şehir adı verdiğinde (ör. 'Samsun'daki toplam dergah', 'Ankara'da yeni intisap') bunu kullan.",
+        parameters: {
+          type: "object",
+          properties: {
+            ilAdi: { type: "string", description: "İl/şehir adı, örn. Samsun" },
+            yil: { type: "integer", description: "Yıl. Belirtilmezse en güncel yıl." },
+            donem: {
+              type: "string",
+              enum: ["DONEM_1", "DONEM_2", "YAZ_DONEMI"],
+              description: "Dönem. Belirtilmezse tüm dönemler toplanır.",
+            },
+          },
+          required: ["ilAdi"],
         },
       },
       {
@@ -103,6 +122,8 @@ export async function aracCalistir(isim: string, args: AracArgs): Promise<Record
         return await bolgeleriListele();
       case "bolgeOzeti":
         return await bolgeOzeti(args as any);
+      case "ilOzeti":
+        return await ilOzeti(args as any);
       case "bolgeDonemKiyas":
         return await bolgeDonemKiyas(args as any);
       case "hedefGerceklesme":

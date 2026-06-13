@@ -190,6 +190,47 @@ export async function bolgeOzeti(args: { bolgeNo: number; yil?: number; donem?: 
   };
 }
 
+// ── 2b) İl (şehir) özeti — ad ile sorgu ────────────────────────────
+export async function ilOzeti(args: { ilAdi: string; yil?: number; donem?: string | null }) {
+  const yil = args.yil ?? (await varsayilanYil());
+  const donem = donemNormalize(args.donem);
+  const ad = (args.ilAdi ?? "").trim();
+  if (!ad) return { hata: "İl adı belirtilmedi." };
+
+  const aktiviteWhere = { yil, ...(donem ? { donem } : {}) };
+  // Önce birebir (büyük/küçük harf duyarsız), bulunamazsa "içeren" arama
+  let iller = await prisma.il.findMany({
+    where: { ad: { equals: ad, mode: "insensitive" } },
+    include: { bolge: true, activities: { where: aktiviteWhere } },
+  });
+  if (iller.length === 0) {
+    iller = await prisma.il.findMany({
+      where: { ad: { contains: ad, mode: "insensitive" } },
+      include: { bolge: true, activities: { where: aktiviteWhere } },
+    });
+  }
+  if (iller.length === 0) return { hata: `"${ad}" adında bir il bulunamadı.` };
+
+  const tumActivities = iller.flatMap((il) => il.activities);
+  const lsTop = tumActivities.reduce((s, a) => s + lsToplamFaaliyet(a), 0);
+  const uniTop = tumActivities.reduce((s, a) => s + uniToplamFaaliyet(a), 0);
+
+  return {
+    il: iller[0].ad,
+    bolge: iller[0].bolge.no,
+    eslesenIlSayisi: iller.length,
+    yil,
+    donem: donem ? DONEM_LABEL[donem] : "Tüm dönemler",
+    ilkogretim: topla(tumActivities, IK_ALANLAR),
+    lise: { ...topla(tumActivities, LS_ALANLAR), "Toplam Lise Faaliyeti (6 tür)": lsTop },
+    universite: { ...topla(tumActivities, UNI_ALANLAR), "Toplam Üniversite Faaliyeti (8 tür)": uniTop },
+    barinma: topla(tumActivities, EAY_ALANLAR),
+    not: tumActivities.length === 0
+      ? `${iller[0].ad} için ${yil}${donem ? " " + DONEM_LABEL[donem] : ""} döneminde eğitimci sistemine veri girilmemiş.`
+      : undefined,
+  };
+}
+
 // ── 3) Dönem kıyaslaması (1. vs 2.) ────────────────────────────────
 export async function bolgeDonemKiyas(args: { bolgeNo: number; yil?: number }) {
   const yil = args.yil ?? (await varsayilanYil());
