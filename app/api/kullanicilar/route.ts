@@ -6,6 +6,7 @@ import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { sendInvitationEmail } from "@/lib/mail";
 import bcrypt from "bcryptjs";
 import { Role, Sistem } from "@/app/generated/prisma/client";
+import { rolAtayabilir } from "@/lib/constants";
 import {
   parseJson,
   readPagination,
@@ -142,8 +143,8 @@ export async function POST(req: NextRequest) {
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
   const { role } = session.user;
-  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(role)) {
-    return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
+  if (!rolAtayabilir(role, session.user.icerikYoneticisi)) {
+    return NextResponse.json({ error: "Kullanıcı davet etme (rol atama) yetkiniz yok" }, { status: 403 });
   }
 
   const r = await parseJson(req, inviteSchema);

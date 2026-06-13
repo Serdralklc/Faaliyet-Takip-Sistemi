@@ -59,6 +59,19 @@ export function gorevEtiket(role: Role | string, sistem?: string | null, merkezG
   return rolEtiket(role, sistem);
 }
 
+/**
+ * Rol atama / değiştirme yetkisi (davet, onaylama, yetki alma, görev atama, devir).
+ * Yalnızca: Sistem Admini + Türkiye Eğitim Sorumlusu + İçerik Yöneticisi yetkisi verilmiş kişi.
+ */
+export function rolAtayabilir(role: string, icerikYoneticisi?: boolean | null): boolean {
+  return role === "SISTEM_ADMIN" || role === "TURKIYE_EGITIM_SORUMLUSU" || !!icerikYoneticisi;
+}
+
+/** İçerik Yöneticisi rolünü verme/alma yetkisi: yalnızca Sistem Admini. */
+export function icerikYoneticisiAtayabilir(role: string): boolean {
+  return role === "SISTEM_ADMIN";
+}
+
 // Yönetici panelinden giriş yapan roller
 export const YONETICI_ROLLERI: Role[] = [
   "SISTEM_ADMIN",

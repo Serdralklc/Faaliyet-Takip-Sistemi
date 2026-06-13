@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { parseJson } from "@/lib/validation";
+import { icerikYoneticisiAtayabilir } from "@/lib/constants";
 
 const bodySchema = z.object({ deger: z.boolean() });
 
@@ -15,8 +16,8 @@ export async function POST(
   const { id } = await params;
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(session.user.role)) {
-    return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
+  if (!icerikYoneticisiAtayabilir(session.user.role)) {
+    return NextResponse.json({ error: "İçerik Yöneticisi rolünü yalnızca Sistem Admini verebilir" }, { status: 403 });
   }
 
   const r = await parseJson(req, bodySchema);

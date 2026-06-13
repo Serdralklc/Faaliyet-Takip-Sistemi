@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { parseJson } from "@/lib/validation";
+import { rolAtayabilir } from "@/lib/constants";
 import type { Role, MerkezGorev } from "@/app/generated/prisma/client";
 
 // Atanabilir merkez görevleri → {role, merkezGorev}
@@ -23,8 +24,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params;
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(session.user.role)) {
-    return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
+  if (!rolAtayabilir(session.user.role, session.user.icerikYoneticisi)) {
+    return NextResponse.json({ error: "Rol atama yetkiniz yok" }, { status: 403 });
   }
 
   const r = await parseJson(req, bodySchema);

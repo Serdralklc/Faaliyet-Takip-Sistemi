@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ROLE_LABELS, rolEtiket, gorevEtiket } from "@/lib/constants";
+import { ROLE_LABELS, rolEtiket, gorevEtiket, rolAtayabilir, icerikYoneticisiAtayabilir } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { Button } from "@/components/ui/Button";
@@ -198,6 +198,9 @@ export default function KullanicilarPage() {
 
   const sessionRole   = session?.user?.role ?? "";
   const sessionSistem = session?.user?.sistem ?? "";
+  // Yetkiler: rol atama (admin + TR Eğitim Sor. + İçerik Yöneticisi), İçerik Yöneticisi verme (yalnız admin)
+  const canRol    = rolAtayabilir(sessionRole, session?.user?.icerikYoneticisi);
+  const canIcerik = icerikYoneticisiAtayabilir(sessionRole);
   // Sistem kısıtlı roller yalnızca kendi sistemini yönetir
   const isTuriyeSorumlusu = SISTEM_KISITLI_ROLLER.includes(sessionRole);
 
@@ -465,7 +468,7 @@ export default function KullanicilarPage() {
           <div className="flex gap-2 flex-wrap">
             <button onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}
               className="text-xs text-blue-600 hover:underline font-medium">Şifre Ata</button>
-            {k.role !== "SISTEM_ADMIN" && (
+            {canRol && k.role !== "SISTEM_ADMIN" && (
               <button onClick={() => setShowYetkiKalModal(k)}
                 className="text-xs text-orange-500 hover:underline font-medium">Yetkiyi Al</button>
             )}
@@ -586,7 +589,7 @@ export default function KullanicilarPage() {
           <h1 className="text-2xl font-bold text-heading">Kullanıcı Yönetimi</h1>
           <p className="text-muted text-sm mt-1">Sistemlere göre kullanıcıları yönetin</p>
         </div>
-        {tab !== "gonullu" && tab !== "yetkili" && (
+        {tab !== "gonullu" && tab !== "yetkili" && canRol && (
           <button
             onClick={() => { setShowDavetModal(true); setDavetForm(f => ({ ...f, sistem: tabInfo.enum! })); }}
             className="text-white px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm"
@@ -707,7 +710,7 @@ export default function KullanicilarPage() {
             emptyText="Yetkili kullanıcı bulunamadı"
             rowActions={k => (
               <div className="flex gap-1.5 justify-end flex-wrap items-center">
-                {(k.role === "GENEL_MERKEZ" || k.role === "TEKNIK") && (
+                {canRol && (k.role === "GENEL_MERKEZ" || k.role === "TEKNIK") && (
                   <select
                     value={k.role === "TEKNIK" ? "TEKNIK" : (k.merkezGorev ?? "MERKEZ_EKIP")}
                     onChange={e => handleGorev(k, e.target.value)}
@@ -723,12 +726,12 @@ export default function KullanicilarPage() {
                   </select>
                 )}
                 <Button size="sm" variant="secondary" onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}>Şifre Ata</Button>
-                {k.role === "GENEL_MERKEZ" && (
+                {canIcerik && k.role === "GENEL_MERKEZ" && (
                   <Button size="sm" variant={k.icerikYoneticisi ? "ghost" : "primary"} onClick={() => handleIcerikToggle(k)}>
                     {k.icerikYoneticisi ? "İçerik Yön. Al" : "İçerik Yön. Ver"}
                   </Button>
                 )}
-                {k.role !== "SISTEM_ADMIN" && (
+                {canRol && k.role !== "SISTEM_ADMIN" && (
                   <Button size="sm" variant="ghost" onClick={() => setShowYetkiKalModal(k)}>Yetkiyi Al</Button>
                 )}
                 {k.role !== "SISTEM_ADMIN" && (
@@ -747,9 +750,9 @@ export default function KullanicilarPage() {
             searchText={k => `${k.ad} ${k.soyad} ${k.email}`}
             searchPlaceholder="Ad veya e-posta ara..."
             emptyText="Bekleyen başvuru yok"
-            selectable
-            bulkActions={[{ label: "Seçilenleri Onayla", tone: "primary", onClick: handleTopluOnay }]}
-            rowActions={k => (
+            selectable={canRol}
+            bulkActions={canRol ? [{ label: "Seçilenleri Onayla", tone: "primary", onClick: handleTopluOnay }] : []}
+            rowActions={k => canRol ? (
               <Button
                 size="sm"
                 variant="secondary"
@@ -765,7 +768,7 @@ export default function KullanicilarPage() {
               >
                 İncele
               </Button>
-            )}
+            ) : <span className="text-xs text-muted italic">salt görüntüleme</span>}
           />
         ) : (
           /* Aktif kullanıcılar — bölge gruplu */
