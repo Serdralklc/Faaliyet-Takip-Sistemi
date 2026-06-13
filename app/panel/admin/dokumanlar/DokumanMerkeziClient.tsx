@@ -75,7 +75,7 @@ interface DokumanlarYanit {
 
 type Oge = ({ tur: "klasor" } & Klasor) | ({ tur: "dosya" } & Dosya);
 
-type MenuAksiyon = "ad" | "tasi" | "erisim" | "paylas" | "sil";
+type MenuAksiyon = "ad" | "tasi" | "erisim" | "paylas" | "surum" | "sil";
 
 type IkonTipi = ComponentType<{ size?: number | string; className?: string; strokeWidth?: number | string }>;
 
@@ -94,6 +94,22 @@ const BOS_ERISIM: ErisimState = {
   erisimUniversite: false,
   erisimLise: false,
   erisimGonullu: false,
+};
+
+// Doküman yüklenince/güncellenince tetiklenecek bildirim kanalları
+const BILDIRIM_ALANLARI = [
+  { key: "bildirimSistem", label: "Sistem Bildirimi" },
+  { key: "bildirimPopup", label: "Pop-Up" },
+  { key: "bildirimDuyuru", label: "Duyuru Panosu" },
+] as const;
+
+type BildirimKey = (typeof BILDIRIM_ALANLARI)[number]["key"];
+type BildirimState = Record<BildirimKey, boolean>;
+
+const BOS_BILDIRIM: BildirimState = {
+  bildirimSistem: false,
+  bildirimPopup: false,
+  bildirimDuyuru: false,
 };
 
 /* ─────────────────────────── Yardımcılar ─────────────────────────── */
@@ -195,6 +211,40 @@ function ErisimSecimi({ deger, onChange }: { deger: ErisimState; onChange: (d: E
   );
 }
 
+/** Doküman yükleme/güncelleme sırasında bildirim kanalı seçimi (çoklu) */
+function BildirimSecimi({ deger, onChange }: { deger: BildirimState; onChange: (d: BildirimState) => void }) {
+  return (
+    <fieldset>
+      <legend className="text-[11px] font-bold uppercase tracking-wider text-muted mb-2">
+        Bildirim Gönder (opsiyonel)
+      </legend>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        {BILDIRIM_ALANLARI.map(a => {
+          const aktif = deger[a.key];
+          return (
+            <label
+              key={a.key}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer text-[13px] font-semibold transition"
+              style={aktif
+                ? { background: "var(--bg-active)", borderColor: "var(--accent)", color: "var(--accent)" }
+                : { borderColor: "var(--border)", color: "var(--text-muted)" }}
+            >
+              <input
+                type="checkbox"
+                checked={aktif}
+                onChange={e => onChange({ ...deger, [a.key]: e.target.checked })}
+                className="accent-[var(--accent-solid)]"
+              />
+              {a.label}
+            </label>
+          );
+        })}
+      </div>
+      <p className="mt-2 text-[12px] text-muted">Erişimi olan kullanıcılara bildirim, pop-up veya üst bant duyurusu gönderilir.</p>
+    </fieldset>
+  );
+}
+
 function MenuSatiri({
   ikon: Ikon, etiket, tehlikeli, onClick,
 }: { ikon: IkonTipi; etiket: string; tehlikeli?: boolean; onClick: () => void }) {
@@ -257,6 +307,9 @@ function OgeMenu({
                 <Download size={14} className="shrink-0" />
                 İndir
               </a>
+            )}
+            {oge.tur === "dosya" && (
+              <MenuSatiri ikon={Upload} etiket="Yeni Sürüm" onClick={() => onAksiyon("surum")} />
             )}
             <MenuSatiri ikon={Trash2} etiket="Sil" tehlikeli onClick={() => onAksiyon("sil")} />
           </div>
@@ -490,7 +543,14 @@ export function DokumanMerkeziClient() {
 
   const [yuklemeDosyalar, setYuklemeDosyalar] = useState<File[]>([]);
   const [yuklemeErisim, setYuklemeErisim] = useState<ErisimState>(BOS_ERISIM);
+  const [yuklemeBildirim, setYuklemeBildirim] = useState<BildirimState>(BOS_BILDIRIM);
   const [yukleniyor, setYukleniyor] = useState(false);
+
+  // Yeni sürüm yükleme
+  const [surumOge, setSurumOge] = useState<Oge | null>(null);
+  const [surumDosya, setSurumDosya] = useState<File | null>(null);
+  const [surumBildirim, setSurumBildirim] = useState<BildirimState>(BOS_BILDIRIM);
+  const [surumYukleniyor, setSurumYukleniyor] = useState(false);
 
   const [adOge, setAdOge] = useState<Oge | null>(null);
   const [yeniAd, setYeniAd] = useState("");
@@ -541,6 +601,11 @@ export function DokumanMerkeziClient() {
       case "paylas":
         setPaylasOge(oge);
         break;
+      case "surum":
+        setSurumDosya(null);
+        setSurumBildirim(BOS_BILDIRIM);
+        setSurumOge(oge);
+        break;
       case "sil":
         setSilOge(oge);
         break;
@@ -569,6 +634,7 @@ export function DokumanMerkeziClient() {
     e.target.value = "";
     if (secilen.length === 0) return;
     setYuklemeErisim(BOS_ERISIM);
+    setYuklemeBildirim(BOS_BILDIRIM);
     setYuklemeDosyalar(secilen);
   }
 
@@ -582,6 +648,7 @@ export function DokumanMerkeziClient() {
       fd.append("file", f);
       if (klasorId) fd.append("klasorId", klasorId);
       for (const a of ERISIM_ALANLARI) fd.append(a.key, yuklemeErisim[a.key] ? "1" : "0");
+      for (const a of BILDIRIM_ALANLARI) fd.append(a.key, yuklemeBildirim[a.key] ? "1" : "0");
       try {
         const res = await fetch("/api/dokumanlar/upload", { method: "POST", body: fd });
         if (res.ok) {
@@ -608,6 +675,30 @@ export function DokumanMerkeziClient() {
       });
     }
     yenile();
+  }
+
+  async function handleSurumYukle() {
+    if (!surumOge || !surumDosya) return;
+    setSurumYukleniyor(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", surumDosya);
+      for (const a of BILDIRIM_ALANLARI) fd.append(a.key, surumBildirim[a.key] ? "1" : "0");
+      const res = await fetch(`/api/dokumanlar/${surumOge.id}/surum`, { method: "POST", body: fd });
+      const d = (await res.json().catch(() => null)) as { error?: string; surum?: number } | null;
+      if (!res.ok) {
+        toast({ type: "error", title: "Yeni sürüm yüklenemedi", message: d?.error });
+        return;
+      }
+      toast({ type: "success", title: "Yeni sürüm yüklendi", message: d?.surum ? `Sürüm ${d.surum}` : undefined });
+      setSurumOge(null);
+      setSurumDosya(null);
+      yenile();
+    } catch {
+      toast({ type: "error", title: "Bağlantı hatası" });
+    } finally {
+      setSurumYukleniyor(false);
+    }
   }
 
   async function handleYenidenAdlandir() {
@@ -904,9 +995,42 @@ export function DokumanMerkeziClient() {
             })}
           </div>
           <ErisimSecimi deger={yuklemeErisim} onChange={setYuklemeErisim} />
+          <BildirimSecimi deger={yuklemeBildirim} onChange={setYuklemeBildirim} />
           <p className="text-[12px] text-muted">
             En fazla 20 MB; PDF, Office belgeleri ve görseller desteklenir.
           </p>
+        </div>
+      </Modal>
+
+      {/* ── Yeni Sürüm modalı ── */}
+      <Modal
+        open={!!surumOge}
+        onClose={() => { if (!surumYukleniyor) setSurumOge(null); }}
+        title={surumOge ? `Yeni Sürüm: ${surumOge.ad}` : "Yeni Sürüm"}
+        maxWidth={520}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setSurumOge(null)} disabled={surumYukleniyor}>Vazgeç</Button>
+            <Button onClick={handleSurumYukle} loading={surumYukleniyor} disabled={!surumDosya}>Yükle</Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-[13px] text-muted">
+            Yeni dosya mevcut dokümanın üzerine yazılır ve sürüm numarası artar. Eski sürüm saklanmaz.
+          </p>
+          <input
+            type="file"
+            onChange={e => setSurumDosya(e.target.files?.[0] ?? null)}
+            className="text-[13px]"
+          />
+          {surumDosya && (
+            <div className="rounded-xl border border-border px-3.5 py-2.5 flex items-center gap-2.5">
+              <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-heading">{surumDosya.name}</span>
+              <span className="text-[12px] text-muted shrink-0">{formatBoyut(surumDosya.size)}</span>
+            </div>
+          )}
+          <BildirimSecimi deger={surumBildirim} onChange={setSurumBildirim} />
         </div>
       </Modal>
 

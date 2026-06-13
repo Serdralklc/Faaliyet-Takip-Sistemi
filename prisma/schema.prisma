@@ -707,6 +707,8 @@ model Dokuman {
   boyut    Int
   mimeTipi String
   uzanti   String
+  /** Sürüm sayacı — yeni sürüm yüklendikçe artar (güncelleme takibi) */
+  surum    Int     @default(1)
 
   erisimEgitim     Boolean @default(false)
   erisimUniversite Boolean @default(false)

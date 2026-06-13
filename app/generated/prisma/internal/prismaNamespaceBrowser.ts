@@ -556,6 +556,7 @@ export const DokumanScalarFieldEnum = {
   boyut: 'boyut',
   mimeTipi: 'mimeTipi',
   uzanti: 'uzanti',
+  surum: 'surum',
   erisimEgitim: 'erisimEgitim',
   erisimUniversite: 'erisimUniversite',
   erisimLise: 'erisimLise',

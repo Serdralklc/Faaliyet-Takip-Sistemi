@@ -28,10 +28,12 @@ export type AggregateDokuman = {
 
 export type DokumanAvgAggregateOutputType = {
   boyut: number | null
+  surum: number | null
 }
 
 export type DokumanSumAggregateOutputType = {
   boyut: number | null
+  surum: number | null
 }
 
 export type DokumanMinAggregateOutputType = {
@@ -43,6 +45,7 @@ export type DokumanMinAggregateOutputType = {
   boyut: number | null
   mimeTipi: string | null
   uzanti: string | null
+  surum: number | null
   erisimEgitim: boolean | null
   erisimUniversite: boolean | null
   erisimLise: boolean | null
@@ -62,6 +65,7 @@ export type DokumanMaxAggregateOutputType = {
   boyut: number | null
   mimeTipi: string | null
   uzanti: string | null
+  surum: number | null
   erisimEgitim: boolean | null
   erisimUniversite: boolean | null
   erisimLise: boolean | null
@@ -81,6 +85,7 @@ export type DokumanCountAggregateOutputType = {
   boyut: number
   mimeTipi: number
   uzanti: number
+  surum: number
   erisimEgitim: number
   erisimUniversite: number
   erisimLise: number
@@ -95,10 +100,12 @@ export type DokumanCountAggregateOutputType = {
 
 export type DokumanAvgAggregateInputType = {
   boyut?: true
+  surum?: true
 }
 
 export type DokumanSumAggregateInputType = {
   boyut?: true
+  surum?: true
 }
 
 export type DokumanMinAggregateInputType = {
@@ -110,6 +117,7 @@ export type DokumanMinAggregateInputType = {
   boyut?: true
   mimeTipi?: true
   uzanti?: true
+  surum?: true
   erisimEgitim?: true
   erisimUniversite?: true
   erisimLise?: true
@@ -129,6 +137,7 @@ export type DokumanMaxAggregateInputType = {
   boyut?: true
   mimeTipi?: true
   uzanti?: true
+  surum?: true
   erisimEgitim?: true
   erisimUniversite?: true
   erisimLise?: true
@@ -148,6 +157,7 @@ export type DokumanCountAggregateInputType = {
   boyut?: true
   mimeTipi?: true
   uzanti?: true
+  surum?: true
   erisimEgitim?: true
   erisimUniversite?: true
   erisimLise?: true
@@ -254,6 +264,7 @@ export type DokumanGroupByOutputType = {
   boyut: number
   mimeTipi: string
   uzanti: string
+  surum: number
   erisimEgitim: boolean
   erisimUniversite: boolean
   erisimLise: boolean
@@ -296,6 +307,7 @@ export type DokumanWhereInput = {
   boyut?: Prisma.IntFilter<"Dokuman"> | number
   mimeTipi?: Prisma.StringFilter<"Dokuman"> | string
   uzanti?: Prisma.StringFilter<"Dokuman"> | string
+  surum?: Prisma.IntFilter<"Dokuman"> | number
   erisimEgitim?: Prisma.BoolFilter<"Dokuman"> | boolean
   erisimUniversite?: Prisma.BoolFilter<"Dokuman"> | boolean
   erisimLise?: Prisma.BoolFilter<"Dokuman"> | boolean
@@ -317,6 +329,7 @@ export type DokumanOrderByWithRelationInput = {
   boyut?: Prisma.SortOrder
   mimeTipi?: Prisma.SortOrder
   uzanti?: Prisma.SortOrder
+  surum?: Prisma.SortOrder
   erisimEgitim?: Prisma.SortOrder
   erisimUniversite?: Prisma.SortOrder
   erisimLise?: Prisma.SortOrder
@@ -341,6 +354,7 @@ export type DokumanWhereUniqueInput = Prisma.AtLeast<{
   boyut?: Prisma.IntFilter<"Dokuman"> | number
   mimeTipi?: Prisma.StringFilter<"Dokuman"> | string
   uzanti?: Prisma.StringFilter<"Dokuman"> | string
+  surum?: Prisma.IntFilter<"Dokuman"> | number
   erisimEgitim?: Prisma.BoolFilter<"Dokuman"> | boolean
   erisimUniversite?: Prisma.BoolFilter<"Dokuman"> | boolean
   erisimLise?: Prisma.BoolFilter<"Dokuman"> | boolean
@@ -362,6 +376,7 @@ export type DokumanOrderByWithAggregationInput = {
   boyut?: Prisma.SortOrder
   mimeTipi?: Prisma.SortOrder
   uzanti?: Prisma.SortOrder
+  surum?: Prisma.SortOrder
   erisimEgitim?: Prisma.SortOrder
   erisimUniversite?: Prisma.SortOrder
   erisimLise?: Prisma.SortOrder
@@ -389,6 +404,7 @@ export type DokumanScalarWhereWithAggregatesInput = {
   boyut?: Prisma.IntWithAggregatesFilter<"Dokuman"> | number
   mimeTipi?: Prisma.StringWithAggregatesFilter<"Dokuman"> | string
   uzanti?: Prisma.StringWithAggregatesFilter<"Dokuman"> | string
+  surum?: Prisma.IntWithAggregatesFilter<"Dokuman"> | number
   erisimEgitim?: Prisma.BoolWithAggregatesFilter<"Dokuman"> | boolean
   erisimUniversite?: Prisma.BoolWithAggregatesFilter<"Dokuman"> | boolean
   erisimLise?: Prisma.BoolWithAggregatesFilter<"Dokuman"> | boolean
@@ -407,6 +423,7 @@ export type DokumanCreateInput = {
   boyut: number
   mimeTipi: string
   uzanti: string
+  surum?: number
   erisimEgitim?: boolean
   erisimUniversite?: boolean
   erisimLise?: boolean
@@ -428,6 +445,7 @@ export type DokumanUncheckedCreateInput = {
   boyut: number
   mimeTipi: string
   uzanti: string
+  surum?: number
   erisimEgitim?: boolean
   erisimUniversite?: boolean
   erisimLise?: boolean
@@ -447,6 +465,7 @@ export type DokumanUpdateInput = {
   boyut?: Prisma.IntFieldUpdateOperationsInput | number
   mimeTipi?: Prisma.StringFieldUpdateOperationsInput | string
   uzanti?: Prisma.StringFieldUpdateOperationsInput | string
+  surum?: Prisma.IntFieldUpdateOperationsInput | number
   erisimEgitim?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -468,6 +487,7 @@ export type DokumanUncheckedUpdateInput = {
   boyut?: Prisma.IntFieldUpdateOperationsInput | number
   mimeTipi?: Prisma.StringFieldUpdateOperationsInput | string
   uzanti?: Prisma.StringFieldUpdateOperationsInput | string
+  surum?: Prisma.IntFieldUpdateOperationsInput | number
   erisimEgitim?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -488,6 +508,7 @@ export type DokumanCreateManyInput = {
   boyut: number
   mimeTipi: string
   uzanti: string
+  surum?: number
   erisimEgitim?: boolean
   erisimUniversite?: boolean
   erisimLise?: boolean
@@ -506,6 +527,7 @@ export type DokumanUpdateManyMutationInput = {
   boyut?: Prisma.IntFieldUpdateOperationsInput | number
   mimeTipi?: Prisma.StringFieldUpdateOperationsInput | string
   uzanti?: Prisma.StringFieldUpdateOperationsInput | string
+  surum?: Prisma.IntFieldUpdateOperationsInput | number
   erisimEgitim?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -525,6 +547,7 @@ export type DokumanUncheckedUpdateManyInput = {
   boyut?: Prisma.IntFieldUpdateOperationsInput | number
   mimeTipi?: Prisma.StringFieldUpdateOperationsInput | string
   uzanti?: Prisma.StringFieldUpdateOperationsInput | string
+  surum?: Prisma.IntFieldUpdateOperationsInput | number
   erisimEgitim?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -554,6 +577,7 @@ export type DokumanCountOrderByAggregateInput = {
   boyut?: Prisma.SortOrder
   mimeTipi?: Prisma.SortOrder
   uzanti?: Prisma.SortOrder
+  surum?: Prisma.SortOrder
   erisimEgitim?: Prisma.SortOrder
   erisimUniversite?: Prisma.SortOrder
   erisimLise?: Prisma.SortOrder
@@ -566,6 +590,7 @@ export type DokumanCountOrderByAggregateInput = {
 
 export type DokumanAvgOrderByAggregateInput = {
   boyut?: Prisma.SortOrder
+  surum?: Prisma.SortOrder
 }
 
 export type DokumanMaxOrderByAggregateInput = {
@@ -577,6 +602,7 @@ export type DokumanMaxOrderByAggregateInput = {
   boyut?: Prisma.SortOrder
   mimeTipi?: Prisma.SortOrder
   uzanti?: Prisma.SortOrder
+  surum?: Prisma.SortOrder
   erisimEgitim?: Prisma.SortOrder
   erisimUniversite?: Prisma.SortOrder
   erisimLise?: Prisma.SortOrder
@@ -596,6 +622,7 @@ export type DokumanMinOrderByAggregateInput = {
   boyut?: Prisma.SortOrder
   mimeTipi?: Prisma.SortOrder
   uzanti?: Prisma.SortOrder
+  surum?: Prisma.SortOrder
   erisimEgitim?: Prisma.SortOrder
   erisimUniversite?: Prisma.SortOrder
   erisimLise?: Prisma.SortOrder
@@ -608,6 +635,7 @@ export type DokumanMinOrderByAggregateInput = {
 
 export type DokumanSumOrderByAggregateInput = {
   boyut?: Prisma.SortOrder
+  surum?: Prisma.SortOrder
 }
 
 export type DokumanNullableScalarRelationFilter = {
@@ -681,6 +709,7 @@ export type DokumanCreateWithoutKlasorInput = {
   boyut: number
   mimeTipi: string
   uzanti: string
+  surum?: number
   erisimEgitim?: boolean
   erisimUniversite?: boolean
   erisimLise?: boolean
@@ -700,6 +729,7 @@ export type DokumanUncheckedCreateWithoutKlasorInput = {
   boyut: number
   mimeTipi: string
   uzanti: string
+  surum?: number
   erisimEgitim?: boolean
   erisimUniversite?: boolean
   erisimLise?: boolean
@@ -749,6 +779,7 @@ export type DokumanScalarWhereInput = {
   boyut?: Prisma.IntFilter<"Dokuman"> | number
   mimeTipi?: Prisma.StringFilter<"Dokuman"> | string
   uzanti?: Prisma.StringFilter<"Dokuman"> | string
+  surum?: Prisma.IntFilter<"Dokuman"> | number
   erisimEgitim?: Prisma.BoolFilter<"Dokuman"> | boolean
   erisimUniversite?: Prisma.BoolFilter<"Dokuman"> | boolean
   erisimLise?: Prisma.BoolFilter<"Dokuman"> | boolean
@@ -767,6 +798,7 @@ export type DokumanCreateWithoutPaylasimlarInput = {
   boyut: number
   mimeTipi: string
   uzanti: string
+  surum?: number
   erisimEgitim?: boolean
   erisimUniversite?: boolean
   erisimLise?: boolean
@@ -787,6 +819,7 @@ export type DokumanUncheckedCreateWithoutPaylasimlarInput = {
   boyut: number
   mimeTipi: string
   uzanti: string
+  surum?: number
   erisimEgitim?: boolean
   erisimUniversite?: boolean
   erisimLise?: boolean
@@ -821,6 +854,7 @@ export type DokumanUpdateWithoutPaylasimlarInput = {
   boyut?: Prisma.IntFieldUpdateOperationsInput | number
   mimeTipi?: Prisma.StringFieldUpdateOperationsInput | string
   uzanti?: Prisma.StringFieldUpdateOperationsInput | string
+  surum?: Prisma.IntFieldUpdateOperationsInput | number
   erisimEgitim?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -841,6 +875,7 @@ export type DokumanUncheckedUpdateWithoutPaylasimlarInput = {
   boyut?: Prisma.IntFieldUpdateOperationsInput | number
   mimeTipi?: Prisma.StringFieldUpdateOperationsInput | string
   uzanti?: Prisma.StringFieldUpdateOperationsInput | string
+  surum?: Prisma.IntFieldUpdateOperationsInput | number
   erisimEgitim?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -859,6 +894,7 @@ export type DokumanCreateManyKlasorInput = {
   boyut: number
   mimeTipi: string
   uzanti: string
+  surum?: number
   erisimEgitim?: boolean
   erisimUniversite?: boolean
   erisimLise?: boolean
@@ -877,6 +913,7 @@ export type DokumanUpdateWithoutKlasorInput = {
   boyut?: Prisma.IntFieldUpdateOperationsInput | number
   mimeTipi?: Prisma.StringFieldUpdateOperationsInput | string
   uzanti?: Prisma.StringFieldUpdateOperationsInput | string
+  surum?: Prisma.IntFieldUpdateOperationsInput | number
   erisimEgitim?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -896,6 +933,7 @@ export type DokumanUncheckedUpdateWithoutKlasorInput = {
   boyut?: Prisma.IntFieldUpdateOperationsInput | number
   mimeTipi?: Prisma.StringFieldUpdateOperationsInput | string
   uzanti?: Prisma.StringFieldUpdateOperationsInput | string
+  surum?: Prisma.IntFieldUpdateOperationsInput | number
   erisimEgitim?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -915,6 +953,7 @@ export type DokumanUncheckedUpdateManyWithoutKlasorInput = {
   boyut?: Prisma.IntFieldUpdateOperationsInput | number
   mimeTipi?: Prisma.StringFieldUpdateOperationsInput | string
   uzanti?: Prisma.StringFieldUpdateOperationsInput | string
+  surum?: Prisma.IntFieldUpdateOperationsInput | number
   erisimEgitim?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimUniversite?: Prisma.BoolFieldUpdateOperationsInput | boolean
   erisimLise?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -965,6 +1004,7 @@ export type DokumanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   boyut?: boolean
   mimeTipi?: boolean
   uzanti?: boolean
+  surum?: boolean
   erisimEgitim?: boolean
   erisimUniversite?: boolean
   erisimLise?: boolean
@@ -987,6 +1027,7 @@ export type DokumanSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   boyut?: boolean
   mimeTipi?: boolean
   uzanti?: boolean
+  surum?: boolean
   erisimEgitim?: boolean
   erisimUniversite?: boolean
   erisimLise?: boolean
@@ -1007,6 +1048,7 @@ export type DokumanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   boyut?: boolean
   mimeTipi?: boolean
   uzanti?: boolean
+  surum?: boolean
   erisimEgitim?: boolean
   erisimUniversite?: boolean
   erisimLise?: boolean
@@ -1027,6 +1069,7 @@ export type DokumanSelectScalar = {
   boyut?: boolean
   mimeTipi?: boolean
   uzanti?: boolean
+  surum?: boolean
   erisimEgitim?: boolean
   erisimUniversite?: boolean
   erisimLise?: boolean
@@ -1037,7 +1080,7 @@ export type DokumanSelectScalar = {
   updatedAt?: boolean
 }
 
-export type DokumanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ad" | "klasorId" | "url" | "storageKey" | "boyut" | "mimeTipi" | "uzanti" | "erisimEgitim" | "erisimUniversite" | "erisimLise" | "erisimGonullu" | "createdById" | "createdByName" | "createdAt" | "updatedAt", ExtArgs["result"]["dokuman"]>
+export type DokumanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ad" | "klasorId" | "url" | "storageKey" | "boyut" | "mimeTipi" | "uzanti" | "surum" | "erisimEgitim" | "erisimUniversite" | "erisimLise" | "erisimGonullu" | "createdById" | "createdByName" | "createdAt" | "updatedAt", ExtArgs["result"]["dokuman"]>
 export type DokumanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   klasor?: boolean | Prisma.Dokuman$klasorArgs<ExtArgs>
   paylasimlar?: boolean | Prisma.Dokuman$paylasimlarArgs<ExtArgs>
@@ -1071,6 +1114,10 @@ export type $DokumanPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     boyut: number
     mimeTipi: string
     uzanti: string
+    /**
+     * * Sürüm sayacı — yeni sürüm yüklendikçe artar (güncelleme takibi)
+     */
+    surum: number
     erisimEgitim: boolean
     erisimUniversite: boolean
     erisimLise: boolean
@@ -1512,6 +1559,7 @@ export interface DokumanFieldRefs {
   readonly boyut: Prisma.FieldRef<"Dokuman", 'Int'>
   readonly mimeTipi: Prisma.FieldRef<"Dokuman", 'String'>
   readonly uzanti: Prisma.FieldRef<"Dokuman", 'String'>
+  readonly surum: Prisma.FieldRef<"Dokuman", 'Int'>
   readonly erisimEgitim: Prisma.FieldRef<"Dokuman", 'Boolean'>
   readonly erisimUniversite: Prisma.FieldRef<"Dokuman", 'Boolean'>
   readonly erisimLise: Prisma.FieldRef<"Dokuman", 'Boolean'>

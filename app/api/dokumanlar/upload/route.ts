@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { canManageDocs } from "@/lib/dokuman-access";
 import { saveFile, IZINLI_TIPLER, MAX_DOSYA_BOYUTU } from "@/lib/storage";
+import { dokumanBildirimleriOlustur } from "@/lib/bildirim";
 
 export const dynamic = "force-dynamic";
 
@@ -75,6 +76,21 @@ export async function POST(req: NextRequest) {
     entityId: dokuman.id,
     newValue: { ad: file.name, boyut: file.size },
     description: `Doküman yüklendi: ${file.name}`,
+  }).catch(console.error);
+
+  // Bildirim kanalları (Sistem Bildirimi / Pop-Up / Duyuru) — seçiliyse otomatik üret
+  await dokumanBildirimleriOlustur({
+    ad: dokuman.ad,
+    klasorId,
+    erisimEgitim: dokuman.erisimEgitim,
+    erisimUniversite: dokuman.erisimUniversite,
+    erisimLise: dokuman.erisimLise,
+    erisimGonullu: dokuman.erisimGonullu,
+    sistemBildirim: flag("bildirimSistem"),
+    popup: flag("bildirimPopup"),
+    duyuru: flag("bildirimDuyuru"),
+    createdById: session.user.id,
+    createdByName: `${session.user.ad} ${session.user.soyad}`,
   }).catch(console.error);
 
   return NextResponse.json({ ...dokuman, url }, { status: 201 });
