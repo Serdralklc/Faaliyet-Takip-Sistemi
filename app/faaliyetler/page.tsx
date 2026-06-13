@@ -1,8 +1,10 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { PublicLayout } from "@/components/PublicLayout";
 import { Reveal } from "@/components/Reveal";
+import { HoverReveal, staggerContainer, staggerItem } from "@/components/motion";
 import { BRAND, useColors } from "@/lib/theme";
 
 interface ActivityDef {
@@ -91,7 +93,6 @@ const stats = [
 
 export default function FaaliyetlerPage() {
   const c = useColors();
-  const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [btn1Hovered, setBtn1Hovered] = useState(false);
   const [btn2Hovered, setBtn2Hovered] = useState(false);
   const [ctaBtn1Hovered, setCtaBtn1Hovered] = useState(false);
@@ -314,30 +315,29 @@ export default function FaaliyetlerPage() {
           </div>
 
           {/* Cards grid */}
-          <div
+          <motion.div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
               gap: "1.5rem",
             }}
+            variants={staggerContainer(0.08)}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.1 }}
           >
-            {activities.map((activity, idx) => {
-              const isHovered = hoveredIndex === idx;
-              return (
-                <Reveal key={activity.title} delay={(idx % 3) * 80}>
-                <div
-                  onMouseEnter={() => setHoveredIndex(idx)}
-                  onMouseLeave={() => setHoveredIndex(-1)}
+            {activities.map((activity) => (
+              <motion.div key={activity.title} variants={staggerItem} style={{ height: "100%" }}>
+                <HoverReveal
+                  lift={6}
+                  restShadow="0 2px 8px rgba(0,0,0,0.06)"
+                  hoverShadow="0 20px 60px rgba(0,0,0,0.15)"
+                  className="group"
                   style={{
                     background: c.sr,
                     border: `1px solid ${c.br}`,
                     borderRadius: 16,
                     padding: "1.75rem",
-                    transition: "all 0.25s ease",
-                    transform: isHovered ? "translateY(-6px)" : "translateY(0)",
-                    boxShadow: isHovered
-                      ? "0 20px 60px rgba(0,0,0,0.15)"
-                      : "0 2px 8px rgba(0,0,0,0.06)",
                     display: "flex",
                     flexDirection: "column",
                     gap: "1rem",
@@ -345,7 +345,8 @@ export default function FaaliyetlerPage() {
                   }}
                 >
                   {/* Icon circle */}
-                  <div
+                  <motion.div
+                    variants={{ rest: { scale: 1, rotate: 0 }, hover: { scale: 1.08, rotate: -4 } }}
                     style={{
                       width: 48,
                       height: 48,
@@ -371,38 +372,24 @@ export default function FaaliyetlerPage() {
                         d={activity.iconPath}
                       />
                     </svg>
-                  </div>
+                  </motion.div>
 
                   {/* Title */}
-                  <h3
-                    style={{
-                      fontWeight: 700,
-                      fontSize: 16,
-                      color: c.h,
-                      margin: 0,
-                      lineHeight: 1.3,
-                    }}
-                  >
+                  <h3 style={{ fontWeight: 700, fontSize: 16, color: c.h, margin: 0, lineHeight: 1.3 }}>
                     {activity.title}
                   </h3>
 
                   {/* Description */}
-                  <p
-                    style={{
-                      fontSize: 14,
-                      lineHeight: 1.7,
-                      color: c.b,
-                      margin: 0,
-                      flex: 1,
-                    }}
-                  >
+                  <p style={{ fontSize: 14, lineHeight: 1.7, color: c.b, margin: 0, flex: 1 }}>
                     {activity.desc}
                   </p>
 
                   {/* Ghost button */}
                   <div style={{ marginTop: "auto", paddingTop: 4 }}>
-                    <button
+                    <span
+                      className="group-hover:bg-[var(--bg-subtle)]"
                       style={{
+                        display: "inline-block",
                         background: "transparent",
                         border: `1px solid ${BRAND.green}`,
                         color: BRAND.green,
@@ -410,18 +397,16 @@ export default function FaaliyetlerPage() {
                         padding: "6px 16px",
                         fontSize: 13,
                         fontWeight: 600,
-                        cursor: "pointer",
-                        transition: "all 0.15s ease",
+                        transition: "background 0.15s ease",
                       }}
                     >
                       Detaylar →
-                    </button>
+                    </span>
                   </div>
-                </div>
-                </Reveal>
-              );
-            })}
-          </div>
+                </HoverReveal>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
 

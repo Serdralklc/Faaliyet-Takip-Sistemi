@@ -8,6 +8,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { motion, AnimatePresence } from "motion/react";
 import { BRAND, useTokens } from "@/lib/theme";
 
 export function ThemeBtn() {
@@ -98,38 +99,48 @@ export function LoginDropdown() {
         style={{ background: BRAND.green, color: "#FFFFFF" }}
       >
         Oturum Aç
-        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-          <path d={open ? "M2 8l4-4 4 4" : "M2 4l4 4 4-4"} stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-      {open && (
-        <div
-          className="absolute top-[calc(100%+10px)] right-0 w-[280px] rounded-2xl overflow-hidden shadow-2xl"
-          style={{ background: t.dropBg, border: "1px solid var(--border)" }}
+        <motion.svg
+          width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true"
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
         >
-          <div className="px-4 py-3 border-b" style={{ borderColor: t.border }}>
-            <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: t.muted }}>Giriş Türü</p>
-          </div>
-          {[GOREVLI_GIRIS, GONULLU_GIRIS].map((g, i) => (
-            <Link
-              key={g.href}
-              href={g.href}
-              onClick={() => setOpen(false)}
-              className={`flex items-center gap-3.5 px-4 py-3.5 transition-colors hover:bg-[var(--bg-subtle)] ${i > 0 ? "border-t" : ""}`}
-              style={i > 0 ? { borderColor: t.border } : undefined}
-            >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: g.renk + "18", color: g.renk }}>
-                {g.icon}
-              </div>
-              <div>
-                <p className="text-[14px] font-bold" style={{ color: t.heading }}>{g.baslik}</p>
-                <p className="text-[12px] mt-0.5" style={{ color: t.muted }}>{g.aciklama}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
+          <path d="M2 4l4 4 4-4" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </motion.svg>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.97 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="absolute top-[calc(100%+10px)] right-0 w-[280px] rounded-2xl overflow-hidden shadow-2xl"
+            style={{ background: t.dropBg, border: "1px solid var(--border)", transformOrigin: "top right" }}
+          >
+            <div className="px-4 py-3 border-b" style={{ borderColor: t.border }}>
+              <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: t.muted }}>Giriş Türü</p>
+            </div>
+            {[GOREVLI_GIRIS, GONULLU_GIRIS].map((g, i) => (
+              <Link
+                key={g.href}
+                href={g.href}
+                onClick={() => setOpen(false)}
+                className={`flex items-center gap-3.5 px-4 py-3.5 transition-colors hover:bg-[var(--bg-subtle)] ${i > 0 ? "border-t" : ""}`}
+                style={i > 0 ? { borderColor: t.border } : undefined}
+              >
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: g.renk + "18", color: g.renk }}>
+                  {g.icon}
+                </div>
+                <div>
+                  <p className="text-[14px] font-bold" style={{ color: t.heading }}>{g.baslik}</p>
+                  <p className="text-[12px] mt-0.5" style={{ color: t.muted }}>{g.aciklama}</p>
+                </div>
+              </Link>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -176,6 +187,8 @@ export function PublicNavbar({ transparentAtTop = false }: { transparentAtTop?: 
   }, [transparentAtTop]);
 
   const solid = !transparentAtTop || scrolled || menuOpen;
+  // En üstte + şeffaf: koyu hero üzerinde linkler/ikon beyaz görünür.
+  const onHero = transparentAtTop && !solid;
 
   return (
     <nav
@@ -199,10 +212,19 @@ export function PublicNavbar({ transparentAtTop = false }: { transparentAtTop?: 
             <Link
               key={l.href}
               href={l.href}
-              className="px-4 py-2 text-[13.5px] font-semibold rounded-lg transition-colors hover:text-[var(--nav-link-hover)]"
-              style={{ color: t.navLink }}
+              className={`group relative px-4 py-2 text-[13.5px] font-semibold rounded-lg transition-colors ${
+                onHero ? "text-white/90 hover:text-white" : "hover:text-[var(--nav-link-hover)]"
+              }`}
+              style={onHero ? undefined : { color: t.navLink }}
             >
-              {l.label}
+              <span className="inline-block transition-transform duration-200 group-hover:-translate-y-0.5">
+                {l.label}
+              </span>
+              {/* hover'da soldan büyüyen alt çizgi */}
+              <span
+                className="pointer-events-none absolute left-4 right-4 bottom-1 h-[2px] origin-left scale-x-0 rounded-full transition-transform duration-300 group-hover:scale-x-100"
+                style={{ background: BRAND.gold }}
+              />
             </Link>
           ))}
         </div>
@@ -221,7 +243,7 @@ export function PublicNavbar({ transparentAtTop = false }: { transparentAtTop?: 
             aria-label={menuOpen ? "Menüyü kapat" : "Menüyü aç"}
             aria-expanded={menuOpen}
             className="p-2 rounded-lg"
-            style={{ color: t.navLink }}
+            style={{ color: onHero ? "#FFFFFF" : t.navLink }}
           >
             {menuOpen
               ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -231,27 +253,45 @@ export function PublicNavbar({ transparentAtTop = false }: { transparentAtTop?: 
         </div>
       </div>
 
-      {menuOpen && (
-        <div className="lg:hidden px-5 py-5 border-t" style={{ background: t.navbar, borderColor: t.border }}>
-          {NAV_LINKS.map(l => (
-            <Link
-              key={l.href}
-              href={l.href}
-              onClick={() => setMenuOpen(false)}
-              className="block py-3.5 text-[14px] font-semibold border-b last:border-0"
-              style={{ color: t.body, borderColor: t.borderSubtle }}
-            >
-              {l.label}
-            </Link>
-          ))}
-          <div className="pt-4">
-            <Link href="/giris" className="block w-full py-3 text-center text-[14px] font-black rounded-xl"
-              style={{ background: BRAND.green, color: "#FFFFFF" }}>
-              Oturum Aç
-            </Link>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            key="mobile-menu"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="lg:hidden overflow-hidden border-t"
+            style={{ background: t.navbar, borderColor: t.border }}
+          >
+            <div className="px-5 py-5">
+              {NAV_LINKS.map((l, i) => (
+                <motion.div
+                  key={l.href}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.06 + i * 0.05, duration: 0.25 }}
+                >
+                  <Link
+                    href={l.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="block py-3.5 text-[14px] font-semibold border-b last:border-0"
+                    style={{ color: t.body, borderColor: t.borderSubtle }}
+                  >
+                    {l.label}
+                  </Link>
+                </motion.div>
+              ))}
+              <div className="pt-4">
+                <Link href="/giris" className="block w-full py-3 text-center text-[14px] font-black rounded-xl"
+                  style={{ background: BRAND.green, color: "#FFFFFF" }}>
+                  Oturum Aç
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

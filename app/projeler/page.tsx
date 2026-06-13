@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { PublicLayout } from "@/components/PublicLayout";
-import { Reveal } from "@/components/Reveal";
+import { MotionReveal, HoverReveal, hoverZoom, hoverOverlay, hoverSlideUp, staggerContainer, staggerItem } from "@/components/motion";
 import { BRAND, useColors } from "@/lib/theme";
 
 type BadgeStatus = "Devam Ediyor" | "Planlanıyor" | "Tamamlandı";
@@ -75,7 +76,6 @@ const stats = [
 
 export default function ProjelerPage() {
   const c = useColors();
-  const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [btn1Hovered, setBtn1Hovered] = useState(false);
   const [btn2Hovered, setBtn2Hovered] = useState(false);
   const [ctaBtn1Hovered, setCtaBtn1Hovered] = useState(false);
@@ -268,7 +268,7 @@ export default function ProjelerPage() {
       <section style={{ background: c.bg, padding: "5rem 0" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 2.5rem" }}>
           {/* Section header */}
-          <div style={{ textAlign: "center", marginBottom: 56 }}>
+          <MotionReveal style={{ textAlign: "center", marginBottom: 56 }}>
             <span
               style={{
                 fontSize: 11,
@@ -295,140 +295,147 @@ export default function ProjelerPage() {
             <p style={{ fontSize: 15, color: c.b, maxWidth: 560, margin: "0 auto" }}>
               Her proje, gençliğin ilmî, manevî ve sosyal gelişimine katkı sağlamak amacıyla tasarlanmıştır.
             </p>
-          </div>
+          </MotionReveal>
 
           {/* Cards grid */}
-          <div
+          <motion.div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
               gap: "2rem",
             }}
+            variants={staggerContainer(0.1)}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.15 }}
           >
-            {projects.map((project, idx) => {
+            {projects.map((project) => {
               const badge = statusStyles[project.status];
-              const isHovered = hoveredIndex === idx;
               return (
-                <Reveal key={project.title} delay={(idx % 3) * 80}>
-                <div
-                  onMouseEnter={() => setHoveredIndex(idx)}
-                  onMouseLeave={() => setHoveredIndex(-1)}
-                  style={{
-                    background: c.sr,
-                    border: `1px solid ${c.br}`,
-                    borderRadius: 20,
-                    overflow: "hidden",
-                    transition: "all 0.25s ease",
-                    transform: isHovered ? "translateY(-6px)" : "translateY(0)",
-                    boxShadow: isHovered
-                      ? "0 20px 60px rgba(0,0,0,0.15)"
-                      : "0 2px 8px rgba(0,0,0,0.06)",
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "100%",
-                  }}
-                >
-                  {/* Card image */}
-                  <div style={{ position: "relative", height: 220, overflow: "hidden" }}>
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        transition: "transform 0.4s ease",
-                        transform: isHovered ? "scale(1.06)" : "scale(1)",
-                        display: "block",
-                      }}
-                    />
-                  </div>
-
-                  {/* Card body */}
-                  <div
+                <motion.div key={project.title} variants={staggerItem} style={{ height: "100%" }}>
+                  <HoverReveal
+                    lift={8}
+                    restShadow="0 2px 8px rgba(0,0,0,0.06)"
+                    hoverShadow="0 22px 60px rgba(0,0,0,0.16)"
                     style={{
-                      padding: "1.5rem",
+                      background: c.sr,
+                      border: `1px solid ${c.br}`,
+                      borderRadius: 20,
+                      overflow: "hidden",
                       display: "flex",
                       flexDirection: "column",
-                      gap: "0.75rem",
-                      flex: 1,
+                      height: "100%",
                     }}
                   >
-                    {/* Status badge */}
-                    <div>
-                      <span
+                    {/* Card image + hover örtü + kayan buton */}
+                    <div style={{ position: "relative", height: 220, overflow: "hidden" }}>
+                      <motion.img
+                        src={project.image}
+                        alt={project.title}
+                        variants={hoverZoom}
+                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                      />
+                      {/* koyu yeşil örtü */}
+                      <motion.div
+                        aria-hidden="true"
+                        variants={hoverOverlay}
                         style={{
-                          display: "inline-block",
-                          background: badge.bg,
-                          color: badge.color,
-                          border: badge.border,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          borderRadius: 999,
-                          padding: "3px 12px",
+                          position: "absolute",
+                          inset: 0,
+                          background: "linear-gradient(to top, rgba(6,78,42,0.88) 0%, rgba(6,78,42,0.20) 70%, transparent 100%)",
                         }}
+                      />
+                      {/* alttan kayan buton */}
+                      <motion.div
+                        variants={hoverSlideUp}
+                        transition={{ type: "spring", stiffness: 260, damping: 22 }}
+                        style={{ position: "absolute", left: 0, right: 0, bottom: 18, display: "flex", justifyContent: "center" }}
                       >
-                        {project.status}
-                      </span>
+                        <span
+                          style={{
+                            background: "#FFFFFF",
+                            color: BRAND.greenDark,
+                            fontWeight: 800,
+                            fontSize: 13,
+                            padding: "10px 22px",
+                            borderRadius: 999,
+                            boxShadow: "0 8px 24px rgba(0,0,0,0.28)",
+                          }}
+                        >
+                          Projeyi İncele →
+                        </span>
+                      </motion.div>
                     </div>
 
-                    <h3
-                      style={{
-                        fontWeight: 700,
-                        fontSize: 18,
-                        color: c.h,
-                        margin: 0,
-                        lineHeight: 1.3,
-                      }}
-                    >
-                      {project.title}
-                    </h3>
-
-                    <p
-                      style={{
-                        fontSize: 14,
-                        lineHeight: 1.7,
-                        color: c.b,
-                        margin: 0,
-                        flex: 1,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                      }}
-                    >
-                      {project.desc}
-                    </p>
-
-                    {/* Bottom row */}
+                    {/* Card body */}
                     <div
                       style={{
+                        padding: "1.5rem",
                         display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        paddingTop: 8,
-                        borderTop: `1px solid ${c.br}`,
-                        marginTop: 4,
+                        flexDirection: "column",
+                        gap: "0.75rem",
+                        flex: 1,
                       }}
                     >
-                      <span
+                      {/* Status badge */}
+                      <div>
+                        <span
+                          style={{
+                            display: "inline-block",
+                            background: badge.bg,
+                            color: badge.color,
+                            border: badge.border,
+                            fontSize: 11,
+                            fontWeight: 700,
+                            borderRadius: 999,
+                            padding: "3px 12px",
+                          }}
+                        >
+                          {project.status}
+                        </span>
+                      </div>
+
+                      <h3 style={{ fontWeight: 700, fontSize: 18, color: c.h, margin: 0, lineHeight: 1.3 }}>
+                        {project.title}
+                      </h3>
+
+                      <p
                         style={{
-                          color: BRAND.green,
-                          fontWeight: 700,
                           fontSize: 14,
-                          cursor: "pointer",
+                          lineHeight: 1.7,
+                          color: c.b,
+                          margin: 0,
+                          flex: 1,
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
                         }}
                       >
-                        İncele →
-                      </span>
-                      <span style={{ fontSize: 13, color: c.mu }}>{project.year}</span>
+                        {project.desc}
+                      </p>
+
+                      {/* Bottom row */}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          paddingTop: 8,
+                          borderTop: `1px solid ${c.br}`,
+                          marginTop: 4,
+                        }}
+                      >
+                        <span style={{ color: BRAND.green, fontWeight: 700, fontSize: 14 }}>İncele →</span>
+                        <span style={{ fontSize: 13, color: c.mu }}>{project.year}</span>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                </Reveal>
+                  </HoverReveal>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 

@@ -4,6 +4,8 @@ import { useState, useEffect, Suspense } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { motion } from "motion/react";
+import { staggerContainer, staggerItem } from "@/components/motion";
 
 /* ── Rol → Sistem enum eşlemesi ── */
 const SISTEM_MAP = {
@@ -181,11 +183,19 @@ function RoleSelect({ groups, baslik, aciklama, genis, onSelect }: {
                 <span className="text-[12px]" style={{ color: "#94A3B8" }}>{grup.aciklama}</span>
               </div>
             )}
-            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${genis ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+            <motion.div
+              className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${genis ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}
+              variants={staggerContainer(0.08)}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.1 }}
+            >
               {grup.kartlar.map(card => (
-                <RoleCard key={card.key} role={card} onSelect={onSelect} />
+                <motion.div key={card.key} variants={staggerItem}>
+                  <RoleCard role={card} onSelect={onSelect} />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         ))}
       </div>

@@ -2,6 +2,8 @@
 
 import { PublicLayout } from "@/components/PublicLayout";
 import { useState, FormEvent } from "react";
+import { motion } from "motion/react";
+import { MotionReveal, HoverReveal, staggerContainer, staggerItem } from "@/components/motion";
 import { BRAND, useColors } from "@/lib/theme";
 
 function MapPinIcon() {
@@ -49,11 +51,12 @@ interface InfoCard {
 
 function ContactInfoCard({ icon, title, content }: InfoCard) {
   const c = useColors();
-  const [hovered, setHovered] = useState(false);
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+    <HoverReveal
+      lift={4}
+      restShadow="0 2px 8px rgba(0,0,0,0.06)"
+      hoverShadow="0 12px 40px rgba(0,0,0,0.12)"
+      className="group"
       style={{
         background: c.sr,
         border: `1px solid ${c.br}`,
@@ -62,12 +65,10 @@ function ContactInfoCard({ icon, title, content }: InfoCard) {
         display: "flex",
         gap: 16,
         alignItems: "flex-start",
-        transition: "all 0.2s ease",
-        transform: hovered ? "translateY(-4px)" : "translateY(0)",
-        boxShadow: hovered ? "0 12px 40px rgba(0,0,0,0.12)" : "0 2px 8px rgba(0,0,0,0.06)",
       }}
     >
-      <div
+      <motion.div
+        variants={{ rest: { scale: 1, rotate: 0 }, hover: { scale: 1.08, rotate: -5 } }}
         style={{
           width: 48,
           height: 48,
@@ -80,12 +81,12 @@ function ContactInfoCard({ icon, title, content }: InfoCard) {
         }}
       >
         {icon}
-      </div>
+      </motion.div>
       <div>
         <p style={{ fontWeight: 700, fontSize: 14, color: c.mu, marginBottom: 4 }}>{title}</p>
         <div style={{ fontSize: 15, color: c.h, fontWeight: 500 }}>{content}</div>
       </div>
-    </div>
+    </HoverReveal>
   );
 }
 
@@ -133,7 +134,8 @@ export default function IletisimPage() {
     color: c.h,
     outline: "none",
     boxSizing: "border-box" as const,
-    transition: "border-color 0.15s",
+    boxShadow: "none",
+    transition: "border-color 0.15s, box-shadow 0.15s",
   };
 
   const labelStyle: React.CSSProperties = {
@@ -142,6 +144,16 @@ export default function IletisimPage() {
     fontWeight: 600,
     color: c.mu,
     marginBottom: 6,
+  };
+
+  // Form alanı focus mikro-etkileşimi — yeşil kenarlık + yumuşak halka
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    e.currentTarget.style.borderColor = BRAND.green;
+    e.currentTarget.style.boxShadow = `0 0 0 3px ${BRAND.green}22`;
+  };
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    e.currentTarget.style.borderColor = c.inpBr;
+    e.currentTarget.style.boxShadow = "none";
   };
 
   return (
@@ -159,7 +171,7 @@ export default function IletisimPage() {
         }}
       >
         <div style={{ position: "absolute", inset: 0, background: "rgba(8,28,21,0.72)" }} />
-        <div className="relative max-w-7xl mx-auto px-5 lg:px-10 py-16" style={{ zIndex: 1 }}>
+        <MotionReveal as="div" className="relative max-w-7xl mx-auto px-5 lg:px-10 py-16" style={{ zIndex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
             <span style={{ width: 32, height: 1, background: BRAND.gold, display: "inline-block" }} />
             <span style={{ fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.22em", color: BRAND.gold }}>
@@ -182,7 +194,7 @@ export default function IletisimPage() {
           <p style={{ maxWidth: 500, fontSize: 17, lineHeight: 1.7, color: "rgba(248,250,252,0.82)" }}>
             Sorularınız için bizimle iletişime geçin.
           </p>
-        </div>
+        </MotionReveal>
       </section>
 
       {/* CONTACT BODY */}
@@ -213,48 +225,62 @@ export default function IletisimPage() {
                 </p>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <ContactInfoCard
-                  icon={<MapPinIcon />}
-                  title="Adres"
-                  content={<span>Türkiye Geneli — 81 İl Teşkilatı</span>}
-                />
-                <ContactInfoCard
-                  icon={<MailIcon />}
-                  title="E-posta"
-                  content={
-                    <a href="mailto:iletisim@serhendi.org" style={{ color: BRAND.green, textDecoration: "none" }}>
-                      iletisim@serhendi.org
-                    </a>
-                  }
-                />
-                <ContactInfoCard
-                  icon={<PhoneIcon />}
-                  title="Telefon"
-                  content={
-                    <a href="tel:+902120000000" style={{ color: c.h, textDecoration: "none" }}>
-                      +90 (212) 000 00 00
-                    </a>
-                  }
-                />
-                <ContactInfoCard
-                  icon={<ShareIcon />}
-                  title="Sosyal Medya"
-                  content={
-                    <div style={{ display: "flex", gap: 16, marginTop: 4 }}>
-                      <a href="#" style={{ color: BRAND.green, textDecoration: "none", fontWeight: 600, fontSize: 14 }}>
-                        Instagram
+              <motion.div
+                style={{ display: "flex", flexDirection: "column", gap: 16 }}
+                variants={staggerContainer(0.1)}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.15 }}
+              >
+                <motion.div variants={staggerItem}>
+                  <ContactInfoCard
+                    icon={<MapPinIcon />}
+                    title="Adres"
+                    content={<span>Türkiye Geneli — 81 İl Teşkilatı</span>}
+                  />
+                </motion.div>
+                <motion.div variants={staggerItem}>
+                  <ContactInfoCard
+                    icon={<MailIcon />}
+                    title="E-posta"
+                    content={
+                      <a href="mailto:iletisim@serhendi.org" style={{ color: BRAND.green, textDecoration: "none" }}>
+                        iletisim@serhendi.org
                       </a>
-                      <a href="#" style={{ color: BRAND.green, textDecoration: "none", fontWeight: 600, fontSize: 14 }}>
-                        Twitter
+                    }
+                  />
+                </motion.div>
+                <motion.div variants={staggerItem}>
+                  <ContactInfoCard
+                    icon={<PhoneIcon />}
+                    title="Telefon"
+                    content={
+                      <a href="tel:+902120000000" style={{ color: c.h, textDecoration: "none" }}>
+                        +90 (212) 000 00 00
                       </a>
-                      <a href="#" style={{ color: BRAND.green, textDecoration: "none", fontWeight: 600, fontSize: 14 }}>
-                        YouTube
-                      </a>
-                    </div>
-                  }
-                />
-              </div>
+                    }
+                  />
+                </motion.div>
+                <motion.div variants={staggerItem}>
+                  <ContactInfoCard
+                    icon={<ShareIcon />}
+                    title="Sosyal Medya"
+                    content={
+                      <div style={{ display: "flex", gap: 16, marginTop: 4 }}>
+                        <a href="#" style={{ color: BRAND.green, textDecoration: "none", fontWeight: 600, fontSize: 14 }}>
+                          Instagram
+                        </a>
+                        <a href="#" style={{ color: BRAND.green, textDecoration: "none", fontWeight: 600, fontSize: 14 }}>
+                          Twitter
+                        </a>
+                        <a href="#" style={{ color: BRAND.green, textDecoration: "none", fontWeight: 600, fontSize: 14 }}>
+                          YouTube
+                        </a>
+                      </div>
+                    }
+                  />
+                </motion.div>
+              </motion.div>
             </div>
 
             {/* RIGHT: Contact Form */}
@@ -268,8 +294,16 @@ export default function IletisimPage() {
               }}
             >
               {submitted ? (
-                <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
-                  <div
+                <motion.div
+                  style={{ textAlign: "center", padding: "3rem 1rem" }}
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.1 }}
                     style={{
                       width: 64,
                       height: 64,
@@ -284,15 +318,17 @@ export default function IletisimPage() {
                     <svg width="32" height="32" fill="none" viewBox="0 0 24 24">
                       <path d="M20 6L9 17l-5-5" stroke="#065F46" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                  </div>
+                  </motion.div>
                   <h3 style={{ fontWeight: 700, fontSize: 20, color: c.h, marginBottom: 12 }}>
                     Mesajınız İletildi
                   </h3>
                   <p style={{ fontSize: 15, color: c.b, lineHeight: 1.7 }}>
                     Mesajınız iletildi. En kısa sürede geri dönüş yapılacaktır.
                   </p>
-                  <button
+                  <motion.button
                     onClick={() => { setSubmitted(false); setForm({ adSoyad: "", eposta: "", telefon: "", mesaj: "" }); }}
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.97 }}
                     style={{
                       marginTop: 24,
                       background: "transparent",
@@ -306,8 +342,8 @@ export default function IletisimPage() {
                     }}
                   >
                     Yeni Mesaj Gönder
-                  </button>
-                </div>
+                  </motion.button>
+                </motion.div>
               ) : (
                 <>
                   <h3 style={{ fontWeight: 700, fontSize: 20, color: c.h, marginBottom: 8 }}>
@@ -324,6 +360,8 @@ export default function IletisimPage() {
                         name="adSoyad"
                         value={form.adSoyad}
                         onChange={handleChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
                         required
                         placeholder="Adınız ve soyadınız"
                         style={inputStyle}
@@ -336,6 +374,8 @@ export default function IletisimPage() {
                         name="eposta"
                         value={form.eposta}
                         onChange={handleChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
                         required
                         placeholder="ornek@eposta.com"
                         style={inputStyle}
@@ -348,6 +388,8 @@ export default function IletisimPage() {
                         name="telefon"
                         value={form.telefon}
                         onChange={handleChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
                         placeholder="+90 5xx xxx xx xx"
                         style={inputStyle}
                       />
@@ -358,6 +400,8 @@ export default function IletisimPage() {
                         name="mesaj"
                         value={form.mesaj}
                         onChange={handleChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
                         required
                         rows={5}
                         placeholder="Mesajınızı buraya yazın..."
@@ -379,9 +423,11 @@ export default function IletisimPage() {
                         {sendError}
                       </div>
                     )}
-                    <button
+                    <motion.button
                       type="submit"
                       disabled={sending}
+                      whileHover={sending ? undefined : { y: -2 }}
+                      whileTap={sending ? undefined : { scale: 0.97 }}
                       style={{
                         background: sending ? "#4A9F6E" : BRAND.green,
                         color: "#FFFFFF",
@@ -391,12 +437,11 @@ export default function IletisimPage() {
                         fontSize: 16,
                         fontWeight: 700,
                         cursor: sending ? "not-allowed" : "pointer",
-                        transition: "all 0.15s",
                         letterSpacing: "0.01em",
                       }}
                     >
                       {sending ? "Gönderiliyor..." : "Mesaj Gönder"}
-                    </button>
+                    </motion.button>
                   </form>
                 </>
               )}

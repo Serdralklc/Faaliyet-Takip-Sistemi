@@ -2,7 +2,7 @@
 
 import { PublicLayout } from "@/components/PublicLayout";
 import { Reveal } from "@/components/Reveal";
-import { useState } from "react";
+import { HoverReveal } from "@/components/motion";
 import Link from "next/link";
 import { BRAND, useColors } from "@/lib/theme";
 
@@ -16,21 +16,17 @@ const timeline = [
 
 const degerBadges = ["İlim", "Ahlâk", "Hizmet", "Kardeşlik", "Sorumluluk"];
 
+/** Yerel HoverCard — motion HoverReveal'e devreder; aynı {children, style} API'si. */
 function HoverCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  const [hovered, setHovered] = useState(false);
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        transition: "all 0.2s ease",
-        transform: hovered ? "translateY(-4px)" : "translateY(0)",
-        boxShadow: hovered ? "0 12px 40px rgba(0,0,0,0.12)" : "0 2px 8px rgba(0,0,0,0.06)",
-        ...style,
-      }}
+    <HoverReveal
+      lift={4}
+      restShadow="0 2px 8px rgba(0,0,0,0.06)"
+      hoverShadow="0 12px 40px rgba(0,0,0,0.12)"
+      style={style}
     >
       {children}
-    </div>
+    </HoverReveal>
   );
 }
 
