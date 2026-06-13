@@ -11,5 +11,5 @@ export default async function TalepDetayPage({ params }: { params: Promise<{ id:
   if (![...TALEP_OLUSTURAN_ROLLERI, ...TALEP_PANEL_ROLLERI].includes(role)) redirect("/");
 
   const { id } = await params;
-  return <TalepThread talepId={id} meId={session.user.id} role={role} />;
+  return <TalepThread talepId={id} meId={session.user.id} role={role} yanRoller={session.user.yanRoller} />;
 }

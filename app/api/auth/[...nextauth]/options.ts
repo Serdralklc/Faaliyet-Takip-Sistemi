@@ -17,6 +17,8 @@ declare module "next-auth" {
       icerikYoneticisi: boolean;
       teknikYetkisi: boolean;
       merkezGorev: MerkezGorev | null;
+      anaRol: string | null;
+      yanRoller: string[];
       activeIlId?: string | null;
       activeBolgeId?: string | null;
       activeIlAd?: string | null;
@@ -33,6 +35,8 @@ declare module "next-auth" {
     icerikYoneticisi: boolean;
     teknikYetkisi: boolean;
     merkezGorev: MerkezGorev | null;
+    anaRol: string | null;
+    yanRoller: string[];
     activeIlId?: string | null;
     activeBolgeId?: string | null;
     activeIlAd?: string | null;
@@ -48,6 +52,8 @@ declare module "next-auth/jwt" {
     icerikYoneticisi: boolean;
     teknikYetkisi: boolean;
     merkezGorev: MerkezGorev | null;
+    anaRol: string | null;
+    yanRoller: string[];
     ad: string;
     soyad: string;
     activeIlId?: string | null;
@@ -67,6 +73,8 @@ async function loadDbUser(email: string) {
         take: 1,
         include: { il: true, bolge: true },
       },
+      anaRol: { select: { kod: true } },
+      yanRoller: { select: { yanRol: { select: { kod: true } } } },
     },
   });
 }
@@ -110,6 +118,7 @@ export const authOptions: NextAuthOptions = {
             id: user.id, email: user.email, ad: user.ad, soyad: user.soyad,
             role: user.role, sistem: user.sistem, icerikYoneticisi: user.icerikYoneticisi,
             merkezGorev: user.merkezGorev, teknikYetkisi: user.teknikYetkisi,
+            anaRol: user.anaRol?.kod ?? null, yanRoller: user.yanRoller.map(r => r.yanRol.kod),
             activeIlId: a?.ilId ?? null, activeBolgeId: a?.bolgeId ?? null,
             activeIlAd: a?.il?.ad ?? null, activeBolgeAd: a?.bolge?.ad ?? null,
           };
@@ -143,6 +152,8 @@ export const authOptions: NextAuthOptions = {
           icerikYoneticisi: user.icerikYoneticisi,
           merkezGorev:   user.merkezGorev,
           teknikYetkisi: user.teknikYetkisi,
+          anaRol:        user.anaRol?.kod ?? null,
+          yanRoller:     user.yanRoller.map(r => r.yanRol.kod),
           activeIlId:    a?.ilId      ?? null,
           activeBolgeId: a?.bolgeId   ?? null,
           activeIlAd:    a?.il?.ad    ?? null,
@@ -188,6 +199,8 @@ export const authOptions: NextAuthOptions = {
         token.icerikYoneticisi = user.icerikYoneticisi;
         token.merkezGorev   = user.merkezGorev;
         token.teknikYetkisi = user.teknikYetkisi;
+        token.anaRol        = user.anaRol;
+        token.yanRoller     = user.yanRoller;
         token.ad            = user.ad;
         token.soyad         = user.soyad;
         token.activeIlId    = user.activeIlId;
@@ -207,6 +220,8 @@ export const authOptions: NextAuthOptions = {
           token.icerikYoneticisi = dbUser.icerikYoneticisi;
           token.merkezGorev   = dbUser.merkezGorev;
           token.teknikYetkisi = dbUser.teknikYetkisi;
+          token.anaRol        = dbUser.anaRol?.kod ?? null;
+          token.yanRoller     = dbUser.yanRoller.map(r => r.yanRol.kod);
           token.ad            = dbUser.ad;
           token.soyad         = dbUser.soyad;
           token.activeIlId    = a?.ilId      ?? null;
@@ -225,7 +240,11 @@ export const authOptions: NextAuthOptions = {
       if (token?.id && MERKEZ_TIER.includes(token.role as string)) {
         const fresh = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { role: true, sistem: true, merkezGorev: true, icerikYoneticisi: true, teknikYetkisi: true },
+          select: {
+            role: true, sistem: true, merkezGorev: true, icerikYoneticisi: true, teknikYetkisi: true,
+            anaRol: { select: { kod: true } },
+            yanRoller: { select: { yanRol: { select: { kod: true } } } },
+          },
         });
         if (fresh) {
           token.role = fresh.role;
@@ -233,6 +252,8 @@ export const authOptions: NextAuthOptions = {
           token.merkezGorev = fresh.merkezGorev;
           token.icerikYoneticisi = fresh.icerikYoneticisi;
           token.teknikYetkisi = fresh.teknikYetkisi;
+          token.anaRol = fresh.anaRol?.kod ?? null;
+          token.yanRoller = fresh.yanRoller.map(r => r.yanRol.kod);
         }
       }
 
@@ -246,6 +267,8 @@ export const authOptions: NextAuthOptions = {
       session.user.icerikYoneticisi = token.icerikYoneticisi ?? false;
       session.user.merkezGorev   = token.merkezGorev ?? null;
       session.user.teknikYetkisi = token.teknikYetkisi ?? false;
+      session.user.anaRol        = token.anaRol ?? null;
+      session.user.yanRoller     = token.yanRoller ?? [];
       session.user.ad            = token.ad;
       session.user.soyad         = token.soyad;
       session.user.activeIlId    = token.activeIlId;

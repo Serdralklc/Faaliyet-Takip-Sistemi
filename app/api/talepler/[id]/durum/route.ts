@@ -27,7 +27,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if ("error" in r) return r.error;
   const { durum } = r.data;
 
-  const karsilayanMi = talepKarsilayanMi(talep.birim as TalepBirim, role, session.user.teknikYetkisi);
+  const karsilayanMi = talepKarsilayanMi(talep.birim as TalepBirim, role, session.user.yanRoller);
   const olusturanMi = talep.olusturanId === userId;
   // Karşılayan her duruma; oluşturan yalnızca KAPATILDI'ya çekebilir
   if (!karsilayanMi && !(olusturanMi && durum === "KAPATILDI")) {

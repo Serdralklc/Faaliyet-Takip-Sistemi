@@ -25,7 +25,7 @@ function saat(iso: string) {
   return new Date(iso).toLocaleString("tr-TR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
-export function TalepThread({ talepId, meId, role }: { talepId: string; meId: string; role: string }) {
+export function TalepThread({ talepId, meId, role, yanRoller = [] }: { talepId: string; meId: string; role: string; yanRoller?: string[] }) {
   const [detay, setDetay] = useState<Detay | null>(null);
   const [loading, setLoading] = useState(true);
   const [hata, setHata] = useState("");
@@ -45,7 +45,7 @@ export function TalepThread({ talepId, meId, role }: { talepId: string; meId: st
 
   useEffect(() => { load(); }, [load]);
 
-  const karsilayan = detay ? talepKarsilayanMi(detay.birim, role) : false;
+  const karsilayan = detay ? talepKarsilayanMi(detay.birim, role, yanRoller) : false;
   const olusturanMi = detay ? detay.olusturanId === meId : false;
   const kapali = detay?.durum === "KAPATILDI";
 

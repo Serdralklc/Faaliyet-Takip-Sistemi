@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const durum = searchParams.get("durum");
 
-  const where: Record<string, unknown> = { ...talepGorunurlukWhere(userId, role, session.user.teknikYetkisi) };
+  const where: Record<string, unknown> = { ...talepGorunurlukWhere(userId, role, session.user.yanRoller) };
   if (durum) where.durum = durum as TalepDurum;
 
   const talepler = await prisma.talep.findMany({

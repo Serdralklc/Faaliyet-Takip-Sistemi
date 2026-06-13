@@ -81,23 +81,40 @@ export const TALEP_PANEL_ROLLERI: string[] = [
   ...TALEP_HEPSI_ROLLERI, "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "TEKNIK",
 ];
 
-/** Prisma where: kullanıcının erişebileceği talepler (teknikYetkisi = Teknik yan rolü) */
-export function talepGorunurlukWhere(userId: string, role: string, teknikYetkisi?: boolean): Record<string, unknown> {
-  if (TALEP_HEPSI_ROLLERI.includes(role)) return {};
+/**
+ * Kullanıcının görebileceği/karşılayabileceği talep birimleri (F3: yan rol bazlı).
+ * "HEPSI" = tüm talepler. Admin + TR Eğitim Sor./Yard. → hepsi; diğer Merkez kullanıcıları
+ * yalnızca yan rollerine karşılık gelen birimleri görür.
+ */
+export function gorunurBirimler(role: string, yanRoller: string[] = []): TalepBirim[] | "HEPSI" {
+  if (role === "SISTEM_ADMIN" || role === "TURKIYE_EGITIM_SORUMLUSU") return "HEPSI";
+  const y = new Set(yanRoller);
+  if (y.has("TR_EGITIM") || y.has("TR_EGITIM_YRD")) return "HEPSI";
+  const b: TalepBirim[] = [];
+  if (y.has("MERKEZ_ILKOGRETIM")) b.push("ILKOGRETIM", "TEKNIK"); // teknik birimi İlköğretim'le birleşik
+  if (y.has("MERKEZ_LISE")) b.push("LISE");
+  if (y.has("MERKEZ_UNI")) b.push("UNIVERSITE");
+  if (y.has("SEKRETERYA")) b.push("GENEL");
+  if (role === "TURKIYE_UNIVERSITE_SORUMLUSU" || y.has("MERKEZ_UNI_GENCLIK")) b.push("UNIVERSITE_GENCLIK");
+  if (role === "TURKIYE_LISE_SORUMLUSU" || y.has("MERKEZ_LISE_GENCLIK")) b.push("LISE_GENCLIK");
+  if (role === "TEKNIK") b.push("TEKNIK"); // eski TEKNIK rolü (uyum)
+  return b;
+}
+
+/** Prisma where: kullanıcının erişebileceği talepler (yan rol bazlı görünürlük) */
+export function talepGorunurlukWhere(userId: string, role: string, yanRoller: string[] = []): Record<string, unknown> {
+  const b = gorunurBirimler(role, yanRoller);
+  if (b === "HEPSI") return {};
   const or: Record<string, unknown>[] = [{ olusturanId: userId }];
-  if (role === "TEKNIK" || teknikYetkisi) or.push({ birim: "TEKNIK" });
-  if (role === "TURKIYE_UNIVERSITE_SORUMLUSU") or.push({ birim: "UNIVERSITE_GENCLIK" });
-  if (role === "TURKIYE_LISE_SORUMLUSU") or.push({ birim: "LISE_GENCLIK" });
+  if (b.length) or.push({ birim: { in: b } });
   return { OR: or };
 }
 
 /** Bir talebe yanıt verebilir / durumunu değiştirebilir mi (karşılayan taraf mı) */
-export function talepKarsilayanMi(birim: TalepBirim, role: string, teknikYetkisi?: boolean): boolean {
-  if (TALEP_HEPSI_ROLLERI.includes(role)) return true;
-  if ((role === "TEKNIK" || teknikYetkisi) && birim === "TEKNIK") return true;
-  if (role === "TURKIYE_UNIVERSITE_SORUMLUSU") return birim === "UNIVERSITE_GENCLIK";
-  if (role === "TURKIYE_LISE_SORUMLUSU") return birim === "LISE_GENCLIK";
-  return false;
+export function talepKarsilayanMi(birim: TalepBirim, role: string, yanRoller: string[] = []): boolean {
+  const b = gorunurBirimler(role, yanRoller);
+  if (b === "HEPSI") return true;
+  return b.includes(birim);
 }
 
 /** dosyalar[] JSON string ↔ {ad,url} */

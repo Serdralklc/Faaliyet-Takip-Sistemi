@@ -16,6 +16,8 @@ interface User {
   sistem?: string | null;
   icerikYoneticisi?: boolean;
   merkezGorev?: string | null;
+  anaRol?: string | null;
+  yanRoller?: string[];
   activeIlAd?: string | null;
   activeBolgeAd?: string | null;
 }

@@ -138,6 +138,20 @@ export function yanRolCompat(yanKods: string[]): {
   };
 }
 
+// ── F3: Yan rol → yetenek kapıları (sidebar/guard) ──
+// Form Yönetimi + İstişare'ye erişim veren yan roller (İçerik Yön. ve Gençlik Sor. hariç).
+const FORM_ISTISARE_YAN: YanRolKod[] = ["TR_EGITIM", "TR_EGITIM_YRD", "MERKEZ_UNI", "MERKEZ_LISE", "MERKEZ_ILKOGRETIM", "SEKRETERYA"];
+
+export function yanRolVar(yanRoller: string[] | undefined | null, ...kods: string[]): boolean {
+  if (!yanRoller) return false;
+  return kods.some(k => yanRoller.includes(k));
+}
+export function formYonetimiYanRol(yanRoller?: string[] | null): boolean { return yanRolVar(yanRoller, ...FORM_ISTISARE_YAN); }
+export function istisareYanRol(yanRoller?: string[] | null): boolean { return yanRolVar(yanRoller, ...FORM_ISTISARE_YAN); }
+export function icerikYanRol(yanRoller?: string[] | null): boolean { return yanRolVar(yanRoller, "ICERIK_YONETICISI"); }
+export function barinmaGorunumYanRol(yanRoller?: string[] | null): boolean { return yanRolVar(yanRoller, "MERKEZ_UNI", "MERKEZ_UNI_GENCLIK"); }
+export function ilFaaliyetTakipYanRol(yanRoller?: string[] | null): boolean { return yanRolVar(yanRoller, "MERKEZ_UNI", "MERKEZ_UNI_GENCLIK", "MERKEZ_LISE_GENCLIK"); }
+
 /** Sistem-kısıtlı sorumlunun bağlı olduğu sistem (UNIVERSITE/LISE); değilse null (tam erişim). */
 export function rolSistemi(role: string): "UNIVERSITE" | "LISE" | null {
   if (role === "TURKIYE_UNIVERSITE_SORUMLUSU") return "UNIVERSITE";
