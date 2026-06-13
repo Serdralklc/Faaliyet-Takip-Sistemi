@@ -165,17 +165,16 @@ export function LiseRaporClient({ bolgeler, faaliyetler, yillar }: {
 
       {/* Bölge bazlı tablo */}
       <div className="sv-section">
-        <div className="px-5 py-3 border-b flex items-center justify-between gap-2" style={{ borderColor: "var(--border)" }}>
+        <div className="px-5 py-3 border-b" style={{ borderColor: "var(--border)" }}>
           <h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>Bölge Bazlı Faaliyet Sayıları</h2>
-          <span className="text-[11px]" style={{ color: "var(--text-muted)" }}>← yatay kaydırın →</span>
         </div>
         <div className="overflow-x-auto">
-        <table className="w-max min-w-full text-sm">
+        <table className="w-full text-sm">
           <thead style={{ background: "var(--bg-th)" }}>
             <tr>
               {["Bölge", ...LISE_KATEGORILER.map(k => k.label), "Toplam", "Katılımcı", "İlk Kez", "Y. İntisap"].map((h, i) => (
-                <th key={h} className={`px-3 py-2.5 text-[10.5px] font-bold uppercase tracking-wide whitespace-nowrap ${i === 0 ? "text-left sticky left-0 z-10" : "text-center"}`}
-                  style={{ color: "var(--text-muted)", borderBottom: "1px solid var(--border)", background: "var(--bg-th)" }}>{h}</th>
+                <th key={h} className={`px-2 py-2.5 text-[10px] font-bold uppercase tracking-wide leading-[1.25] align-bottom ${i === 0 ? "text-left sticky left-0 z-10 whitespace-nowrap" : "text-center"}`}
+                  style={{ color: "var(--text-muted)", borderBottom: "1px solid var(--border)", background: "var(--bg-th)", ...(i !== 0 ? { minWidth: 52 } : {}) }}>{h}</th>
               ))}
             </tr>
           </thead>
