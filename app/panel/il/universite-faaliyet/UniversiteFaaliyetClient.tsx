@@ -21,7 +21,6 @@ const THIS_YEAR = new Date().getFullYear();
 const DONEMLER: { value: string; label: string }[] = [
   { value: "DONEM_1", label: "1. Dönem" },
   { value: "DONEM_2", label: "2. Dönem" },
-  { value: "YAZ_DONEMI", label: "Yaz Dönemi" },
 ];
 
 function bugunStr() {
@@ -111,6 +110,9 @@ export function UniversiteFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string
     const faaliyetAdi = (manuelGerek ? form.manuelAd : form.adSecim).trim();
     if (!faaliyetAdi) { toast({ type: "warning", title: "Faaliyet adı gerekli" }); return; }
     if (!form.tarih) { toast({ type: "warning", title: "Tarih gerekli" }); return; }
+    if (!form.yer.trim()) { toast({ type: "warning", title: "Faaliyetin yapıldığı yer gerekli" }); return; }
+    if (!form.aciklama.trim()) { toast({ type: "warning", title: "Faaliyet açıklaması gerekli" }); return; }
+    if (!form.katilimci.trim() || Number(form.katilimci) < 1) { toast({ type: "warning", title: "Katılımcı sayısı gerekli (en az 1)" }); return; }
 
     setSaving(true);
     const fd = new FormData();
@@ -277,11 +279,11 @@ export function UniversiteFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string
               value={form.manuelAd} onChange={e => setForm(f => ({ ...f, manuelAd: e.target.value }))} />
           )}
 
-          <Input label="Faaliyetin Yapıldığı Yer" placeholder="örn. Üniversite Kampüsü" value={form.yer} onChange={e => setForm(f => ({ ...f, yer: e.target.value }))} />
-          <Textarea label="Faaliyet Açıklaması" rows={3} placeholder="Kısa açıklama (opsiyonel)" value={form.aciklama} onChange={e => setForm(f => ({ ...f, aciklama: e.target.value }))} />
+          <Input label="Faaliyetin Yapıldığı Yer" required placeholder="örn. Üniversite Kampüsü" value={form.yer} onChange={e => setForm(f => ({ ...f, yer: e.target.value }))} />
+          <Textarea label="Faaliyet Açıklaması" required rows={3} placeholder="Faaliyetin kısa açıklaması" value={form.aciklama} onChange={e => setForm(f => ({ ...f, aciklama: e.target.value }))} />
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Input label="Katılımcı Sayısı" type="number" min={0} value={form.katilimci} onChange={e => setForm(f => ({ ...f, katilimci: e.target.value }))} />
+            <Input label="Katılımcı Sayısı" required type="number" min={1} value={form.katilimci} onChange={e => setForm(f => ({ ...f, katilimci: e.target.value }))} />
             <Input label="İlk Kez Katılan" type="number" min={0} value={form.ilkKezKatilan} onChange={e => setForm(f => ({ ...f, ilkKezKatilan: e.target.value }))} />
             <Input label="Yeni İntisap" type="number" min={0} value={form.yeniIntisap} onChange={e => setForm(f => ({ ...f, yeniIntisap: e.target.value }))} />
           </div>

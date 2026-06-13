@@ -408,6 +408,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
               Lise Gençlik
             </p>
+            <NavItem href="/panel/il" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/il/lise-faaliyet" label="Faaliyet Yönetimi" icon={ClipboardList} />
             <NavItem href="/panel/il/hedefler" label="Muradımız" icon={Target} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
@@ -422,6 +423,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
               Üniversite Gençlik
             </p>
+            <NavItem href="/panel/il" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/il/universite-faaliyet" label="Faaliyet Yönetimi" icon={ClipboardList} />
             <NavItem href="/panel/il/hedefler" label="Muradımız" icon={Target} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />

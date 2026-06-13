@@ -10,10 +10,9 @@ interface Bolge { id: string; no: number; ad: string; iller: { id: string; ad: s
 const fmt = (v: number) => (v === 0 ? "—" : v.toLocaleString("tr-TR"));
 
 const DONEMLER = [
-  { v: "HEPSI",      l: "Tüm Dönemler" },
-  { v: "DONEM_1",    l: "1. Dönem" },
-  { v: "DONEM_2",    l: "2. Dönem" },
-  { v: "YAZ_DONEMI", l: "Yaz Dönemi" },
+  { v: "HEPSI",   l: "Tüm Dönemler" },
+  { v: "DONEM_1", l: "1. Dönem" },
+  { v: "DONEM_2", l: "2. Dönem" },
 ];
 
 const selectCls = "rounded-xl border px-3 py-2 text-[13px] font-bold focus:outline-none";
