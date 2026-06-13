@@ -6,7 +6,7 @@ import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import type { Role } from "@/lib/constants";
-import { gorevEtiket, icerikYanRol, formYonetimiYanRol, istisareYanRol } from "@/lib/constants";
+import { gorevEtiket, icerikYanRol, formYonetimiYanRol, istisareYanRol, barinmaGorunumYanRol, ilFaaliyetTakipYanRol } from "@/lib/constants";
 import {
   LayoutDashboard, Users, MapPin, FileText, ClipboardList,
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
@@ -154,6 +154,8 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
   const canFormYon    = formYonetimiYanRol(yan);
   const canIstisare   = istisareYanRol(yan);
   const canIcerikTabs = icerikYanRol(yan);
+  const canBarinma    = barinmaGorunumYanRol(yan);
+  const canIlFaaliyet = ilFaaliyetTakipYanRol(yan);
 
   const dashHref = isTeknik ? "/panel/istisare"
     : isManagement ? "/panel/admin"
@@ -320,6 +322,8 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             {canIcerikTabs && <NavItem href="/panel/admin/bildirimler-merkezi" label="Bildirim Merkezi" icon={Bell} />}
             {canIcerikTabs && <NavItem href="/panel/admin/arsiv" label="Veri Arşivi" icon={Archive} />}
             {canIstisare && <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />}
+            {canIlFaaliyet && <NavItem href="/panel/admin/il-faaliyet" label="İl Faaliyet Takip" icon={ClipboardList} />}
+            {canBarinma && <NavItem href="/panel/admin/barinma-gorunum" label="Barınma Yönetimi" icon={Home} />}
             <NavItem href="/panel/admin/loglar"   label="Denetim Logları" icon={ClipboardList} />
           </>
         )}
@@ -332,6 +336,8 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/admin/raporlar?sistem=UNIVERSITE" label="Faaliyet Takip Sistemi" icon={ClipboardList} />
+            {canIlFaaliyet && <NavItem href="/panel/admin/il-faaliyet" label="İl Faaliyet Takip" icon={ClipboardList} />}
+            {canBarinma && <NavItem href="/panel/admin/barinma-gorunum" label="Barınma Yönetimi" icon={Home} />}
             <NavItem href="/panel/admin/analiz" label="Rapor ve Analiz Merkezi" icon={BarChart3} />
             <NavItem href="/panel/admin/bolgeler" label="Eksik Veri Takip" icon={MapPin} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
@@ -350,6 +356,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/admin/raporlar?sistem=LISE" label="Faaliyet Takip Sistemi" icon={ClipboardList} />
+            {canIlFaaliyet && <NavItem href="/panel/admin/il-faaliyet" label="İl Faaliyet Takip" icon={ClipboardList} />}
             <NavItem href="/panel/admin/analiz" label="Rapor ve Analiz Merkezi" icon={BarChart3} />
             <NavItem href="/panel/admin/bolgeler" label="Eksik Veri Takip" icon={MapPin} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
