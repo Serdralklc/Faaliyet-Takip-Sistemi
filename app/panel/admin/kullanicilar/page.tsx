@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ROLE_LABELS, rolEtiket } from "@/lib/constants";
+import { ROLE_LABELS, rolEtiket, gorevEtiket } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
 import { Button } from "@/components/ui/Button";
@@ -24,6 +24,7 @@ interface Kullanici {
   id: string; ad: string; soyad: string; email: string;
   telefon?: string; role: Role; status: string; sistem?: string;
   icerikYoneticisi?: boolean;
+  merkezGorev?: string | null;
   passwordHash?: string | null; createdAt: string; sonAktif?: string | null;
   assignments: Assignment[];
   basvuruGorev?: string | null;
@@ -112,7 +113,7 @@ const YETKILI_COLS: DataTableColumn<Kullanici>[] = [
     sortValue: k => ROLE_LABELS[k.role] ?? k.role,
     render: k => (
       <div className="flex flex-wrap items-center gap-1.5">
-        <YetkiliRolBadge role={k.role} sistem={k.sistem} />
+        <YetkiliRolBadge role={k.role} sistem={k.sistem} merkezGorev={k.merkezGorev} />
         {k.icerikYoneticisi && (
           <span className="text-xs px-2 py-1 rounded-full font-semibold bg-cyan-100 text-cyan-700">
             İçerik Yöneticisi
@@ -155,11 +156,12 @@ const YETKILI_COLS: DataTableColumn<Kullanici>[] = [
 // Yardımcı bileşenler
 // ──────────────────────────────────────────────
 // Yetkili sekmesinde rol+sistem'e göre özel etiket
-function YetkiliRolBadge({ role }: { role: string; sistem?: string | null }) {
-  const label = ROLE_LABELS[role as Role] ?? role;
+function YetkiliRolBadge({ role, sistem, merkezGorev }: { role: string; sistem?: string | null; merkezGorev?: string | null }) {
+  const label = gorevEtiket(role, sistem, merkezGorev);
 
   const cls =
     role === "SISTEM_ADMIN"      ? "bg-red-100 text-red-700"       :
+    role === "TEKNIK"            ? "bg-slate-200 text-slate-700"   :
     role === "GENEL_MERKEZ"      ? "bg-purple-100 text-purple-700" :
     TURKIYE_ROLLERI.includes(role) ? "bg-amber-100 text-amber-700"   :
     "bg-subtle text-secondary";
@@ -400,6 +402,19 @@ export default function KullanicilarPage() {
       const d = await res.json();
       showToast("Hata: " + d.error);
     }
+  }
+
+  // Merkez görevi ata/değiştir (Merkez Ekip / Teknik kullanıcıları)
+  async function handleGorev(k: Kullanici, gorev: string) {
+    setLoading(true);
+    const res = await fetch(`/api/kullanicilar/${k.id}/gorev`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gorev }),
+    });
+    setLoading(false);
+    if (res.ok) { showToast("Görev güncellendi"); fetchData(); }
+    else { const d = await res.json(); showToast("Hata: " + d.error); }
   }
 
   // ─── Table head ──────────────────────────────
@@ -691,7 +706,22 @@ export default function KullanicilarPage() {
             searchPlaceholder="Ad veya e-posta ara..."
             emptyText="Yetkili kullanıcı bulunamadı"
             rowActions={k => (
-              <div className="flex gap-1.5 justify-end flex-wrap">
+              <div className="flex gap-1.5 justify-end flex-wrap items-center">
+                {(k.role === "GENEL_MERKEZ" || k.role === "TEKNIK") && (
+                  <select
+                    value={k.role === "TEKNIK" ? "TEKNIK" : (k.merkezGorev ?? "MERKEZ_EKIP")}
+                    onChange={e => handleGorev(k, e.target.value)}
+                    title="Merkez görevi ata"
+                    className="text-xs border-2 border-border rounded-lg px-2 py-1.5 bg-card text-heading focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  >
+                    <option value="MERKEZ_EKIP">Merkez Ekibi</option>
+                    <option value="ILKOGRETIM">Merkez İlköğretim Sor.</option>
+                    <option value="LISE">Merkez Lise Sor.</option>
+                    <option value="UNIVERSITE">Merkez Üniversite Sor.</option>
+                    <option value="SEKRETERYA">Merkez Sekreterya</option>
+                    <option value="TEKNIK">Teknik</option>
+                  </select>
+                )}
                 <Button size="sm" variant="secondary" onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}>Şifre Ata</Button>
                 {k.role === "GENEL_MERKEZ" && (
                   <Button size="sm" variant={k.icerikYoneticisi ? "ghost" : "primary"} onClick={() => handleIcerikToggle(k)}>
@@ -893,8 +923,8 @@ export default function KullanicilarPage() {
                     onChange={e => setYetkiliRol(e.target.value as Role)} className={inputCls}>
                     <option value="TURKIYE_EGITIM_SORUMLUSU">Türkiye Eğitim Sorumlusu</option>
                     <option value="GENEL_MERKEZ">Merkez Ekibi</option>
-                    <option value="TURKIYE_UNIVERSITE_SORUMLUSU">Türkiye Üniversite Gençlik Sorumlusu</option>
-                    <option value="TURKIYE_LISE_SORUMLUSU">Türkiye Lise Gençlik Sorumlusu</option>
+                    <option value="TURKIYE_UNIVERSITE_SORUMLUSU">Merkez Üniversite Gençlik Sorumlusu</option>
+                    <option value="TURKIYE_LISE_SORUMLUSU">Merkez Lise Gençlik Sorumlusu</option>
                   </select>
                 </div>
               ) : (

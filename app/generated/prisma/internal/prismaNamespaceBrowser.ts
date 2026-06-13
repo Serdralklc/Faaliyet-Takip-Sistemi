@@ -110,6 +110,7 @@ export const UserScalarFieldEnum = {
   status: 'status',
   sistem: 'sistem',
   icerikYoneticisi: 'icerikYoneticisi',
+  merkezGorev: 'merkezGorev',
   basvuruGorev: 'basvuruGorev',
   basvuruBolgeId: 'basvuruBolgeId',
   basvuruIlId: 'basvuruIlId',

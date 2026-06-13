@@ -68,7 +68,7 @@ const YONETICI_CARD = {
   key:   "yonetici" as RoleKey,
   title: "Yönetim Merkezi",
   sub:   "Merkez Yönetimi",
-  desc:  "TR Sorumlusu, Merkez Ekip ve TR Üniversite / Lise Gençlik Sorumluları için giriş ve başvuru.",
+  desc:  "TR Sorumlusu, Merkez Ekip ve Merkez Üniversite / Lise Gençlik Sorumluları için giriş ve başvuru.",
   color: "#92400E",
   bg:    "#FFFBF0",
   icon: (
@@ -97,7 +97,7 @@ const SERGENC_CARD = {
 
 /* Giriş menüsü — birim gruplarına ayrılmış */
 const GRUPLAR = [
-  { baslik: "Yönetim Merkezi", aciklama: "TR Sorumlusu · Merkez Ekip · TR Gençlik Sorumluları", kartlar: [YONETICI_CARD] },
+  { baslik: "Yönetim Merkezi", aciklama: "TR Sorumlusu · Merkez Ekip · Merkez Gençlik Sorumluları", kartlar: [YONETICI_CARD] },
   { baslik: "Eğitim Birimi",   aciklama: "Bölge / İl Eğitim Sorumlusu",                          kartlar: [ROLES.find(r => r.key === "egitimci")!] },
   { baslik: "Gençlik Birimi",  aciklama: "Bölge / İl Üniversite ve Lise Gençlik Sorumlusu",      kartlar: [ROLES.find(r => r.key === "universite")!, ROLES.find(r => r.key === "lise")!] },
   { baslik: "SerGenç",         aciklama: "Üye / Gönüllü başvuru ve giriş",                       kartlar: [SERGENC_CARD] },

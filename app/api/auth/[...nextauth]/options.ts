@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { Role, Sistem } from "@/app/generated/prisma/client";
+import { Role, Sistem, MerkezGorev } from "@/app/generated/prisma/client";
 
 declare module "next-auth" {
   interface Session {
@@ -15,6 +15,7 @@ declare module "next-auth" {
       role: Role;
       sistem: Sistem;
       icerikYoneticisi: boolean;
+      merkezGorev: MerkezGorev | null;
       activeIlId?: string | null;
       activeBolgeId?: string | null;
       activeIlAd?: string | null;
@@ -29,6 +30,7 @@ declare module "next-auth" {
     role: Role;
     sistem: Sistem;
     icerikYoneticisi: boolean;
+    merkezGorev: MerkezGorev | null;
     activeIlId?: string | null;
     activeBolgeId?: string | null;
     activeIlAd?: string | null;
@@ -42,6 +44,7 @@ declare module "next-auth/jwt" {
     role: Role;
     sistem: Sistem;
     icerikYoneticisi: boolean;
+    merkezGorev: MerkezGorev | null;
     ad: string;
     soyad: string;
     activeIlId?: string | null;
@@ -94,7 +97,7 @@ export const authOptions: NextAuthOptions = {
 
         // Yönetici kartından giriş: yönetici rolleri olmalı
         if (requestedSistem === "YONETICI") {
-          const adminRoles = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+          const adminRoles = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "TEKNIK"];
           if (!adminRoles.includes(user.role)) {
             throw new Error("YONETICI_YETKISIZ");
           }
@@ -103,6 +106,7 @@ export const authOptions: NextAuthOptions = {
           return {
             id: user.id, email: user.email, ad: user.ad, soyad: user.soyad,
             role: user.role, sistem: user.sistem, icerikYoneticisi: user.icerikYoneticisi,
+            merkezGorev: user.merkezGorev,
             activeIlId: a?.ilId ?? null, activeBolgeId: a?.bolgeId ?? null,
             activeIlAd: a?.il?.ad ?? null, activeBolgeAd: a?.bolge?.ad ?? null,
           };
@@ -111,7 +115,7 @@ export const authOptions: NextAuthOptions = {
         const sistemEnum = requestedSistem as Sistem | undefined;
 
         // Yönetici rolleri sadece YONETICI kartından girebilir
-        const YONETICI_ROLLERI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+        const YONETICI_ROLLERI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "TEKNIK"];
         if (YONETICI_ROLLERI.includes(user.role)) {
           throw new Error("SADECE_YONETICI_KARTI");
         }
@@ -134,6 +138,7 @@ export const authOptions: NextAuthOptions = {
           role:          user.role,
           sistem:        sessionSistem,
           icerikYoneticisi: user.icerikYoneticisi,
+          merkezGorev:   user.merkezGorev,
           activeIlId:    a?.ilId      ?? null,
           activeBolgeId: a?.bolgeId   ?? null,
           activeIlAd:    a?.il?.ad    ?? null,
@@ -177,6 +182,7 @@ export const authOptions: NextAuthOptions = {
         token.role          = user.role;
         token.sistem        = user.sistem;
         token.icerikYoneticisi = user.icerikYoneticisi;
+        token.merkezGorev   = user.merkezGorev;
         token.ad            = user.ad;
         token.soyad         = user.soyad;
         token.activeIlId    = user.activeIlId;
@@ -194,6 +200,7 @@ export const authOptions: NextAuthOptions = {
           token.role          = dbUser.role;
           token.sistem        = dbUser.sistem;
           token.icerikYoneticisi = dbUser.icerikYoneticisi;
+          token.merkezGorev   = dbUser.merkezGorev;
           token.ad            = dbUser.ad;
           token.soyad         = dbUser.soyad;
           token.activeIlId    = a?.ilId      ?? null;
@@ -209,9 +216,12 @@ export const authOptions: NextAuthOptions = {
       if (token?.role === "GENEL_MERKEZ" && token.id) {
         const fresh = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { icerikYoneticisi: true },
+          select: { icerikYoneticisi: true, merkezGorev: true },
         });
-        if (fresh) token.icerikYoneticisi = fresh.icerikYoneticisi;
+        if (fresh) {
+          token.icerikYoneticisi = fresh.icerikYoneticisi;
+          token.merkezGorev = fresh.merkezGorev;
+        }
       }
 
       return token;
@@ -222,6 +232,7 @@ export const authOptions: NextAuthOptions = {
       session.user.role          = token.role;
       session.user.sistem        = token.sistem;
       session.user.icerikYoneticisi = token.icerikYoneticisi ?? false;
+      session.user.merkezGorev   = token.merkezGorev ?? null;
       session.user.ad            = token.ad;
       session.user.soyad         = token.soyad;
       session.user.activeIlId    = token.activeIlId;

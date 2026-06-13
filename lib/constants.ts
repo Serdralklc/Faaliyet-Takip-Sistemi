@@ -4,6 +4,7 @@ export type Role =
   | "TURKIYE_EGITIM_SORUMLUSU"
   | "TURKIYE_UNIVERSITE_SORUMLUSU"
   | "TURKIYE_LISE_SORUMLUSU"
+  | "TEKNIK"
   | "BOLGE_SORUMLUSU"
   | "IL_SORUMLUSU"
   | "BEKLEYEN";
@@ -12,11 +13,21 @@ export const ROLE_LABELS: Record<Role, string> = {
   SISTEM_ADMIN:                  "Sistem Admini",
   GENEL_MERKEZ:                  "Merkez Ekibi",
   TURKIYE_EGITIM_SORUMLUSU:      "Türkiye Eğitim Sorumlusu",
-  TURKIYE_UNIVERSITE_SORUMLUSU:  "Türkiye Üniversite Gençlik Sorumlusu",
-  TURKIYE_LISE_SORUMLUSU:        "Türkiye Lise Gençlik Sorumlusu",
+  TURKIYE_UNIVERSITE_SORUMLUSU:  "Merkez Üniversite Gençlik Sorumlusu",
+  TURKIYE_LISE_SORUMLUSU:        "Merkez Lise Gençlik Sorumlusu",
+  TEKNIK:                        "Teknik",
   BOLGE_SORUMLUSU:               "Bölge Eğitimcisi",
   IL_SORUMLUSU:                  "İl Eğitimcisi",
   BEKLEYEN:                      "Bekleyen",
+};
+
+// Merkez Ekip (GENEL_MERKEZ) görev ayrımı — hepsi Merkez Ekip ile aynı yetkilere sahip
+export type MerkezGorev = "ILKOGRETIM" | "LISE" | "UNIVERSITE" | "SEKRETERYA";
+export const MERKEZ_GOREV_LABEL: Record<MerkezGorev, string> = {
+  ILKOGRETIM: "Merkez İlköğretim Sorumlusu",
+  LISE:       "Merkez Lise Sorumlusu",
+  UNIVERSITE: "Merkez Üniversite Sorumlusu",
+  SEKRETERYA: "Merkez Sekreterya",
 };
 
 /**
@@ -35,6 +46,17 @@ export function rolEtiket(role: Role | string, sistem?: string | null): string {
     return "Bölge Eğitimcisi";
   }
   return ROLE_LABELS[role as Role] ?? String(role);
+}
+
+/**
+ * Görev etiketi — Merkez Ekip görev ayrımını da hesaba katar.
+ * GENEL_MERKEZ + merkezGorev varsa "Merkez İlköğretim/Lise/Üniversite Sorumlusu / Sekreterya".
+ */
+export function gorevEtiket(role: Role | string, sistem?: string | null, merkezGorev?: string | null): string {
+  if (role === "GENEL_MERKEZ" && merkezGorev && merkezGorev in MERKEZ_GOREV_LABEL) {
+    return MERKEZ_GOREV_LABEL[merkezGorev as MerkezGorev];
+  }
+  return rolEtiket(role, sistem);
 }
 
 // Yönetici panelinden giriş yapan roller

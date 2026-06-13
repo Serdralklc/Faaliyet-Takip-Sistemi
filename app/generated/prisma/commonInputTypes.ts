@@ -70,6 +70,13 @@ export type BoolFilter<$PrismaModel = never> = {
   not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
 }
 
+export type EnumMerkezGorevNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.MerkezGorev | Prisma.EnumMerkezGorevFieldRefInput<$PrismaModel> | null
+  in?: $Enums.MerkezGorev[] | Prisma.ListEnumMerkezGorevFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.MerkezGorev[] | Prisma.ListEnumMerkezGorevFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumMerkezGorevNullableFilter<$PrismaModel> | $Enums.MerkezGorev | null
+}
+
 export type DateTimeNullableFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -169,6 +176,16 @@ export type BoolWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedBoolFilter<$PrismaModel>
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type EnumMerkezGorevNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MerkezGorev | Prisma.EnumMerkezGorevFieldRefInput<$PrismaModel> | null
+  in?: $Enums.MerkezGorev[] | Prisma.ListEnumMerkezGorevFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.MerkezGorev[] | Prisma.ListEnumMerkezGorevFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumMerkezGorevNullableWithAggregatesFilter<$PrismaModel> | $Enums.MerkezGorev | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMerkezGorevNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMerkezGorevNullableFilter<$PrismaModel>
 }
 
 export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -630,6 +647,13 @@ export type NestedBoolFilter<$PrismaModel = never> = {
   not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
 }
 
+export type NestedEnumMerkezGorevNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.MerkezGorev | Prisma.EnumMerkezGorevFieldRefInput<$PrismaModel> | null
+  in?: $Enums.MerkezGorev[] | Prisma.ListEnumMerkezGorevFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.MerkezGorev[] | Prisma.ListEnumMerkezGorevFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumMerkezGorevNullableFilter<$PrismaModel> | $Enums.MerkezGorev | null
+}
+
 export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -744,6 +768,16 @@ export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedBoolFilter<$PrismaModel>
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type NestedEnumMerkezGorevNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MerkezGorev | Prisma.EnumMerkezGorevFieldRefInput<$PrismaModel> | null
+  in?: $Enums.MerkezGorev[] | Prisma.ListEnumMerkezGorevFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.MerkezGorev[] | Prisma.ListEnumMerkezGorevFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumMerkezGorevNullableWithAggregatesFilter<$PrismaModel> | $Enums.MerkezGorev | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMerkezGorevNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMerkezGorevNullableFilter<$PrismaModel>
 }
 
 export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {

@@ -13,9 +13,20 @@ enum Role {
   TURKIYE_EGITIM_SORUMLUSU
   TURKIYE_UNIVERSITE_SORUMLUSU
   TURKIYE_LISE_SORUMLUSU
+  TEKNIK              // Teknik destek / sistem talepleri rolü (sınırlı erişim)
   BOLGE_SORUMLUSU
   IL_SORUMLUSU
   BEKLEYEN
+}
+
+// Merkez Ekip (GENEL_MERKEZ) içinde görev ayrımı. Hepsi aynı ekran/yetkilere
+// sahiptir; yalnızca İstişare/talep yönlendirmesi ve etiket için kullanılır.
+// (Boş = düz "Merkez Ekibi".)
+enum MerkezGorev {
+  ILKOGRETIM
+  LISE
+  UNIVERSITE
+  SEKRETERYA
 }
 
 enum UserStatus {
@@ -56,6 +67,8 @@ model User {
   // Ek yardımcı rol (teşkilat rolü değildir): belirli Merkez Ekip üyelerine
   // içerik yönetimi yetkisi (Form Yönetimi, Bildirim, Muradımız, Doküman, Arşiv) verir
   icerikYoneticisi Boolean @default(false)
+  // Merkez Ekip görev ayrımı (yalnızca GENEL_MERKEZ için anlamlı; boş = düz Merkez Ekibi)
+  merkezGorev  MerkezGorev?
   // Kayıt sırasında başvurulan görev bilgisi (onay sürecinde admin görsün)
   basvuruGorev   String?
   basvuruBolgeId String?

@@ -6,7 +6,7 @@ import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import type { Role } from "@/lib/constants";
-import { ROLE_LABELS } from "@/lib/constants";
+import { gorevEtiket } from "@/lib/constants";
 import {
   LayoutDashboard, Users, MapPin, FileText, ClipboardList,
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
@@ -20,6 +20,7 @@ interface User {
   id: string; ad: string; soyad: string; role: Role;
   sistem?: string | null;
   icerikYoneticisi?: boolean;
+  merkezGorev?: string | null;
   activeIlAd?: string | null;
   activeBolgeAd?: string | null;
 }
@@ -143,10 +144,11 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
   const isFullAdmin  = isSuperFull || isMerkezEkip;
   const isTRUni  = user.role === "TURKIYE_UNIVERSITE_SORUMLUSU";
   const isTRLise = user.role === "TURKIYE_LISE_SORUMLUSU";
+  const isTeknik = user.role === "TEKNIK";
   const isBolge  = user.role === "BOLGE_SORUMLUSU";
   const isIl     = user.role === "IL_SORUMLUSU";
 
-  const dashHref = (isFullAdmin || isTRUni || isTRLise) ? "/panel/admin" : isBolge ? "/panel/bolge" : "/panel/il";
+  const dashHref = (isFullAdmin || isTRUni || isTRLise || isTeknik) ? "/panel/admin" : isBolge ? "/panel/bolge" : "/panel/il";
 
   // ── Tam yetkili admin sidebar grupları ────────────────────────────────
   const faaliyetGroup: NavGroupDef = {
@@ -235,7 +237,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
     },
   ];
 
-  const roleLabel = icerikAktif ? "İçerik Yöneticisi" : (ROLE_LABELS[user.role] ?? user.role);
+  const roleLabel = icerikAktif ? "İçerik Yöneticisi" : gorevEtiket(user.role, user.sistem, user.merkezGorev);
 
   const locationLabel = user.activeIlAd
     ? `${user.activeIlAd} İl Sorumlusu`
@@ -365,6 +367,16 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Paneli" icon={UserCircle} />
             <NavItem href="/panel/admin/bolgeler"     label="Coğrafi Yapı"    icon={MapPin} />
             <NavItem href="/panel/admin/loglar"       label="Denetim Logları" icon={ClipboardList} />
+          </>
+        )}
+
+        {/* ── TEKNİK ── (İstişare/Talep Merkezi bir sonraki fazda eklenecek) */}
+        {isTeknik && (
+          <>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+              Teknik
+            </p>
+            <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
           </>
         )}
 

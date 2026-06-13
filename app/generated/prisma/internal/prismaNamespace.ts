@@ -2703,6 +2703,7 @@ export const UserScalarFieldEnum = {
   status: 'status',
   sistem: 'sistem',
   icerikYoneticisi: 'icerikYoneticisi',
+  merkezGorev: 'merkezGorev',
   basvuruGorev: 'basvuruGorev',
   basvuruBolgeId: 'basvuruBolgeId',
   basvuruIlId: 'basvuruIlId',
@@ -3405,6 +3406,20 @@ export type ListEnumSistemFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'MerkezGorev'
+ */
+export type EnumMerkezGorevFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MerkezGorev'>
+    
+
+
+/**
+ * Reference to a field of type 'MerkezGorev[]'
+ */
+export type ListEnumMerkezGorevFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MerkezGorev[]'>
     
 
 

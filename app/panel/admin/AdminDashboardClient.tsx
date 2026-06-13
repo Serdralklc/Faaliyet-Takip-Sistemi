@@ -56,8 +56,8 @@ const GOREV_LABEL: Record<string, string> = {
   IL_SORUMLUSU:      "İl Sorumlusu",
   BOLGE_SORUMLUSU:   "Bölge Sorumlusu",
   TURKIYE_EGITIM_SORUMLUSU:     "Türkiye Eğitim Sorumlusu",
-  TURKIYE_UNIVERSITE_SORUMLUSU: "Türkiye Üniversite Gençlik Sorumlusu",
-  TURKIYE_LISE_SORUMLUSU:       "Türkiye Lise Gençlik Sorumlusu",
+  TURKIYE_UNIVERSITE_SORUMLUSU: "Merkez Üniversite Gençlik Sorumlusu",
+  TURKIYE_LISE_SORUMLUSU:       "Merkez Lise Gençlik Sorumlusu",
   GENEL_MERKEZ:      "Merkez Ekibi",
 };
 

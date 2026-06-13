@@ -15,12 +15,23 @@ export const Role = {
   TURKIYE_EGITIM_SORUMLUSU: 'TURKIYE_EGITIM_SORUMLUSU',
   TURKIYE_UNIVERSITE_SORUMLUSU: 'TURKIYE_UNIVERSITE_SORUMLUSU',
   TURKIYE_LISE_SORUMLUSU: 'TURKIYE_LISE_SORUMLUSU',
+  TEKNIK: 'TEKNIK',
   BOLGE_SORUMLUSU: 'BOLGE_SORUMLUSU',
   IL_SORUMLUSU: 'IL_SORUMLUSU',
   BEKLEYEN: 'BEKLEYEN'
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const MerkezGorev = {
+  ILKOGRETIM: 'ILKOGRETIM',
+  LISE: 'LISE',
+  UNIVERSITE: 'UNIVERSITE',
+  SEKRETERYA: 'SEKRETERYA'
+} as const
+
+export type MerkezGorev = (typeof MerkezGorev)[keyof typeof MerkezGorev]
 
 
 export const UserStatus = {

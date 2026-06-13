@@ -13,8 +13,8 @@ const YON_ROL_LABEL: Record<string, string> = {
   SISTEM_ADMIN:                 "Sistem Admini",
   GENEL_MERKEZ:                 "Merkez Ekibi",
   TURKIYE_EGITIM_SORUMLUSU:     "TR Eğitim Sorumlusu",
-  TURKIYE_UNIVERSITE_SORUMLUSU: "TR Üniversite Gençlik Sorumlusu",
-  TURKIYE_LISE_SORUMLUSU:       "TR Lise Gençlik Sorumlusu",
+  TURKIYE_UNIVERSITE_SORUMLUSU: "Merkez Üniversite Gençlik Sorumlusu",
+  TURKIYE_LISE_SORUMLUSU:       "Merkez Lise Gençlik Sorumlusu",
 };
 
 /**
@@ -210,7 +210,7 @@ async function getStats(userRole: string, userSistem: string | null | undefined)
 export default async function AdminPage() {
   const session = await getSession();
   if (!session?.user) redirect("/giris");
-  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"].includes(session.user.role)) {
+  if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "TEKNIK"].includes(session.user.role)) {
     redirect("/panel/beklemede");
   }
 

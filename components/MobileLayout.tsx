@@ -13,6 +13,7 @@ interface User {
   id: string; ad: string; soyad: string; role: Role;
   sistem?: string | null;
   icerikYoneticisi?: boolean;
+  merkezGorev?: string | null;
   activeIlAd?: string | null;
   activeBolgeAd?: string | null;
 }
