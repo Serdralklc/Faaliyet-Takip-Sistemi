@@ -3,8 +3,59 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { rolEtiket } from "@/lib/constants";
 import { AdminDashboardClient } from "./AdminDashboardClient";
 import { IcerikDashboard } from "./IcerikDashboard";
+
+const YONETICI_ROLLERI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+
+const YON_ROL_LABEL: Record<string, string> = {
+  SISTEM_ADMIN:                 "Sistem Admini",
+  GENEL_MERKEZ:                 "Merkez Ekibi",
+  TURKIYE_EGITIM_SORUMLUSU:     "TR Eğitim Sorumlusu",
+  TURKIYE_UNIVERSITE_SORUMLUSU: "TR Üniversite Gençlik Sorumlusu",
+  TURKIYE_LISE_SORUMLUSU:       "TR Lise Gençlik Sorumlusu",
+};
+
+/**
+ * Sistem kartlarına göre üye özeti: her sistemde onaylı (status AKTIF) üye sayısı
+ * + son 15 dakikada aktif olanlar (anlık aktif) + rol kırılımı.
+ * SerGenç gönüllüde aktiflik takibi yok → online null.
+ */
+async function getUyeOzet() {
+  const esik = new Date(Date.now() - 15 * 60 * 1000);
+  const [users, volToplam] = await Promise.all([
+    prisma.user.findMany({ where: { status: "AKTIF" }, select: { role: true, sistem: true, sonAktif: true } }),
+    prisma.volunteer.count(),
+  ]);
+
+  const cevrimici = (u: { sonAktif: Date | null }) => !!u.sonAktif && u.sonAktif >= esik;
+
+  const yon = users.filter(u => YONETICI_ROLLERI.includes(u.role));
+  const yonRoller = Object.keys(YON_ROL_LABEL)
+    .map(r => ({ label: YON_ROL_LABEL[r], toplam: yon.filter(u => u.role === r).length }))
+    .filter(x => x.toplam > 0);
+
+  const sistemOzet = (sistem: string) => {
+    const list = users.filter(u => u.sistem === sistem && (u.role === "IL_SORUMLUSU" || u.role === "BOLGE_SORUMLUSU"));
+    return {
+      toplam: list.length,
+      online: list.filter(cevrimici).length,
+      roller: [
+        { label: rolEtiket("IL_SORUMLUSU", sistem),    toplam: list.filter(u => u.role === "IL_SORUMLUSU").length },
+        { label: rolEtiket("BOLGE_SORUMLUSU", sistem), toplam: list.filter(u => u.role === "BOLGE_SORUMLUSU").length },
+      ].filter(x => x.toplam > 0),
+    };
+  };
+
+  return [
+    { key: "yonetim",    label: "Yönetim Merkezi",   renk: "#92400E", toplam: yon.length, online: yon.filter(cevrimici).length, roller: yonRoller },
+    { key: "egitim",     label: "Eğitim Birimi",     renk: "#0B6B3A", ...sistemOzet("EGITIMCI") },
+    { key: "universite", label: "Üniversite Gençlik", renk: "#1D4ED8", ...sistemOzet("UNIVERSITE") },
+    { key: "lise",       label: "Lise Gençlik",       renk: "#7C3AED", ...sistemOzet("LISE") },
+    { key: "sergenc",    label: "SerGenç Gönüllü",    renk: "#B45309", toplam: volToplam, online: null as number | null, roller: [] as { label: string; toplam: number }[] },
+  ];
+}
 
 async function getStats(userRole: string, userSistem: string | null | undefined) {
   const SISTEM_KISITLI = ["TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
@@ -171,6 +222,9 @@ export default async function AdminPage() {
     }
   }
 
-  const stats = await getStats(session.user.role, session.user.sistem);
-  return <AdminDashboardClient stats={stats} />;
+  const [stats, uyeOzet] = await Promise.all([
+    getStats(session.user.role, session.user.sistem),
+    getUyeOzet(),
+  ]);
+  return <AdminDashboardClient stats={stats} uyeOzet={uyeOzet} />;
 }

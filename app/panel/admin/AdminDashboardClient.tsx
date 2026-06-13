@@ -1,9 +1,23 @@
 ﻿"use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
+
+interface SistemUye {
+  key: string;
+  label: string;
+  renk: string;
+  toplam: number;
+  online: number | null;
+  roller: { label: string; toplam: number }[];
+}
+
+const SISTEM_KULLANICI_LINK: Record<string, string> = {
+  yonetim: "YONETICI", egitim: "EGITIMCI", universite: "UNIVERSITE", lise: "LISE", sergenc: "GONULLU",
+};
 
 interface Stats {
   toplamBolge: number;
@@ -47,7 +61,7 @@ const GOREV_LABEL: Record<string, string> = {
   GENEL_MERKEZ:      "Merkez Ekibi",
 };
 
-export function AdminDashboardClient({ stats }: { stats: Stats }) {
+export function AdminDashboardClient({ stats, uyeOzet }: { stats: Stats; uyeOzet: SistemUye[] }) {
   return (
     <div className="p-6 space-y-6 max-w-[1400px]">
 
@@ -226,40 +240,8 @@ export function AdminDashboardClient({ stats }: { stats: Stats }) {
           </div>
         </div>
 
-        {/* Sistem Özeti */}
-        <div className="sv-section">
-          <div className="sv-section-header">
-            <h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>Eğitimci Sistemi</h2>
-          </div>
-          <div className="p-5 space-y-4">
-            <div className="rounded-xl p-4 text-center" style={{ background: "#F0FDF4", border: "1px solid #BBF7D0" }}>
-              <p className="text-3xl font-black" style={{ color: "#0B6B3A" }}>
-                {stats.aktifKullanici}
-              </p>
-              <p className="text-xs font-semibold mt-1" style={{ color: "#065F46" }}>Aktif Kullanıcı</p>
-            </div>
-
-            <div className="rounded-xl p-4 text-center" style={{ background: "#ECFDF5", border: "1px solid #A7F3D0" }}>
-              <p className="text-3xl font-black" style={{ color: "#059669" }}>
-                {stats.tamVeriGirenIlSayisi}
-              </p>
-              <p className="text-xs font-semibold mt-1" style={{ color: "#065F46" }}>
-                Tamamlanmış İl
-              </p>
-              <p className="text-[10px] mt-0.5" style={{ color: "#6EE7B7" }}>
-                3 birim eksiksiz girilmiş
-              </p>
-            </div>
-
-            <Link
-              href="/panel/admin/kullanicilar?sistem=EGITIMCI"
-              className="block w-full text-center py-2.5 rounded-xl text-sm font-bold transition hover:opacity-80"
-              style={{ background: "#0B6B3A", color: "#D4AF37" }}
-            >
-              Kullanıcıları Yönet →
-            </Link>
-          </div>
-        </div>
+        {/* Sistem üyeleri — seçilebilir */}
+        <SistemUyeKart uyeOzet={uyeOzet} />
       </div>
 
       {/* ── Satır 4: Son Hareketler + Bekleyen Başvurular ── */}
@@ -352,6 +334,70 @@ export function AdminDashboardClient({ stats }: { stats: Stats }) {
         </div>
       </div>
 
+    </div>
+  );
+}
+
+/* ── Sistem üyeleri kartı (açılır menü ile sistem seçilir) ── */
+function SistemUyeKart({ uyeOzet }: { uyeOzet: SistemUye[] }) {
+  const [key, setKey] = useState(uyeOzet[0]?.key ?? "yonetim");
+  const sel = uyeOzet.find(u => u.key === key) ?? uyeOzet[0];
+  if (!sel) return null;
+
+  return (
+    <div className="sv-section">
+      <div className="sv-section-header">
+        <h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>Sistem Üyeleri</h2>
+      </div>
+      <div className="p-5 space-y-4">
+        {/* Sistem seçici */}
+        <select
+          value={key}
+          onChange={e => setKey(e.target.value)}
+          className="w-full rounded-xl border px-3 py-2.5 text-sm font-bold focus:outline-none cursor-pointer"
+          style={{ background: "var(--bg-input)", borderColor: sel.renk + "55", color: sel.renk }}
+        >
+          {uyeOzet.map(u => <option key={u.key} value={u.key}>{u.label}</option>)}
+        </select>
+
+        {/* Toplam + Anlık aktif */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl p-4 text-center" style={{ background: sel.renk + "12", border: `1px solid ${sel.renk}33` }}>
+            <p className="text-3xl font-black" style={{ color: sel.renk }}>{sel.toplam.toLocaleString("tr-TR")}</p>
+            <p className="text-xs font-semibold mt-1" style={{ color: sel.renk }}>Toplam Üye</p>
+          </div>
+          <div className="rounded-xl p-4 text-center" style={{ background: "var(--bg-th)", border: "1px solid var(--border)" }}>
+            <p className="text-3xl font-black" style={{ color: sel.online == null ? "var(--text-muted)" : "#059669" }}>
+              {sel.online == null ? "—" : sel.online.toLocaleString("tr-TR")}
+            </p>
+            <p className="text-xs font-semibold mt-1" style={{ color: "var(--text-secondary)" }}>Anlık Aktif</p>
+            <p className="text-[10px] mt-0.5" style={{ color: "var(--text-muted)" }}>
+              {sel.online == null ? "takip edilmiyor" : "son 15 dk içinde"}
+            </p>
+          </div>
+        </div>
+
+        {/* Rol kırılımı */}
+        {sel.roller.length > 0 && (
+          <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--border)" }}>
+            {sel.roller.map((r, i) => (
+              <div key={r.label} className="flex items-center justify-between px-3 py-2"
+                style={i > 0 ? { borderTop: "1px solid var(--border)" } : undefined}>
+                <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{r.label}</span>
+                <span className="text-xs font-bold" style={{ color: "var(--text-primary)" }}>{r.toplam.toLocaleString("tr-TR")}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <Link
+          href={`/panel/admin/kullanicilar?sistem=${SISTEM_KULLANICI_LINK[sel.key] ?? "EGITIMCI"}`}
+          className="block w-full text-center py-2.5 rounded-xl text-sm font-bold text-white transition hover:opacity-85"
+          style={{ background: sel.renk }}
+        >
+          Kullanıcıları Yönet →
+        </Link>
+      </div>
     </div>
   );
 }
