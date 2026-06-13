@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz." }, { status: 401 });
-  if (!canManageDocs(session.user.role)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
+  if (!canManageDocs(session.user)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
 
   const { id } = await params;
   const mevcut = await prisma.dokuman.findUnique({ where: { id } });

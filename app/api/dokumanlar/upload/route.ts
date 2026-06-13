@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz." }, { status: 401 });
-  if (!canManageDocs(session.user.role)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
+  if (!canManageDocs(session.user)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
 
   let form: FormData;
   try {

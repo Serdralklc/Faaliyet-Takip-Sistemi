@@ -10,8 +10,8 @@ export default async function DokumanlarPage() {
   const session = await getSession();
   if (!session?.user) redirect("/giris");
   if (!YONETICI_ROLLERI.includes(session.user.role as Role)) redirect("/");
-  // İçerik ekranı: İçerik Yöneticisi yetkisi olmayan Merkez Ekip giremez
-  if (session.user.role === "GENEL_MERKEZ" && !session.user.icerikYoneticisi) redirect("/panel/admin");
+  // Doküman Merkezi tüm yönetim rollerine açık; yönetme (yükle/sil/erişim) yetkisi
+  // içeride API'de admin + İçerik Yöneticisi ile sınırlı, görüntüle/indir/paylaş herkese.
 
   return <DokumanMerkeziClient />;
 }

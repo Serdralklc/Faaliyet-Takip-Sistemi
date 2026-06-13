@@ -20,7 +20,7 @@ const patchSchema = z.object({
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz." }, { status: 401 });
-  if (!canManageDocs(session.user.role)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
+  if (!canManageDocs(session.user)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
 
   const { id } = await params;
   const r = await parseJson(req, patchSchema);
@@ -54,7 +54,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz." }, { status: 401 });
-  if (!canManageDocs(session.user.role)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
+  if (!canManageDocs(session.user)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
 
   const { id } = await params;
   const dokuman = await prisma.dokuman.findUnique({ where: { id }, select: { ad: true, storageKey: true } });

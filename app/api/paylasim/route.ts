@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { parseJson } from "@/lib/validation";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
-import { canManageDocs } from "@/lib/dokuman-access";
+import { dokumanaErisebilir } from "@/lib/dokuman-access";
 
 const schema = z
   .object({
@@ -20,22 +20,25 @@ const schema = z
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz." }, { status: 401 });
-  if (!canManageDocs(session.user.role)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
 
   const r = await parseJson(req, schema);
   if ("error" in r) return r.error;
   const { klasorId, dokumanId, gecerlilikGun } = r.data;
 
+  // Paylaşım linkini, dosya/klasöre erişimi olan herkes oluşturabilir (görüntüle/indir/paylaş).
+  const erisimSelect = { ad: true, erisimEgitim: true, erisimUniversite: true, erisimLise: true };
   let hedefAd = "";
+  let erisebilir = false;
   if (klasorId) {
-    const k = await prisma.dokumanKlasor.findUnique({ where: { id: klasorId }, select: { ad: true } });
+    const k = await prisma.dokumanKlasor.findUnique({ where: { id: klasorId }, select: erisimSelect });
     if (!k) return NextResponse.json({ error: "Klasör bulunamadı." }, { status: 404 });
-    hedefAd = k.ad;
+    hedefAd = k.ad; erisebilir = dokumanaErisebilir(session.user, k);
   } else if (dokumanId) {
-    const d = await prisma.dokuman.findUnique({ where: { id: dokumanId }, select: { ad: true } });
+    const d = await prisma.dokuman.findUnique({ where: { id: dokumanId }, select: erisimSelect });
     if (!d) return NextResponse.json({ error: "Doküman bulunamadı." }, { status: 404 });
-    hedefAd = d.ad;
+    hedefAd = d.ad; erisebilir = dokumanaErisebilir(session.user, d);
   }
+  if (!erisebilir) return NextResponse.json({ error: "Bu öğeye erişiminiz yok." }, { status: 403 });
 
   const paylasim = await prisma.dokumanPaylasim.create({
     data: {

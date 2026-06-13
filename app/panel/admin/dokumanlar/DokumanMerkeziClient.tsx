@@ -262,12 +262,13 @@ function MenuSatiri({
 
 /** Her klasör/dosya satırındaki ⋯ açılır menüsü */
 function OgeMenu({
-  oge, acik, onToggle, onAksiyon,
+  oge, acik, onToggle, onAksiyon, yonetici,
 }: {
   oge: Oge;
   acik: boolean;
   onToggle: () => void;
   onAksiyon: (aksiyon: MenuAksiyon) => void;
+  yonetici: boolean;
 }) {
   return (
     <div className="relative shrink-0">
@@ -292,9 +293,9 @@ function OgeMenu({
             className="absolute right-0 top-full mt-1 z-40 w-48 rounded-xl border border-border bg-card shadow-xl py-1.5"
             onClick={e => e.stopPropagation()}
           >
-            <MenuSatiri ikon={Pencil} etiket="Yeniden Adlandır" onClick={() => onAksiyon("ad")} />
-            <MenuSatiri ikon={FolderInput} etiket="Taşı" onClick={() => onAksiyon("tasi")} />
-            <MenuSatiri ikon={ShieldCheck} etiket="Erişim" onClick={() => onAksiyon("erisim")} />
+            {yonetici && <MenuSatiri ikon={Pencil} etiket="Yeniden Adlandır" onClick={() => onAksiyon("ad")} />}
+            {yonetici && <MenuSatiri ikon={FolderInput} etiket="Taşı" onClick={() => onAksiyon("tasi")} />}
+            {yonetici && <MenuSatiri ikon={ShieldCheck} etiket="Erişim" onClick={() => onAksiyon("erisim")} />}
             <MenuSatiri ikon={Share2} etiket="Paylaş" onClick={() => onAksiyon("paylas")} />
             {oge.tur === "dosya" && (
               <a
@@ -308,10 +309,10 @@ function OgeMenu({
                 İndir
               </a>
             )}
-            {oge.tur === "dosya" && (
+            {yonetici && oge.tur === "dosya" && (
               <MenuSatiri ikon={Upload} etiket="Yeni Sürüm" onClick={() => onAksiyon("surum")} />
             )}
-            <MenuSatiri ikon={Trash2} etiket="Sil" tehlikeli onClick={() => onAksiyon("sil")} />
+            {yonetici && <MenuSatiri ikon={Trash2} etiket="Sil" tehlikeli onClick={() => onAksiyon("sil")} />}
           </div>
         </>
       )}
@@ -568,6 +569,7 @@ export function DokumanMerkeziClient() {
   const klasorlar = data?.klasorlar ?? [];
   const dosyalar = data?.dosyalar ?? [];
   const breadcrumb = data?.breadcrumb ?? [];
+  const yonetici = data?.yonetici ?? false;
   const bos = !isLoading && !isError && klasorlar.length === 0 && dosyalar.length === 0;
 
   function yenile() {
@@ -783,6 +785,7 @@ export function DokumanMerkeziClient() {
           })}
         </nav>
 
+        {yonetici && (
         <div className="flex items-center gap-2">
           <Button
             variant="secondary"
@@ -810,6 +813,7 @@ export function DokumanMerkeziClient() {
             onChange={dosyaSec}
           />
         </div>
+        )}
       </div>
 
       {/* İçerik */}
@@ -882,6 +886,7 @@ export function DokumanMerkeziClient() {
                     <OgeMenu
                       oge={{ tur: "klasor", ...k }}
                       acik={menuAcikId === k.id}
+                      yonetici={yonetici}
                       onToggle={() => setMenuAcikId(menuAcikId === k.id ? null : k.id)}
                       onAksiyon={a => menuAksiyon({ tur: "klasor", ...k }, a)}
                     />
@@ -919,6 +924,7 @@ export function DokumanMerkeziClient() {
                       <OgeMenu
                         oge={{ tur: "dosya", ...d }}
                         acik={menuAcikId === d.id}
+                        yonetici={yonetici}
                         onToggle={() => setMenuAcikId(menuAcikId === d.id ? null : d.id)}
                         onAksiyon={a => menuAksiyon({ tur: "dosya", ...d }, a)}
                       />

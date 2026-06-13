@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Badge } from "@/components/ui/Badge";
 import { formatDateTR } from "@/lib/format";
 import {
-  Folder, FolderOpen, ChevronRight, Download, File as FileIcon,
+  Folder, FolderOpen, ChevronRight, Download, Share2, File as FileIcon,
   FileText, FileSpreadsheet, FileImage, FileArchive, FileVideo, FileAudio,
 } from "lucide-react";
 
@@ -188,6 +188,28 @@ export function DokumanViewerClient() {
                     <Badge tone="brand" className="hidden sm:inline-flex uppercase">
                       {d.uzanti.replace(/^\./, "")}
                     </Badge>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch("/api/paylasim", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ dokumanId: d.id }),
+                          });
+                          const data = await res.json().catch(() => ({}));
+                          if (res.ok && data.url) {
+                            try { await navigator.clipboard.writeText(data.url); } catch { /* */ }
+                            alert("Paylaşım bağlantısı kopyalandı:\n" + data.url);
+                          } else {
+                            alert(data.error || "Paylaşım oluşturulamadı.");
+                          }
+                        } catch { alert("Paylaşım oluşturulamadı."); }
+                      }}
+                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12.5px] rounded-lg font-semibold transition border border-border text-secondary hover:bg-[var(--bg-active)] flex-shrink-0"
+                    >
+                      <Share2 size={13} strokeWidth={2.5} />
+                      Paylaş
+                    </button>
                     <a
                       href={d.url}
                       download

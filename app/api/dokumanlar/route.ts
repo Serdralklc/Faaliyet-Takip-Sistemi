@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
     cursor = k.parentId;
   }
 
-  return NextResponse.json({ klasorlar, dosyalar, breadcrumb, yonetici: canManageDocs(session.user.role) });
+  return NextResponse.json({ klasorlar, dosyalar, breadcrumb, yonetici: canManageDocs(session.user) });
 }
 
 const klasorSchema = z.object({
@@ -60,7 +60,7 @@ const klasorSchema = z.object({
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz." }, { status: 401 });
-  if (!canManageDocs(session.user.role)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
+  if (!canManageDocs(session.user)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
 
   const r = await parseJson(req, klasorSchema);
   if ("error" in r) return r.error;
