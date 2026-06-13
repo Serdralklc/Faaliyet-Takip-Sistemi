@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ROLE_LABELS } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 import { User, Lock, CheckCircle, AlertCircle } from "lucide-react";
@@ -16,6 +16,14 @@ export default function ProfilPage() {
   const [sifreStatus, setSifreStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [sifreMsg, setSifreMsg] = useState("");
   const [showPass, setShowPass] = useState(false);
+  const [telefon, setTelefon] = useState("");
+
+  useEffect(() => {
+    fetch("/api/profil")
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (d?.telefon) setTelefon(d.telefon); })
+      .catch(() => {});
+  }, []);
 
   async function handleSifreDegistir(e: React.FormEvent) {
     e.preventDefault();
@@ -79,6 +87,7 @@ export default function ProfilPage() {
               <p className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>{user.ad} {user.soyad}</p>
               <p className="text-sm font-semibold text-blue-600">{konum}</p>
               <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{user.email}</p>
+              {telefon && <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{telefon}</p>}
             </div>
           </div>
 
@@ -87,6 +96,7 @@ export default function ProfilPage() {
               { label: "Ad", value: user.ad },
               { label: "Soyad", value: user.soyad },
               { label: "E-posta", value: user.email },
+              { label: "Telefon", value: telefon || "—" },
               { label: "Görev", value: konum },
             ].map(f => (
               <div key={f.label} className="rounded-lg p-3" style={{ background: "var(--bg-page)" }}>

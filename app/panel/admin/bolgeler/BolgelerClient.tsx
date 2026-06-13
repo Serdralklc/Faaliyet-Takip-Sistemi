@@ -190,10 +190,10 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "var(--accent)" }}>
-            COĞRAFİ YAPI
+            EKSİK VERİ TAKİP
           </p>
           <h1 className="text-2xl font-black" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
-            Bölge & İl Yönetimi
+            Bölge & İl Veri Durumu
           </h1>
         </div>
 

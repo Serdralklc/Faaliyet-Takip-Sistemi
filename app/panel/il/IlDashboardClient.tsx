@@ -348,8 +348,8 @@ export default function IlDashboardClient({
         </div>
       )}
 
-      {/* ── Hedef Takip Widget ── */}
-      {ilHedefler.length > 0 && (() => {
+      {/* Muradımız widget'ı kaldırıldı (F1) — F12 (İl Eğitim anasayfa yenileme) ile kod tamamen silinecek */}
+      {false && ilHedefler.length > 0 && (() => {
         const sonHedef = ilHedefler[0];
         const sonF = faaliyetler.find(f => f.yil === sonHedef.yil && f.donem === sonHedef.donem);
         return (

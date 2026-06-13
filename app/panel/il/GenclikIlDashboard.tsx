@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { ClipboardList, Target, ArrowRight } from "lucide-react";
+import { ClipboardList } from "lucide-react";
 import { UNI_KATEGORILER } from "@/lib/universite-faaliyet";
 import { LISE_KATEGORILER } from "@/lib/lise-faaliyet";
 
@@ -134,16 +134,6 @@ export function GenclikIlDashboard({ sistem, ilAd, bolgeAd, faaliyetler }: {
                 ))}
               </div>
             </div>
-            <Link href="/panel/il/hedefler" className="sv-section block p-4 transition hover:shadow-md hover:-translate-y-0.5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: renk + "15", color: renk }}><Target size={20} /></div>
-                <div className="flex-1">
-                  <p className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>Muradımız</p>
-                  <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Hedeflerinizi ve ilerlemeyi görün</p>
-                </div>
-                <ArrowRight size={16} style={{ color: renk }} />
-              </div>
-            </Link>
           </div>
         </div>
       )}

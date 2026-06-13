@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileText, Bell, Target, FolderOpen, Archive, ArrowRight } from "lucide-react";
+import { FileText, Bell, FolderOpen, Archive, ArrowRight } from "lucide-react";
 
 const KARTLAR = [
   {
@@ -13,12 +13,6 @@ const KARTLAR = [
     baslik: "Bildirim Merkezi",
     aciklama: "Duyuru ve bildirim gönderin, geçmiş bildirimleri yönetin.",
     icon: Bell, renk: "#D97706",
-  },
-  {
-    href: "/panel/admin/hedefler",
-    baslik: "Muradımız",
-    aciklama: "Bölge ve il muradımız hedeflerini belirleyin ve takip edin.",
-    icon: Target, renk: "#0B6B3A",
   },
   {
     href: "/panel/admin/dokumanlar",

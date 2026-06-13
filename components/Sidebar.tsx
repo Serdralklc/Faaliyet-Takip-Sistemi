@@ -11,7 +11,7 @@ import {
   LayoutDashboard, Users, MapPin, FileText, ClipboardList,
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
   GraduationCap, School, BookOpen, Home, Building2,
-  Hotel, BarChart3, Settings, UserCircle, Target, TrendingUp, X,
+  Hotel, BarChart3, Settings, UserCircle, TrendingUp, X,
   FolderOpen, Bell, Archive, PenSquare, MessagesSquare,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
@@ -228,13 +228,6 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
         { href: "/panel/il/raporlar", label: "İl Raporları", icon: BarChart3 },
       ],
     },
-    {
-      label: "Muradımız",
-      icon: Target,
-      items: [
-        { href: "/panel/il/hedefler", label: "Muradımız Merkezi", icon: Target },
-      ],
-    },
   ];
 
   const roleLabel = icerikAktif ? "İçerik Yöneticisi" : gorevEtiket(user.role, user.sistem, user.merkezGorev);
@@ -293,11 +286,10 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/admin/form-yonetimi" label="Form Yönetimi" icon={FileText} />
             <NavItem href="/panel/admin/bildirimler-merkezi" label="Bildirim Merkezi" icon={Bell} />
             <NavItem href="/panel/admin/analiz" label="Rapor ve Analiz Merkezi" icon={BarChart3} />
-            <NavItem href="/panel/admin/hedefler" label="Muradımız" icon={Target} />
 
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
 
-            <NavItem href="/panel/admin/bolgeler" label="Coğrafi Yapı" icon={MapPin} />
+            <NavItem href="/panel/admin/bolgeler" label="Eksik Veri Takip" icon={MapPin} />
             <NavItem href="/panel/admin/dokumanlar" label="Doküman Merkezi" icon={FolderOpen} />
             <NavItem href="/panel/admin/arsiv" label="Veri Arşivi" icon={Archive} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
@@ -319,7 +311,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
 
             <NavItem href="/panel/admin/analiz" label="Rapor ve Analiz Merkezi" icon={BarChart3} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
-            <NavItem href="/panel/admin/bolgeler" label="Coğrafi Yapı" icon={MapPin} />
+            <NavItem href="/panel/admin/bolgeler" label="Eksik Veri Takip" icon={MapPin} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/admin/loglar"   label="Denetim Logları" icon={ClipboardList} />
           </>
@@ -336,7 +328,6 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
 
             <NavItem href="/panel/admin/form-yonetimi" label="Form Yönetimi" icon={FileText} />
             <NavItem href="/panel/admin/bildirimler-merkezi" label="Bildirim Merkezi" icon={Bell} />
-            <NavItem href="/panel/admin/hedefler" label="Muradımız" icon={Target} />
             <NavItem href="/panel/admin/dokumanlar" label="Doküman Merkezi" icon={FolderOpen} />
             <NavItem href="/panel/admin/arsiv" label="Veri Arşivi" icon={Archive} />
           </>
@@ -350,9 +341,8 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavGroupComp group={uniOnlyFaaliyet} />
-            <NavItem href="/panel/admin/hedefler"     label="Muradımız"  icon={Target} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Paneli" icon={UserCircle} />
-            <NavItem href="/panel/admin/bolgeler"     label="Coğrafi Yapı"    icon={MapPin} />
+            <NavItem href="/panel/admin/bolgeler"     label="Eksik Veri Takip"    icon={MapPin} />
             <NavItem href="/panel/istisare"           label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/admin/loglar"       label="Denetim Logları" icon={ClipboardList} />
           </>
@@ -366,9 +356,8 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavGroupComp group={liseOnlyFaaliyet} />
-            <NavItem href="/panel/admin/hedefler"     label="Muradımız"  icon={Target} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Paneli" icon={UserCircle} />
-            <NavItem href="/panel/admin/bolgeler"     label="Coğrafi Yapı"    icon={MapPin} />
+            <NavItem href="/panel/admin/bolgeler"     label="Eksik Veri Takip"    icon={MapPin} />
             <NavItem href="/panel/istisare"           label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/admin/loglar"       label="Denetim Logları" icon={ClipboardList} />
           </>
@@ -393,7 +382,6 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/bolge" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/bolge/iller" label="İller" icon={MapPin} />
             <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
-            <NavItem href="/panel/bolge/hedefler" label="Muradımız Dağıtımı" icon={Target} />
             <NavItem href="/panel/bolge/performans" label="Performans Paneli" icon={TrendingUp} />
             <NavItem href="/panel/bolge/ek-kayit-basvurulari" label="Ev / Yurt Başvuruları" icon={Building2} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
@@ -410,7 +398,6 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/il" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/il/lise-faaliyet" label="Faaliyet Yönetimi" icon={ClipboardList} />
-            <NavItem href="/panel/il/hedefler" label="Muradımız" icon={Target} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
@@ -425,7 +412,6 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/il" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/il/universite-faaliyet" label="Faaliyet Yönetimi" icon={ClipboardList} />
-            <NavItem href="/panel/il/hedefler" label="Muradımız" icon={Target} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
