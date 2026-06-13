@@ -314,11 +314,24 @@ function LoginForm({
         }
         setLoading(false);
       } else {
-        // Beni hatırla — yalnızca e-posta saklanır
+        // Beni hatırla — yalnızca e-posta saklanır (şifre uygulamada SAKLANMAZ)
         if (remember) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify({ email }));
         } else {
           localStorage.removeItem(STORAGE_KEY);
+        }
+        // Şifreyi TARAYICININ şifre kasasına kaydet (Credential Management API).
+        // Uygulama şifreyi tutmaz; tarayıcı saklar ve sonraki girişte e-posta +
+        // şifreyi otomatik doldurur → tek tıkla giriş. Desteklemeyen tarayıcılarda
+        // aşağıdaki tam-sayfa navigasyonu klasik "şifreyi kaydet?" önerisini tetikler.
+        if (remember) {
+          try {
+            const W = window as unknown as { PasswordCredential?: new (d: { id: string; password: string; name?: string }) => Credential };
+            if (W.PasswordCredential && navigator.credentials?.store) {
+              const cred = new W.PasswordCredential({ id: email, password, name: email });
+              await navigator.credentials.store(cred);
+            }
+          } catch { /* tarayıcı desteklemiyorsa yoksay */ }
         }
         // Tam sayfa navigasyonu (router.push değil) — tarayıcının
         // "şifreyi kaydet?" önerisini tetikler; sonraki girişlerde
