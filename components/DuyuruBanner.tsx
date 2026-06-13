@@ -7,7 +7,7 @@
  * Bir duyuruya tıklanınca tam metni (ve varsa bağlantısı) bir pencerede açılır.
  */
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 interface Duyuru {
@@ -18,6 +18,9 @@ interface Duyuru {
 
 export function DuyuruBanner() {
   const [secili, setSecili] = useState<Duyuru | null>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  // İçerik genişliğine göre süre — duyuru azken de tempolu (hızlı) kaysın
+  const [sure, setSure] = useState(14);
 
   const { data = [] } = useQuery({
     queryKey: ["duyuru-aktif"],
@@ -29,6 +32,14 @@ export function DuyuruBanner() {
     refetchInterval: 300_000,
     staleTime: 60_000,
   });
+
+  // Bir set'in piksel genişliğini ölç → sabit ~110px/sn hız (min 5s, maks 22s)
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const w = el.scrollWidth;
+    if (w > 0) setSure(Math.max(5, Math.min(22, Math.round(w / 110))));
+  }, [data]);
 
   if (!data.length) return null;
 
@@ -53,8 +64,8 @@ export function DuyuruBanner() {
       <div className="duyuru-banner" role="region" aria-label="Duyurular">
         <span className="duyuru-badge"><span aria-hidden="true">📢</span> Duyurular</span>
         <div className="duyuru-viewport">
-          <div className="duyuru-marquee">
-            <div className="duyuru-track">{itemEls}</div>
+          <div className="duyuru-marquee" style={{ animationDuration: `${sure}s` }}>
+            <div className="duyuru-track" ref={trackRef}>{itemEls}</div>
             <div className="duyuru-track" aria-hidden="true">{itemEls}</div>
           </div>
         </div>
