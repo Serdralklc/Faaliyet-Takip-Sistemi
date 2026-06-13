@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { YONETICI_ROLLERI } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 import { AnalizClient } from "./AnalizClient";
+import { ANALIZ_TUM_ALANLAR } from "@/lib/analiz-sorular";
 
 /** Bir activity kaydından türetilmiş metrikler */
 function metrikler(a: Record<string, number>) {
@@ -41,6 +42,12 @@ const ACT_SELECT = {
   eay_toplamZiyaret: true,
 } as const;
 
+// Soru bazlı bölge karşılaştırması için tüm birim alanlarını da çek
+const SORU_SELECT: Record<string, boolean> = {
+  ...ACT_SELECT,
+  ...Object.fromEntries(ANALIZ_TUM_ALANLAR.map(k => [k, true])),
+};
+
 export default async function AnalizPage({ searchParams }: { searchParams: Promise<{ yil?: string }> }) {
   const session = await getSession();
   if (!session?.user) redirect("/giris");
@@ -55,7 +62,7 @@ export default async function AnalizPage({ searchParams }: { searchParams: Promi
 
   const [acts, actsOnceki, bolgeler, gonulluOgrenim, gonulluToplam, gonulluIller, bursDurum, ekKayitDurum, housingTip, ogrenciSayisi, bolgeHedefler] =
     await Promise.all([
-      prisma.activity.findMany({ where: { yil }, select: ACT_SELECT }),
+      prisma.activity.findMany({ where: { yil }, select: SORU_SELECT }),
       prisma.activity.findMany({ where: { yil: oncekiYil }, select: ACT_SELECT }),
       prisma.bolge.findMany({ select: { id: true, no: true, ad: true, iller: { select: { id: true } } }, orderBy: { no: "asc" } }),
       prisma.volunteer.groupBy({ by: ["ogrenim"], _count: { _all: true } }),
@@ -92,6 +99,23 @@ export default async function AnalizPage({ searchParams }: { searchParams: Promi
     donemMap.set(a.donem, d);
   }
 
+  // Soru bazlı bölge × dönem toplamları (birim alanları → seçilen soruya göre karşılaştırma)
+  const soruMap = new Map<string, Record<string, number>>(); // anahtar: `${bolgeAd}|${donem}`
+  for (const a of acts) {
+    const bolgeAd = ilToBolge.get(a.ilId);
+    if (!bolgeAd) continue;
+    const key = `${bolgeAd}|${a.donem}`;
+    let row = soruMap.get(key);
+    if (!row) { row = {}; soruMap.set(key, row); }
+    const ar = a as unknown as Record<string, number>;
+    for (const f of ANALIZ_TUM_ALANLAR) row[f] = (row[f] ?? 0) + (ar[f] ?? 0);
+  }
+  const bolgeNoMap = new Map(bolgeler.map(b => [b.ad, b.no]));
+  const bolgeSoruVeri = Array.from(soruMap.entries()).map(([key, row]) => {
+    const [bolgeAd, donem] = key.split("|");
+    return { bolge: bolgeAd, bolgeNo: bolgeNoMap.get(bolgeAd) ?? 0, donem, ...row };
+  });
+
   // Önceki yıl: toplamlar + dönem kırılımı (trend kıyası)
   const oncekiToplam = { toplamFaaliyet: 0, yeniIntisap: 0 };
   const oncekiDonemMap = new Map<string, { toplamFaaliyet: number; yeniIntisap: number }>();
@@ -123,6 +147,8 @@ export default async function AnalizPage({ searchParams }: { searchParams: Promi
     oncekiYil,
     yillar: yillar.length ? yillar : [guncelYil],
     bolgeSerisi: bolgeler.map(b => ({ bolge: `${b.no}. Bölge`, bolgeTam: b.ad, ...bolgeMap.get(b.ad)! })),
+    bolgeSoruVeri,
+    bolgeListesi: bolgeler.map(b => ({ no: b.no, ad: b.ad })),
     donemSerisi,
     toplam,
     oncekiToplam,

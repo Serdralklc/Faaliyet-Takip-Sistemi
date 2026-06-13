@@ -2,8 +2,10 @@
 
 /** Rapor ve Analiz Merkezi — interaktif grafikler + kurumsal dışa aktarma */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ANALIZ_SORULAR, ANALIZ_BIRIM_LABEL, type AnalizBirim } from "@/lib/analiz-sorular";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, Legend, CartesianGrid,
@@ -37,6 +39,8 @@ interface AnalizData {
   oncekiYil: number;
   yillar: number[];
   bolgeSerisi: ({ bolge: string; bolgeTam: string } & Record<string, string | number>)[];
+  bolgeSoruVeri: Record<string, string | number>[];
+  bolgeListesi: { no: number; ad: string }[];
   donemSerisi: Record<string, string | number>[];
   toplam: Record<string, number>;
   oncekiToplam: { toplamFaaliyet: number; yeniIntisap: number };
@@ -74,6 +78,21 @@ function GrafikKart({ title, children, height = 280 }: { title: string; children
 export function AnalizClient({ data }: { data: AnalizData }) {
   const router = useRouter();
   const [bolgeMetrik, setBolgeMetrik] = useState("yeniIntisap");
+
+  // Soru bazlı bölge karşılaştırması (birim → soru → dönem)
+  const [soruBirim, setSoruBirim] = useState<AnalizBirim>("ILKOGRETIM");
+  const [soruKey, setSoruKey] = useState("ik_toplamDergah");
+  const [soruDonem, setSoruDonem] = useState("");
+  const soruLabel = ANALIZ_SORULAR[soruBirim].find(s => s.key === soruKey)?.label ?? "Soru";
+  const soruGrafikVeri = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const r of data.bolgeSoruVeri) {
+      if (soruDonem && String(r.donem) !== soruDonem) continue;
+      const b = String(r.bolge);
+      map.set(b, (map.get(b) ?? 0) + (Number(r[soruKey]) || 0));
+    }
+    return data.bolgeListesi.map(b => ({ bolge: `${b.no}. Bölge`, bolgeTam: b.ad, deger: map.get(b.ad) ?? 0 }));
+  }, [data.bolgeSoruVeri, data.bolgeListesi, soruKey, soruDonem]);
 
   const hedefOrt = (() => {
     const gecerli = data.hedef.filter(h => h.hedef > 0);
@@ -119,6 +138,13 @@ export function AnalizClient({ data }: { data: AnalizData }) {
         </div>
       </div>
 
+      {/* Faaliyet Takip Sistemi seçimi */}
+      <div className="flex flex-wrap gap-2">
+        <span className="px-4 py-2 rounded-xl text-[13px] font-bold text-white" style={{ background: "#0B6B3A" }}>Eğitimci</span>
+        <Link href="/panel/admin/raporlar?sistem=UNIVERSITE" className="px-4 py-2 rounded-xl text-[13px] font-bold border hover:bg-th" style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}>Üniversite Gençlik</Link>
+        <Link href="/panel/admin/raporlar?sistem=LISE" className="px-4 py-2 rounded-xl text-[13px] font-bold border hover:bg-th" style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}>Lise Gençlik</Link>
+      </div>
+
       {/* KPI kartları */}
       <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
         {kpiler.map(k => (
@@ -151,6 +177,42 @@ export function AnalizClient({ data }: { data: AnalizData }) {
                 contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 12 }}
               />
               <Bar dataKey={bolgeMetrik} fill="#0B6B3A" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Soru bazlı bölge karşılaştırması (birim → soru → dönem) */}
+      <div className="sv-section p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <h2 className="text-[14px] font-bold text-heading">Soru Bazlı Bölge Karşılaştırması</h2>
+          <div className="flex flex-wrap gap-2">
+            <select value={soruBirim} onChange={e => { const b = e.target.value as AnalizBirim; setSoruBirim(b); setSoruKey(ANALIZ_SORULAR[b][0].key); }} className={selectCls} aria-label="Birim">
+              {(Object.keys(ANALIZ_BIRIM_LABEL) as AnalizBirim[]).map(b => <option key={b} value={b}>{ANALIZ_BIRIM_LABEL[b]}</option>)}
+            </select>
+            <select value={soruKey} onChange={e => setSoruKey(e.target.value)} className={selectCls} aria-label="Soru">
+              {ANALIZ_SORULAR[soruBirim].map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
+            </select>
+            <select value={soruDonem} onChange={e => setSoruDonem(e.target.value)} className={selectCls} aria-label="Dönem">
+              <option value="">Tüm Dönemler</option>
+              <option value="DONEM_1">1. Dönem</option>
+              <option value="DONEM_2">2. Dönem</option>
+              <option value="YAZ_DONEMI">Yaz Dönemi</option>
+            </select>
+          </div>
+        </div>
+        <div style={{ width: "100%", height: 300 }}>
+          <ResponsiveContainer>
+            <BarChart data={soruGrafikVeri} margin={{ left: -10 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="bolge" tick={{ fontSize: 10, fill: "var(--text-muted)" }} interval={0} angle={-35} textAnchor="end" height={50} />
+              <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
+              <Tooltip
+                formatter={(v) => [Number(v ?? 0).toLocaleString("tr-TR"), soruLabel]}
+                labelFormatter={(l, p) => (p?.[0]?.payload as { bolgeTam?: string })?.bolgeTam ?? l}
+                contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 12 }}
+              />
+              <Bar dataKey="deger" fill="#1D4ED8" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
