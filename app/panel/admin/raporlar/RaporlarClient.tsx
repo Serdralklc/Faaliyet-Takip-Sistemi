@@ -410,7 +410,7 @@ function BirimTable({
   );
 
   return (
-    <div className="sv-section overflow-x-auto sv-fade">
+    <div className="sv-section sv-fade" style={{ overflowX: "auto" }}>
       <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
         <h3 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>
           {yil} / {DONEM_LABEL[donem]}
@@ -531,7 +531,7 @@ function EAYTable({ bolgeler, yil, donem, color, scope, sortDir }: {
   );
 
   return (
-    <div className="sv-section overflow-x-auto sv-fade">
+    <div className="sv-section sv-fade" style={{ overflowX: "auto" }}>
       <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
         <h3 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>
           {yil} / {DONEM_LABEL[donem]}
@@ -847,7 +847,7 @@ function BirimTabPanel({
   return (
     <div className="space-y-5">
       {/* Kontrol katmanı — yapışkan */}
-      <div className="sv-section p-4 space-y-3 sticky top-0 z-20" style={{ background: "var(--bg-card)" }}>
+      <div className="sv-section p-4 space-y-3 sticky top-0 z-20" style={{ background: "var(--bg-card)", overflow: "visible" }}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
             <ScopeToggle scope={scope} onScope={setScope} color={color} />
