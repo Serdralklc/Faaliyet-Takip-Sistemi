@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -257,6 +257,21 @@ function LoginForm({
   const isYonetici      = roleKey === "yonetici";
   const role            = isYonetici ? YONETICI_CARD : ROLES.find(r => r.key === roleKey)!;
 
+  // Aktif oturum: bu karta uygun bir hesapla zaten giriş yapılmışsa "devam et" sun
+  const { data: session } = useSession();
+  const su = session?.user;
+  const ADMIN_ROLLERI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+  const aktifUygun = !!su && (
+    isYonetici
+      ? ADMIN_ROLLERI.includes(su.role)
+      : su.sistem === SISTEM_MAP[roleKey] && (su.role === "IL_SORUMLUSU" || su.role === "BOLGE_SORUMLUSU")
+  );
+  const panelHref = su
+    ? (ADMIN_ROLLERI.includes(su.role) ? "/panel/admin"
+      : su.role === "BOLGE_SORUMLUSU" ? "/panel/bolge"
+      : su.role === "IL_SORUMLUSU" ? "/panel/il" : "/")
+    : "/";
+
   const STORAGE_KEY = `sv_remember_${roleKey}`;
 
   const [email,      setEmail]      = useState("");
@@ -364,6 +379,29 @@ function LoginForm({
             {role.sub} · Serhendi Gençlik
           </p>
         </div>
+
+        {/* Aktif oturum varsa: tek tıkla devam */}
+        {aktifUygun && su && (
+          <div className="px-7 pt-6">
+            <div className="rounded-2xl border p-4" style={{ borderColor: role.color + "40", background: role.color + "0A" }}>
+              <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: role.color }}>Zaten giriş yaptınız</p>
+              <p className="text-[15px] font-black mt-0.5" style={{ color: "#0F172A" }}>{su.ad} {su.soyad}</p>
+              <button
+                type="button"
+                onClick={() => { window.location.href = panelHref; }}
+                className="w-full mt-3 py-2.5 rounded-xl text-[14px] font-black text-white transition hover:opacity-90 active:scale-[0.98]"
+                style={{ background: role.color }}
+              >
+                Hesabıma Devam Et →
+              </button>
+            </div>
+            <div className="flex items-center gap-3 mt-5">
+              <div className="flex-1 h-px" style={{ background: "#E2E8F0" }} />
+              <span className="text-[12px] font-semibold" style={{ color: "#94A3B8" }}>veya başka hesap</span>
+              <div className="flex-1 h-px" style={{ background: "#E2E8F0" }} />
+            </div>
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="px-7 py-7 space-y-5">
