@@ -544,6 +544,213 @@ function DuyuruTab() {
 }
 
 /* ══════════════════════════════════════
+   POP-UP YÖNETİMİ sekmesi (CRUD + görsel)
+══════════════════════════════════════ */
+const GOSTERIM_OPTS: { key: string; label: string }[] = [
+  { key: "HER_GIRIS", label: "Her girişte göster" },
+  { key: "TEK_SEFER", label: "Sadece 1 kez göster" },
+  { key: "SUREKLI", label: "Sürekli göster" },
+  { key: "TARIH_ARALIGI", label: "Tarih aralığında göster" },
+];
+const gosterimLabel = (k: string) => GOSTERIM_OPTS.find(o => o.key === k)?.label ?? k;
+
+interface Popup {
+  id: string;
+  baslik: string;
+  aciklama: string;
+  gorselUrl: string | null;
+  link: string | null;
+  gosterim: string;
+  baslangic: string;
+  bitis: string;
+  aktif: boolean;
+  gorulenSayisi: number;
+  createdByName: string;
+  createdAt: string;
+}
+
+const BOS_POPUP = { baslik: "", aciklama: "", link: "", gosterim: "HER_GIRIS", baslangic: "", bitis: "", aktif: true };
+
+function popupDurum(p: Popup): { label: string; tone: "success" | "neutral" | "warning" | "info" } {
+  if (!p.aktif) return { label: "Pasif", tone: "neutral" };
+  const now = Date.now();
+  if (new Date(p.bitis).getTime() < now) return { label: "Süresi Doldu", tone: "warning" };
+  if (new Date(p.baslangic).getTime() > now) return { label: "Beklemede", tone: "info" };
+  return { label: "Aktif", tone: "success" };
+}
+
+function PopupTab() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [form, setForm] = useState(BOS_POPUP);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [gorselFile, setGorselFile] = useState<File | null>(null);
+  const [gorselSil, setGorselSil] = useState(false);
+  const [mevcutGorsel, setMevcutGorsel] = useState<string | null>(null);
+  const [onizleme, setOnizleme] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  function set<K extends keyof typeof BOS_POPUP>(key: K, value: (typeof BOS_POPUP)[K]) {
+    setForm(prev => ({ ...prev, [key]: value }));
+  }
+  function reset() {
+    setForm(BOS_POPUP); setEditId(null); setGorselFile(null); setGorselSil(false); setMevcutGorsel(null); setOnizleme(null);
+  }
+
+  // Dosya seçilince önizlemeyi FileReader ile (data URL) kur
+  function gorselSec(f: File | null) {
+    setGorselFile(f);
+    setGorselSil(false);
+    if (f) {
+      const reader = new FileReader();
+      reader.onload = () => setOnizleme(reader.result as string);
+      reader.readAsDataURL(f);
+    } else {
+      setOnizleme(mevcutGorsel);
+    }
+  }
+  function gorseliKaldir() {
+    setGorselFile(null); setGorselSil(true); setOnizleme(null);
+  }
+
+  const { data: popuplar = [], isLoading } = useQuery({
+    queryKey: ["popuplar"],
+    queryFn: async (): Promise<Popup[]> => {
+      const res = await fetch("/api/popuplar");
+      if (!res.ok) throw new Error("Pop-up'lar yüklenemedi.");
+      return res.json();
+    },
+  });
+
+  function duzenle(p: Popup) {
+    setEditId(p.id);
+    setForm({ baslik: p.baslik, aciklama: p.aciklama, link: p.link ?? "", gosterim: p.gosterim, baslangic: toLocalInput(p.baslangic), bitis: toLocalInput(p.bitis), aktif: p.aktif });
+    setMevcutGorsel(p.gorselUrl); setGorselFile(null); setGorselSil(false); setOnizleme(p.gorselUrl);
+  }
+
+  async function kaydet() {
+    if (!form.baslik.trim() || !form.aciklama.trim()) { toast({ type: "error", title: "Eksik bilgi", message: "Başlık ve açıklama zorunludur." }); return; }
+    if (!form.baslangic || !form.bitis) { toast({ type: "error", title: "Eksik bilgi", message: "Başlangıç ve bitiş tarihi zorunludur." }); return; }
+    setSaving(true);
+    try {
+      const fd = new FormData();
+      fd.set("baslik", form.baslik.trim());
+      fd.set("aciklama", form.aciklama.trim());
+      fd.set("link", form.link.trim());
+      fd.set("gosterim", form.gosterim);
+      fd.set("baslangic", form.baslangic);
+      fd.set("bitis", form.bitis);
+      fd.set("aktif", form.aktif ? "1" : "0");
+      if (gorselFile) fd.set("gorsel", gorselFile);
+      if (editId && gorselSil) fd.set("gorselSil", "1");
+      const res = await fetch(editId ? `/api/popuplar/${editId}` : "/api/popuplar", { method: editId ? "PATCH" : "POST", body: fd });
+      const d = await res.json().catch(() => null);
+      if (!res.ok) { toast({ type: "error", title: "Kaydedilemedi", message: d?.error }); return; }
+      toast({ type: "success", title: editId ? "Pop-up güncellendi" : "Pop-up oluşturuldu" });
+      reset();
+      queryClient.invalidateQueries({ queryKey: ["popuplar"] });
+    } catch { toast({ type: "error", title: "Bağlantı hatası" }); }
+    finally { setSaving(false); }
+  }
+
+  async function aktiflikDegistir(p: Popup) {
+    await fetch(`/api/popuplar/${p.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aktif: !p.aktif }) });
+    queryClient.invalidateQueries({ queryKey: ["popuplar"] });
+  }
+  async function sil(p: Popup) {
+    if (!confirm("Bu pop-up silinsin mi?")) return;
+    await fetch(`/api/popuplar/${p.id}`, { method: "DELETE" });
+    if (editId === p.id) reset();
+    queryClient.invalidateQueries({ queryKey: ["popuplar"] });
+  }
+
+  return (
+    <div className="space-y-5">
+      <section className="sv-section">
+        <div className="sv-section-header"><h2>{editId ? "Pop-up Düzenle" : "Yeni Pop-up"}</h2></div>
+        <div className="p-5 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-4">
+            <Input label="Başlık" required value={form.baslik} onChange={e => set("baslik", e.target.value)} maxLength={200} placeholder="Pop-up başlığı" />
+            <Select label="Gösterim" value={form.gosterim} onChange={e => set("gosterim", e.target.value)}>
+              {GOSTERIM_OPTS.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
+            </Select>
+          </div>
+          <Textarea label="Açıklama" required rows={3} maxLength={5000} value={form.aciklama} onChange={e => set("aciklama", e.target.value)} placeholder="Pop-up metni..." />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input label="Başlangıç" required type="datetime-local" value={form.baslangic} onChange={e => set("baslangic", e.target.value)} />
+            <Input label="Bitiş" required type="datetime-local" value={form.bitis} onChange={e => set("bitis", e.target.value)} />
+            <Input label="Yönlendirme Linki" value={form.link} onChange={e => set("link", e.target.value)} maxLength={500} placeholder="/panel/..." hint="'Detay Gör' bu adrese gider" />
+          </div>
+
+          {/* Görsel */}
+          <div>
+            <span className="block text-[12px] font-bold uppercase tracking-wider text-muted mb-1.5">Görsel (opsiyonel)</span>
+            <div className="flex items-center gap-4 flex-wrap">
+              {onizleme && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={onizleme} alt="" className="h-20 w-32 object-cover rounded-lg border" style={{ borderColor: "var(--border)" }} />
+              )}
+              <input
+                type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                onChange={e => gorselSec(e.target.files?.[0] ?? null)}
+                className="text-[13px]"
+              />
+              {onizleme && (
+                <Button size="sm" variant="ghost" onClick={gorseliKaldir}>Görseli Kaldır</Button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <CheckChip label="Aktif" checked={form.aktif} onChange={v => set("aktif", v)} />
+            <div className="flex gap-2">
+              {editId && <Button variant="ghost" onClick={reset}>İptal</Button>}
+              <Button onClick={kaydet} loading={saving}>{editId ? "Güncelle" : "Oluştur"}</Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="sv-section">
+        <div className="sv-section-header">
+          <h2>{"Pop-up'lar"}</h2>
+          <span className="text-[12px] font-semibold text-muted">{popuplar.length} pop-up</span>
+        </div>
+        {isLoading ? (
+          <div className="p-5"><SkeletonText lines={3} /></div>
+        ) : popuplar.length === 0 ? (
+          <p className="px-5 py-12 text-center text-[13.5px] text-muted">Henüz pop-up oluşturulmadı.</p>
+        ) : (
+          <div className="divide-y divide-border">
+            {popuplar.map(p => {
+              const durum = popupDurum(p);
+              return (
+                <div key={p.id} className="px-5 py-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge tone={durum.tone}>{durum.label}</Badge>
+                    <span className="text-[14px] font-bold text-heading">{p.baslik}</span>
+                    <Badge tone="neutral">{gosterimLabel(p.gosterim)}</Badge>
+                    {p.gosterim === "TEK_SEFER" && <span className="text-[12px] text-muted">{p.gorulenSayisi} kez görüldü</span>}
+                    <span className="ml-auto text-[12px] text-muted">
+                      {new Date(p.baslangic).toLocaleDateString("tr-TR")} – {new Date(p.bitis).toLocaleDateString("tr-TR")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Button size="sm" variant="ghost" onClick={() => duzenle(p)}>Düzenle</Button>
+                    <Button size="sm" variant="ghost" onClick={() => aktiflikDegistir(p)}>{p.aktif ? "Pasife Al" : "Aktifleştir"}</Button>
+                    <Button size="sm" variant="danger" onClick={() => sil(p)}>Sil</Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
    BİLDİRİM MERKEZİ — sekmeli kabuk
    (Bildirimler · Pop-Up Yönetimi · Duyuru Panosu)
 ══════════════════════════════════════ */
@@ -553,18 +760,6 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "popup",       label: "Pop-Up Yönetimi" },
   { key: "duyuru",      label: "Duyuru Panosu" },
 ];
-
-/** Henüz etkin olmayan sekme için bilgilendirme kartı */
-function YakindaTab({ baslik, aciklama }: { baslik: string; aciklama: string }) {
-  return (
-    <section className="sv-section">
-      <div className="p-12 text-center">
-        <p className="text-[15px] font-bold text-heading">{baslik}</p>
-        <p className="text-[13.5px] text-muted mt-1.5">{aciklama}</p>
-      </div>
-    </section>
-  );
-}
 
 export function BildirimMerkeziClient() {
   const [tab, setTab] = useState<TabKey>("bildirimler");
@@ -594,7 +789,7 @@ export function BildirimMerkeziClient() {
 
       {/* Sekme içeriği */}
       {tab === "bildirimler" && <BildirimlerTab />}
-      {tab === "popup" && <YakindaTab baslik="Pop-Up Yönetimi" aciklama="Pop-up oluşturma, görsel, tarih aralığı ve gösterim ayarları bu sekmede yer alacak." />}
+      {tab === "popup" && <PopupTab />}
       {tab === "duyuru" && <DuyuruTab />}
     </div>
   );

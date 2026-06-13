@@ -7,6 +7,7 @@ import { Sidebar } from "./Sidebar";
 import { NotificationBell } from "./NotificationBell";
 import { AsistanBalon } from "./AsistanBalon";
 import { DuyuruBanner } from "./DuyuruBanner";
+import { PopupHost } from "./PopupHost";
 import { YONETICI_ROLLERI } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 
@@ -115,6 +116,9 @@ export function MobileLayout({ user, aktifGorunum = "merkez", children }: {
 
       {/* ── Faaliyet Asistanı — yalnızca yöneticilere ── */}
       {YONETICI_ROLLERI.includes(user.role) && <AsistanBalon />}
+
+      {/* ── Pop-up gösterici (aktif pop-up'ları kurallara göre açar) ── */}
+      <PopupHost />
     </div>
   );
 }
