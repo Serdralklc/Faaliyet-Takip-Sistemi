@@ -488,7 +488,7 @@ function DuyuruTab() {
       const res = await fetch(editId ? `/api/duyurular/${editId}` : "/api/duyurular", {
         method: editId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ metin: form.metin.trim(), link: form.link.trim() || null, baslangic: form.baslangic, bitis: form.bitis, aktif: form.aktif }),
+        body: JSON.stringify({ metin: form.metin.trim(), link: form.link.trim() || null, baslangic: new Date(form.baslangic).toISOString(), bitis: new Date(form.bitis).toISOString(), aktif: form.aktif }),
       });
       const d = await res.json().catch(() => null);
       if (!res.ok) { toast({ type: "error", title: "Kaydedilemedi", message: d?.error }); return; }
@@ -672,8 +672,8 @@ function PopupTab() {
       fd.set("aciklama", form.aciklama.trim());
       fd.set("link", form.link.trim());
       fd.set("gosterim", form.gosterim);
-      fd.set("baslangic", form.baslangic);
-      fd.set("bitis", form.bitis);
+      fd.set("baslangic", new Date(form.baslangic).toISOString());
+      fd.set("bitis", new Date(form.bitis).toISOString());
       fd.set("aktif", form.aktif ? "1" : "0");
       if (gorselFile) fd.set("gorsel", gorselFile);
       if (editId && gorselSil) fd.set("gorselSil", "1");
