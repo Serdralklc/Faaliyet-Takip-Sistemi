@@ -132,7 +132,7 @@ const TAKIP_COLUMNS: DataTableColumn<TakipAlim>[] = [
   },
 ];
 
-export function BildirimMerkeziClient() {
+function BildirimlerTab() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [form, setForm] = useState(BOS_FORM);
@@ -212,11 +212,7 @@ export function BildirimMerkeziClient() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-5">
-      <div className="sv-page-header">
-        <h1>Bildirim Merkezi</h1>
-        <p>Duyuru ve bildirim gönderin, alıcı bazında görülme durumunu takip edin</p>
-      </div>
+    <div className="space-y-5">
 
       {/* ── Yeni Bildirim ── */}
       <section className="sv-section">
@@ -392,6 +388,63 @@ export function BildirimMerkeziClient() {
           </div>
         )}
       </Modal>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   BİLDİRİM MERKEZİ — sekmeli kabuk
+   (Bildirimler · Pop-Up Yönetimi · Duyuru Panosu)
+══════════════════════════════════════ */
+type TabKey = "bildirimler" | "popup" | "duyuru";
+const TABS: { key: TabKey; label: string }[] = [
+  { key: "bildirimler", label: "Bildirimler" },
+  { key: "popup",       label: "Pop-Up Yönetimi" },
+  { key: "duyuru",      label: "Duyuru Panosu" },
+];
+
+/** Henüz etkin olmayan sekme için bilgilendirme kartı */
+function YakindaTab({ baslik, aciklama }: { baslik: string; aciklama: string }) {
+  return (
+    <section className="sv-section">
+      <div className="p-12 text-center">
+        <p className="text-[15px] font-bold text-heading">{baslik}</p>
+        <p className="text-[13.5px] text-muted mt-1.5">{aciklama}</p>
+      </div>
+    </section>
+  );
+}
+
+export function BildirimMerkeziClient() {
+  const [tab, setTab] = useState<TabKey>("bildirimler");
+
+  return (
+    <div className="p-6 lg:p-8 space-y-5">
+      <div className="sv-page-header">
+        <h1>Bildirim Merkezi</h1>
+        <p>Bildirim, pop-up ve duyuru panosu yönetimi</p>
+      </div>
+
+      {/* Sekmeler */}
+      <div className="flex gap-1 p-1 rounded-xl border w-fit" style={{ background: "var(--bg-th)", borderColor: "var(--border)" }}>
+        {TABS.map(t => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className="px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap"
+            style={tab === t.key
+              ? { background: "var(--accent-solid)", color: "#fff" }
+              : { color: "var(--text-muted)" }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Sekme içeriği */}
+      {tab === "bildirimler" && <BildirimlerTab />}
+      {tab === "popup" && <YakindaTab baslik="Pop-Up Yönetimi" aciklama="Pop-up oluşturma, görsel, tarih aralığı ve gösterim ayarları bu sekmede yer alacak." />}
+      {tab === "duyuru" && <YakindaTab baslik="Duyuru Panosu" aciklama="Tüm panellerin üstünde görünecek kayan duyuru bandının yönetimi bu sekmede yer alacak." />}
     </div>
   );
 }
