@@ -283,6 +283,8 @@ export type UserWhereInput = {
   updatedActivities?: Prisma.ActivityListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
   invitations?: Prisma.InvitationListRelationFilter
+  talepler?: Prisma.TalepListRelationFilter
+  talepMesajlari?: Prisma.TalepMesajListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -308,6 +310,8 @@ export type UserOrderByWithRelationInput = {
   updatedActivities?: Prisma.ActivityOrderByRelationAggregateInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   invitations?: Prisma.InvitationOrderByRelationAggregateInput
+  talepler?: Prisma.TalepOrderByRelationAggregateInput
+  talepMesajlari?: Prisma.TalepMesajOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -336,6 +340,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updatedActivities?: Prisma.ActivityListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
   invitations?: Prisma.InvitationListRelationFilter
+  talepler?: Prisma.TalepListRelationFilter
+  talepMesajlari?: Prisma.TalepMesajListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -407,6 +413,8 @@ export type UserCreateInput = {
   updatedActivities?: Prisma.ActivityCreateNestedManyWithoutUpdatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -432,6 +440,8 @@ export type UserUncheckedCreateInput = {
   updatedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUpdatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
 }
 
 export type UserUpdateInput = {
@@ -457,6 +467,8 @@ export type UserUpdateInput = {
   updatedActivities?: Prisma.ActivityUpdateManyWithoutUpdatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -482,6 +494,8 @@ export type UserUncheckedUpdateInput = {
   updatedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutUpdatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -722,6 +736,34 @@ export type UserUpdateOneRequiredWithoutAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
 }
 
+export type UserCreateNestedOneWithoutTaleplerInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTaleplerInput, Prisma.UserUncheckedCreateWithoutTaleplerInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTaleplerInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTaleplerNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTaleplerInput, Prisma.UserUncheckedCreateWithoutTaleplerInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTaleplerInput
+  upsert?: Prisma.UserUpsertWithoutTaleplerInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTaleplerInput, Prisma.UserUpdateWithoutTaleplerInput>, Prisma.UserUncheckedUpdateWithoutTaleplerInput>
+}
+
+export type UserCreateNestedOneWithoutTalepMesajlariInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTalepMesajlariInput, Prisma.UserUncheckedCreateWithoutTalepMesajlariInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTalepMesajlariInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTalepMesajlariNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTalepMesajlariInput, Prisma.UserUncheckedCreateWithoutTalepMesajlariInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTalepMesajlariInput
+  upsert?: Prisma.UserUpsertWithoutTalepMesajlariInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTalepMesajlariInput, Prisma.UserUpdateWithoutTalepMesajlariInput>, Prisma.UserUncheckedUpdateWithoutTalepMesajlariInput>
+}
+
 export type UserCreateWithoutAssignmentsInput = {
   id?: string
   ad: string
@@ -744,6 +786,8 @@ export type UserCreateWithoutAssignmentsInput = {
   updatedActivities?: Prisma.ActivityCreateNestedManyWithoutUpdatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
 }
 
 export type UserUncheckedCreateWithoutAssignmentsInput = {
@@ -768,6 +812,8 @@ export type UserUncheckedCreateWithoutAssignmentsInput = {
   updatedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUpdatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
 }
 
 export type UserCreateOrConnectWithoutAssignmentsInput = {
@@ -808,6 +854,8 @@ export type UserUpdateWithoutAssignmentsInput = {
   updatedActivities?: Prisma.ActivityUpdateManyWithoutUpdatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignmentsInput = {
@@ -832,6 +880,8 @@ export type UserUncheckedUpdateWithoutAssignmentsInput = {
   updatedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutUpdatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
 }
 
 export type UserCreateWithoutInvitationsInput = {
@@ -856,6 +906,8 @@ export type UserCreateWithoutInvitationsInput = {
   createdActivities?: Prisma.ActivityCreateNestedManyWithoutCreatedByInput
   updatedActivities?: Prisma.ActivityCreateNestedManyWithoutUpdatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
 }
 
 export type UserUncheckedCreateWithoutInvitationsInput = {
@@ -880,6 +932,8 @@ export type UserUncheckedCreateWithoutInvitationsInput = {
   createdActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCreatedByInput
   updatedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUpdatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
 }
 
 export type UserCreateOrConnectWithoutInvitationsInput = {
@@ -920,6 +974,8 @@ export type UserUpdateWithoutInvitationsInput = {
   createdActivities?: Prisma.ActivityUpdateManyWithoutCreatedByNestedInput
   updatedActivities?: Prisma.ActivityUpdateManyWithoutUpdatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInvitationsInput = {
@@ -944,6 +1000,8 @@ export type UserUncheckedUpdateWithoutInvitationsInput = {
   createdActivities?: Prisma.ActivityUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutUpdatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
 }
 
 export type UserCreateWithoutCreatedActivitiesInput = {
@@ -968,6 +1026,8 @@ export type UserCreateWithoutCreatedActivitiesInput = {
   updatedActivities?: Prisma.ActivityCreateNestedManyWithoutUpdatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
 }
 
 export type UserUncheckedCreateWithoutCreatedActivitiesInput = {
@@ -992,6 +1052,8 @@ export type UserUncheckedCreateWithoutCreatedActivitiesInput = {
   updatedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUpdatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
 }
 
 export type UserCreateOrConnectWithoutCreatedActivitiesInput = {
@@ -1021,6 +1083,8 @@ export type UserCreateWithoutUpdatedActivitiesInput = {
   createdActivities?: Prisma.ActivityCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedActivitiesInput = {
@@ -1045,6 +1109,8 @@ export type UserUncheckedCreateWithoutUpdatedActivitiesInput = {
   createdActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCreatedByInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedActivitiesInput = {
@@ -1085,6 +1151,8 @@ export type UserUpdateWithoutCreatedActivitiesInput = {
   updatedActivities?: Prisma.ActivityUpdateManyWithoutUpdatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedActivitiesInput = {
@@ -1109,6 +1177,8 @@ export type UserUncheckedUpdateWithoutCreatedActivitiesInput = {
   updatedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutUpdatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
 }
 
 export type UserUpsertWithoutUpdatedActivitiesInput = {
@@ -1144,6 +1214,8 @@ export type UserUpdateWithoutUpdatedActivitiesInput = {
   createdActivities?: Prisma.ActivityUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedActivitiesInput = {
@@ -1168,6 +1240,8 @@ export type UserUncheckedUpdateWithoutUpdatedActivitiesInput = {
   createdActivities?: Prisma.ActivityUncheckedUpdateManyWithoutCreatedByNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
 }
 
 export type UserCreateWithoutAuditLogsInput = {
@@ -1192,6 +1266,8 @@ export type UserCreateWithoutAuditLogsInput = {
   createdActivities?: Prisma.ActivityCreateNestedManyWithoutCreatedByInput
   updatedActivities?: Prisma.ActivityCreateNestedManyWithoutUpdatedByInput
   invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -1216,6 +1292,8 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   createdActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCreatedByInput
   updatedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUpdatedByInput
   invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -1256,6 +1334,8 @@ export type UserUpdateWithoutAuditLogsInput = {
   createdActivities?: Prisma.ActivityUpdateManyWithoutCreatedByNestedInput
   updatedActivities?: Prisma.ActivityUpdateManyWithoutUpdatedByNestedInput
   invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -1280,6 +1360,248 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   createdActivities?: Prisma.ActivityUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutUpdatedByNestedInput
   invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
+}
+
+export type UserCreateWithoutTaleplerInput = {
+  id?: string
+  ad: string
+  soyad: string
+  email: string
+  telefon?: string | null
+  passwordHash?: string | null
+  role?: $Enums.Role
+  status?: $Enums.UserStatus
+  sistem?: $Enums.Sistem
+  icerikYoneticisi?: boolean
+  merkezGorev?: $Enums.MerkezGorev | null
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
+  sonAktif?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
+  createdActivities?: Prisma.ActivityCreateNestedManyWithoutCreatedByInput
+  updatedActivities?: Prisma.ActivityCreateNestedManyWithoutUpdatedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  talepMesajlari?: Prisma.TalepMesajCreateNestedManyWithoutGonderenInput
+}
+
+export type UserUncheckedCreateWithoutTaleplerInput = {
+  id?: string
+  ad: string
+  soyad: string
+  email: string
+  telefon?: string | null
+  passwordHash?: string | null
+  role?: $Enums.Role
+  status?: $Enums.UserStatus
+  sistem?: $Enums.Sistem
+  icerikYoneticisi?: boolean
+  merkezGorev?: $Enums.MerkezGorev | null
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
+  sonAktif?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
+  createdActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUpdatedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedCreateNestedManyWithoutGonderenInput
+}
+
+export type UserCreateOrConnectWithoutTaleplerInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTaleplerInput, Prisma.UserUncheckedCreateWithoutTaleplerInput>
+}
+
+export type UserUpsertWithoutTaleplerInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTaleplerInput, Prisma.UserUncheckedUpdateWithoutTaleplerInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTaleplerInput, Prisma.UserUncheckedCreateWithoutTaleplerInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTaleplerInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTaleplerInput, Prisma.UserUncheckedUpdateWithoutTaleplerInput>
+}
+
+export type UserUpdateWithoutTaleplerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  soyad?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
+  createdActivities?: Prisma.ActivityUpdateManyWithoutCreatedByNestedInput
+  updatedActivities?: Prisma.ActivityUpdateManyWithoutUpdatedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  talepMesajlari?: Prisma.TalepMesajUpdateManyWithoutGonderenNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTaleplerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  soyad?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
+  createdActivities?: Prisma.ActivityUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutUpdatedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  talepMesajlari?: Prisma.TalepMesajUncheckedUpdateManyWithoutGonderenNestedInput
+}
+
+export type UserCreateWithoutTalepMesajlariInput = {
+  id?: string
+  ad: string
+  soyad: string
+  email: string
+  telefon?: string | null
+  passwordHash?: string | null
+  role?: $Enums.Role
+  status?: $Enums.UserStatus
+  sistem?: $Enums.Sistem
+  icerikYoneticisi?: boolean
+  merkezGorev?: $Enums.MerkezGorev | null
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
+  sonAktif?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
+  createdActivities?: Prisma.ActivityCreateNestedManyWithoutCreatedByInput
+  updatedActivities?: Prisma.ActivityCreateNestedManyWithoutUpdatedByInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  invitations?: Prisma.InvitationCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepCreateNestedManyWithoutOlusturanInput
+}
+
+export type UserUncheckedCreateWithoutTalepMesajlariInput = {
+  id?: string
+  ad: string
+  soyad: string
+  email: string
+  telefon?: string | null
+  passwordHash?: string | null
+  role?: $Enums.Role
+  status?: $Enums.UserStatus
+  sistem?: $Enums.Sistem
+  icerikYoneticisi?: boolean
+  merkezGorev?: $Enums.MerkezGorev | null
+  basvuruGorev?: string | null
+  basvuruBolgeId?: string | null
+  basvuruIlId?: string | null
+  sonAktif?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
+  createdActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedActivities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUpdatedByInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutInvitedByInput
+  talepler?: Prisma.TalepUncheckedCreateNestedManyWithoutOlusturanInput
+}
+
+export type UserCreateOrConnectWithoutTalepMesajlariInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTalepMesajlariInput, Prisma.UserUncheckedCreateWithoutTalepMesajlariInput>
+}
+
+export type UserUpsertWithoutTalepMesajlariInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTalepMesajlariInput, Prisma.UserUncheckedUpdateWithoutTalepMesajlariInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTalepMesajlariInput, Prisma.UserUncheckedCreateWithoutTalepMesajlariInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTalepMesajlariInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTalepMesajlariInput, Prisma.UserUncheckedUpdateWithoutTalepMesajlariInput>
+}
+
+export type UserUpdateWithoutTalepMesajlariInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  soyad?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
+  createdActivities?: Prisma.ActivityUpdateManyWithoutCreatedByNestedInput
+  updatedActivities?: Prisma.ActivityUpdateManyWithoutUpdatedByNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  invitations?: Prisma.InvitationUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUpdateManyWithoutOlusturanNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTalepMesajlariInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ad?: Prisma.StringFieldUpdateOperationsInput | string
+  soyad?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  sistem?: Prisma.EnumSistemFieldUpdateOperationsInput | $Enums.Sistem
+  icerikYoneticisi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  merkezGorev?: Prisma.NullableEnumMerkezGorevFieldUpdateOperationsInput | $Enums.MerkezGorev | null
+  basvuruGorev?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruBolgeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  basvuruIlId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sonAktif?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
+  createdActivities?: Prisma.ActivityUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedActivities?: Prisma.ActivityUncheckedUpdateManyWithoutUpdatedByNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+  talepler?: Prisma.TalepUncheckedUpdateManyWithoutOlusturanNestedInput
 }
 
 
@@ -1293,6 +1615,8 @@ export type UserCountOutputType = {
   updatedActivities: number
   auditLogs: number
   invitations: number
+  talepler: number
+  talepMesajlari: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1301,6 +1625,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   updatedActivities?: boolean | UserCountOutputTypeCountUpdatedActivitiesArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   invitations?: boolean | UserCountOutputTypeCountInvitationsArgs
+  talepler?: boolean | UserCountOutputTypeCountTaleplerArgs
+  talepMesajlari?: boolean | UserCountOutputTypeCountTalepMesajlariArgs
 }
 
 /**
@@ -1348,6 +1674,20 @@ export type UserCountOutputTypeCountInvitationsArgs<ExtArgs extends runtime.Type
   where?: Prisma.InvitationWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTaleplerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TalepWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTalepMesajlariArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TalepMesajWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1372,6 +1712,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedActivities?: boolean | Prisma.User$updatedActivitiesArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   invitations?: boolean | Prisma.User$invitationsArgs<ExtArgs>
+  talepler?: boolean | Prisma.User$taleplerArgs<ExtArgs>
+  talepMesajlari?: boolean | Prisma.User$talepMesajlariArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1442,6 +1784,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   updatedActivities?: boolean | Prisma.User$updatedActivitiesArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   invitations?: boolean | Prisma.User$invitationsArgs<ExtArgs>
+  talepler?: boolean | Prisma.User$taleplerArgs<ExtArgs>
+  talepMesajlari?: boolean | Prisma.User$talepMesajlariArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1455,6 +1799,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     updatedActivities: Prisma.$ActivityPayload<ExtArgs>[]
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     invitations: Prisma.$InvitationPayload<ExtArgs>[]
+    talepler: Prisma.$TalepPayload<ExtArgs>[]
+    talepMesajlari: Prisma.$TalepMesajPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1873,6 +2219,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   updatedActivities<T extends Prisma.User$updatedActivitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$updatedActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invitations<T extends Prisma.User$invitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  talepler<T extends Prisma.User$taleplerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$taleplerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TalepPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  talepMesajlari<T extends Prisma.User$talepMesajlariArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$talepMesajlariArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TalepMesajPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2429,6 +2777,54 @@ export type User$invitationsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.InvitationScalarFieldEnum | Prisma.InvitationScalarFieldEnum[]
+}
+
+/**
+ * User.talepler
+ */
+export type User$taleplerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Talep
+   */
+  select?: Prisma.TalepSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Talep
+   */
+  omit?: Prisma.TalepOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TalepInclude<ExtArgs> | null
+  where?: Prisma.TalepWhereInput
+  orderBy?: Prisma.TalepOrderByWithRelationInput | Prisma.TalepOrderByWithRelationInput[]
+  cursor?: Prisma.TalepWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TalepScalarFieldEnum | Prisma.TalepScalarFieldEnum[]
+}
+
+/**
+ * User.talepMesajlari
+ */
+export type User$talepMesajlariArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TalepMesaj
+   */
+  select?: Prisma.TalepMesajSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TalepMesaj
+   */
+  omit?: Prisma.TalepMesajOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TalepMesajInclude<ExtArgs> | null
+  where?: Prisma.TalepMesajWhereInput
+  orderBy?: Prisma.TalepMesajOrderByWithRelationInput | Prisma.TalepMesajOrderByWithRelationInput[]
+  cursor?: Prisma.TalepMesajWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TalepMesajScalarFieldEnum | Prisma.TalepMesajScalarFieldEnum[]
 }
 
 /**

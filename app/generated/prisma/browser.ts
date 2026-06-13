@@ -158,6 +158,21 @@ export type Bildirim = Prisma.BildirimModel
  */
 export type BildirimAlim = Prisma.BildirimAlimModel
 /**
+ * Model Duyuru
+ * * Tüm panellerin üstünde, süre boyunca kayan sabit duyuru bandı
+ */
+export type Duyuru = Prisma.DuyuruModel
+/**
+ * Model Popup
+ * 
+ */
+export type Popup = Prisma.PopupModel
+/**
+ * Model PopupGorulme
+ * * Pop-up'ın kullanıcı bazında görülme kaydı (TEK_SEFER için, cihaz bağımsız)
+ */
+export type PopupGorulme = Prisma.PopupGorulmeModel
+/**
  * Model AuthToken
  * 
  */
@@ -167,3 +182,13 @@ export type AuthToken = Prisma.AuthTokenModel
  * 
  */
 export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model Talep
+ * 
+ */
+export type Talep = Prisma.TalepModel
+/**
+ * Model TalepMesaj
+ * 
+ */
+export type TalepMesaj = Prisma.TalepMesajModel

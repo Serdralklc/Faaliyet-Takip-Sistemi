@@ -34,6 +34,30 @@ export const MerkezGorev = {
 export type MerkezGorev = (typeof MerkezGorev)[keyof typeof MerkezGorev]
 
 
+export const TalepBirim = {
+  ILKOGRETIM: 'ILKOGRETIM',
+  LISE: 'LISE',
+  UNIVERSITE: 'UNIVERSITE',
+  UNIVERSITE_GENCLIK: 'UNIVERSITE_GENCLIK',
+  LISE_GENCLIK: 'LISE_GENCLIK',
+  GENEL: 'GENEL',
+  TEKNIK: 'TEKNIK'
+} as const
+
+export type TalepBirim = (typeof TalepBirim)[keyof typeof TalepBirim]
+
+
+export const TalepDurum = {
+  YENI: 'YENI',
+  INCELENIYOR: 'INCELENIYOR',
+  YANITLANDI: 'YANITLANDI',
+  COZULDU: 'COZULDU',
+  KAPATILDI: 'KAPATILDI'
+} as const
+
+export type TalepDurum = (typeof TalepDurum)[keyof typeof TalepDurum]
+
+
 export const UserStatus = {
   AKTIF: 'AKTIF',
   BEKLEMEDE: 'BEKLEMEDE',
@@ -178,6 +202,16 @@ export const BildirimTipi = {
 } as const
 
 export type BildirimTipi = (typeof BildirimTipi)[keyof typeof BildirimTipi]
+
+
+export const PopupGosterim = {
+  TEK_SEFER: 'TEK_SEFER',
+  HER_GIRIS: 'HER_GIRIS',
+  SUREKLI: 'SUREKLI',
+  TARIH_ARALIGI: 'TARIH_ARALIGI'
+} as const
+
+export type PopupGosterim = (typeof PopupGosterim)[keyof typeof PopupGosterim]
 
 
 export const AuthTokenType = {

@@ -29,6 +29,28 @@ enum MerkezGorev {
   SEKRETERYA
 }
 
+// İstişare Merkezi (talep) birimi → hedef rol yönlendirmesi:
+//  ILKOGRETIM/LISE/UNIVERSITE → GENEL_MERKEZ + ilgili merkezGorev
+//  UNIVERSITE_GENCLIK → TURKIYE_UNIVERSITE_SORUMLUSU, LISE_GENCLIK → TURKIYE_LISE_SORUMLUSU
+//  GENEL → Merkez Sekreterya (merkezGorev=SEKRETERYA), TEKNIK → role TEKNIK
+enum TalepBirim {
+  ILKOGRETIM
+  LISE
+  UNIVERSITE
+  UNIVERSITE_GENCLIK
+  LISE_GENCLIK
+  GENEL
+  TEKNIK
+}
+
+enum TalepDurum {
+  YENI
+  INCELENIYOR
+  YANITLANDI
+  COZULDU
+  KAPATILDI
+}
+
 enum UserStatus {
   AKTIF
   BEKLEMEDE
@@ -83,6 +105,8 @@ model User {
   updatedActivities Activity[]       @relation("UpdatedBy")
   auditLogs         AuditLog[]       @relation("ActionBy")
   invitations       Invitation[]     @relation("InvitedBy")
+  talepler          Talep[]          @relation("TalepOlusturan")
+  talepMesajlari    TalepMesaj[]     @relation("TalepMesajGonderen")
 }
 
 model Bolge {
@@ -853,6 +877,73 @@ model BildirimAlim {
   @@index([volunteerId, goruldu])
 }
 
+// ── Duyuru Panosu (üst bant) ──────────────────────────────────
+
+/** Tüm panellerin üstünde, süre boyunca kayan sabit duyuru bandı */
+model Duyuru {
+  id        String   @id @default(cuid())
+  metin     String
+  /** Tıklanınca gidilecek sayfa (opsiyonel) */
+  link      String?
+  baslangic DateTime
+  bitis     DateTime
+  aktif     Boolean  @default(true)
+
+  createdById   String
+  createdByName String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([aktif, baslangic, bitis])
+}
+
+// ── Pop-Up Yönetimi ──────────────────────────────────────────
+
+enum PopupGosterim {
+  TEK_SEFER     // kullanıcıya sadece 1 kez göster
+  HER_GIRIS     // her girişte göster
+  SUREKLI       // sürekli göster (kapatana kadar her sayfada)
+  TARIH_ARALIGI // yalnızca başlangıç–bitiş arasında göster
+}
+
+model Popup {
+  id        String        @id @default(cuid())
+  baslik    String
+  aciklama  String
+  gorselUrl String?
+  gorselKey String?
+  /** "Detay Gör" yönlendirme linki */
+  link      String?
+  gosterim  PopupGosterim @default(HER_GIRIS)
+  baslangic DateTime
+  bitis     DateTime
+  aktif     Boolean       @default(true)
+
+  createdById   String
+  createdByName String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  gorulmeler PopupGorulme[]
+
+  @@index([aktif, baslangic, bitis])
+}
+
+/** Pop-up'ın kullanıcı bazında görülme kaydı (TEK_SEFER için, cihaz bağımsız) */
+model PopupGorulme {
+  id          String   @id @default(cuid())
+  popupId     String
+  userId      String?
+  volunteerId String?
+  goruldu     DateTime @default(now())
+
+  popup Popup @relation(fields: [popupId], references: [id], onDelete: Cascade)
+
+  @@unique([popupId, userId])
+  @@unique([popupId, volunteerId])
+  @@index([popupId])
+}
+
 // ── Kimlik Doğrulama Token'ları (şifre sıfırlama + e-posta doğrulama) ──
 
 enum AuthTokenType {
@@ -893,4 +984,39 @@ model AuditLog {
   @@index([userId])
   @@index([entity, entityId])
   @@index([createdAt])
+}
+
+// ── İstişare Merkezi (kurumsal talep / yazışma) ──────────────────────────
+model Talep {
+  id          String     @id @default(cuid())
+  baslik      String
+  birim       TalepBirim
+  durum       TalepDurum @default(YENI)
+  sistem      Sistem     // oluşturanın sistemi (yönlendirme + filtre)
+  olusturanId String
+  sonMesajAt  DateTime   @default(now()) // listeleme sıralaması
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  olusturan User         @relation("TalepOlusturan", fields: [olusturanId], references: [id])
+  mesajlar  TalepMesaj[]
+
+  @@index([durum])
+  @@index([birim])
+  @@index([olusturanId])
+  @@index([sonMesajAt])
+}
+
+model TalepMesaj {
+  id         String   @id @default(cuid())
+  talepId    String
+  gonderenId String
+  mesaj      String
+  dosyalar   String[] // yüklenen dosya URL'leri (belge + ek)
+  createdAt  DateTime @default(now())
+
+  talep    Talep @relation(fields: [talepId], references: [id], onDelete: Cascade)
+  gonderen User  @relation("TalepMesajGonderen", fields: [gonderenId], references: [id])
+
+  @@index([talepId])
 }

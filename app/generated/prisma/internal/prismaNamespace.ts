@@ -412,8 +412,13 @@ export const ModelName = {
   FormYanitDosya: 'FormYanitDosya',
   Bildirim: 'Bildirim',
   BildirimAlim: 'BildirimAlim',
+  Duyuru: 'Duyuru',
+  Popup: 'Popup',
+  PopupGorulme: 'PopupGorulme',
   AuthToken: 'AuthToken',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  Talep: 'Talep',
+  TalepMesaj: 'TalepMesaj'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -429,7 +434,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "bolge" | "il" | "roleAssignment" | "invitation" | "activity" | "liseFaaliyet" | "universiteFaaliyet" | "housingUnit" | "housingStudent" | "housingVisit" | "bolgeHedef" | "ilHedef" | "genclikBolgeHedef" | "genclikIlHedef" | "volunteer" | "bursBasvuru" | "ekKayitBasvuru" | "geriBildirim" | "dokumanKlasor" | "dokuman" | "dokumanPaylasim" | "dinamikForm" | "formSoru" | "formYanit" | "formYanitDosya" | "bildirim" | "bildirimAlim" | "authToken" | "auditLog"
+    modelProps: "user" | "bolge" | "il" | "roleAssignment" | "invitation" | "activity" | "liseFaaliyet" | "universiteFaaliyet" | "housingUnit" | "housingStudent" | "housingVisit" | "bolgeHedef" | "ilHedef" | "genclikBolgeHedef" | "genclikIlHedef" | "volunteer" | "bursBasvuru" | "ekKayitBasvuru" | "geriBildirim" | "dokumanKlasor" | "dokuman" | "dokumanPaylasim" | "dinamikForm" | "formSoru" | "formYanit" | "formYanitDosya" | "bildirim" | "bildirimAlim" | "duyuru" | "popup" | "popupGorulme" | "authToken" | "auditLog" | "talep" | "talepMesaj"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2505,6 +2510,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Duyuru: {
+      payload: Prisma.$DuyuruPayload<ExtArgs>
+      fields: Prisma.DuyuruFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DuyuruFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DuyuruPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DuyuruFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DuyuruPayload>
+        }
+        findFirst: {
+          args: Prisma.DuyuruFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DuyuruPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DuyuruFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DuyuruPayload>
+        }
+        findMany: {
+          args: Prisma.DuyuruFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DuyuruPayload>[]
+        }
+        create: {
+          args: Prisma.DuyuruCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DuyuruPayload>
+        }
+        createMany: {
+          args: Prisma.DuyuruCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DuyuruCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DuyuruPayload>[]
+        }
+        delete: {
+          args: Prisma.DuyuruDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DuyuruPayload>
+        }
+        update: {
+          args: Prisma.DuyuruUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DuyuruPayload>
+        }
+        deleteMany: {
+          args: Prisma.DuyuruDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DuyuruUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DuyuruUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DuyuruPayload>[]
+        }
+        upsert: {
+          args: Prisma.DuyuruUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DuyuruPayload>
+        }
+        aggregate: {
+          args: Prisma.DuyuruAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDuyuru>
+        }
+        groupBy: {
+          args: Prisma.DuyuruGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DuyuruGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DuyuruCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DuyuruCountAggregateOutputType> | number
+        }
+      }
+    }
+    Popup: {
+      payload: Prisma.$PopupPayload<ExtArgs>
+      fields: Prisma.PopupFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PopupFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PopupFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupPayload>
+        }
+        findFirst: {
+          args: Prisma.PopupFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PopupFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupPayload>
+        }
+        findMany: {
+          args: Prisma.PopupFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupPayload>[]
+        }
+        create: {
+          args: Prisma.PopupCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupPayload>
+        }
+        createMany: {
+          args: Prisma.PopupCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PopupCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupPayload>[]
+        }
+        delete: {
+          args: Prisma.PopupDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupPayload>
+        }
+        update: {
+          args: Prisma.PopupUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupPayload>
+        }
+        deleteMany: {
+          args: Prisma.PopupDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PopupUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PopupUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupPayload>[]
+        }
+        upsert: {
+          args: Prisma.PopupUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupPayload>
+        }
+        aggregate: {
+          args: Prisma.PopupAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePopup>
+        }
+        groupBy: {
+          args: Prisma.PopupGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PopupGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PopupCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PopupCountAggregateOutputType> | number
+        }
+      }
+    }
+    PopupGorulme: {
+      payload: Prisma.$PopupGorulmePayload<ExtArgs>
+      fields: Prisma.PopupGorulmeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PopupGorulmeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupGorulmePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PopupGorulmeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupGorulmePayload>
+        }
+        findFirst: {
+          args: Prisma.PopupGorulmeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupGorulmePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PopupGorulmeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupGorulmePayload>
+        }
+        findMany: {
+          args: Prisma.PopupGorulmeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupGorulmePayload>[]
+        }
+        create: {
+          args: Prisma.PopupGorulmeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupGorulmePayload>
+        }
+        createMany: {
+          args: Prisma.PopupGorulmeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PopupGorulmeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupGorulmePayload>[]
+        }
+        delete: {
+          args: Prisma.PopupGorulmeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupGorulmePayload>
+        }
+        update: {
+          args: Prisma.PopupGorulmeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupGorulmePayload>
+        }
+        deleteMany: {
+          args: Prisma.PopupGorulmeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PopupGorulmeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PopupGorulmeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupGorulmePayload>[]
+        }
+        upsert: {
+          args: Prisma.PopupGorulmeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PopupGorulmePayload>
+        }
+        aggregate: {
+          args: Prisma.PopupGorulmeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePopupGorulme>
+        }
+        groupBy: {
+          args: Prisma.PopupGorulmeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PopupGorulmeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PopupGorulmeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PopupGorulmeCountAggregateOutputType> | number
+        }
+      }
+    }
     AuthToken: {
       payload: Prisma.$AuthTokenPayload<ExtArgs>
       fields: Prisma.AuthTokenFieldRefs
@@ -2650,6 +2877,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AuditLogCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AuditLogCountAggregateOutputType> | number
+        }
+      }
+    }
+    Talep: {
+      payload: Prisma.$TalepPayload<ExtArgs>
+      fields: Prisma.TalepFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TalepFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TalepFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepPayload>
+        }
+        findFirst: {
+          args: Prisma.TalepFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TalepFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepPayload>
+        }
+        findMany: {
+          args: Prisma.TalepFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepPayload>[]
+        }
+        create: {
+          args: Prisma.TalepCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepPayload>
+        }
+        createMany: {
+          args: Prisma.TalepCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TalepCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepPayload>[]
+        }
+        delete: {
+          args: Prisma.TalepDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepPayload>
+        }
+        update: {
+          args: Prisma.TalepUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepPayload>
+        }
+        deleteMany: {
+          args: Prisma.TalepDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TalepUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TalepUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepPayload>[]
+        }
+        upsert: {
+          args: Prisma.TalepUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepPayload>
+        }
+        aggregate: {
+          args: Prisma.TalepAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTalep>
+        }
+        groupBy: {
+          args: Prisma.TalepGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TalepGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TalepCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TalepCountAggregateOutputType> | number
+        }
+      }
+    }
+    TalepMesaj: {
+      payload: Prisma.$TalepMesajPayload<ExtArgs>
+      fields: Prisma.TalepMesajFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TalepMesajFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepMesajPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TalepMesajFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepMesajPayload>
+        }
+        findFirst: {
+          args: Prisma.TalepMesajFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepMesajPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TalepMesajFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepMesajPayload>
+        }
+        findMany: {
+          args: Prisma.TalepMesajFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepMesajPayload>[]
+        }
+        create: {
+          args: Prisma.TalepMesajCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepMesajPayload>
+        }
+        createMany: {
+          args: Prisma.TalepMesajCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TalepMesajCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepMesajPayload>[]
+        }
+        delete: {
+          args: Prisma.TalepMesajDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepMesajPayload>
+        }
+        update: {
+          args: Prisma.TalepMesajUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepMesajPayload>
+        }
+        deleteMany: {
+          args: Prisma.TalepMesajDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TalepMesajUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TalepMesajUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepMesajPayload>[]
+        }
+        upsert: {
+          args: Prisma.TalepMesajUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalepMesajPayload>
+        }
+        aggregate: {
+          args: Prisma.TalepMesajAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTalepMesaj>
+        }
+        groupBy: {
+          args: Prisma.TalepMesajGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TalepMesajGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TalepMesajCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TalepMesajCountAggregateOutputType> | number
         }
       }
     }
@@ -3262,6 +3637,53 @@ export const BildirimAlimScalarFieldEnum = {
 export type BildirimAlimScalarFieldEnum = (typeof BildirimAlimScalarFieldEnum)[keyof typeof BildirimAlimScalarFieldEnum]
 
 
+export const DuyuruScalarFieldEnum = {
+  id: 'id',
+  metin: 'metin',
+  link: 'link',
+  baslangic: 'baslangic',
+  bitis: 'bitis',
+  aktif: 'aktif',
+  createdById: 'createdById',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DuyuruScalarFieldEnum = (typeof DuyuruScalarFieldEnum)[keyof typeof DuyuruScalarFieldEnum]
+
+
+export const PopupScalarFieldEnum = {
+  id: 'id',
+  baslik: 'baslik',
+  aciklama: 'aciklama',
+  gorselUrl: 'gorselUrl',
+  gorselKey: 'gorselKey',
+  link: 'link',
+  gosterim: 'gosterim',
+  baslangic: 'baslangic',
+  bitis: 'bitis',
+  aktif: 'aktif',
+  createdById: 'createdById',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PopupScalarFieldEnum = (typeof PopupScalarFieldEnum)[keyof typeof PopupScalarFieldEnum]
+
+
+export const PopupGorulmeScalarFieldEnum = {
+  id: 'id',
+  popupId: 'popupId',
+  userId: 'userId',
+  volunteerId: 'volunteerId',
+  goruldu: 'goruldu'
+} as const
+
+export type PopupGorulmeScalarFieldEnum = (typeof PopupGorulmeScalarFieldEnum)[keyof typeof PopupGorulmeScalarFieldEnum]
+
+
 export const AuthTokenScalarFieldEnum = {
   id: 'id',
   tokenHash: 'tokenHash',
@@ -3290,6 +3712,33 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const TalepScalarFieldEnum = {
+  id: 'id',
+  baslik: 'baslik',
+  birim: 'birim',
+  durum: 'durum',
+  sistem: 'sistem',
+  olusturanId: 'olusturanId',
+  sonMesajAt: 'sonMesajAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TalepScalarFieldEnum = (typeof TalepScalarFieldEnum)[keyof typeof TalepScalarFieldEnum]
+
+
+export const TalepMesajScalarFieldEnum = {
+  id: 'id',
+  talepId: 'talepId',
+  gonderenId: 'gonderenId',
+  mesaj: 'mesaj',
+  dosyalar: 'dosyalar',
+  createdAt: 'createdAt'
+} as const
+
+export type TalepMesajScalarFieldEnum = (typeof TalepMesajScalarFieldEnum)[keyof typeof TalepMesajScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -3634,6 +4083,20 @@ export type ListEnumBildirimTipiFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'PopupGosterim'
+ */
+export type EnumPopupGosterimFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PopupGosterim'>
+    
+
+
+/**
+ * Reference to a field of type 'PopupGosterim[]'
+ */
+export type ListEnumPopupGosterimFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PopupGosterim[]'>
+    
+
+
+/**
  * Reference to a field of type 'AuthTokenType'
  */
 export type EnumAuthTokenTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AuthTokenType'>
@@ -3644,6 +4107,34 @@ export type EnumAuthTokenTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'AuthTokenType[]'
  */
 export type ListEnumAuthTokenTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AuthTokenType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'TalepBirim'
+ */
+export type EnumTalepBirimFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TalepBirim'>
+    
+
+
+/**
+ * Reference to a field of type 'TalepBirim[]'
+ */
+export type ListEnumTalepBirimFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TalepBirim[]'>
+    
+
+
+/**
+ * Reference to a field of type 'TalepDurum'
+ */
+export type EnumTalepDurumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TalepDurum'>
+    
+
+
+/**
+ * Reference to a field of type 'TalepDurum[]'
+ */
+export type ListEnumTalepDurumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TalepDurum[]'>
     
 
 
@@ -3798,8 +4289,13 @@ export type GlobalOmitConfig = {
   formYanitDosya?: Prisma.FormYanitDosyaOmit
   bildirim?: Prisma.BildirimOmit
   bildirimAlim?: Prisma.BildirimAlimOmit
+  duyuru?: Prisma.DuyuruOmit
+  popup?: Prisma.PopupOmit
+  popupGorulme?: Prisma.PopupGorulmeOmit
   authToken?: Prisma.AuthTokenOmit
   auditLog?: Prisma.AuditLogOmit
+  talep?: Prisma.TalepOmit
+  talepMesaj?: Prisma.TalepMesajOmit
 }
 
 /* Types for Logging */
