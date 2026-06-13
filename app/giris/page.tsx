@@ -103,6 +103,20 @@ const GRUPLAR = [
   { baslik: "SerGenç",         aciklama: "Üye / Gönüllü başvuru ve giriş",                       kartlar: [SERGENC_CARD] },
 ];
 
+/* Görevli Girişi — 4 kart (ana sayfadaki "Oturum Aç > Görevli Girişi" buraya yönlendirir) */
+const GOREVLI_GRUBU = [
+  {
+    baslik: "",
+    aciklama: "",
+    kartlar: [
+      YONETICI_CARD,
+      ROLES.find(r => r.key === "egitimci")!,
+      ROLES.find(r => r.key === "universite")!,
+      ROLES.find(r => r.key === "lise")!,
+    ],
+  },
+];
+
 /* ── Üst bar ── */
 function TopBar() {
   return (
@@ -159,10 +173,12 @@ function RoleSelect({ groups, baslik, aciklama, onSelect }: {
       <div className="w-full max-w-5xl space-y-7">
         {groups.map(grup => (
           <div key={grup.baslik}>
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 mb-3 px-1">
-              <h2 className="text-[15px] font-black" style={{ color: "#0F172A", letterSpacing: "-0.01em" }}>{grup.baslik}</h2>
-              <span className="text-[12px]" style={{ color: "#94A3B8" }}>{grup.aciklama}</span>
-            </div>
+            {grup.baslik && (
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 mb-3 px-1">
+                <h2 className="text-[15px] font-black" style={{ color: "#0F172A", letterSpacing: "-0.01em" }}>{grup.baslik}</h2>
+                <span className="text-[12px]" style={{ color: "#94A3B8" }}>{grup.aciklama}</span>
+              </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {grup.kartlar.map(card => (
                 <RoleCard key={card.key} role={card} onSelect={onSelect} />
@@ -535,14 +551,19 @@ export default function GirisPage() {
 function GirisInner() {
   const router       = useRouter();
   const searchParams = useSearchParams();
-  const grup         = searchParams.get("grup"); // yonetim | egitim | genclik | null
+  const grup         = searchParams.get("grup"); // yonetim | egitim | universite | lise | genclik | null
 
   const [selectedRole, setSelectedRole] = useState<RoleKey | null>(null);
 
   // Ana sayfadaki "Oturum Aç" menüsünden gelen doğrudan yönlendirmeler:
-  //  yonetim → Yönetim Merkezi formu, egitim → Eğitim Birimi formu doğrudan açılır.
+  //  yonetim → Yönetim Merkezi, egitim → Eğitim Birimi, universite → Üniversite Gençlik,
+  //  lise → Lise Gençlik formu doğrudan açılır.
   const directRole: RoleKey | null =
-    grup === "yonetim" ? "yonetici" : grup === "egitim" ? "egitimci" : null;
+    grup === "yonetim" ? "yonetici" :
+    grup === "egitim" ? "egitimci" :
+    grup === "universite" ? "universite" :
+    grup === "lise" ? "lise" :
+    null;
   const isGenclik = grup === "genclik";
 
   // Gösterilecek form: doğrudan yönlendirme öncelikli, yoksa karttan seçilen
@@ -575,7 +596,12 @@ function GirisInner() {
           onSelect={setSelectedRole}
         />
       ) : (
-        <RoleSelect groups={GRUPLAR} onSelect={setSelectedRole} />
+        <RoleSelect
+          groups={GOREVLI_GRUBU}
+          baslik="Görevli Girişi"
+          aciklama="Hangi birimden giriş yapmak veya başvurmak istediğinizi seçin."
+          onSelect={setSelectedRole}
+        />
       )}
     </div>
   );

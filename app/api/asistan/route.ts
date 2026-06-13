@@ -2,26 +2,36 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { YONETICI_ROLLERI } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
-import { geminiSohbet, geminiYapilandirildiMi, GeminiError } from "@/lib/asistan/gemini";
+import {
+  geminiSohbetAraclarla,
+  geminiYapilandirildiMi,
+  GeminiError,
+} from "@/lib/asistan/gemini";
 import type { GeminiMesaj, GeminiRol } from "@/lib/asistan/gemini";
+import { ARAC_TANIMLARI, aracCalistir } from "@/lib/asistan/araclar";
 
 export const dynamic = "force-dynamic";
 
-const MAKS_MESAJ = 30; // sohbet geçmişi üst sınırı
-const MAKS_UZUNLUK = 4000; // tek mesaj karakter sınırı
+const MAKS_MESAJ = 30;
+const MAKS_UZUNLUK = 4000;
 
 const SISTEM_TALIMATI = `Sen "Serhendi Vakfı Faaliyet Takip Sistemi"nin yapay zekâ asistanısın.
-Adın "Faaliyet Asistanı". Türkçe, kısa, net ve nazik konuşursun.
+Adın "Faaliyet Asistanı". Türkçe, kısa, net ve nazik konuşursun. Yöneticilere yardımcı olursun.
 
-Görevin: Vakfın eğitim faaliyetleri, bölge/il raporları, barınma (ev/apart/yurt) ve
-hedefler hakkında yöneticilere yardımcı olmak.
+VERİYE ERİŞİM — elindeki araçlarla (function calling) sistemin gerçek verisini sorgulayabilirsin:
+- bolgeleriListele: tüm bölgeler ve numaraları
+- bolgeOzeti: bir bölgenin ilköğretim/lise/üniversite/barınma faaliyet özeti
+- bolgeDonemKiyas: bir bölgenin 1. ve 2. dönem karşılaştırması
+- hedefGerceklesme: bir bölgenin hedef vs gerçekleşen performansı (yüzde)
+- barinmaOgrencileri: bir bölgenin ev/apart/yurtlarında kalan öğrenci isimleri
 
-ÖNEMLİ — şu an (Faz 1) henüz veritabanına bağlı DEĞİLSİN. Yani canlı sayı, isim listesi,
-bölge kıyaslaması gibi GERÇEK VERİ getiremezsin. Kullanıcı böyle bir şey isterse:
-- Uydurma veri ASLA verme.
-- Nazikçe "Bu özellik çok yakında eklenecek (veri bağlantısı bir sonraki aşamada
-  devreye girecek). Şimdilik genel sorularını yanıtlayabilirim." de.
-Sistemin nasıl kullanılacağı, kavramlar ve genel sorular konusunda serbestçe yardım et.`;
+KURALLAR:
+- Veri gerektiren her soruda MUTLAKA uygun aracı çağır. ASLA sayı/isim uydurma.
+- Araç "hata" alanı dönerse kullanıcıya nazikçe sebebini söyle (ör. bölge yok, veri girilmemiş).
+- Sayıları sade ve okunaklı sun; uygun yerde kısa tablo/madde işareti kullan.
+- Kullanıcı yıl belirtmezse araç en güncel yılı kullanır; cevapta hangi yıl/dönem olduğunu belirt.
+- Bölge adı verilip numara bilinmiyorsa önce bolgeleriListele ile numarayı bul.
+- Veriyle ilgisi olmayan genel sorulara (sistem nasıl kullanılır vb.) normal yanıt ver.`;
 
 export async function POST(req: Request) {
   // ── Yetki: yalnızca yöneticiler ──
@@ -37,7 +47,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // ── İstek gövdesi ──
   let body: { mesajlar?: { rol?: string; metin?: string }[] };
   try {
     body = await req.json();
@@ -67,14 +76,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Son mesaj kullanıcıya ait olmalı." }, { status: 400 });
   }
 
-  // ── Gemini ──
   try {
-    const cevap = await geminiSohbet(SISTEM_TALIMATI, mesajlar);
-    return NextResponse.json({ cevap });
+    const { metin, aracCagrilari } = await geminiSohbetAraclarla(
+      SISTEM_TALIMATI,
+      mesajlar,
+      ARAC_TANIMLARI,
+      aracCalistir,
+    );
+    // aracCagrilari: PDF/Excel indirme (Faz 3) için sonuçları da döndürüyoruz
+    return NextResponse.json({
+      cevap: metin,
+      veriler: aracCagrilari.map((a) => ({ arac: a.isim, sonuc: a.sonuc })),
+    });
   } catch (e) {
     if (e instanceof GeminiError) {
       console.error("Asistan hatası:", e.status, e.message);
-      // Kullanıcıya teknik detayı sızdırma; genel mesaj dön.
       const msg =
         e.status === 429
           ? "Asistan şu an yoğun (kota sınırı). Lütfen biraz sonra tekrar deneyin."

@@ -48,44 +48,26 @@ export const NAV_LINKS = [
   { href: "/bagis",       label: "Bağış Yap"    },
 ];
 
-/** Oturum Aç menüsü — 4 birim grubu, her biri ilgili giriş kartına yönlendirir */
-const LOGIN_GRUPLARI = [
-  {
-    href: "/giris?grup=yonetim", baslik: "Yönetim Merkezi", aciklama: "TR Sorumlusu · Merkez Ekip · TR Gençlik Sorumluları", renk: "#92400E",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/giris?grup=egitim", baslik: "Eğitim Birimi", aciklama: "Bölge / İl Eğitim Sorumlusu", renk: "#0B6B3A",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/giris?grup=genclik", baslik: "Gençlik Birimi", aciklama: "Üniversite ve Lise Gençlik Sorumlusu", renk: "#6D28D9",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/gonullu/giris", baslik: "SerGenç", aciklama: "Üye / Gönüllü katılımcılar", renk: "#B45309",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-    ),
-  },
-];
+/** Oturum Aç menüsü — 2 üst seçenek. "Görevli Girişi" /giris sayfasına gider (4 kart orada). */
+const GOREVLI_GIRIS = {
+  href: "/giris", baslik: "Görevli Girişi", aciklama: "Yönetim · Eğitim · Üniversite · Lise", renk: "#0B6B3A",
+  icon: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+    </svg>
+  ),
+};
+const GONULLU_GIRIS = {
+  href: "/gonullu/giris", baslik: "Gönüllü Girişi", aciklama: "SerGenç — Üye / Gönüllü", renk: "#B45309",
+  icon: (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
+};
 
-/** Oturum Aç açılır menüsü — 4 birim grubu */
+/** Oturum Aç açılır menüsü — 2 seçenek: Görevli Girişi (→ /giris) ve Gönüllü Girişi (→ /gonullu/giris) */
 export function LoginDropdown() {
   const t = useTokens();
   const [open, setOpen] = useState(false);
@@ -122,13 +104,13 @@ export function LoginDropdown() {
       </button>
       {open && (
         <div
-          className="absolute top-[calc(100%+10px)] right-0 w-[272px] rounded-2xl overflow-hidden shadow-2xl"
+          className="absolute top-[calc(100%+10px)] right-0 w-[280px] rounded-2xl overflow-hidden shadow-2xl"
           style={{ background: t.dropBg, border: "1px solid var(--border)" }}
         >
           <div className="px-4 py-3 border-b" style={{ borderColor: t.border }}>
             <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: t.muted }}>Giriş Türü</p>
           </div>
-          {LOGIN_GRUPLARI.map((g, i) => (
+          {[GOREVLI_GIRIS, GONULLU_GIRIS].map((g, i) => (
             <Link
               key={g.href}
               href={g.href}
@@ -142,7 +124,7 @@ export function LoginDropdown() {
               </div>
               <div>
                 <p className="text-[14px] font-bold" style={{ color: t.heading }}>{g.baslik}</p>
-                <p className="text-[12px] mt-0.5"    style={{ color: t.muted   }}>{g.aciklama}</p>
+                <p className="text-[12px] mt-0.5" style={{ color: t.muted }}>{g.aciklama}</p>
               </div>
             </Link>
           ))}

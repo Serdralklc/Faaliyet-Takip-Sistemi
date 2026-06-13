@@ -10,18 +10,28 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle, X, Send, Sparkles } from "lucide-react";
+import { MessageCircle, X, Send, Sparkles, FileText, FileSpreadsheet, RotateCcw } from "lucide-react";
+import {
+  verilerdenSpec,
+  asistanPdfIndir,
+  asistanExcelIndir,
+  type AsistanVeri,
+} from "@/lib/asistan/disari-aktar";
 
 interface Mesaj {
   rol: "user" | "model";
   metin: string;
+  veriler?: AsistanVeri[];
 }
 
 const KARSILAMA: Mesaj = {
   rol: "model",
   metin:
-    "Merhaba! Ben Faaliyet Asistanı 👋\n\nVakfın faaliyet takip sistemi hakkında sorularını yanıtlayabilirim. " +
-    "(Canlı veri sorgulama — bölge kıyası, öğrenci listesi, PDF — çok yakında ekleniyor.)",
+    "Merhaba! Ben Faaliyet Asistanı 👋 Sistemin gerçek verisini sorgulayabilirim. Örnek:\n\n" +
+    "• 5. bölgenin 1. ve 2. dönem kıyasını yap\n" +
+    "• 9. bölgede öğrenci evinde kalanların isimleri\n" +
+    "• 3. bölge hedeflerine ne kadar ulaştı?\n\n" +
+    "Tablo içeren cevapların altından PDF/Excel indirebilirsin.",
 };
 
 export function AsistanBalon() {
@@ -30,6 +40,7 @@ export function AsistanBalon() {
   const [girdi, setGirdi] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
+  const [indiriliyor, setIndiriliyor] = useState<string | null>(null);
 
   const sonRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -74,7 +85,7 @@ export function AsistanBalon() {
       if (!r.ok) {
         setHata(data?.error ?? "Bir hata oluştu.");
       } else {
-        setMesajlar((m) => [...m, { rol: "model", metin: data.cevap }]);
+        setMesajlar((m) => [...m, { rol: "model", metin: data.cevap, veriler: data.veriler }]);
       }
     } catch {
       setHata("Bağlantı hatası. İnternetinizi kontrol edip tekrar deneyin.");
@@ -87,6 +98,26 @@ export function AsistanBalon() {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       gonder();
+    }
+  }
+
+  function yeniSohbet() {
+    setMesajlar([KARSILAMA]);
+    setGirdi("");
+    setHata(null);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  }
+
+  async function indir(tip: "pdf" | "excel", veriler: AsistanVeri[] | undefined, anahtar: string) {
+    if (indiriliyor) return;
+    setIndiriliyor(anahtar + tip);
+    try {
+      const ok = tip === "pdf" ? await asistanPdfIndir(veriler) : await asistanExcelIndir(veriler);
+      if (!ok) setHata("Bu cevap için indirilebilir tablo verisi yok.");
+    } catch {
+      setHata("İndirme sırasında bir hata oluştu.");
+    } finally {
+      setIndiriliyor(null);
     }
   }
 
@@ -124,9 +155,17 @@ export function AsistanBalon() {
               <p className="text-[10.5px] opacity-80">Yapay zekâ destekli</p>
             </div>
             <button
+              onClick={yeniSohbet}
+              aria-label="Yeni sohbet"
+              title="Yeni sohbet"
+              className="ml-auto p-1.5 rounded-lg transition hover:bg-white/20"
+            >
+              <RotateCcw size={16} />
+            </button>
+            <button
               onClick={() => setAcik(false)}
               aria-label="Kapat"
-              className="ml-auto p-1.5 rounded-lg transition hover:bg-white/20"
+              className="p-1.5 rounded-lg transition hover:bg-white/20"
             >
               <X size={18} />
             </button>
@@ -134,20 +173,46 @@ export function AsistanBalon() {
 
           {/* Mesajlar */}
           <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3" style={{ background: "var(--bg-page, #f7f7f7)" }}>
-            {mesajlar.map((m, i) => (
-              <div key={i} className={`flex ${m.rol === "user" ? "justify-end" : "justify-start"}`}>
-                <div
-                  className="max-w-[85%] px-3.5 py-2.5 rounded-2xl text-[13.5px] leading-relaxed whitespace-pre-wrap break-words"
-                  style={
-                    m.rol === "user"
-                      ? { background: "var(--accent, #0B6B3A)", color: "#fff", borderBottomRightRadius: 6 }
-                      : { background: "var(--bg-card, #fff)", color: "var(--text-primary, #111)", border: "1px solid var(--border)", borderBottomLeftRadius: 6 }
-                  }
-                >
-                  {m.metin}
+            {mesajlar.map((m, i) => {
+              const spec = m.rol === "model" ? verilerdenSpec(m.veriler) : null;
+              return (
+                <div key={i} className={`flex flex-col ${m.rol === "user" ? "items-end" : "items-start"}`}>
+                  <div
+                    className="max-w-[85%] px-3.5 py-2.5 rounded-2xl text-[13.5px] leading-relaxed whitespace-pre-wrap break-words"
+                    style={
+                      m.rol === "user"
+                        ? { background: "var(--accent, #0B6B3A)", color: "#fff", borderBottomRightRadius: 6 }
+                        : { background: "var(--bg-card, #fff)", color: "var(--text-primary, #111)", border: "1px solid var(--border)", borderBottomLeftRadius: 6 }
+                    }
+                  >
+                    {m.metin}
+                  </div>
+
+                  {spec && (
+                    <div className="flex gap-1.5 mt-1.5">
+                      <button
+                        onClick={() => indir("pdf", m.veriler, String(i))}
+                        disabled={indiriliyor !== null}
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11.5px] font-bold transition disabled:opacity-50 hover:opacity-90"
+                        style={{ background: "#FEE9E7", color: "#B91C1C" }}
+                      >
+                        <FileText size={13} />
+                        {indiriliyor === String(i) + "pdf" ? "Hazırlanıyor…" : "PDF indir"}
+                      </button>
+                      <button
+                        onClick={() => indir("excel", m.veriler, String(i))}
+                        disabled={indiriliyor !== null}
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11.5px] font-bold transition disabled:opacity-50 hover:opacity-90"
+                        style={{ background: "#E6F4EA", color: "#0B6B3A" }}
+                      >
+                        <FileSpreadsheet size={13} />
+                        {indiriliyor === String(i) + "excel" ? "Hazırlanıyor…" : "Excel indir"}
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {yukleniyor && (
               <div className="flex justify-start">
