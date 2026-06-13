@@ -16,6 +16,7 @@ import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { SkeletonText } from "@/components/ui/Skeleton";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
+import { rolSistemi } from "@/lib/constants";
 
 type Tip = "DUYURU" | "BILGILENDIRME" | "DOSYA" | "FORM";
 
@@ -132,10 +133,24 @@ const TAKIP_COLUMNS: DataTableColumn<TakipAlim>[] = [
   },
 ];
 
-function BildirimlerTab() {
+function BildirimlerTab({ role }: { role: string }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState(BOS_FORM);
+
+  // Sistem-kısıtlı sorumlu (Merkez Üni/Lise Gençlik Sorumlusu) yalnız kendi sistemine
+  // bildirim gönderebilir: sistem kilitli, "Gönüllüler" ve sistem seçici gizli.
+  const kisitliSistem = rolSistemi(role); // "UNIVERSITE" | "LISE" | null
+  const sistemLabel = kisitliSistem === "UNIVERSITE" ? "Üniversite Gençlik" : "Lise Gençlik";
+  const bosForm = kisitliSistem
+    ? {
+        ...BOS_FORM,
+        sistemEgitim: false,
+        sistemUniversite: kisitliSistem === "UNIVERSITE",
+        sistemLise: kisitliSistem === "LISE",
+      }
+    : BOS_FORM;
+
+  const [form, setForm] = useState(bosForm);
   const [sending, setSending] = useState(false);
   const [secili, setSecili] = useState<Bildirim | null>(null);
 
@@ -202,7 +217,7 @@ function BildirimlerTab() {
         title: "Bildirim gönderildi",
         message: `${d?.aliciSayisi ?? 0} alıcıya gönderildi${form.kanalEposta ? ` (${d?.epostaGonderilen ?? 0} e-posta)` : ""}`,
       });
-      setForm(BOS_FORM);
+      setForm(bosForm);
       queryClient.invalidateQueries({ queryKey: ["bildirimler"] });
     } catch {
       toast({ type: "error", title: "Bağlantı hatası" });
@@ -258,18 +273,28 @@ function BildirimlerTab() {
             <legend className="block text-[12px] font-bold uppercase tracking-wider text-muted mb-2">
               Hedef Kitle
             </legend>
-            <div className="flex flex-wrap gap-2">
-              <CheckChip label="Bölge Sorumluları" checked={form.hedefBolge} onChange={v => set("hedefBolge", v)} />
-              <CheckChip label="İl Sorumluları" checked={form.hedefIl} onChange={v => set("hedefIl", v)} />
-              <CheckChip label="Gönüllüler" checked={form.hedefGonullu} onChange={v => set("hedefGonullu", v)} />
-            </div>
-            {(form.hedefBolge || form.hedefIl) && (
-              <div className="flex flex-wrap items-center gap-2 mt-2.5">
-                <span className="text-[12px] font-semibold text-muted">Sistem:</span>
-                <CheckChip label="Eğitim" checked={form.sistemEgitim} onChange={v => set("sistemEgitim", v)} />
-                <CheckChip label="Üniversite" checked={form.sistemUniversite} onChange={v => set("sistemUniversite", v)} />
-                <CheckChip label="Lise" checked={form.sistemLise} onChange={v => set("sistemLise", v)} />
+            {kisitliSistem ? (
+              // Sistem-kısıtlı sorumlu: yalnız kendi sisteminin bölge/il gençliği
+              <div className="flex flex-wrap gap-2">
+                <CheckChip label={`Bölge ${sistemLabel}`} checked={form.hedefBolge} onChange={v => set("hedefBolge", v)} />
+                <CheckChip label={`İl ${sistemLabel}`} checked={form.hedefIl} onChange={v => set("hedefIl", v)} />
               </div>
+            ) : (
+              <>
+                <div className="flex flex-wrap gap-2">
+                  <CheckChip label="Bölge Sorumluları" checked={form.hedefBolge} onChange={v => set("hedefBolge", v)} />
+                  <CheckChip label="İl Sorumluları" checked={form.hedefIl} onChange={v => set("hedefIl", v)} />
+                  <CheckChip label="Gönüllüler" checked={form.hedefGonullu} onChange={v => set("hedefGonullu", v)} />
+                </div>
+                {(form.hedefBolge || form.hedefIl) && (
+                  <div className="flex flex-wrap items-center gap-2 mt-2.5">
+                    <span className="text-[12px] font-semibold text-muted">Sistem:</span>
+                    <CheckChip label="Eğitim" checked={form.sistemEgitim} onChange={v => set("sistemEgitim", v)} />
+                    <CheckChip label="Üniversite" checked={form.sistemUniversite} onChange={v => set("sistemUniversite", v)} />
+                    <CheckChip label="Lise" checked={form.sistemLise} onChange={v => set("sistemLise", v)} />
+                  </div>
+                )}
+              </>
             )}
           </fieldset>
 
@@ -797,7 +822,7 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "duyuru",      label: "Duyuru Panosu" },
 ];
 
-export function BildirimMerkeziClient() {
+export function BildirimMerkeziClient({ role }: { role: string }) {
   const [tab, setTab] = useState<TabKey>("bildirimler");
 
   return (
@@ -824,7 +849,7 @@ export function BildirimMerkeziClient() {
       </div>
 
       {/* Sekme içeriği */}
-      {tab === "bildirimler" && <BildirimlerTab />}
+      {tab === "bildirimler" && <BildirimlerTab role={role} />}
       {tab === "popup" && <PopupTab />}
       {tab === "duyuru" && <DuyuruTab />}
     </div>

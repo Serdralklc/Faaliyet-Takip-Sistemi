@@ -77,6 +77,13 @@ export function sistemSorumlusu(role: string): boolean {
   return role === "TURKIYE_UNIVERSITE_SORUMLUSU" || role === "TURKIYE_LISE_SORUMLUSU";
 }
 
+/** Sistem-kısıtlı sorumlunun bağlı olduğu sistem (UNIVERSITE/LISE); değilse null (tam erişim). */
+export function rolSistemi(role: string): "UNIVERSITE" | "LISE" | null {
+  if (role === "TURKIYE_UNIVERSITE_SORUMLUSU") return "UNIVERSITE";
+  if (role === "TURKIYE_LISE_SORUMLUSU") return "LISE";
+  return null;
+}
+
 /** Sistem sorumlusunun kendi sisteminde yönetebileceği saha rolleri (başvuran/il/bölge). */
 export const SAHA_ROLLERI: Role[] = ["IL_SORUMLUSU", "BOLGE_SORUMLUSU", "BEKLEYEN"];
 

@@ -13,5 +13,5 @@ export default async function BildirimMerkeziPage() {
   // İçerik ekranı: İçerik Yöneticisi yetkisi olmayan Merkez Ekip giremez
   if (session.user.role === "GENEL_MERKEZ" && !session.user.icerikYoneticisi) redirect("/panel/admin");
 
-  return <BildirimMerkeziClient />;
+  return <BildirimMerkeziClient role={session.user.role} />;
 }

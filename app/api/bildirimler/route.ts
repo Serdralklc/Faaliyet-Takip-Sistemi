@@ -5,7 +5,7 @@ import { getSession } from "@/lib/auth";
 import { parseJson, zKisaMetin, zUzunMetin } from "@/lib/validation";
 import { createAuditLog } from "@/lib/audit";
 import { sendBildirimEmail } from "@/lib/mail";
-import { YONETICI_ROLLERI } from "@/lib/constants";
+import { YONETICI_ROLLERI, rolSistemi } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -66,6 +66,19 @@ export async function POST(req: NextRequest) {
   const r = await parseJson(req, schema);
   if ("error" in r) return r.error;
   const d = r.data;
+
+  // Sistem-kısıtlı sorumlu (Merkez Üni/Lise Gençlik Sorumlusu): yalnız kendi sistemine.
+  // Gönüllü ve diğer sistemler sunucuda zorla engellenir (client'a güvenilmez).
+  const kisit = rolSistemi(session.user.role);
+  if (kisit) {
+    d.hedefGonullu = false;
+    d.sistemEgitim = false;
+    d.sistemUniversite = kisit === "UNIVERSITE";
+    d.sistemLise = kisit === "LISE";
+    if (!d.hedefBolge && !d.hedefIl) {
+      return NextResponse.json({ error: "En az bir hedef kitle seçin." }, { status: 400 });
+    }
+  }
 
   // Alıcıları çöz
   const sistemler = [
