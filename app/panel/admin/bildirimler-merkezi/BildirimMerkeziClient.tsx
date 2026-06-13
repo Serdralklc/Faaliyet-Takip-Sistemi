@@ -393,6 +393,157 @@ function BildirimlerTab() {
 }
 
 /* ══════════════════════════════════════
+   DUYURU PANOSU sekmesi (CRUD)
+══════════════════════════════════════ */
+interface Duyuru {
+  id: string;
+  metin: string;
+  link: string | null;
+  baslangic: string;
+  bitis: string;
+  aktif: boolean;
+  createdByName: string;
+  createdAt: string;
+}
+
+const BOS_DUYURU = { metin: "", link: "", baslangic: "", bitis: "", aktif: true };
+
+/** ISO → datetime-local input değeri (yerel saat) */
+function toLocalInput(iso: string) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function duyuruDurum(d: Duyuru): { label: string; tone: "success" | "neutral" | "warning" | "info" } {
+  if (!d.aktif) return { label: "Pasif", tone: "neutral" };
+  const now = Date.now();
+  if (new Date(d.bitis).getTime() < now) return { label: "Süresi Doldu", tone: "warning" };
+  if (new Date(d.baslangic).getTime() > now) return { label: "Beklemede", tone: "info" };
+  return { label: "Aktif", tone: "success" };
+}
+
+function DuyuruTab() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [form, setForm] = useState(BOS_DUYURU);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  function set<K extends keyof typeof BOS_DUYURU>(key: K, value: (typeof BOS_DUYURU)[K]) {
+    setForm(prev => ({ ...prev, [key]: value }));
+  }
+  function reset() { setForm(BOS_DUYURU); setEditId(null); }
+
+  const { data: duyurular = [], isLoading } = useQuery({
+    queryKey: ["duyurular"],
+    queryFn: async (): Promise<Duyuru[]> => {
+      const res = await fetch("/api/duyurular");
+      if (!res.ok) throw new Error("Duyurular yüklenemedi.");
+      return res.json();
+    },
+  });
+
+  function duzenle(d: Duyuru) {
+    setEditId(d.id);
+    setForm({ metin: d.metin, link: d.link ?? "", baslangic: toLocalInput(d.baslangic), bitis: toLocalInput(d.bitis), aktif: d.aktif });
+  }
+
+  async function kaydet() {
+    if (!form.metin.trim()) { toast({ type: "error", title: "Eksik bilgi", message: "Duyuru metni zorunludur." }); return; }
+    if (!form.baslangic || !form.bitis) { toast({ type: "error", title: "Eksik bilgi", message: "Başlangıç ve bitiş tarihi zorunludur." }); return; }
+    setSaving(true);
+    try {
+      const res = await fetch(editId ? `/api/duyurular/${editId}` : "/api/duyurular", {
+        method: editId ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metin: form.metin.trim(), link: form.link.trim() || null, baslangic: form.baslangic, bitis: form.bitis, aktif: form.aktif }),
+      });
+      const d = await res.json().catch(() => null);
+      if (!res.ok) { toast({ type: "error", title: "Kaydedilemedi", message: d?.error }); return; }
+      toast({ type: "success", title: editId ? "Duyuru güncellendi" : "Duyuru oluşturuldu" });
+      reset();
+      queryClient.invalidateQueries({ queryKey: ["duyurular"] });
+    } catch { toast({ type: "error", title: "Bağlantı hatası" }); }
+    finally { setSaving(false); }
+  }
+
+  async function aktiflikDegistir(d: Duyuru) {
+    await fetch(`/api/duyurular/${d.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ aktif: !d.aktif }) });
+    queryClient.invalidateQueries({ queryKey: ["duyurular"] });
+  }
+
+  async function sil(d: Duyuru) {
+    if (!confirm("Bu duyuru silinsin mi?")) return;
+    await fetch(`/api/duyurular/${d.id}`, { method: "DELETE" });
+    if (editId === d.id) reset();
+    queryClient.invalidateQueries({ queryKey: ["duyurular"] });
+  }
+
+  return (
+    <div className="space-y-5">
+      <section className="sv-section">
+        <div className="sv-section-header"><h2>{editId ? "Duyuru Düzenle" : "Yeni Duyuru"}</h2></div>
+        <div className="p-5 space-y-4">
+          <Textarea
+            label="Duyuru Metni" required rows={2} maxLength={5000}
+            value={form.metin} onChange={e => set("metin", e.target.value)}
+            placeholder="Örn. Yaz Kursları veri giriş dönemi başlamıştır. Son tarih: 30 Temmuz."
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input label="Başlangıç" required type="datetime-local" value={form.baslangic} onChange={e => set("baslangic", e.target.value)} />
+            <Input label="Bitiş" required type="datetime-local" value={form.bitis} onChange={e => set("bitis", e.target.value)} />
+            <Input label="Link" value={form.link} onChange={e => set("link", e.target.value)} maxLength={500} placeholder="/panel/..." hint="Opsiyonel — tıklanınca gidilecek sayfa" />
+          </div>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <CheckChip label="Aktif" checked={form.aktif} onChange={v => set("aktif", v)} />
+            <div className="flex gap-2">
+              {editId && <Button variant="ghost" onClick={reset}>İptal</Button>}
+              <Button onClick={kaydet} loading={saving}>{editId ? "Güncelle" : "Oluştur"}</Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="sv-section">
+        <div className="sv-section-header">
+          <h2>Duyurular</h2>
+          <span className="text-[12px] font-semibold text-muted">{duyurular.length} duyuru</span>
+        </div>
+        {isLoading ? (
+          <div className="p-5"><SkeletonText lines={3} /></div>
+        ) : duyurular.length === 0 ? (
+          <p className="px-5 py-12 text-center text-[13.5px] text-muted">Henüz duyuru oluşturulmadı.</p>
+        ) : (
+          <div className="divide-y divide-border">
+            {duyurular.map(d => {
+              const durum = duyuruDurum(d);
+              return (
+                <div key={d.id} className="px-5 py-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge tone={durum.tone}>{durum.label}</Badge>
+                    <span className="text-[14px] font-semibold text-heading">{d.metin}</span>
+                    <span className="ml-auto text-[12px] text-muted">
+                      {new Date(d.baslangic).toLocaleDateString("tr-TR")} – {new Date(d.bitis).toLocaleDateString("tr-TR")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Button size="sm" variant="ghost" onClick={() => duzenle(d)}>Düzenle</Button>
+                    <Button size="sm" variant="ghost" onClick={() => aktiflikDegistir(d)}>{d.aktif ? "Pasife Al" : "Aktifleştir"}</Button>
+                    <Button size="sm" variant="danger" onClick={() => sil(d)}>Sil</Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
    BİLDİRİM MERKEZİ — sekmeli kabuk
    (Bildirimler · Pop-Up Yönetimi · Duyuru Panosu)
 ══════════════════════════════════════ */
@@ -444,7 +595,7 @@ export function BildirimMerkeziClient() {
       {/* Sekme içeriği */}
       {tab === "bildirimler" && <BildirimlerTab />}
       {tab === "popup" && <YakindaTab baslik="Pop-Up Yönetimi" aciklama="Pop-up oluşturma, görsel, tarih aralığı ve gösterim ayarları bu sekmede yer alacak." />}
-      {tab === "duyuru" && <YakindaTab baslik="Duyuru Panosu" aciklama="Tüm panellerin üstünde görünecek kayan duyuru bandının yönetimi bu sekmede yer alacak." />}
+      {tab === "duyuru" && <DuyuruTab />}
     </div>
   );
 }

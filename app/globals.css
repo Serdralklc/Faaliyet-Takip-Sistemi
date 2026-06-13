@@ -320,6 +320,53 @@ select option {
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
+/* ══════════════════════════════════════
+   DUYURU BANDI (kayan üst bant)
+══════════════════════════════════════ */
+.duyuru-banner {
+  flex-shrink: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  background: linear-gradient(90deg, #B91C1C 0%, #DC2626 50%, #B91C1C 100%);
+  color: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 4px rgba(185, 28, 28, 0.25);
+}
+.duyuru-marquee {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  will-change: transform;
+  animation: duyuru-scroll 40s linear infinite;
+}
+.duyuru-banner:hover .duyuru-marquee {
+  animation-play-state: paused;
+}
+.duyuru-track {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 0;
+}
+.duyuru-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.duyuru-sep { opacity: 0.55; font-weight: 700; }
+.duyuru-link { color: #fff; text-decoration: underline; text-underline-offset: 2px; }
+.duyuru-link:hover { opacity: 0.85; }
+@keyframes duyuru-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .duyuru-marquee { animation: none; }
+}
+
 /* Kapsam/filtre değişiminde tabloya yumuşak giriş */
 .sv-fade {
   animation: sv-fade-in 0.22s ease;

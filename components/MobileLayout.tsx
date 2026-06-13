@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { NotificationBell } from "./NotificationBell";
 import { AsistanBalon } from "./AsistanBalon";
+import { DuyuruBanner } from "./DuyuruBanner";
 import { YONETICI_ROLLERI } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 
@@ -102,6 +103,9 @@ export function MobileLayout({ user, aktifGorunum = "merkez", children }: {
             <NotificationBell />
           </div>
         </div>
+
+        {/* Duyuru bandı — üstte sabit, süre boyunca herkes görür */}
+        <DuyuruBanner />
 
         {/* Sayfa içeriği */}
         <main className="flex-1 overflow-y-auto">
