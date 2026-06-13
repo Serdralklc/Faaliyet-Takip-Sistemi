@@ -40,6 +40,7 @@ export function NotificationBell() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [detay, setDetay] = useState<BildirimItem | null>(null);
+  const [filtre, setFiltre] = useState<"hepsi" | "okunmamis" | "okunmus">("hepsi");
   const ref = useRef<HTMLDivElement>(null);
 
   // Kapalıyken yalnızca hafif sayaç; açıkken tam liste
@@ -98,6 +99,9 @@ export function NotificationBell() {
   }
 
   const okunmamis = sayac?.okunmamis ?? 0;
+  const gosterilen = (liste?.bildirimler ?? []).filter(b =>
+    filtre === "hepsi" ? true : filtre === "okunmamis" ? !b.goruldu : b.goruldu
+  );
 
   return (
     <div className="relative" ref={ref}>
@@ -144,12 +148,29 @@ export function NotificationBell() {
             </div>
           ) : (
             <div className="max-h-[380px] overflow-y-auto">
+              {/* Filtre: Tümü / Okunmamış / Okunmuş */}
+              <div className="flex gap-1 px-3 py-2 border-b border-border sticky top-0 z-10" style={{ background: "var(--bg-card)" }}>
+                {([["hepsi", "Tümü"], ["okunmamis", "Okunmamış"], ["okunmus", "Okunmuş"]] as const).map(([k, etiket]) => (
+                  <button
+                    key={k}
+                    onClick={() => setFiltre(k)}
+                    className="px-2.5 py-1 rounded-lg text-[11.5px] font-bold transition"
+                    style={filtre === k
+                      ? { background: "var(--accent-solid)", color: "#fff" }
+                      : { color: "var(--text-muted)", background: "var(--bg-hover)" }}
+                  >
+                    {etiket}
+                  </button>
+                ))}
+              </div>
               {isLoading ? (
                 <p className="px-4 py-8 text-center text-[13px] text-muted">Yükleniyor...</p>
-              ) : !liste?.bildirimler.length ? (
-                <p className="px-4 py-8 text-center text-[13px] text-muted">Henüz bildiriminiz yok.</p>
+              ) : !gosterilen.length ? (
+                <p className="px-4 py-8 text-center text-[13px] text-muted">
+                  {filtre === "okunmamis" ? "Okunmamış bildiriminiz yok." : filtre === "okunmus" ? "Okunmuş bildiriminiz yok." : "Henüz bildiriminiz yok."}
+                </p>
               ) : (
-                liste.bildirimler.map(b => (
+                gosterilen.map(b => (
                   <button
                     key={b.alimId}
                     onClick={() => ac(b)}

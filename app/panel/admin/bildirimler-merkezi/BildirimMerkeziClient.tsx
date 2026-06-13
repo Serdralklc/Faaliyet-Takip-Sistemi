@@ -424,9 +424,38 @@ function duyuruDurum(d: Duyuru): { label: string; tone: "success" | "neutral" | 
   return { label: "Aktif", tone: "success" };
 }
 
+/** Aktif/Pasif/Süresi-dolan arşiv filtresi — Duyuru ve Pop-up listelerinde ortak */
+const DURUM_FILTRE_OPTS: { key: string; label: string }[] = [
+  { key: "all", label: "Tümü" },
+  { key: "Aktif", label: "Aktif" },
+  { key: "Beklemede", label: "Beklemede" },
+  { key: "Süresi Doldu", label: "Süresi Doldu" },
+  { key: "Pasif", label: "Pasif" },
+];
+
+function DurumFiltreChips({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {DURUM_FILTRE_OPTS.map(o => (
+        <button
+          key={o.key}
+          onClick={() => onChange(o.key)}
+          className="px-2.5 py-1 rounded-lg text-[12px] font-bold border transition"
+          style={value === o.key
+            ? { background: "var(--accent-solid)", color: "#fff", borderColor: "var(--accent-solid)" }
+            : { color: "var(--text-muted)", borderColor: "var(--border)" }}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function DuyuruTab() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [durumFiltre, setDurumFiltre] = useState("all");
   const [form, setForm] = useState(BOS_DUYURU);
   const [editId, setEditId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -444,6 +473,7 @@ function DuyuruTab() {
       return res.json();
     },
   });
+  const gosterilenDuyurular = duyurular.filter(d => durumFiltre === "all" || duyuruDurum(d).label === durumFiltre);
 
   function duzenle(d: Duyuru) {
     setEditId(d.id);
@@ -507,17 +537,19 @@ function DuyuruTab() {
       </section>
 
       <section className="sv-section">
-        <div className="sv-section-header">
+        <div className="sv-section-header flex-wrap gap-2">
           <h2>Duyurular</h2>
-          <span className="text-[12px] font-semibold text-muted">{duyurular.length} duyuru</span>
+          <DurumFiltreChips value={durumFiltre} onChange={setDurumFiltre} />
         </div>
         {isLoading ? (
           <div className="p-5"><SkeletonText lines={3} /></div>
-        ) : duyurular.length === 0 ? (
-          <p className="px-5 py-12 text-center text-[13.5px] text-muted">Henüz duyuru oluşturulmadı.</p>
+        ) : gosterilenDuyurular.length === 0 ? (
+          <p className="px-5 py-12 text-center text-[13.5px] text-muted">
+            {durumFiltre === "all" ? "Henüz duyuru oluşturulmadı." : "Bu filtreyle duyuru yok."}
+          </p>
         ) : (
           <div className="divide-y divide-border">
-            {duyurular.map(d => {
+            {gosterilenDuyurular.map(d => {
               const durum = duyuruDurum(d);
               return (
                 <div key={d.id} className="px-5 py-4">
@@ -582,6 +614,7 @@ function popupDurum(p: Popup): { label: string; tone: "success" | "neutral" | "w
 function PopupTab() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [durumFiltre, setDurumFiltre] = useState("all");
   const [form, setForm] = useState(BOS_POPUP);
   const [editId, setEditId] = useState<string | null>(null);
   const [gorselFile, setGorselFile] = useState<File | null>(null);
@@ -621,6 +654,7 @@ function PopupTab() {
       return res.json();
     },
   });
+  const gosterilenPopuplar = popuplar.filter(p => durumFiltre === "all" || popupDurum(p).label === durumFiltre);
 
   function duzenle(p: Popup) {
     setEditId(p.id);
@@ -712,17 +746,19 @@ function PopupTab() {
       </section>
 
       <section className="sv-section">
-        <div className="sv-section-header">
+        <div className="sv-section-header flex-wrap gap-2">
           <h2>{"Pop-up'lar"}</h2>
-          <span className="text-[12px] font-semibold text-muted">{popuplar.length} pop-up</span>
+          <DurumFiltreChips value={durumFiltre} onChange={setDurumFiltre} />
         </div>
         {isLoading ? (
           <div className="p-5"><SkeletonText lines={3} /></div>
-        ) : popuplar.length === 0 ? (
-          <p className="px-5 py-12 text-center text-[13.5px] text-muted">Henüz pop-up oluşturulmadı.</p>
+        ) : gosterilenPopuplar.length === 0 ? (
+          <p className="px-5 py-12 text-center text-[13.5px] text-muted">
+            {durumFiltre === "all" ? "Henüz pop-up oluşturulmadı." : "Bu filtreyle pop-up yok."}
+          </p>
         ) : (
           <div className="divide-y divide-border">
-            {popuplar.map(p => {
+            {gosterilenPopuplar.map(p => {
               const durum = popupDurum(p);
               return (
                 <div key={p.id} className="px-5 py-4">
