@@ -257,15 +257,12 @@ function MultiRegionSelect({ bolgeler, selected, onChange, color }: {
   const isAll = selected.length === 0;
   const label = isAll ? "Tüm Bölgeler" : `${selected.length} Bölge`;
 
+  // Bölge kutucukları boştan başlar; işaretledikçe o bölgeler seçilir (çoklu).
+  // Hepsi işaretlenir veya hiçbiri kalmazsa → "Tüm Bölgeler" (boş = tümü).
   function toggle(id: string) {
-    // "Tümü" modundayken bir bölgeye tıklamak → yalnız onu seç (19 bölgeyi tek tek kapatma derdi yok)
-    if (isAll) { onChange([id]); return; }
     const next = selected.includes(id) ? selected.filter(x => x !== id) : [...selected, id];
-    if (next.length === 0 || next.length === allIds.length) onChange([]); // hiçbiri/tümü → "Tümü"
-    else onChange(next);
+    onChange(next.length === 0 || next.length === allIds.length ? [] : next);
   }
-  // Bir satırdaki "Yalnız" → sadece o bölge
-  function only(id: string) { onChange([id]); }
   const filtered = bolgeler.filter(b => String(b.no).includes(q.trim()));
 
   return (
@@ -292,39 +289,20 @@ function MultiRegionSelect({ bolgeler, selected, onChange, color }: {
               className="w-full mb-2 px-2 py-1.5 text-sm rounded-lg border focus:outline-none"
               style={{ borderColor: "var(--border-input)", background: "var(--bg-input)", color: "var(--text-primary)" }}
             />
-            <button
-              onClick={() => onChange([])}
-              className="w-full px-2 py-1.5 text-xs font-bold rounded-lg transition"
-              style={{ background: isAll ? color : "var(--bg-th)", color: isAll ? "#fff" : "var(--text-muted)" }}
-            >
-              Tümünü Seç
-            </button>
-            <p className="px-1 py-1 text-[10px] leading-tight" style={{ color: "var(--text-muted)" }}>
-              İpucu: tek bölge için satırdaki <b>Yalnız</b>’a bas; kutucuklarla çoklu seçim.
-            </p>
-            <div className="max-h-56 overflow-y-auto">
-              {filtered.map(b => {
-                const checked = isAll || selected.includes(b.id);
-                const onlyThis = !isAll && selected.length === 1 && selected[0] === b.id;
-                return (
-                  <div key={b.id}
-                    className="group flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[color:var(--bg-hover)] transition">
-                    <label className="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
-                      <input type="checkbox" checked={checked} onChange={() => toggle(b.id)} />
-                      <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{b.no}. Bölge</span>
-                    </label>
-                    <button
-                      onClick={() => only(b.id)}
-                      className="text-[10px] font-bold px-1.5 py-0.5 rounded transition shrink-0"
-                      style={onlyThis
-                        ? { background: color, color: "#fff" }
-                        : { background: "var(--bg-th)", color: "var(--text-muted)" }}
-                    >
-                      Yalnız
-                    </button>
-                  </div>
-                );
-              })}
+            <div className="max-h-60 overflow-y-auto">
+              {/* Tüm Bölgeler — varsayılan, en üstte */}
+              <label className="flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer hover:bg-[color:var(--bg-hover)] transition border-b mb-1"
+                style={{ borderColor: "var(--border)" }}>
+                <input type="checkbox" checked={isAll} onChange={() => onChange([])} />
+                <span className="text-sm font-bold" style={{ color: isAll ? color : "var(--text-primary)" }}>Tüm Bölgeler</span>
+              </label>
+              {filtered.map(b => (
+                <label key={b.id}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer hover:bg-[color:var(--bg-hover)] transition">
+                  <input type="checkbox" checked={selected.includes(b.id)} onChange={() => toggle(b.id)} />
+                  <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{b.no}. Bölge</span>
+                </label>
+              ))}
             </div>
           </div>
         </>
