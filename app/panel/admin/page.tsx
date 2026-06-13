@@ -213,6 +213,8 @@ export default async function AdminPage() {
   if (!["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "TEKNIK"].includes(session.user.role)) {
     redirect("/panel/beklemede");
   }
+  // Teknik rolünün ana paneli İstişare Merkezi
+  if (session.user.role === "TEKNIK") redirect("/panel/istisare");
 
   // Merkez Ekip + İçerik Yöneticisi: içerik görünümünde içerik hub'ı göster
   if (session.user.role === "GENEL_MERKEZ" && session.user.icerikYoneticisi) {

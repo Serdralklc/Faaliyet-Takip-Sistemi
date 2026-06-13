@@ -12,7 +12,7 @@ import {
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
   GraduationCap, School, BookOpen, Home, Building2,
   Hotel, BarChart3, Settings, UserCircle, Target, TrendingUp, X,
-  FolderOpen, Bell, Archive, PenSquare,
+  FolderOpen, Bell, Archive, PenSquare, MessagesSquare,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 
@@ -148,7 +148,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
   const isBolge  = user.role === "BOLGE_SORUMLUSU";
   const isIl     = user.role === "IL_SORUMLUSU";
 
-  const dashHref = (isFullAdmin || isTRUni || isTRLise || isTeknik) ? "/panel/admin" : isBolge ? "/panel/bolge" : "/panel/il";
+  const dashHref = isTeknik ? "/panel/istisare" : (isFullAdmin || isTRUni || isTRLise) ? "/panel/admin" : isBolge ? "/panel/bolge" : "/panel/il";
 
   // ── Tam yetkili admin sidebar grupları ────────────────────────────────
   const faaliyetGroup: NavGroupDef = {
@@ -300,6 +300,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/admin/bolgeler" label="Coğrafi Yapı" icon={MapPin} />
             <NavItem href="/panel/admin/dokumanlar" label="Doküman Merkezi" icon={FolderOpen} />
             <NavItem href="/panel/admin/arsiv" label="Veri Arşivi" icon={Archive} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/admin/loglar"   label="Denetim Logları" icon={ClipboardList} />
           </>
         )}
@@ -319,6 +320,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/admin/analiz" label="Rapor ve Analiz Merkezi" icon={BarChart3} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
             <NavItem href="/panel/admin/bolgeler" label="Coğrafi Yapı" icon={MapPin} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/admin/loglar"   label="Denetim Logları" icon={ClipboardList} />
           </>
         )}
@@ -351,6 +353,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/admin/hedefler"     label="Muradımız"  icon={Target} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Paneli" icon={UserCircle} />
             <NavItem href="/panel/admin/bolgeler"     label="Coğrafi Yapı"    icon={MapPin} />
+            <NavItem href="/panel/istisare"           label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/admin/loglar"       label="Denetim Logları" icon={ClipboardList} />
           </>
         )}
@@ -366,17 +369,18 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/admin/hedefler"     label="Muradımız"  icon={Target} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Paneli" icon={UserCircle} />
             <NavItem href="/panel/admin/bolgeler"     label="Coğrafi Yapı"    icon={MapPin} />
+            <NavItem href="/panel/istisare"           label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/admin/loglar"       label="Denetim Logları" icon={ClipboardList} />
           </>
         )}
 
-        {/* ── TEKNİK ── (İstişare/Talep Merkezi bir sonraki fazda eklenecek) */}
+        {/* ── TEKNİK ── (ana panel: İstişare Merkezi) */}
         {isTeknik && (
           <>
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
               Teknik
             </p>
-            <NavItem href="/panel/admin" label="Ana Sayfa" icon={LayoutDashboard} exact />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
           </>
         )}
 
@@ -392,6 +396,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/bolge/hedefler" label="Muradımız Dağıtımı" icon={Target} />
             <NavItem href="/panel/bolge/performans" label="Performans Paneli" icon={TrendingUp} />
             <NavItem href="/panel/bolge/ek-kayit-basvurulari" label="Ev / Yurt Başvuruları" icon={Building2} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
           </>
@@ -405,6 +410,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/il/lise-faaliyet" label="Faaliyet Yönetimi" icon={ClipboardList} />
             <NavItem href="/panel/il/hedefler" label="Muradımız" icon={Target} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
           </>
@@ -418,6 +424,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/il/universite-faaliyet" label="Faaliyet Yönetimi" icon={ClipboardList} />
             <NavItem href="/panel/il/hedefler" label="Muradımız" icon={Target} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
           </>
@@ -431,6 +438,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/il" label="Ana Sayfa" icon={LayoutDashboard} exact />
             {ilGroups.map(g => <NavGroupComp key={g.label} group={g} />)}
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
           </>
