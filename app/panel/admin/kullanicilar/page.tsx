@@ -934,8 +934,8 @@ export default function KullanicilarPage() {
                     <label className="block text-xs font-bold text-secondary mb-1">Atanacak Rol</label>
                     <select value={onayForm.role}
                       onChange={e => setOnayForm({ ...onayForm, role: e.target.value as Role })} className={inputCls}>
-                      <option value="IL_SORUMLUSU">İl Eğitimcisi</option>
-                      <option value="BOLGE_SORUMLUSU">Bölge Eğitimcisi</option>
+                      <option value="IL_SORUMLUSU">{rolEtiket("IL_SORUMLUSU", showOnayModal.sistem)}</option>
+                      <option value="BOLGE_SORUMLUSU">{rolEtiket("BOLGE_SORUMLUSU", showOnayModal.sistem)}</option>
                     </select>
                   </div>
                   <div>
