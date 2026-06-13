@@ -218,17 +218,24 @@ function AnaRolHucre({ k, canRol, onChange }: { k: Kullanici; canRol: boolean; o
 // Yan rol açılır menüsü (9 yan rol, çoklu) — yalnızca admin
 function YanRolMenu({ k, onToggle }: { k: Kullanici; onToggle: (yanRol: string, deger: boolean) => void }) {
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const [pos, setPos] = useState<{ top?: number; bottom?: number; left: number } | null>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const secili = new Set(k.yanRolKods ?? []);
 
-  // Portal + fixed konum: tablo overflow'u kırpmaz, açılır kutu her zaman üstte kalır
+  // Portal + fixed konum: tablo overflow'u kırpmaz; alta yer yoksa yukarı açılır
   function ac() {
     const r = btnRef.current?.getBoundingClientRect();
     if (r) {
-      const w = 288; // w-72
+      const w = 288;      // w-72
+      const menuMax = 340; // max-h-80 + iç boşluk
       const left = Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8));
-      setPos({ top: r.bottom + 4, left });
+      const altBosluk = window.innerHeight - r.bottom;
+      if (altBosluk < menuMax && r.top > altBosluk) {
+        // yukarı aç: kutunun altını butonun üstüne sabitle
+        setPos({ bottom: window.innerHeight - r.top + 4, left });
+      } else {
+        setPos({ top: r.bottom + 4, left });
+      }
     }
     setOpen(true);
   }
@@ -244,7 +251,7 @@ function YanRolMenu({ k, onToggle }: { k: Kullanici; onToggle: (yanRol: string, 
           <div className="fixed inset-0 z-[100]" onClick={() => setOpen(false)} />
           <div
             className="fixed z-[101] w-72 rounded-xl border shadow-xl p-2 bg-card max-h-80 overflow-y-auto text-left"
-            style={{ top: pos.top, left: pos.left, borderColor: "var(--border)" }}
+            style={{ ...(pos.top != null ? { top: pos.top } : { bottom: pos.bottom }), left: pos.left, borderColor: "var(--border)" }}
           >
             {YAN_ROLLER.map(y => (
               <label key={y.kod} className="flex items-start gap-2 px-2 py-2 rounded-lg hover:bg-th cursor-pointer text-left">
