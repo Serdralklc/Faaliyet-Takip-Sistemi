@@ -102,10 +102,22 @@ export function normalizeAd(s: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
-// Kısa/halk adı → kod (org birimi farklı yazabilir)
+// Kısa/halk adı + yaygın yazım hataları → kod (org birimi farklı yazabilir)
 const ALIAS: Record<string, string> = {
   afyon: "AFY", maras: "KAH", kmaras: "KAH", urfa: "SAN", antep: "GAZ", icel: "MER",
+  sirank: "SIR", // "ŞIRANK" yazım hatası → Şırnak
 };
+
+// İstanbul ilçeleri çıplak ad olarak girilmiş (16–20. bölgeler) → hepsi İstanbul (IST)
+const ISTANBUL_ILCE = new Set([
+  "adalar", "arnavutkoy", "atasehir", "avcilar", "bagcilar", "bahcelievler", "bakirkoy",
+  "basaksehir", "bayrampasa", "besiktas", "beykoz", "beylikduzu", "beyoglu", "buyukcekmece",
+  "catalca", "cekmekoy", "esenler", "esenyurt", "eyup", "eyupsultan", "fatih", "gaziosmanpasa",
+  "gungoren", "kadikoy", "kagithane", "kartal", "kucukcekmece", "maltepe", "pendik", "sancaktepe",
+  "sariyer", "silivri", "sultanbeyli", "sultangazi", "sile", "sisli", "tuzla", "umraniye", "uskudar", "zeytinburnu",
+  // resmî olmayan/alt birim adları (Excel'de geçenler)
+  "halkali", "dudullu", "cengelkoy", "kurtkoy", "selimpasa", "bahcesehir",
+]);
 
 // normalize edilmiş il adı → kod (uzun adı önce dene: "kahramanmaras" > "maras")
 const NORM_ADLAR = Object.entries(IL_BILGI)
@@ -120,6 +132,7 @@ export function ilAdindanKod(ad: string): string | null {
   const n = normalizeAd(ad);
   if (!n) return null;
   if (ALIAS[n]) return ALIAS[n];
+  if (ISTANBUL_ILCE.has(n)) return "IST";
   const tam = NORM_ADLAR.find(x => x.norm === n);
   if (tam) return tam.kod;
   // org adı bir il adıyla başlıyor mu (en uzun eşleşme önce)
