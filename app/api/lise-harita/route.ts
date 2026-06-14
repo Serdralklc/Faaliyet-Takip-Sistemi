@@ -24,13 +24,23 @@ export async function GET(req: NextRequest) {
   if (!session?.user || !YONETICI_ROLLERI.includes(session.user.role as Role)) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
-  const yilRaw = req.nextUrl.searchParams.get("yil");
+  const sp = req.nextUrl.searchParams;
+  const yilRaw = sp.get("yil");
   const yil = yilRaw ? parseInt(yilRaw, 10) : undefined;
+  const donem = sp.get("donem");
+  const kategori = sp.get("kategori");
+  const DONEMLER = ["DONEM_1", "DONEM_2", "YAZ_DONEMI"];
+  const KATEGORILER = ["ILIM_SOHBET", "SOSYAL", "SOSYAL_SORUMLULUK", "MUHABBET", "NAMAZ", "KAFILE", "DIGER"];
+
+  const where: Record<string, unknown> = {};
+  if (yil && !isNaN(yil)) where.yil = yil;
+  if (donem && DONEMLER.includes(donem)) where.donem = donem;
+  if (kategori && KATEGORILER.includes(kategori)) where.kategori = kategori;
 
   const [bolgeler, faal, yillarRaw] = await Promise.all([
     prisma.bolge.findMany({ select: { no: true, ad: true, iller: { select: { id: true, ad: true } } }, orderBy: { no: "asc" } }),
     prisma.liseFaaliyet.findMany({
-      where: yil && !isNaN(yil) ? { yil } : {},
+      where,
       select: { ilId: true, kategori: true, katilimci: true, ilkKezKatilan: true, yeniIntisap: true },
     }),
     prisma.liseFaaliyet.findMany({ select: { yil: true }, distinct: ["yil"], orderBy: { yil: "desc" } }),

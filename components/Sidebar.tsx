@@ -6,7 +6,7 @@ import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import type { Role } from "@/lib/constants";
-import { gorevEtiket, icerikYanRol, formYonetimiYanRol, istisareYanRol, barinmaGorunumYanRol, ilFaaliyetTakipYanRol, liseHaritaYanRol } from "@/lib/constants";
+import { gorevEtiket, icerikYanRol, formYonetimiYanRol, istisareYanRol, barinmaGorunumYanRol, ilFaaliyetTakipYanRol } from "@/lib/constants";
 import {
   LayoutDashboard, Users, MapPin, FileText, ClipboardList,
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
@@ -156,7 +156,6 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
   const canIcerikTabs = icerikYanRol(yan);
   const canBarinma    = isAdmin || barinmaGorunumYanRol(yan);
   const canIlFaaliyet = isAdmin || ilFaaliyetTakipYanRol(yan);
-  const canLiseHarita = isAdmin || isLiseGenclik || liseHaritaYanRol(yan);
 
   const dashHref = isTeknik ? "/panel/istisare"
     : isManagement ? "/panel/admin"
@@ -314,7 +313,6 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/admin/form-yonetimi" label="Form Yönetimi" icon={FileText} />
             <NavItem href="/panel/admin/bildirimler-merkezi" label="Bildirim Merkezi" icon={Bell} />
             <NavItem href="/panel/admin/analiz" label="Rapor ve Analiz Merkezi" icon={BarChart3} />
-            <NavItem href="/panel/admin/lise-harita" label="Türkiye Haritası (Lise)" icon={MapPin} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
             <NavItem href="/panel/admin/bolgeler" label="Eksik Veri Takip" icon={MapPin} />
             <NavItem href="/panel/admin/dokumanlar" label="Doküman Merkezi" icon={FolderOpen} />
@@ -336,7 +334,6 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             {canBarinma && <NavItem href="/panel/admin/barinma-gorunum" label="Barınma Yönetimi" icon={Home} />}
             <NavGroupComp group={gonulluGroup} />
             <NavItem href="/panel/admin/analiz" label="Rapor ve Analiz Merkezi" icon={BarChart3} />
-            {canLiseHarita && <NavItem href="/panel/admin/lise-harita" label="Türkiye Haritası (Lise)" icon={MapPin} />}
             <NavItem href="/panel/admin/bolgeler" label="Eksik Veri Takip" icon={MapPin} />
             <NavItem href="/panel/admin/dokumanlar" label="Doküman Merkezi" icon={FolderOpen} />
             {/* Yan rol kapıları */}
@@ -379,7 +376,6 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/admin/raporlar?sistem=LISE" label="Faaliyet Takip Sistemi" icon={ClipboardList} />
             {canIlFaaliyet && <NavItem href="/panel/admin/il-faaliyet" label="İl Faaliyet Takip" icon={ClipboardList} />}
             <NavItem href="/panel/admin/analiz" label="Rapor ve Analiz Merkezi" icon={BarChart3} />
-            <NavItem href="/panel/admin/lise-harita" label="Türkiye Haritası" icon={MapPin} />
             <NavItem href="/panel/admin/bolgeler" label="Eksik Veri Takip" icon={MapPin} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
             <NavItem href="/panel/admin/bildirimler-merkezi" label="Bildirim Merkezi" icon={Bell} />
