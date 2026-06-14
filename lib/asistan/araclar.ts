@@ -1,6 +1,8 @@
 import "server-only";
 import {
   bolgeleriListele,
+  illeriListele,
+  faaliyetGirenIller,
   bolgeOzeti,
   ilOzeti,
   bolgeDonemKiyas,
@@ -20,6 +22,8 @@ import type { AsistanSistem } from "./kapsam";
 // Her aracın hangi sisteme ait olduğu ("ORTAK" = her kapsamda görünür)
 const ARAC_SISTEM: Record<string, "ORTAK" | AsistanSistem> = {
   bolgeleriListele: "ORTAK",
+  illeriListele: "ORTAK",
+  faaliyetGirenIller: "ORTAK",
   bolgeOzeti: "EGITIMCI",
   ilOzeti: "EGITIMCI",
   bolgeDonemKiyas: "EGITIMCI",
@@ -46,6 +50,24 @@ const TUM_DECLARATIONS = [
     name: "bolgeleriListele",
     description: "Tüm bölgelerin numarasını, adını ve il sayısını döner. Bölge adı verilip numarası bilinmiyorsa veya 'hangi bölgeler var' sorulduğunda kullan.",
     parameters: { type: "object", properties: {} },
+  },
+  {
+    name: "illeriListele",
+    description: "Sistemde kayıtlı illerin listesini (ve hangi bölgede olduklarını) döner. 'hangi iller var', 'kaç il var' veya bir il/şehir adının sistemde olup olmadığını DOĞRULAMAK için kullan. bolgeNo verilirse yalnız o bölgenin illeri.",
+    parameters: { type: "object", properties: { bolgeNo: { type: "integer", description: "Bölge numarası (opsiyonel). Belirtilmezse tüm Türkiye." } } },
+  },
+  {
+    name: "faaliyetGirenIller",
+    description: "Hangi illerin faaliyet/veri GİRDİĞİNİ ve hangilerinin EKSİK olduğunu sayılarla listeler (giren iller + veri girmeyen iller). 'hangi iller faaliyet girmiş', 'hangi iller veri girmedi', 'eksik iller', 'kaç il girdi', 'en çok faaliyet giren il' gibi sorularda kullan.",
+    parameters: {
+      type: "object",
+      properties: {
+        sistem: { type: "string", enum: ["EGITIMCI", "UNIVERSITE", "LISE"], description: "Hangi sistem. Belirtilmezse Eğitimci Kadrosu." },
+        bolgeNo: { type: "integer", description: "Bölge numarası (opsiyonel). Belirtilmezse Türkiye geneli." },
+        yil: { type: "integer", description: "Yıl. Belirtilmezse en güncel." },
+        donem: { type: "string", enum: ["DONEM_1", "DONEM_2", "YAZ_DONEMI"], description: "Dönem. Belirtilmezse tüm dönemler." },
+      },
+    },
   },
   {
     name: "bolgeOzeti",
@@ -147,6 +169,15 @@ export async function aracCalistir(
     switch (isim) {
       case "bolgeleriListele":
         return await bolgeleriListele();
+      case "illeriListele":
+        return await illeriListele(args as any);
+      case "faaliyetGirenIller": {
+        // sistem param'ı kullanıcının kapsamına göre guard'lanır
+        const istenen = args.sistem as AsistanSistem | undefined;
+        const hedef: AsistanSistem = istenen ?? (sistemler.includes("EGITIMCI") ? "EGITIMCI" : sistemler[0]);
+        if (!sistemler.includes(hedef)) return { hata: "Bu sisteme erişim yetkiniz yok." };
+        return await faaliyetGirenIller({ ...(args as any), sistem: hedef });
+      }
       case "bolgeOzeti":
         return await bolgeOzeti(args as any);
       case "ilOzeti":

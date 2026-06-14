@@ -370,6 +370,97 @@ export async function barinmaOgrencileri(args: { bolgeNo: number; tip?: string |
   };
 }
 
+// ── 5b) İl listesi (tüm iller veya bir bölgenin illeri) ────────────
+export async function illeriListele(args: { bolgeNo?: number }) {
+  const iller = await prisma.il.findMany({
+    where: args.bolgeNo ? { bolge: { no: args.bolgeNo } } : {},
+    orderBy: [{ bolgeId: "asc" }, { ad: "asc" }],
+    include: { bolge: { select: { no: true, ad: true } } },
+  });
+  if (iller.length === 0) {
+    return { hata: args.bolgeNo ? `${args.bolgeNo}. bölge bulunamadı veya iline atanmamış.` : "Sistemde kayıtlı il bulunamadı." };
+  }
+  return {
+    kapsam: args.bolgeNo ? `${args.bolgeNo}. Bölge` : "Türkiye geneli",
+    ilSayisi: iller.length,
+    iller: iller.map((il) => ({ il: il.ad, bolge: il.bolge.no })),
+  };
+}
+
+// ── 5c) Faaliyet/veri giren iller — "hangi iller girmiş / hangileri eksik" ──
+function sistemNormalize(s?: string | null): "EGITIMCI" | "UNIVERSITE" | "LISE" {
+  const t = (s ?? "EGITIMCI").toString().trim().toUpperCase().replace(/Ü/g, "U").replace(/İ/g, "I");
+  if (t.includes("LISE")) return "LISE";
+  if (t.includes("UNI")) return "UNIVERSITE";
+  return "EGITIMCI";
+}
+
+export async function faaliyetGirenIller(args: { sistem?: string; bolgeNo?: number; yil?: number; donem?: string | null }) {
+  const sistem = sistemNormalize(args.sistem);
+  const donem = donemNormalize(args.donem);
+
+  const iller = await prisma.il.findMany({
+    where: args.bolgeNo ? { bolge: { no: args.bolgeNo } } : {},
+    orderBy: [{ bolgeId: "asc" }, { ad: "asc" }],
+    include: { bolge: { select: { no: true } } },
+  });
+  if (iller.length === 0) {
+    return { hata: args.bolgeNo ? `${args.bolgeNo}. bölge bulunamadı veya iline atanmamış.` : "Sistemde kayıtlı il bulunamadı." };
+  }
+  const ilIds = iller.map((i) => i.id);
+
+  // Yıl: ilgili sistemin en güncel verisi
+  let yil = args.yil;
+  let sayim: Record<string, number> = {};
+
+  if (sistem === "EGITIMCI") {
+    if (!yil) yil = await varsayilanYil();
+    const g = await prisma.activity.groupBy({
+      by: ["ilId"],
+      where: { yil, ...(donem ? { donem } : {}), ilId: { in: ilIds } },
+      _count: { _all: true },
+    });
+    sayim = Object.fromEntries(g.map((x) => [x.ilId, x._count._all]));
+  } else {
+    const model: any = sistem === "LISE" ? prisma.liseFaaliyet : prisma.universiteFaaliyet;
+    if (!yil) {
+      const son = await model.findFirst({ where: { ilId: { in: ilIds } }, orderBy: { yil: "desc" }, select: { yil: true } });
+      yil = son?.yil ?? new Date().getFullYear();
+    }
+    const g = await model.groupBy({
+      by: ["ilId"],
+      where: { yil, ...(donem ? { donem } : {}), ilId: { in: ilIds } },
+      _count: { _all: true },
+    });
+    sayim = Object.fromEntries(g.map((x: any) => [x.ilId, x._count._all]));
+  }
+
+  const girenler: { il: string; bolge: number; faaliyetSayisi: number }[] = [];
+  const eksikler: { il: string; bolge: number }[] = [];
+  for (const il of iller) {
+    const c = sayim[il.id] ?? 0;
+    if (c > 0) girenler.push({ il: il.ad, bolge: il.bolge.no, faaliyetSayisi: c });
+    else eksikler.push({ il: il.ad, bolge: il.bolge.no });
+  }
+  girenler.sort((a, b) => b.faaliyetSayisi - a.faaliyetSayisi);
+
+  const sistemAd = sistem === "EGITIMCI" ? "Eğitimci Kadrosu" : sistem === "LISE" ? "Lise Gençlik" : "Üniversite Gençlik";
+  return {
+    sistem: sistemAd,
+    kapsam: args.bolgeNo ? `${args.bolgeNo}. Bölge` : "Türkiye geneli",
+    yil,
+    donem: donem ? DONEM_LABEL[donem] : "Tüm dönemler",
+    toplamIl: iller.length,
+    faaliyetGirenIlSayisi: girenler.length,
+    veriGirmeyenIlSayisi: eksikler.length,
+    faaliyetGirenIller: girenler,
+    veriGirmeyenIller: eksikler,
+    not: girenler.length === 0
+      ? `Bu kapsam/dönem için ${sistemAd} sistemine hiçbir il veri girmemiş.`
+      : `${sistemAd}: ${girenler.length}/${iller.length} il veri girmiş${donem ? "" : " (tüm dönemler)"}.`,
+  };
+}
+
 // ── 6) Lise Gençlik sistemi özeti (faaliyet-bazlı) ─────────────────
 function genclikIlFiltresi(bolgeNo?: number, ilAdi?: string) {
   if (bolgeNo) return { bolge: { no: bolgeNo } };
