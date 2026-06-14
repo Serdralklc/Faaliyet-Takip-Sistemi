@@ -51,8 +51,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (!izinli) return NextResponse.json({ error: "Bu dosyaya erişim yetkiniz yok." }, { status: 403 });
 
-  // Blob: doğrudan yönlendir
+  const onizleme = req.nextUrl.searchParams.get("onizleme") === "1";
+  const onizlenebilir = dokuman.mimeTipi === "application/pdf" || dokuman.mimeTipi.startsWith("image/");
+
+  // Blob: normalde doğrudan yönlendir. Önizlemede (pdf/görsel) inline disposition
+  // garantisi için içeriği sunucudan akıtırız (blob varsayılan disposition'ı belirsiz).
   if (!dokuman.storageKey.startsWith("local:")) {
+    if (onizleme && onizlenebilir) {
+      const upstream = await fetch(dokuman.url);
+      if (!upstream.ok) return NextResponse.json({ error: "Dosya getirilemedi." }, { status: 502 });
+      return new NextResponse(new Uint8Array(await upstream.arrayBuffer()), {
+        headers: {
+          "Content-Type": dokuman.mimeTipi,
+          "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(dokuman.ad)}`,
+          "Cache-Control": "private, max-age=300",
+        },
+      });
+    }
     return NextResponse.redirect(dokuman.url);
   }
 
@@ -60,11 +75,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const buffer = await readLocalFile(dokuman.storageKey);
   if (!buffer) return NextResponse.json({ error: "Dosya depolamada bulunamadı." }, { status: 404 });
 
+  // Önizlenebilir tiplerde (pdf/görsel) inline; diğerlerinde indirme
+  const disposition = onizleme && onizlenebilir ? "inline" : "attachment";
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": dokuman.mimeTipi,
       "Content-Length": String(dokuman.boyut),
-      "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(dokuman.ad)}`,
+      "Content-Disposition": `${disposition}; filename*=UTF-8''${encodeURIComponent(dokuman.ad)}`,
     },
   });
 }

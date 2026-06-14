@@ -9,9 +9,10 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Badge } from "@/components/ui/Badge";
+import { Modal } from "@/components/ui/Modal";
 import { formatDateTR } from "@/lib/format";
 import {
-  Folder, FolderOpen, ChevronRight, Download, Share2, File as FileIcon,
+  Folder, FolderOpen, ChevronRight, Download, Share2, Eye, File as FileIcon,
   FileText, FileSpreadsheet, FileImage, FileArchive, FileVideo, FileAudio,
 } from "lucide-react";
 
@@ -53,8 +54,15 @@ function formatBoyut(boyut: number): string {
   return `${Math.max(1, Math.round(boyut / 1024))} KB`;
 }
 
+// Site içi önizleme — PDF + görseller (Office dosyaları tarayıcıda gömülemez → indirilir)
+const GORSEL_UZANTI = ["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp"];
+const temizUzanti = (u: string) => u.toLowerCase().replace(/^\./, "");
+const gorselMi = (uzanti: string) => GORSEL_UZANTI.includes(temizUzanti(uzanti));
+const onizlenebilirMi = (uzanti: string) => temizUzanti(uzanti) === "pdf" || gorselMi(uzanti);
+
 export function DokumanViewerClient() {
   const [klasorId, setKlasorId] = useState<string | null>(null);
+  const [onizlenen, setOnizlenen] = useState<Dosya | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["dokumanlar", klasorId],
@@ -210,6 +218,15 @@ export function DokumanViewerClient() {
                       <Share2 size={13} strokeWidth={2.5} />
                       Paylaş
                     </button>
+                    {onizlenebilirMi(d.uzanti) && (
+                      <button
+                        onClick={() => setOnizlenen(d)}
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12.5px] rounded-lg font-semibold transition border border-border text-secondary hover:bg-[var(--bg-active)] flex-shrink-0"
+                      >
+                        <Eye size={13} strokeWidth={2.5} />
+                        Önizle
+                      </button>
+                    )}
                     <a
                       href={d.url}
                       download
@@ -225,6 +242,15 @@ export function DokumanViewerClient() {
           )}
         </>
       )}
+
+      {/* Önizleme modalı (PDF / görsel) — indirmeden site içinde incele */}
+      <Modal open={!!onizlenen} onClose={() => setOnizlenen(null)} title={onizlenen?.ad ?? "Önizleme"} maxWidth={900}>
+        {onizlenen && (
+          gorselMi(onizlenen.uzanti)
+            ? <img src={`/api/dosya/${onizlenen.id}?onizleme=1`} alt={onizlenen.ad} className="max-w-full max-h-[75vh] mx-auto rounded-lg" />
+            : <iframe src={`/api/dosya/${onizlenen.id}?onizleme=1`} title={onizlenen.ad} className="w-full rounded-lg" style={{ height: "75vh", border: "none" }} />
+        )}
+      </Modal>
     </div>
   );
 }

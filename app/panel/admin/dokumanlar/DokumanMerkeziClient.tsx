@@ -14,6 +14,7 @@ import {
   Copy,
   CornerLeftUp,
   Download,
+  Eye,
   File as FileIcon,
   FileSpreadsheet,
   FileText,
@@ -72,6 +73,12 @@ interface DokumanlarYanit {
   breadcrumb: { id: string; ad: string }[];
   yonetici: boolean;
 }
+
+// Site içi önizleme — PDF + görseller (Office dosyaları tarayıcıda gömülemez → indirilir)
+const GORSEL_UZANTI = ["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp"];
+const temizUzanti = (u: string) => u.toLowerCase().replace(/^\./, "");
+const gorselMi = (uzanti: string) => GORSEL_UZANTI.includes(temizUzanti(uzanti));
+const onizlenebilirMi = (uzanti: string) => temizUzanti(uzanti) === "pdf" || gorselMi(uzanti);
 
 type Oge = ({ tur: "klasor" } & Klasor) | ({ tur: "dosya" } & Dosya);
 
@@ -536,6 +543,7 @@ export function DokumanMerkeziClient() {
   const [klasorId, setKlasorId] = useState<string | null>(null);
   const [menuAcikId, setMenuAcikId] = useState<string | null>(null);
   const [islemde, setIslemde] = useState(false);
+  const [onizlenenDosya, setOnizlenenDosya] = useState<Dosya | null>(null);
 
   // Modal durumları
   const [yeniKlasorAcik, setYeniKlasorAcik] = useState(false);
@@ -921,6 +929,16 @@ export function DokumanMerkeziClient() {
                       <div className="hidden sm:block shrink-0">
                         <ErisimRozetleri oge={d} />
                       </div>
+                      {onizlenebilirMi(d.uzanti) && (
+                        <button
+                          onClick={() => setOnizlenenDosya(d)}
+                          title="Önizle"
+                          className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[12.5px] rounded-lg font-semibold transition border border-border text-secondary hover:bg-subtle shrink-0"
+                        >
+                          <Eye size={13} strokeWidth={2.5} />
+                          Önizle
+                        </button>
+                      )}
                       <OgeMenu
                         oge={{ tur: "dosya", ...d }}
                         acik={menuAcikId === d.id}
@@ -936,6 +954,15 @@ export function DokumanMerkeziClient() {
           )}
         </>
       )}
+
+      {/* ── Önizleme modalı (PDF / görsel) — indirmeden site içinde incele ── */}
+      <Modal open={!!onizlenenDosya} onClose={() => setOnizlenenDosya(null)} title={onizlenenDosya?.ad ?? "Önizleme"} maxWidth={900}>
+        {onizlenenDosya && (
+          gorselMi(onizlenenDosya.uzanti)
+            ? <img src={`/api/dosya/${onizlenenDosya.id}?onizleme=1`} alt={onizlenenDosya.ad} className="max-w-full max-h-[75vh] mx-auto rounded-lg" />
+            : <iframe src={`/api/dosya/${onizlenenDosya.id}?onizleme=1`} title={onizlenenDosya.ad} className="w-full rounded-lg" style={{ height: "75vh", border: "none" }} />
+        )}
+      </Modal>
 
       {/* ── Yeni Klasör modalı ── */}
       <Modal
