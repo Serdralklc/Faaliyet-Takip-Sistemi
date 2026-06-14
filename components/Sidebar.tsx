@@ -386,6 +386,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/bolge" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
             <NavItem href="/panel/bolge/iller" label="Eksik Veri Girişi – İller" icon={MapPin} />
+            <NavItem href="/panel/bolge/barinma" label="Barınma Yönetimi" icon={Home} />
             <NavItem href="/panel/bolge/ek-kayit-basvurulari" label="Ev / Yurt Başvuruları" icon={Building2} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />
