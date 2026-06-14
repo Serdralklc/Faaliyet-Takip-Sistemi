@@ -1,6 +1,7 @@
 import "server-only";
 import { randomBytes } from "crypto";
 import { mkdir, writeFile, unlink, readFile } from "fs/promises";
+import { existsSync } from "fs";
 import path from "path";
 
 /**
@@ -14,7 +15,17 @@ import path from "path";
  * Sağlayıcı değiştirmek (ör. Cloudflare R2) yalnızca bu dosyayı değiştirmek demektir.
  */
 
-const LOCAL_DIR = path.join(process.cwd(), ".uploads");
+/**
+ * Yerel yükleme klasörü. Dev sunucu bazen üst dizinden (npm --prefix faaliyet-takip)
+ * başlatılır → process.cwd() üst dizin olur ama dosyalar faaliyet-takip/.uploads
+ * altındadır. cwd'ye göre doğru klasörü seçeriz (Vercel'de düz .uploads).
+ */
+function uploadsDir(): string {
+  const direct = path.join(process.cwd(), ".uploads");
+  const nested = path.join(process.cwd(), "faaliyet-takip", ".uploads");
+  if (existsSync(nested) && !existsSync(direct)) return nested;
+  return direct;
+}
 
 export const isBlobConfigured = !!process.env.BLOB_READ_WRITE_TOKEN;
 
@@ -50,8 +61,9 @@ export async function saveFile(
   }
 
   const localName = key.replace("dokumanlar/", "");
-  await mkdir(LOCAL_DIR, { recursive: true });
-  await writeFile(path.join(LOCAL_DIR, localName), buffer);
+  const dir = uploadsDir();
+  await mkdir(dir, { recursive: true });
+  await writeFile(path.join(dir, localName), buffer);
   // URL, kayıt oluşturulduktan sonra /api/dosya/{dokumanId} olarak set edilir
   return { url: "", storageKey: `local:${localName}` };
 }
@@ -59,7 +71,7 @@ export async function saveFile(
 export async function deleteFile(storageKey: string): Promise<void> {
   try {
     if (storageKey.startsWith("local:")) {
-      await unlink(path.join(LOCAL_DIR, storageKey.slice(6)));
+      await unlink(path.join(uploadsDir(), storageKey.slice(6)));
     } else {
       const { del } = await import("@vercel/blob");
       await del(storageKey);
@@ -74,7 +86,7 @@ export async function deleteFile(storageKey: string): Promise<void> {
 export async function readLocalFile(storageKey: string): Promise<Buffer | null> {
   if (!storageKey.startsWith("local:")) return null;
   try {
-    return await readFile(path.join(LOCAL_DIR, storageKey.slice(6)));
+    return await readFile(path.join(uploadsDir(), storageKey.slice(6)));
   } catch {
     return null;
   }
