@@ -121,6 +121,13 @@ export function TurkiyeHarita() {
     for (const [no, s] of bolgeKodlari) for (const k of s) if (!(k in m)) m[k] = no;
     return m;
   }, [bolgeKodlari]);
+  // Bölge silüeti: her bölgenin illerinin birleşik path'i (kalın bölge sınır çizgisi için)
+  const bolgeYollari = useMemo(() => {
+    const m = new Map<number, string>();
+    if (!paths) return m;
+    for (const kod in kodBolge) { const d = paths[kod]; if (!d) continue; const no = kodBolge[kod]; m.set(no, (m.get(no) ?? "") + " " + d); }
+    return m;
+  }, [paths, kodBolge]);
   const centroids = useMemo(() => {
     const m: Record<string, { x: number; y: number }> = {};
     if (paths) for (const k in paths) { const { xs, ys } = pathXY(paths[k]); m[k] = { x: ort(xs), y: ort(ys) }; }
@@ -245,6 +252,14 @@ export function TurkiyeHarita() {
             <p className="p-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>Harita yükleniyor…</p>
           ) : (
             <svg viewBox={viewBox} className="w-full h-auto" style={{ maxHeight: "70vh", transition: "all 0.4s ease" }} role="img" aria-label="Lise Gençlik Türkiye haritası">
+              <defs>
+                {[...bolgeYollari].map(([no, d]) => (
+                  <mask key={`m-${no}`} id={`bolgemask-${no}`} maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="800">
+                    <rect x="0" y="0" width="1024" height="800" fill="white" />
+                    <path d={d} fill="black" />
+                  </mask>
+                ))}
+              </defs>
               {Object.entries(paths).map(([kod, d]) => {
                 const g = gorunur(kod);
                 const aktif = kod === aktifKod;
@@ -256,6 +271,15 @@ export function TurkiyeHarita() {
                     onClick={() => ilSec(kod)}>
                     <title>{IL_BILGI[kod]?.ad ?? kod}: {iller[kod]?.toplam ?? 0} faaliyet</title>
                   </path>
+                );
+              })}
+              {/* ── Kalın bölge sınır çizgileri (bölgenin kendi alanı maskelenir → yalnız bölgeler-arası/kıyı sınırı görünür) ── */}
+              {[...bolgeYollari].map(([no, d]) => {
+                if (seciliBolge != null && seciliBolge !== no) return null;
+                return (
+                  <path key={`b-${no}`} d={d} fill="none" stroke="#0b1324"
+                    strokeWidth={seciliBolge != null ? 2.4 : 3.4} strokeOpacity={0.92}
+                    strokeLinejoin="round" strokeLinecap="round" mask={`url(#bolgemask-${no})`} pointerEvents="none" />
                 );
               })}
               {Object.keys(paths).map(kod => {
