@@ -10,6 +10,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
+import { SonucGorunumlu } from "@/components/ui/SonucGorunumlu";
 import { ExportButtons } from "@/components/ui/ExportButtons";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton, SkeletonTable } from "@/components/ui/Skeleton";
@@ -31,6 +32,7 @@ interface Yanit {
   userName: string;
   createdAt: string;
   cevaplar: Record<string, CevapDeger>;
+  konum: { bolgeNo: number | null; bolgeAd: string; ilAd: string };
 }
 
 type Sistem = "EGITIMCI" | "UNIVERSITE" | "LISE";
@@ -102,6 +104,17 @@ export function SonuclarClient({ formId }: { formId: string }) {
       render: y => <span className="font-semibold text-heading text-sm">{y.userName}</span>,
     },
     {
+      key: "konum",
+      header: "Bölge / İl",
+      mobile: true,
+      sortValue: y => `${y.konum.bolgeNo ?? 99} ${y.konum.ilAd}`,
+      render: y => (
+        <span className="text-xs text-muted whitespace-nowrap">
+          {y.konum.bolgeNo ? `${y.konum.bolgeNo}. Bölge` : "—"}{y.konum.ilAd !== "—" ? ` · ${y.konum.ilAd}` : ""}
+        </span>
+      ),
+    },
+    {
       key: "createdAt",
       header: "Tarih",
       mobile: true,
@@ -142,12 +155,16 @@ export function SonuclarClient({ formId }: { formId: string }) {
       fileName: `form-sonuclari-${formId}`,
       columns: [
         { header: "Yanıtlayan", key: "userName" },
+        { header: "Bölge", key: "bolge" },
+        { header: "İl", key: "il" },
         { header: "Tarih", key: "createdAt" },
         ...gosterilenSorular.map(s => ({ header: s.etiket, key: s.id })),
       ],
       rows: yanitlar.map(y => {
         const row: Record<string, string | number | null | undefined> = {
           userName: y.userName,
+          bolge: y.konum.bolgeNo ? `${y.konum.bolgeNo}. Bölge` : "—",
+          il: y.konum.ilAd,
           createdAt: tarihTR(y.createdAt),
         };
         for (const s of gosterilenSorular) row[s.id] = cevapToText(y.cevaplar?.[s.id]);
@@ -281,13 +298,13 @@ export function SonuclarClient({ formId }: { formId: string }) {
       </div>
 
       {sekme === "yanitlayan" ? (
-        <DataTable
-          id={`form-sonuc-${formId}`}
-          data={yanitlar}
+        <SonucGorunumlu
+          idBase={`form-sonuc-${formId}`}
+          rows={yanitlar}
           columns={columns}
           rowKey={y => y.id}
-          searchText={y => `${y.userName} ${gosterilenSorular.map(s => cevapToText(y.cevaplar?.[s.id])).join(" ")}`}
-          searchPlaceholder="Yanıtlayan veya cevap ara..."
+          searchText={y => `${y.userName} ${y.konum.ilAd} ${gosterilenSorular.map(s => cevapToText(y.cevaplar?.[s.id])).join(" ")}`}
+          searchPlaceholder="Yanıtlayan, il veya cevap ara..."
           emptyText="Bu forma henüz yanıt verilmemiş."
         />
       ) : hedefToplam === 0 ? (

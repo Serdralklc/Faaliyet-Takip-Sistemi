@@ -5,7 +5,8 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
+import { type DataTableColumn } from "@/components/ui/DataTable";
+import { SonucGorunumlu } from "@/components/ui/SonucGorunumlu";
 import { ExportButtons } from "@/components/ui/ExportButtons";
 import { Skeleton, SkeletonTable } from "@/components/ui/Skeleton";
 import type { ExportSpec } from "@/lib/export/corporate";
@@ -102,9 +103,9 @@ export function VeriTabloSonuclarClient({ tabloId }: { tabloId: string }) {
         <h1>{data.baslik}</h1>
         <ExportButtons getSpec={getSpec} />
       </div>
-      <DataTable
-        id={`veri-tablo-sonuc-${tabloId}`}
-        data={kayitlar}
+      <SonucGorunumlu
+        idBase={`veri-tablo-sonuc-${tabloId}`}
+        rows={kayitlar}
         columns={columns}
         rowKey={k => k.id}
         searchText={k => `${k.userName} ${k.konum.ilAd} ${sutunlar.map(s => hucreText(k.degerler?.[s.id])).join(" ")}`}

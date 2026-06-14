@@ -49,13 +49,28 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
               where: { status: "AKTIF" },
               take: 1,
               include: {
-                il: { select: { ad: true } },
-                bolge: { select: { ad: true } },
+                il: { select: { ad: true, bolge: { select: { no: true, ad: true } } } },
+                bolge: { select: { no: true, ad: true } },
               },
             },
           },
         })
       : [];
+
+  // ── Yanıt verenlerin konumu (bölge/il) — sonuç gruplama için ──
+  const konumMap = new Map<string, { bolgeNo: number | null; bolgeAd: string; ilAd: string }>();
+  for (const u of hedefKitle) {
+    const a = u.assignments[0];
+    const bolge = a?.il?.bolge ?? a?.bolge ?? null;
+    konumMap.set(u.id, { bolgeNo: bolge?.no ?? null, bolgeAd: bolge?.ad ?? "—", ilAd: a?.il?.ad ?? "—" });
+  }
+  const yanitlarKonumlu = form.yanitlar.map(y => ({
+    id: y.id,
+    userName: y.userName,
+    createdAt: y.createdAt,
+    cevaplar: y.cevaplar,
+    konum: konumMap.get(y.userId) ?? { bolgeNo: null, bolgeAd: "—", ilAd: "—" },
+  }));
 
   // ── Yanıtlamayanlar = hedef kitle − yanıt verenler ──
   const yanitlayanIds = new Set(form.yanitlar.map(y => y.userId));
