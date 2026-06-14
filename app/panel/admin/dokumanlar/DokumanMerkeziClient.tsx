@@ -38,6 +38,7 @@ import { Input, Select } from "@/components/ui/Input";
 import { Skeleton, SkeletonTable } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { formatDateTR } from "@/lib/format";
+import { DosyaOnizleme, onizlenebilirMi } from "@/components/DosyaOnizleme";
 
 /* ──────────────────────────── Tipler ──────────────────────────── */
 
@@ -73,12 +74,6 @@ interface DokumanlarYanit {
   breadcrumb: { id: string; ad: string }[];
   yonetici: boolean;
 }
-
-// Site içi önizleme — PDF + görseller (Office dosyaları tarayıcıda gömülemez → indirilir)
-const GORSEL_UZANTI = ["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp"];
-const temizUzanti = (u: string) => u.toLowerCase().replace(/^\./, "");
-const gorselMi = (uzanti: string) => GORSEL_UZANTI.includes(temizUzanti(uzanti));
-const onizlenebilirMi = (uzanti: string) => temizUzanti(uzanti) === "pdf" || gorselMi(uzanti);
 
 type Oge = ({ tur: "klasor" } & Klasor) | ({ tur: "dosya" } & Dosya);
 
@@ -957,11 +952,7 @@ export function DokumanMerkeziClient() {
 
       {/* ── Önizleme modalı (PDF / görsel) — indirmeden site içinde incele ── */}
       <Modal open={!!onizlenenDosya} onClose={() => setOnizlenenDosya(null)} title={onizlenenDosya?.ad ?? "Önizleme"} maxWidth={900}>
-        {onizlenenDosya && (
-          gorselMi(onizlenenDosya.uzanti)
-            ? <img src={`/api/dosya/${onizlenenDosya.id}?onizleme=1`} alt={onizlenenDosya.ad} className="max-w-full max-h-[75vh] mx-auto rounded-lg" />
-            : <iframe src={`/api/dosya/${onizlenenDosya.id}?onizleme=1`} title={onizlenenDosya.ad} className="w-full rounded-lg" style={{ height: "75vh", border: "none" }} />
-        )}
+        {onizlenenDosya && <DosyaOnizleme id={onizlenenDosya.id} uzanti={onizlenenDosya.uzanti} ad={onizlenenDosya.ad} />}
       </Modal>
 
       {/* ── Yeni Klasör modalı ── */}

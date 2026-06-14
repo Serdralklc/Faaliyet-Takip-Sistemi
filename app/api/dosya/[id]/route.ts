@@ -52,7 +52,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!izinli) return NextResponse.json({ error: "Bu dosyaya erişim yetkiniz yok." }, { status: 403 });
 
   const onizleme = req.nextUrl.searchParams.get("onizleme") === "1";
-  const onizlenebilir = dokuman.mimeTipi === "application/pdf" || dokuman.mimeTipi.startsWith("image/");
+  // Site içinde önizlenebilen tipler (istemci aynı kökten içeriği çeker → CORS yok)
+  const ONIZLEME_MIME = new Set([
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+    "application/vnd.ms-excel", // .xls
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+  ]);
+  const onizlenebilir = dokuman.mimeTipi.startsWith("image/") || ONIZLEME_MIME.has(dokuman.mimeTipi);
 
   // Blob: normalde doğrudan yönlendir. Önizlemede (pdf/görsel) inline disposition
   // garantisi için içeriği sunucudan akıtırız (blob varsayılan disposition'ı belirsiz).

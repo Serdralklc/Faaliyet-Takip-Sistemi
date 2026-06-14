@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
+import { DosyaOnizleme, onizlenebilirMi } from "@/components/DosyaOnizleme";
 import { formatDateTR } from "@/lib/format";
 import {
   Folder, FolderOpen, ChevronRight, Download, Share2, Eye, File as FileIcon,
@@ -53,12 +54,6 @@ function formatBoyut(boyut: number): string {
   if (boyut >= 1024 * 1024) return `${(boyut / (1024 * 1024)).toFixed(1)} MB`;
   return `${Math.max(1, Math.round(boyut / 1024))} KB`;
 }
-
-// Site içi önizleme — PDF + görseller (Office dosyaları tarayıcıda gömülemez → indirilir)
-const GORSEL_UZANTI = ["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp"];
-const temizUzanti = (u: string) => u.toLowerCase().replace(/^\./, "");
-const gorselMi = (uzanti: string) => GORSEL_UZANTI.includes(temizUzanti(uzanti));
-const onizlenebilirMi = (uzanti: string) => temizUzanti(uzanti) === "pdf" || gorselMi(uzanti);
 
 export function DokumanViewerClient() {
   const [klasorId, setKlasorId] = useState<string | null>(null);
@@ -245,11 +240,7 @@ export function DokumanViewerClient() {
 
       {/* Önizleme modalı (PDF / görsel) — indirmeden site içinde incele */}
       <Modal open={!!onizlenen} onClose={() => setOnizlenen(null)} title={onizlenen?.ad ?? "Önizleme"} maxWidth={900}>
-        {onizlenen && (
-          gorselMi(onizlenen.uzanti)
-            ? <img src={`/api/dosya/${onizlenen.id}?onizleme=1`} alt={onizlenen.ad} className="max-w-full max-h-[75vh] mx-auto rounded-lg" />
-            : <iframe src={`/api/dosya/${onizlenen.id}?onizleme=1`} title={onizlenen.ad} className="w-full rounded-lg" style={{ height: "75vh", border: "none" }} />
-        )}
+        {onizlenen && <DosyaOnizleme id={onizlenen.id} uzanti={onizlenen.uzanti} ad={onizlenen.ad} />}
       </Modal>
     </div>
   );
