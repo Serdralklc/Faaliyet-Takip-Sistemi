@@ -21,19 +21,20 @@ const yilSecenekleri = (() => {
   return list;
 })();
 
-export function IlFaaliyetClient({ sistemler }: { sistemler: Sistem[] }) {
+export function IlFaaliyetClient({ sistemler, sabitIller }: { sistemler: Sistem[]; sabitIller?: Il[] }) {
   const [sistem, setSistem] = useState<Sistem>(sistemler[0] ?? "UNIVERSITE");
   const [bolgeler, setBolgeler] = useState<Bolge[]>([]);
   const [acik, setAcik] = useState<Set<string>>(new Set());
-  const [seciliIl, setSeciliIl] = useState<Il | null>(null);
+  const [seciliIl, setSeciliIl] = useState<Il | null>(sabitIller && sabitIller.length === 1 ? sabitIller[0] : null);
   const [yil, setYil] = useState<number | "">("");
   const [donem, setDonem] = useState<string>("");
   const [faaliyetler, setFaaliyetler] = useState<Faaliyet[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (sabitIller) return;
     fetch("/api/bolgeler").then(r => r.json()).then(setBolgeler).catch(() => {});
-  }, []);
+  }, [sabitIller]);
 
   const katLabel = sistem === "UNIVERSITE" ? UNI_KATEGORI_LABEL : LISE_KAT_LABEL;
   const katRenk = sistem === "UNIVERSITE" ? UNI_KATEGORI_RENK : LISE_KAT_RENK;
@@ -108,8 +109,17 @@ export function IlFaaliyetClient({ sistemler }: { sistemler: Sistem[] }) {
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
         {/* Bölge / il ağacı */}
         <div className="sv-section overflow-hidden self-start">
-          <div className="sv-section-header"><h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>Bölgeler</h2></div>
+          <div className="sv-section-header"><h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>{sabitIller ? "İller" : "Bölgeler"}</h2></div>
           <div className="max-h-[70vh] overflow-y-auto p-2">
+            {sabitIller ? (
+              sabitIller.map(il => (
+                <button key={il.id} onClick={() => setSeciliIl(il)}
+                  className="w-full text-left px-2.5 py-2 rounded-lg text-[13px] hover:bg-th flex items-center gap-2"
+                  style={seciliIl?.id === il.id ? { background: renk + "1a", color: renk, fontWeight: 700 } : { color: "var(--text-secondary)" }}>
+                  <MapPin size={13} style={{ color: renk }} /> {il.ad}
+                </button>
+              ))
+            ) : (<>
             {bolgeler.map(b => (
               <div key={b.id}>
                 <button onClick={() => toggleBolge(b.id)}
@@ -133,6 +143,7 @@ export function IlFaaliyetClient({ sistemler }: { sistemler: Sistem[] }) {
               </div>
             ))}
             {!bolgeler.length && <p className="px-3 py-4 text-xs" style={{ color: "var(--text-muted)" }}>Yükleniyor…</p>}
+            </>)}
           </div>
         </div>
 

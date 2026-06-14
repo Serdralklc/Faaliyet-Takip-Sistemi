@@ -47,7 +47,9 @@ export async function GET(req: NextRequest) {
   } else if (role === "BOLGE_SORUMLUSU") {
     if (!activeBolgeId) return NextResponse.json([]);
     const iller = await prisma.il.findMany({ where: { bolgeId: activeBolgeId }, select: { id: true } });
-    where.ilId = { in: iller.map((i) => i.id) };
+    const ilIdler = iller.map((i) => i.id);
+    // Bölge sorumlusu kendi bölgesindeki belirli bir ile drill yapabilir
+    where.ilId = ilId && ilIdler.includes(ilId) ? ilId : { in: ilIdler };
   } else if (ilId) {
     where.ilId = ilId;
   }

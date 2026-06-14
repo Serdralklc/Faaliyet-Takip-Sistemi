@@ -221,6 +221,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
         { href: "/panel/il/faaliyet/lise", label: "Lise", icon: School },
         { href: "/panel/il/faaliyet/universite", label: "Üniversite", icon: GraduationCap },
         { href: "/panel/il/faaliyet/ortak", label: "Ortak Faaliyetler", icon: Users },
+        { href: "/panel/il/genclik-faaliyet", label: "Üni/Lise Gençlik (Görüntüle)", icon: GraduationCap },
       ],
     },
     {
@@ -385,6 +386,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/bolge" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
+            <NavItem href="/panel/bolge/genclik-faaliyet" label="Gençlik Faaliyetleri" icon={GraduationCap} />
             <NavItem href="/panel/bolge/iller" label="Eksik Veri Girişi – İller" icon={MapPin} />
             <NavItem href="/panel/bolge/barinma" label="Barınma Yönetimi" icon={Home} />
             <NavItem href="/panel/bolge/ek-kayit-basvurulari" label="Ev / Yurt Başvuruları" icon={Building2} />
