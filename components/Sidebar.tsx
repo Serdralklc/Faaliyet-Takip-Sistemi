@@ -378,11 +378,11 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
           </>
         )}
 
-        {/* Bölge */}
-        {isBolge && (
+        {/* Bölge — Eğitim Birimi */}
+        {isBolge && user.sistem !== "UNIVERSITE" && user.sistem !== "LISE" && (
           <>
             <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
-              Ana Menü
+              Eğitim Birimi
             </p>
             <NavItem href="/panel/bolge" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
@@ -392,6 +392,35 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/bolge/ek-kayit-basvurulari" label="Ev / Yurt Başvuruları" icon={Building2} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />
+            <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
+          </>
+        )}
+
+        {/* Bölge — Üniversite Gençlik */}
+        {isBolge && user.sistem === "UNIVERSITE" && (
+          <>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+              Üniversite Gençlik
+            </p>
+            <NavItem href="/panel/bolge" label="Ana Sayfa" icon={LayoutDashboard} exact />
+            <NavItem href="/panel/bolge/genclik-faaliyet" label="Faaliyet Takip Sistemi" icon={ClipboardList} />
+            <NavItem href="/panel/bolge/barinma" label="Barınma Yönetimi" icon={Home} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
+            <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
+            <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
+          </>
+        )}
+
+        {/* Bölge — Lise Gençlik */}
+        {isBolge && user.sistem === "LISE" && (
+          <>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)", opacity: 0.6 }}>
+              Lise Gençlik
+            </p>
+            <NavItem href="/panel/bolge" label="Ana Sayfa" icon={LayoutDashboard} exact />
+            <NavItem href="/panel/bolge/genclik-faaliyet" label="Faaliyet Takip Sistemi" icon={ClipboardList} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
+            <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
           </>
         )}

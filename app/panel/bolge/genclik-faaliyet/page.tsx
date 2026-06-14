@@ -20,5 +20,8 @@ export default async function BolgeGenclikFaaliyetPage() {
     select: { id: true, ad: true },
   });
 
-  return <IlFaaliyetClient sistemler={["UNIVERSITE", "LISE"] as ("UNIVERSITE" | "LISE")[]} sabitIller={iller} />;
+  // Eğitim bölge → üni+lise (cross-system görüntü); üni/lise bölge → yalnız kendi sistemi
+  const s = session.user.sistem;
+  const sistemler = (s === "UNIVERSITE" ? ["UNIVERSITE"] : s === "LISE" ? ["LISE"] : ["UNIVERSITE", "LISE"]) as ("UNIVERSITE" | "LISE")[];
+  return <IlFaaliyetClient sistemler={sistemler} sabitIller={iller} />;
 }
