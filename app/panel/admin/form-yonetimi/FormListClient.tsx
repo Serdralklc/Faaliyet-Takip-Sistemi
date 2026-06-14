@@ -9,7 +9,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, BarChart3, Trash2, FileText } from "lucide-react";
+import { Plus, Pencil, BarChart3, Trash2, FileText, Table2, LayoutTemplate } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ConfirmDialog } from "@/components/ui/Modal";
@@ -62,6 +62,8 @@ export function FormListClient() {
   const [silinecek, setSilinecek] = useState<FormOzet | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  // İçerik türü sekmesi — Veri Toplama Merkezi geliştirmesi (Form mevcut akış; diğerleri sonraki fazlar)
+  const [tur, setTur] = useState<"FORM" | "VERI_TABLOSU" | "SABLON">("FORM");
 
   const { data: formlar = [], isLoading } = useQuery({
     queryKey: ["formlar"],
@@ -123,17 +125,43 @@ export function FormListClient() {
       <div className="sv-page-header flex flex-wrap items-start justify-between gap-3" style={{ marginBottom: 0 }}>
         <div>
           <h1>Form Yönetimi</h1>
-          <p>Bölge ve il sorumlularına yönelik dinamik formlar oluşturun, yayınlayın ve yanıtları izleyin</p>
+          <p>Veri Toplama Merkezi — form, veri tablosu ve şablonlarla bölge/il sorumlularından veri toplayın</p>
         </div>
-        <Link href="/panel/admin/form-yonetimi/yeni">
-          <Button>
-            <Plus size={15} />
-            Yeni Form
-          </Button>
-        </Link>
+        {tur === "FORM" && (
+          <Link href="/panel/admin/form-yonetimi/yeni">
+            <Button>
+              <Plus size={15} />
+              Yeni Form
+            </Button>
+          </Link>
+        )}
       </div>
 
-      {isLoading ? (
+      {/* İçerik türü seçimi */}
+      <div className="flex flex-wrap gap-2">
+        {([
+          { key: "FORM", label: "Form", icon: FileText },
+          { key: "VERI_TABLOSU", label: "Veri Tablosu", icon: Table2 },
+          { key: "SABLON", label: "Şablon", icon: LayoutTemplate },
+        ] as const).map(t => {
+          const aktif = tur === t.key;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setTur(t.key)}
+              className="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-[13.5px] font-bold transition"
+              style={aktif
+                ? { background: "var(--green-primary)", borderColor: "var(--green-primary)", color: "#fff" }
+                : { background: "var(--bg-card)", borderColor: "var(--border)", color: "var(--text-secondary)" }}
+            >
+              <t.icon size={15} />
+              {t.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {tur === "FORM" && (isLoading ? (
         <div className="space-y-3" aria-hidden="true">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="sv-section p-5 space-y-3">
@@ -220,6 +248,28 @@ export function FormListClient() {
               </div>
             );
           })}
+        </div>
+      ))}
+
+      {tur === "VERI_TABLOSU" && (
+        <div className="sv-section px-6 py-16 text-center">
+          <Table2 size={32} className="mx-auto text-muted mb-3" aria-hidden="true" />
+          <p className="text-[14.5px] font-semibold text-heading">Veri Tabloları</p>
+          <p className="text-[13px] text-muted mt-1 max-w-md mx-auto">
+            İl ve bölge sorumlularının değişken sayıda kayıt (sınırsız satır) girebildiği veri toplama
+            tabloları. Bu modül hazırlanıyor.
+          </p>
+        </div>
+      )}
+
+      {tur === "SABLON" && (
+        <div className="sv-section px-6 py-16 text-center">
+          <LayoutTemplate size={32} className="mx-auto text-muted mb-3" aria-hidden="true" />
+          <p className="text-[14.5px] font-semibold text-heading">Şablonlar</p>
+          <p className="text-[13px] text-muted mt-1 max-w-md mx-auto">
+            Hazır veri toplama şablonları (Mezun Takip, Öğrenci Evi, Kafile Katılım…). Yeni içerik
+            oluştururken şablondan başlayabilirsiniz. Bu modül hazırlanıyor.
+          </p>
         </div>
       )}
 

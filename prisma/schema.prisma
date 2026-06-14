@@ -793,12 +793,34 @@ enum SoruTipi {
   TEK_SECIM
   COKLU_SECIM
   DOSYA
+  // ── Veri Toplama Merkezi geliştirmesi (eklemeli; mevcut tipler dokunulmadı) ──
+  SAAT
+  TELEFON
+  EPOSTA
+  ACILIR_LISTE
+  EVET_HAYIR
+  BOLUM // bölüm başlığı/açıklaması — cevap toplamaz, sadece gruplar
 }
 
 enum FormDurum {
   TASLAK
   YAYINDA
   KAPALI
+  PASIF // Arşiv geliştirmesi (Faz 8) — eklemeli
+  ARSIV
+}
+
+enum SutunTipi {
+  METIN
+  SAYI
+  TARIH
+  SECIM
+  DOSYA
+}
+
+enum SablonTur {
+  FORM
+  VERI_TABLOSU
 }
 
 model DinamikForm {
@@ -832,8 +854,16 @@ model FormSoru {
   etiket     String
   tip        SoruTipi
   zorunlu    Boolean  @default(false)
-  /** TEK_SECIM / COKLU_SECIM için seçenekler */
+  /** TEK_SECIM / COKLU_SECIM / ACILIR_LISTE için seçenekler */
   secenekler String[]
+
+  // ── Veri Toplama Merkezi geliştirmesi (hepsi nullable; eski sorular etkilenmez) ──
+  /** Bölüm/soru altı açıklama metni (BOLUM tipinde bölüm açıklaması) */
+  aciklama    String?
+  /** Koşullu görünürlük: bu sorunun bağlı olduğu sorunun id'si (null = her zaman görünür) */
+  kosulSoruId String?
+  /** Koşul: kosulSoruId'li sorunun cevabı bu değere eşit/içeriyorsa bu soru görünür */
+  kosulDeger  String?
 
   form DinamikForm @relation(fields: [formId], references: [id], onDelete: Cascade)
 
@@ -865,6 +895,83 @@ model FormYanitDosya {
   boyut      Int
   yukleyenId String
   createdAt  DateTime @default(now())
+}
+
+// ── Veri Toplama Merkezi: Veri Tabloları + Şablonlar ───────────
+// (Form sistemine dokunmadan, tamamen ayrı modeller)
+
+/** Değişken sayıda satır toplanan veri tablosu (ör. "Üniversiteye Yerleşen Mezunlar") */
+model VeriTablosu {
+  id       String    @id @default(cuid())
+  baslik   String
+  aciklama String?
+  durum    FormDurum @default(TASLAK)
+
+  // Görünürlük — DinamikForm ile aynı model
+  hedefBolge       Boolean @default(false)
+  hedefIl          Boolean @default(false)
+  sistemEgitim     Boolean @default(false)
+  sistemUniversite Boolean @default(false)
+  sistemLise       Boolean @default(false)
+
+  createdById   String
+  createdByName String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sutunlar VeriTabloSutun[]
+  kayitlar VeriTabloKayit[]
+
+  @@index([durum])
+}
+
+model VeriTabloSutun {
+  id         String    @id @default(cuid())
+  tabloId    String
+  sira       Int
+  baslik     String
+  tip        SutunTipi @default(METIN)
+  zorunlu    Boolean   @default(false)
+  /** SECIM tipi için seçenekler */
+  secenekler String[]
+
+  tablo VeriTablosu @relation(fields: [tabloId], references: [id], onDelete: Cascade)
+
+  @@index([tabloId, sira])
+}
+
+/** Bir kullanıcının (il/bölge sorumlusu) girdiği TEK satır — sınırsız satır = çok kayıt */
+model VeriTabloKayit {
+  id       String @id @default(cuid())
+  tabloId  String
+  userId   String
+  userName String
+  /** { [sutunId]: string | number | { dosyaId, ad, url } } */
+  degerler  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tablo VeriTablosu @relation(fields: [tabloId], references: [id], onDelete: Cascade)
+
+  @@index([tabloId])
+  @@index([userId])
+}
+
+/** Hazır veri toplama şablonu (Form veya Veri Tablosu iskeleti) */
+model Sablon {
+  id       String    @id @default(cuid())
+  ad       String
+  aciklama String?
+  tur      SablonTur @default(FORM)
+  /** FORM → { sorular: [...] } | VERI_TABLOSU → { sutunlar: [...] } */
+  icerik   Json
+
+  createdById   String
+  createdByName String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([tur])
 }
 
 // ── Duyuru & Bildirim Merkezi ──────────────────────────────────
