@@ -3,8 +3,9 @@
 /** Rapor ve Analiz Merkezi — interaktif grafikler + kurumsal dışa aktarma */
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { TurkiyeHarita } from "./TurkiyeHarita";
 import { ANALIZ_SORULAR, ANALIZ_BIRIM_LABEL, type AnalizBirim } from "@/lib/analiz-sorular";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
@@ -77,6 +78,8 @@ function GrafikKart({ title, children, height = 280 }: { title: string; children
 
 export function AnalizClient({ data }: { data: AnalizData }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<"genel" | "harita">(searchParams.get("sekme") === "harita" ? "harita" : "genel");
   const [bolgeMetrik, setBolgeMetrik] = useState("yeniIntisap");
 
   // Soru bazlı bölge karşılaştırması (birim → soru → dönem)
@@ -138,6 +141,20 @@ export function AnalizClient({ data }: { data: AnalizData }) {
         </div>
       </div>
 
+      {/* Sekmeler */}
+      <div className="flex gap-1 p-1 rounded-xl border w-fit" style={{ background: "var(--bg-th)", borderColor: "var(--border)" }}>
+        {([["genel", "Genel Bakış"], ["harita", "Türkiye Haritası"]] as const).map(([k, etiket]) => (
+          <button key={k} onClick={() => setTab(k)}
+            className="px-4 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap"
+            style={tab === k ? { background: "var(--accent-solid)", color: "#fff" } : { color: "var(--text-muted)" }}>
+            {etiket}
+          </button>
+        ))}
+      </div>
+
+      {tab === "harita" && <TurkiyeHarita />}
+
+      {tab === "genel" && (<>
       {/* Faaliyet Takip Sistemi seçimi */}
       <div className="flex flex-wrap gap-2">
         <span className="px-4 py-2 rounded-xl text-[13px] font-bold text-white" style={{ background: "#0B6B3A" }}>Eğitimci</span>
@@ -318,6 +335,7 @@ export function AnalizClient({ data }: { data: AnalizData }) {
           </PieChart>
         </GrafikKart>
       </div>
+      </>)}
     </div>
   );
 }
