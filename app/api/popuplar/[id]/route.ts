@@ -5,7 +5,7 @@ import { createAuditLog } from "@/lib/audit";
 import { saveFile, deleteFile, isBlobConfigured } from "@/lib/storage";
 import { YONETICI_ROLLERI } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
-import { GORSEL_TIPLERI, MAX_GORSEL, GOSTERIMLER } from "../route";
+import { GORSEL_TIPLERI, MAX_GORSEL, GOSTERIMLER, GORSEL_BASE64_ESIK } from "../route";
 
 export const dynamic = "force-dynamic";
 
@@ -70,16 +70,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (!GORSEL_TIPLERI[file.type]) return NextResponse.json({ error: "Görsel PNG, JPG, WebP veya SVG olmalı." }, { status: 400 });
     if (file.size > MAX_GORSEL) return NextResponse.json({ error: "Görsel 10 MB'tan büyük olamaz." }, { status: 400 });
     if (mevcut.gorselKey) await deleteFile(mevcut.gorselKey);
-    try {
-      const saved = await saveFile(Buffer.from(await file.arrayBuffer()), { fileName: file.name, contentType: file.type });
-      gorselKey = saved.storageKey;
-      gorselUrl = saved.url || `/api/popuplar/${id}/gorsel`;
-    } catch (e) {
-      console.error("Pop-up görseli kaydedilemedi:", e);
-      const mesaj = isBlobConfigured
-        ? `Görsel depolanamadı: ${e instanceof Error ? e.message : String(e)}`
-        : "Dosya depolama yapılandırılmamış: sunucuda BLOB_READ_WRITE_TOKEN yok. Vercel'de Blob deposunu bağlayıp projeyi YENİDEN DEPLOY edin.";
-      return NextResponse.json({ error: mesaj }, { status: 500 });
+    const buf = Buffer.from(await file.arrayBuffer());
+    if (file.size <= GORSEL_BASE64_ESIK) {
+      // Küçük görsel (istemcide küçültülmüş): base64 data URL olarak DB'ye göm — Blob gerektirmez.
+      gorselUrl = `data:${file.type};base64,${buf.toString("base64")}`;
+      gorselKey = null;
+    } else {
+      try {
+        const saved = await saveFile(buf, { fileName: file.name, contentType: file.type });
+        gorselKey = saved.storageKey;
+        gorselUrl = saved.url || `/api/popuplar/${id}/gorsel`;
+      } catch (e) {
+        console.error("Pop-up görseli kaydedilemedi:", e);
+        const mesaj = isBlobConfigured
+          ? `Görsel depolanamadı: ${e instanceof Error ? e.message : String(e)}`
+          : "Görsel çok büyük ve dosya depolama yapılandırılmamış (BLOB_READ_WRITE_TOKEN yok). Daha küçük bir görsel seçin veya Vercel'de Blob deposunu bağlayın.";
+        return NextResponse.json({ error: mesaj }, { status: 500 });
+      }
     }
   }
 
