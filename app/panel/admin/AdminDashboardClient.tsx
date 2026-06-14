@@ -95,17 +95,19 @@ export function AdminDashboardClient({ stats, uyeOzet }: { stats: Stats; uyeOzet
       {/* ── Satır 1: Coğrafi + Veri Girişi + Kullanıcı ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
 
-        {/* Toplam Bölge */}
-        <MiniStatCard
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
-            </svg>
-          }
-          label="Toplam Bölge"
-          value={stats.toplamBolge}
-          color="#0B6B3A"
-        />
+        {/* Toplam Bölge → Türkiye Haritası */}
+        <Link href="/panel/admin/analiz?sekme=harita" className="block transition hover:opacity-90" title="Türkiye haritasında görüntüle">
+          <MiniStatCard
+            icon={
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+              </svg>
+            }
+            label="Toplam Bölge"
+            value={stats.toplamBolge}
+            color="#0B6B3A"
+          />
+        </Link>
 
         {/* Toplam İl */}
         <MiniStatCard
