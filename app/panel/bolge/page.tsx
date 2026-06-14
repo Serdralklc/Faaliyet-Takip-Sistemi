@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import type { Donem } from "@/app/generated/prisma/client";
 import { birimDurum, ilTamam, BIRIMLER, type BirimDurum, type BirimKey } from "@/lib/birimDurum";
 import { BolgeDashboardClient, type IlDurum } from "./BolgeDashboardClient";
+import { ANALIZ_TUM_ALANLAR } from "@/lib/analiz-sorular";
 
 const DONEMLER: Donem[] = ["DONEM_1", "DONEM_2", "YAZ_DONEMI"];
 
@@ -83,10 +84,19 @@ export default async function BolgePanelPage({
     };
   });
 
+  // İl-il faaliyet analizi için her ilin (seçili dönem) alan değerleri
+  const ilAnaliz = (bolge?.iller ?? []).map(il => {
+    const a = (il.activities[0] ?? {}) as Record<string, unknown>;
+    const row: Record<string, number | string> = { il: il.ad };
+    for (const f of ANALIZ_TUM_ALANLAR) row[f] = Number(a[f]) || 0;
+    return row;
+  });
+
   return (
     <BolgeDashboardClient
       bolgeAd={bolge?.ad ?? "Bölge"}
       iller={iller}
+      ilAnaliz={ilAnaliz}
       yil={yil}
       donem={donem}
       yillar={yillar}

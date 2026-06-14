@@ -1,10 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import {
   BIRIMLER, BIRIM_ETIKET, durumEtiket,
   type BirimDurum, type BirimKey,
 } from "@/lib/birimDurum";
+import { ANALIZ_SORULAR, ANALIZ_BIRIM_LABEL, type AnalizBirim } from "@/lib/analiz-sorular";
 
 const DONEM_LABEL: Record<string, string> = {
   DONEM_1: "1. Dönem", DONEM_2: "2. Dönem", YAZ_DONEMI: "Yaz Dönemi",
@@ -37,11 +40,15 @@ function DurumPill({ durum, birim }: { durum: BirimDurum; birim: BirimKey }) {
 }
 
 export function BolgeDashboardClient({
-  bolgeAd, iller, yil, donem, yillar,
+  bolgeAd, iller, ilAnaliz, yil, donem, yillar,
 }: {
-  bolgeAd: string; iller: IlDurum[]; yil: number; donem: string; yillar: number[];
+  bolgeAd: string; iller: IlDurum[]; ilAnaliz: Record<string, string | number>[]; yil: number; donem: string; yillar: number[];
 }) {
   const router = useRouter();
+  const [soruBirim, setSoruBirim] = useState<AnalizBirim>("ILKOGRETIM");
+  const [soruKey, setSoruKey] = useState("ik_toplamDergah");
+  const soruGrafik = ilAnaliz.map(r => ({ il: String(r.il), deger: Number(r[soruKey]) || 0 }));
+  const soruLabel = ANALIZ_SORULAR[soruBirim].find(s => s.key === soruKey)?.label ?? "Soru";
   const yilSecenekleri = yillar.includes(yil) ? yillar : [yil, ...yillar];
 
   function navigate(yeniYil: number, yeniDonem: string) {
@@ -96,6 +103,35 @@ export function BolgeDashboardClient({
             <p className="text-3xl font-black mt-1">{c.val}</p>
           </div>
         ))}
+      </div>
+
+      {/* Soru bazlı il karşılaştırması (faaliyet analizi) */}
+      <div className="rounded-xl border p-5 mb-6" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>Soru Bazlı İl Karşılaştırması — {yil} / {DONEM_LABEL[donem]}</h2>
+          <div className="flex flex-wrap gap-2">
+            <select value={soruBirim} onChange={e => { const b = e.target.value as AnalizBirim; setSoruBirim(b); setSoruKey(ANALIZ_SORULAR[b][0].key); }}
+              className="rounded-lg border px-2.5 py-1.5 text-[13px]" style={{ background: "var(--bg-input)", borderColor: "var(--border-input)", color: "var(--text-primary)" }}>
+              {(Object.keys(ANALIZ_BIRIM_LABEL) as AnalizBirim[]).map(b => <option key={b} value={b}>{ANALIZ_BIRIM_LABEL[b]}</option>)}
+            </select>
+            <select value={soruKey} onChange={e => setSoruKey(e.target.value)}
+              className="rounded-lg border px-2.5 py-1.5 text-[13px]" style={{ background: "var(--bg-input)", borderColor: "var(--border-input)", color: "var(--text-primary)" }}>
+              {ANALIZ_SORULAR[soruBirim].map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
+            </select>
+          </div>
+        </div>
+        <div style={{ width: "100%", height: 280 }}>
+          <ResponsiveContainer>
+            <BarChart data={soruGrafik} margin={{ left: -10 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="il" tick={{ fontSize: 10, fill: "var(--text-muted)" }} interval={0} angle={-35} textAnchor="end" height={60} />
+              <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
+              <Tooltip formatter={(v) => [Number(v ?? 0).toLocaleString("tr-TR"), soruLabel]}
+                contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 12 }} />
+              <Bar dataKey="deger" fill="#0B6B3A" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       {/* İl × birim durum tablosu */}
