@@ -45,8 +45,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   });
   if (!mevcut) return NextResponse.json({ error: "Başvuru bulunamadı." }, { status: 404 });
 
-  if (!(await canSee(session.user, mevcut))) {
-    return NextResponse.json({ error: "Bu başvuruya erişim yetkiniz yok." }, { status: 403 });
+  // Değerlendirme/onay yalnızca ilgili İl Eğitimcisi (IL_SORUMLUSU + EGITIMCI, kendi ili).
+  // Merkez ve Bölge sorumluları başvuruları yalnızca görüntüler, durum değiştiremez.
+  const ilEgitimcisi = session.user.role === "IL_SORUMLUSU" && session.user.sistem === "EGITIMCI";
+  if (!ilEgitimcisi || !(await canSee(session.user, mevcut))) {
+    return NextResponse.json({ error: "Bu başvuruyu yalnızca ilgili İl Eğitimcisi değerlendirebilir." }, { status: 403 });
   }
 
   const updated = await prisma.ekKayitBasvuru.update({

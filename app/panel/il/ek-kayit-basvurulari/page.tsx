@@ -9,5 +9,6 @@ export default async function IlEkKayitPage() {
   if (!session?.user) redirect("/giris");
   if (session.user.role !== "IL_SORUMLUSU") redirect("/");
 
-  return <EkKayitPanel baslik={`${session.user.activeIlAd ?? "İl"} — Ev / Yurt Başvuruları`} />;
+  const ilEgitimcisi = session.user.role === "IL_SORUMLUSU" && session.user.sistem === "EGITIMCI";
+  return <EkKayitPanel baslik={`${session.user.activeIlAd ?? "İl"} — Ev / Yurt Başvuruları`} canApprove={ilEgitimcisi} />;
 }

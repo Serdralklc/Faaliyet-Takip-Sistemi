@@ -13,7 +13,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
+import { ExportButtons } from "@/components/ui/ExportButtons";
 import { formatDateTR } from "@/lib/format";
+import type { ExportSpec } from "@/lib/export/corporate";
 
 type Durum = "BEKLEMEDE" | "INCELENIYOR" | "GORUSULDU" | "ONAYLANDI" | "REDDEDILDI";
 
@@ -52,6 +54,38 @@ const DURUMLAR: { key: Durum; label: string; tone: "neutral" | "info" | "warning
 ];
 
 const durumInfo = (d: Durum) => DURUMLAR.find(x => x.key === d) ?? DURUMLAR[0];
+
+/** Filtrelenmiş başvurulardan PDF/Excel/Word dışa aktarma spesifikasyonu üretir (görünen sayfa değil, tüm filtreli küme). */
+function ekKayitSpec(rows: Basvuru[], baslik: string): ExportSpec {
+  return {
+    title: baslik,
+    subtitle: `${rows.length} başvuru`,
+    columns: [
+      { header: "Öğrenci", key: "ogrenci" },
+      { header: "Telefon", key: "telefon" },
+      { header: "Gideceği Bölge", key: "bolge" },
+      { header: "Gideceği İl", key: "il" },
+      { header: "Üniversite", key: "universite" },
+      { header: "Fakülte / Bölüm", key: "fakulteBolum" },
+      { header: "Kayıt Tipi", key: "kayitTipi" },
+      { header: "Durum", key: "durum" },
+      { header: "Başvuru Tarihi", key: "tarih" },
+      { header: "Yönetici Notu", key: "not" },
+    ],
+    rows: rows.map(b => ({
+      ogrenci: `${b.ogrenciAd} ${b.ogrenciSoyad}`,
+      telefon: b.telefon,
+      bolge: b.gidecegiBolge ?? "",
+      il: b.gidecegiIl ?? "",
+      universite: b.universite,
+      fakulteBolum: `${b.fakulte} / ${b.bolum}`,
+      kayitTipi: b.kayitTipi,
+      durum: durumInfo(b.durum).label,
+      tarih: formatDateTR(b.createdAt),
+      not: b.yoneticiNotu ?? "",
+    })),
+  };
+}
 
 const COLUMNS: DataTableColumn<Basvuru>[] = [
   {
@@ -97,10 +131,12 @@ function DetayAlan({ label, value }: { label: string; value?: string | null }) {
   );
 }
 
-export function EkKayitPanel({ baslik = "Ev / Apart / Yurt Başvuruları" }: { baslik?: string }) {
+export function EkKayitPanel({ baslik = "Ev / Apart / Yurt Başvuruları", canApprove = false }: { baslik?: string; canApprove?: boolean }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<"TUMU" | Durum>("TUMU");
+  const [bolgeFilter, setBolgeFilter] = useState<string>("TUMU");
+  const [ilFilter, setIlFilter] = useState<string>("TUMU");
   const [secili, setSecili] = useState<Basvuru | null>(null);
   const [durumForm, setDurumForm] = useState<Durum>("BEKLEMEDE");
   const [notForm, setNotForm] = useState("");
@@ -115,7 +151,21 @@ export function EkKayitPanel({ baslik = "Ev / Apart / Yurt Başvuruları" }: { b
     },
   });
 
-  const filtered = filter === "TUMU" ? basvurular : basvurular.filter(b => b.durum === filter);
+  const bolgeSecenek = Array.from(new Set(basvurular.map(b => b.gidecegiBolge).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b, "tr"));
+  const ilSecenek = Array.from(
+    new Set(
+      basvurular
+        .filter(b => bolgeFilter === "TUMU" || b.gidecegiBolge === bolgeFilter)
+        .map(b => b.gidecegiIl)
+        .filter(Boolean) as string[]
+    )
+  ).sort((a, b) => a.localeCompare(b, "tr"));
+
+  const filtered = basvurular.filter(b =>
+    (filter === "TUMU" || b.durum === filter) &&
+    (bolgeFilter === "TUMU" || b.gidecegiBolge === bolgeFilter) &&
+    (ilFilter === "TUMU" || b.gidecegiIl === ilFilter)
+  );
 
   function openDetay(b: Basvuru) {
     setSecili(b);
@@ -124,7 +174,7 @@ export function EkKayitPanel({ baslik = "Ev / Apart / Yurt Başvuruları" }: { b
   }
 
   async function handleSave() {
-    if (!secili) return;
+    if (!secili || !canApprove) return;
     setSaving(true);
     try {
       const res = await fetch(`/api/ek-kayit-basvurulari/${secili.id}`, {
@@ -181,6 +231,32 @@ export function EkKayitPanel({ baslik = "Ev / Apart / Yurt Başvuruları" }: { b
         })}
       </div>
 
+      {/* Bölge / İl filtresi + dışa aktarma */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            aria-label="Bölgeye göre filtrele"
+            value={bolgeFilter}
+            onChange={e => { setBolgeFilter(e.target.value); setIlFilter("TUMU"); }}
+            className="rounded-lg border border-[var(--border-input)] bg-input text-heading text-[13px] px-2.5 py-1.5 focus:border-[var(--accent)] transition"
+          >
+            <option value="TUMU">Tüm Bölgeler</option>
+            {bolgeSecenek.map(b => <option key={b} value={b}>{b}</option>)}
+          </select>
+          <select
+            aria-label="İle göre filtrele"
+            value={ilFilter}
+            onChange={e => setIlFilter(e.target.value)}
+            className="rounded-lg border border-[var(--border-input)] bg-input text-heading text-[13px] px-2.5 py-1.5 focus:border-[var(--accent)] transition"
+          >
+            <option value="TUMU">Tüm İller</option>
+            {ilSecenek.map(i => <option key={i} value={i}>{i}</option>)}
+          </select>
+          <span className="text-xs text-muted">{filtered.length} başvuru</span>
+        </div>
+        <ExportButtons getSpec={() => ekKayitSpec(filtered, baslik)} />
+      </div>
+
       <DataTable
         id="ek-kayit-basvurulari"
         data={filtered}
@@ -203,10 +279,14 @@ export function EkKayitPanel({ baslik = "Ev / Apart / Yurt Başvuruları" }: { b
         title={secili ? `${secili.ogrenciAd} ${secili.ogrenciSoyad}` : ""}
         maxWidth={560}
         footer={
-          <>
-            <Button variant="secondary" onClick={() => setSecili(null)} disabled={saving}>Kapat</Button>
-            <Button onClick={handleSave} loading={saving}>Kaydet</Button>
-          </>
+          canApprove ? (
+            <>
+              <Button variant="secondary" onClick={() => setSecili(null)} disabled={saving}>Kapat</Button>
+              <Button onClick={handleSave} loading={saving}>Kaydet</Button>
+            </>
+          ) : (
+            <Button variant="secondary" onClick={() => setSecili(null)}>Kapat</Button>
+          )
         }
       >
         {secili && (
@@ -224,49 +304,65 @@ export function EkKayitPanel({ baslik = "Ev / Apart / Yurt Başvuruları" }: { b
               <DetayAlan label="Başvuru Tarihi" value={formatDateTR(secili.createdAt)} />
             </div>
 
-            {/* Tek aktif durum — radyo grubu */}
-            <fieldset>
-              <legend className="text-[11px] font-bold uppercase tracking-wider text-muted mb-2">Başvuru Durumu</legend>
-              <div className="flex flex-wrap gap-2" role="radiogroup">
-                {DURUMLAR.map(d => {
-                  const active = durumForm === d.key;
-                  return (
-                    <label
-                      key={d.key}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl border cursor-pointer text-[13px] font-semibold transition"
-                      style={active
-                        ? { background: "var(--bg-active)", borderColor: "var(--accent)", color: "var(--accent)" }
-                        : { borderColor: "var(--border)", color: "var(--text-muted)" }}
-                    >
-                      <input
-                        type="radio"
-                        name="durum"
-                        value={d.key}
-                        checked={active}
-                        onChange={() => setDurumForm(d.key)}
-                        className="accent-[var(--accent-solid)]"
-                      />
-                      {d.label}
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
+            {canApprove ? (
+              <>
+                {/* Tek aktif durum — radyo grubu */}
+                <fieldset>
+                  <legend className="text-[11px] font-bold uppercase tracking-wider text-muted mb-2">Başvuru Durumu</legend>
+                  <div className="flex flex-wrap gap-2" role="radiogroup">
+                    {DURUMLAR.map(d => {
+                      const active = durumForm === d.key;
+                      return (
+                        <label
+                          key={d.key}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl border cursor-pointer text-[13px] font-semibold transition"
+                          style={active
+                            ? { background: "var(--bg-active)", borderColor: "var(--accent)", color: "var(--accent)" }
+                            : { borderColor: "var(--border)", color: "var(--text-muted)" }}
+                        >
+                          <input
+                            type="radio"
+                            name="durum"
+                            value={d.key}
+                            checked={active}
+                            onChange={() => setDurumForm(d.key)}
+                            className="accent-[var(--accent-solid)]"
+                          />
+                          {d.label}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
 
-            <div>
-              <label htmlFor="yonetici-notu" className="block text-[11px] font-bold uppercase tracking-wider text-muted mb-1.5">
-                Yönetici Notu
-              </label>
-              <textarea
-                id="yonetici-notu"
-                value={notForm}
-                onChange={e => setNotForm(e.target.value)}
-                rows={3}
-                maxLength={2000}
-                placeholder="Başvuruyla ilgili dahili not..."
-                className="w-full rounded-xl border border-[var(--border-input)] bg-input text-heading text-[13.5px] px-3.5 py-2.5 placeholder:text-[var(--text-placeholder)] focus:border-[var(--accent)] transition resize-y"
-              />
-            </div>
+                <div>
+                  <label htmlFor="yonetici-notu" className="block text-[11px] font-bold uppercase tracking-wider text-muted mb-1.5">
+                    Yönetici Notu
+                  </label>
+                  <textarea
+                    id="yonetici-notu"
+                    value={notForm}
+                    onChange={e => setNotForm(e.target.value)}
+                    rows={3}
+                    maxLength={2000}
+                    placeholder="Başvuruyla ilgili dahili not..."
+                    className="w-full rounded-xl border border-[var(--border-input)] bg-input text-heading text-[13.5px] px-3.5 py-2.5 placeholder:text-[var(--text-placeholder)] focus:border-[var(--accent)] transition resize-y"
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted mb-1.5">Başvuru Durumu</p>
+                  <Badge tone={durumInfo(secili.durum).tone}>{durumInfo(secili.durum).label}</Badge>
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted mb-1.5">Yönetici Notu</p>
+                  <p className="text-[13.5px] text-heading whitespace-pre-wrap">{secili.yoneticiNotu || "—"}</p>
+                </div>
+                <p className="text-xs text-muted">Bu başvuruyu yalnızca ilgili İl Eğitimcisi değerlendirip onaylayabilir.</p>
+              </div>
+            )}
           </div>
         )}
       </Modal>
