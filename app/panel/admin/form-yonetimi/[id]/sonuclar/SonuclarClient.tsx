@@ -88,6 +88,8 @@ export function SonuclarClient({ formId }: { formId: string }) {
   });
 
   const sorular = useMemo(() => data?.sorular ?? [], [data]);
+  // Bölüm başlıkları cevap toplamaz — sütun/dışa aktarımda gösterilmez
+  const gosterilenSorular = useMemo(() => sorular.filter(s => s.tip !== "BOLUM"), [sorular]);
   const yanitlar = useMemo(() => data?.yanitlar ?? [], [data]);
   const yanitlamayanlar = useMemo(() => data?.yanitlamayanlar ?? [], [data]);
   const hedefToplam = data?.hedefToplam ?? 0;
@@ -106,7 +108,7 @@ export function SonuclarClient({ formId }: { formId: string }) {
       sortValue: y => new Date(y.createdAt).getTime(),
       render: y => <span className="text-xs text-muted whitespace-nowrap">{tarihTR(y.createdAt)}</span>,
     },
-    ...sorular.map<DataTableColumn<Yanit>>(s => ({
+    ...gosterilenSorular.map<DataTableColumn<Yanit>>(s => ({
       key: s.id,
       header: s.etiket,
       sortValue: y => cevapToText(y.cevaplar?.[s.id]),
@@ -141,14 +143,14 @@ export function SonuclarClient({ formId }: { formId: string }) {
       columns: [
         { header: "Yanıtlayan", key: "userName" },
         { header: "Tarih", key: "createdAt" },
-        ...sorular.map(s => ({ header: s.etiket, key: s.id })),
+        ...gosterilenSorular.map(s => ({ header: s.etiket, key: s.id })),
       ],
       rows: yanitlar.map(y => {
         const row: Record<string, string | number | null | undefined> = {
           userName: y.userName,
           createdAt: tarihTR(y.createdAt),
         };
-        for (const s of sorular) row[s.id] = cevapToText(y.cevaplar?.[s.id]);
+        for (const s of gosterilenSorular) row[s.id] = cevapToText(y.cevaplar?.[s.id]);
         return row;
       }),
     };
@@ -284,7 +286,7 @@ export function SonuclarClient({ formId }: { formId: string }) {
           data={yanitlar}
           columns={columns}
           rowKey={y => y.id}
-          searchText={y => `${y.userName} ${sorular.map(s => cevapToText(y.cevaplar?.[s.id])).join(" ")}`}
+          searchText={y => `${y.userName} ${gosterilenSorular.map(s => cevapToText(y.cevaplar?.[s.id])).join(" ")}`}
           searchPlaceholder="Yanıtlayan veya cevap ara..."
           emptyText="Bu forma henüz yanıt verilmemiş."
         />

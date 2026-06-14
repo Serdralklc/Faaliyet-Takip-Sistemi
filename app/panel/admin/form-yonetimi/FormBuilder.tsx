@@ -11,25 +11,18 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, ArrowUp, ArrowDown, X, AlertTriangle } from "lucide-react";
+import { Plus, ArrowUp, ArrowDown, X, AlertTriangle, GitBranch } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Skeleton, SkeletonText } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
+import {
+  TUM_SORU_TIPLERI, SORU_TIP_LABEL, seceneklimi, cevapsizTip, kosulKaynagiOlabilir,
+  type SoruTip,
+} from "@/lib/form-yonetimi";
 
-type SoruTip = "KISA_METIN" | "UZUN_METIN" | "SAYI" | "TARIH" | "TEK_SECIM" | "COKLU_SECIM" | "DOSYA";
-
-const SORU_TIPLERI: { value: SoruTip; label: string }[] = [
-  { value: "KISA_METIN",  label: "Kısa Metin" },
-  { value: "UZUN_METIN",  label: "Uzun Metin" },
-  { value: "SAYI",        label: "Sayı" },
-  { value: "TARIH",       label: "Tarih" },
-  { value: "TEK_SECIM",   label: "Tek Seçim" },
-  { value: "COKLU_SECIM", label: "Çoklu Seçim" },
-  { value: "DOSYA",       label: "Dosya Yükleme" },
-];
-
-const secimliMi = (tip: SoruTip) => tip === "TEK_SECIM" || tip === "COKLU_SECIM";
+const SORU_TIPLERI: { value: SoruTip; label: string }[] =
+  TUM_SORU_TIPLERI.map(v => ({ value: v, label: SORU_TIP_LABEL[v] }));
 
 interface SoruDraft {
   key: string;
@@ -38,6 +31,12 @@ interface SoruDraft {
   zorunlu: boolean;
   /** Satır başına bir seçenek — kaydederken '\n' ile bölünür */
   seceneklerText: string;
+  /** Soru/bölüm açıklaması (opsiyonel) */
+  aciklama: string;
+  /** Koşullu görünürlük: bağlı olunan sorunun client key'i (null = her zaman görünür) */
+  kosulKey: string | null;
+  /** Koşul değeri */
+  kosulDeger: string;
 }
 
 interface FormDetay {
@@ -50,7 +49,10 @@ interface FormDetay {
   sistemEgitim: boolean;
   sistemUniversite: boolean;
   sistemLise: boolean;
-  sorular: { id: string; sira: number; etiket: string; tip: SoruTip; zorunlu: boolean; secenekler: string[] }[];
+  sorular: {
+    id: string; sira: number; etiket: string; tip: SoruTip; zorunlu: boolean; secenekler: string[];
+    aciklama?: string | null; kosulSoruId?: string | null; kosulDeger?: string | null;
+  }[];
   _count?: { yanitlar: number };
 }
 
@@ -118,13 +120,26 @@ export function FormBuilder({ formId }: { formId?: string }) {
     setSistemEgitim(form.sistemEgitim);
     setSistemUniversite(form.sistemUniversite);
     setSistemLise(form.sistemLise);
-    setSorular(form.sorular.map(s => ({
+    const drafts: SoruDraft[] = form.sorular.map(s => ({
       key: nextKey(),
       etiket: s.etiket,
       tip: s.tip,
       zorunlu: s.zorunlu,
       seceneklerText: s.secenekler.join("\n"),
-    })));
+      aciklama: s.aciklama ?? "",
+      kosulKey: null,
+      kosulDeger: s.kosulDeger ?? "",
+    }));
+    // kosulSoruId (kaydedilen SIRA index'i) → o sıradaki sorunun client key'ine çöz
+    form.sorular.forEach((s, i) => {
+      if (s.kosulSoruId != null && s.kosulSoruId !== "") {
+        const idx = Number(s.kosulSoruId);
+        if (Number.isInteger(idx) && idx >= 0 && idx < drafts.length && idx !== i) {
+          drafts[i].kosulKey = drafts[idx].key;
+        }
+      }
+    });
+    setSorular(drafts);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form]);
 
@@ -136,7 +151,11 @@ export function FormBuilder({ formId }: { formId?: string }) {
   }
 
   function soruEkle() {
-    setSorular(prev => [...prev, { key: nextKey(), etiket: "", tip: "KISA_METIN", zorunlu: false, seceneklerText: "" }]);
+    setSorular(prev => [...prev, { key: nextKey(), etiket: "", tip: "KISA_METIN", zorunlu: false, seceneklerText: "", aciklama: "", kosulKey: null, kosulDeger: "" }]);
+  }
+
+  function bolumEkle() {
+    setSorular(prev => [...prev, { key: nextKey(), etiket: "", tip: "BOLUM", zorunlu: false, seceneklerText: "", aciklama: "", kosulKey: null, kosulDeger: "" }]);
   }
 
   function soruSil(key: string) {
@@ -165,7 +184,7 @@ export function FormBuilder({ formId }: { formId?: string }) {
         return;
       }
       const eksikSecenek = sorular.find(s =>
-        secimliMi(s.tip) && s.seceneklerText.split("\n").map(x => x.trim()).filter(Boolean).length < 2
+        seceneklimi(s.tip) && s.seceneklerText.split("\n").map(x => x.trim()).filter(Boolean).length < 2
       );
       if (eksikSecenek) {
         toast({
@@ -186,13 +205,18 @@ export function FormBuilder({ formId }: { formId?: string }) {
       sistemUniversite,
       sistemLise,
     };
+    const keyToIndex = new Map(sorular.map((s, i) => [s.key, i] as const));
     const soruPayload = sorular.map(s => ({
       etiket: s.etiket.trim(),
       tip: s.tip,
-      zorunlu: s.zorunlu,
-      secenekler: secimliMi(s.tip)
+      zorunlu: cevapsizTip(s.tip) ? false : s.zorunlu,
+      secenekler: seceneklimi(s.tip)
         ? s.seceneklerText.split("\n").map(x => x.trim()).filter(Boolean)
         : [],
+      aciklama: s.aciklama.trim() || null,
+      // Koşul: bağlı sorunun client key'i → SIRA index'ine çevrilir (kalıcı, ID değişiminden bağımsız)
+      kosulSoruId: s.kosulKey != null && keyToIndex.has(s.kosulKey) ? String(keyToIndex.get(s.kosulKey)) : null,
+      kosulDeger: s.kosulKey != null ? (s.kosulDeger.trim() || null) : null,
     }));
 
     setSaving(true);
@@ -355,10 +379,10 @@ export function FormBuilder({ formId }: { formId?: string }) {
               </span>
               <div className="flex-1 min-w-0 grid gap-3 sm:grid-cols-[1fr_200px]">
                 <Input
-                  label="Soru Etiketi"
+                  label={s.tip === "BOLUM" ? "Bölüm Başlığı" : "Soru Etiketi"}
                   value={s.etiket}
                   onChange={e => soruGuncelle(s.key, { etiket: e.target.value })}
-                  placeholder="Soru metni"
+                  placeholder={s.tip === "BOLUM" ? "Örn: ÖĞRENCİ BİLGİLERİ" : "Soru metni"}
                   maxLength={200}
                   disabled={sorularKilitli}
                 />
@@ -399,7 +423,20 @@ export function FormBuilder({ formId }: { formId?: string }) {
               </div>
             </div>
 
-            {secimliMi(s.tip) && (
+            {/* Açıklama (tüm tipler; Bölüm'de bölüm açıklaması) */}
+            <div className="pl-10">
+              <Textarea
+                label={s.tip === "BOLUM" ? "Bölüm Açıklaması" : "Açıklama (opsiyonel)"}
+                value={s.aciklama}
+                onChange={e => soruGuncelle(s.key, { aciklama: e.target.value })}
+                placeholder={s.tip === "BOLUM" ? "Bu bölüm hakkında açıklama" : "Soru altında gösterilecek yardım metni"}
+                rows={2}
+                maxLength={2000}
+                disabled={sorularKilitli}
+              />
+            </div>
+
+            {seceneklimi(s.tip) && (
               <div className="pl-10">
                 <Textarea
                   label="Seçenekler (her satıra bir)"
@@ -413,24 +450,76 @@ export function FormBuilder({ formId }: { formId?: string }) {
               </div>
             )}
 
-            <label className={`ml-10 inline-flex items-center gap-2 text-[13px] font-semibold text-secondary ${sorularKilitli ? "opacity-60" : "cursor-pointer"}`}>
-              <input
-                type="checkbox"
-                checked={s.zorunlu}
-                disabled={sorularKilitli}
-                onChange={e => soruGuncelle(s.key, { zorunlu: e.target.checked })}
-                className="accent-[var(--accent-solid)]"
-              />
-              Zorunlu
-            </label>
+            {!cevapsizTip(s.tip) && (
+              <label className={`ml-10 inline-flex items-center gap-2 text-[13px] font-semibold text-secondary ${sorularKilitli ? "opacity-60" : "cursor-pointer"}`}>
+                <input
+                  type="checkbox"
+                  checked={s.zorunlu}
+                  disabled={sorularKilitli}
+                  onChange={e => soruGuncelle(s.key, { zorunlu: e.target.checked })}
+                  className="accent-[var(--accent-solid)]"
+                />
+                Zorunlu
+              </label>
+            )}
+
+            {/* Koşullu görünürlük (Bölüm hariç) */}
+            {!cevapsizTip(s.tip) && (() => {
+              const onceki = sorular.slice(0, i).filter(q => kosulKaynagiOlabilir(q.tip) && q.etiket.trim());
+              const kaynak = sorular.find(q => q.key === s.kosulKey) ?? null;
+              const kaynakSecenekler = kaynak
+                ? (kaynak.tip === "EVET_HAYIR" ? ["Evet", "Hayır"] : kaynak.seceneklerText.split("\n").map(x => x.trim()).filter(Boolean))
+                : [];
+              return (
+                <div className="ml-10 rounded-lg border border-dashed p-3" style={{ borderColor: "var(--border)" }}>
+                  <div className="flex items-center gap-1.5 text-[12.5px] font-bold text-muted mb-2">
+                    <GitBranch size={13} aria-hidden="true" /> Koşullu Görünürlük
+                  </div>
+                  {onceki.length === 0 ? (
+                    <p className="text-[12px] text-muted">
+                      Koşul bağlamak için bu sorudan <strong>önce</strong> bir Tek Seçim / Açılır Liste / Evet-Hayır sorusu ekleyin.
+                    </p>
+                  ) : (
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <Select
+                        label="Şu soruya bağlı göster"
+                        value={s.kosulKey ?? ""}
+                        disabled={sorularKilitli}
+                        onChange={e => soruGuncelle(s.key, { kosulKey: e.target.value || null, kosulDeger: "" })}
+                      >
+                        <option value="">— Her zaman görünür —</option>
+                        {onceki.map(q => <option key={q.key} value={q.key}>{q.etiket || "(başlıksız)"}</option>)}
+                      </Select>
+                      {s.kosulKey && (
+                        <Select
+                          label="Cevabı şuna eşitse"
+                          value={s.kosulDeger}
+                          disabled={sorularKilitli}
+                          onChange={e => soruGuncelle(s.key, { kosulDeger: e.target.value })}
+                        >
+                          <option value="">— Değer seçin —</option>
+                          {kaynakSecenekler.map(o => <option key={o} value={o}>{o}</option>)}
+                        </Select>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         ))}
 
         {!sorularKilitli && (
-          <Button variant="outline" onClick={soruEkle}>
-            <Plus size={15} />
-            Soru Ekle
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={soruEkle}>
+              <Plus size={15} />
+              Soru Ekle
+            </Button>
+            <Button variant="outline" onClick={bolumEkle}>
+              <Plus size={15} />
+              Bölüm Ekle
+            </Button>
+          </div>
         )}
       </div>
 

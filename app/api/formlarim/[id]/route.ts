@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { parseJson } from "@/lib/validation";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
-import { formWhere } from "@/lib/form-yonetimi";
+import { formWhere, formSoruGorunur, cevapsizTip } from "@/lib/form-yonetimi";
 
 export const dynamic = "force-dynamic";
 
@@ -59,8 +59,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if ("error" in r) return r.error;
   const { cevaplar } = r.data;
 
-  // Zorunlu alan kontrolü
+  // Zorunlu alan kontrolü — bölüm başlıkları + koşulu sağlanmayan (gizli) sorular atlanır
   for (const soru of form.sorular) {
+    if (cevapsizTip(soru.tip)) continue;
+    if (!formSoruGorunur(soru, form.sorular, cevaplar)) continue;
     if (!soru.zorunlu) continue;
     const c = cevaplar[soru.id];
     const bos =

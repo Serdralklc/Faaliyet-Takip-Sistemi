@@ -11,13 +11,12 @@ import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Input, Textarea } from "@/components/ui/Input";
+import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Skeleton, SkeletonText } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { formatDateTR } from "@/lib/format";
 import { ArrowLeft, CheckCircle2, Download, Upload, X, AlertTriangle } from "lucide-react";
-
-type SoruTip = "KISA_METIN" | "UZUN_METIN" | "SAYI" | "TARIH" | "TEK_SECIM" | "COKLU_SECIM" | "DOSYA";
+import { type SoruTip, cevapsizTip, formSoruGorunur } from "@/lib/form-yonetimi";
 
 interface Soru {
   id: string;
@@ -26,6 +25,9 @@ interface Soru {
   tip: SoruTip;
   zorunlu: boolean;
   secenekler: string[];
+  aciklama?: string | null;
+  kosulSoruId?: string | null;
+  kosulDeger?: string | null;
 }
 
 interface DosyaCevap {
@@ -46,13 +48,30 @@ interface FormDetay {
 
 const DOSYA_ACCEPT = ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,image/*";
 
-/** Grup alanları (radyo/checkbox/dosya) için ortak etiket */
+/** Grup alanları (radyo/checkbox/dosya) için ortak etiket + açıklama */
 function SoruEtiket({ soru }: { soru: Soru }) {
   return (
-    <p className="block text-[12px] font-bold uppercase tracking-wider text-muted mb-1.5">
-      {soru.etiket}
-      {soru.zorunlu && <span className="text-red-600 ml-0.5" aria-hidden="true">*</span>}
-    </p>
+    <>
+      <p className="block text-[12px] font-bold uppercase tracking-wider text-muted mb-1.5">
+        {soru.etiket}
+        {soru.zorunlu && <span className="text-red-600 ml-0.5" aria-hidden="true">*</span>}
+      </p>
+      {soru.aciklama && (
+        <p className="text-[12.5px] text-muted -mt-1 mb-2 whitespace-pre-wrap">{soru.aciklama}</p>
+      )}
+    </>
+  );
+}
+
+/** Bölüm başlığı (cevap toplamaz) — form içinde bölüm ayıracı */
+function BolumBasligi({ soru }: { soru: Soru }) {
+  return (
+    <div className="pt-2 first:pt-0">
+      <h3 className="text-[15px] font-extrabold text-heading border-b pb-1.5" style={{ borderColor: "var(--border)" }}>
+        {soru.etiket || "Bölüm"}
+      </h3>
+      {soru.aciklama && <p className="text-[13px] text-muted mt-1.5 whitespace-pre-wrap">{soru.aciklama}</p>}
+    </div>
   );
 }
 
@@ -164,9 +183,11 @@ export function FormDoldurClient({ formId }: { formId: string }) {
   async function handleGonder() {
     if (!form) return;
 
-    // Zorunlu alan kontrolü — boşlar inline işaretlenir
+    // Zorunlu alan kontrolü — boşlar inline işaretlenir (bölüm + koşulu sağlanmayan sorular atlanır)
     const errs: Record<string, string> = {};
     for (const soru of form.sorular) {
+      if (cevapsizTip(soru.tip)) continue;
+      if (!formSoruGorunur(soru, form.sorular, cevaplar)) continue;
       if (!soru.zorunlu) continue;
       const c = cevaplar[soru.id];
       const bos =
@@ -180,9 +201,11 @@ export function FormDoldurClient({ formId }: { formId: string }) {
       return;
     }
 
-    // SAYI cevaplarını sayıya çevir, boşları gönderme
+    // SAYI cevaplarını sayıya çevir; boş, bölüm ve gizli (koşul dışı) soruları gönderme
     const payload: Record<string, Cevap> = {};
     for (const soru of form.sorular) {
+      if (cevapsizTip(soru.tip)) continue;
+      if (!formSoruGorunur(soru, form.sorular, cevaplar)) continue;
       const c = cevaplar[soru.id];
       if (c === undefined || c === null || c === "" || (Array.isArray(c) && c.length === 0)) continue;
       payload[soru.id] = soru.tip === "SAYI" && typeof c === "string" ? Number(c) : c;
@@ -276,12 +299,16 @@ export function FormDoldurClient({ formId }: { formId: string }) {
           </div>
 
           <div className="sv-section p-6 space-y-5">
-            {form.sorular.map(soru => (
-              <div key={soru.id}>
-                <SoruEtiket soru={soru} />
-                <CevapGoster soru={soru} cevap={yanit.cevaplar[soru.id]} />
-              </div>
-            ))}
+            {form.sorular.map(soru => {
+              if (cevapsizTip(soru.tip)) return <BolumBasligi key={soru.id} soru={soru} />;
+              if (!formSoruGorunur(soru, form.sorular, yanit.cevaplar)) return null;
+              return (
+                <div key={soru.id}>
+                  <SoruEtiket soru={soru} />
+                  <CevapGoster soru={soru} cevap={yanit.cevaplar[soru.id]} />
+                </div>
+              );
+            })}
           </div>
         </>
       ) : (
@@ -291,12 +318,20 @@ export function FormDoldurClient({ formId }: { formId: string }) {
             const cevap = cevaplar[soru.id];
             const hata = hatalar[soru.id];
 
+            // Bölüm başlığı — cevap toplamaz
+            if (cevapsizTip(soru.tip)) return <BolumBasligi key={soru.id} soru={soru} />;
+            // Koşullu görünürlük — koşulu sağlanmayan soru gösterilmez
+            if (!formSoruGorunur(soru, form.sorular, cevaplar)) return null;
+
+            const ipucu = soru.aciklama || undefined;
+
             switch (soru.tip) {
               case "KISA_METIN":
                 return (
                   <Input
                     key={soru.id}
                     label={soru.etiket}
+                    hint={ipucu}
                     required={soru.zorunlu}
                     error={hata}
                     value={typeof cevap === "string" ? cevap : ""}
@@ -310,6 +345,7 @@ export function FormDoldurClient({ formId }: { formId: string }) {
                   <Textarea
                     key={soru.id}
                     label={soru.etiket}
+                    hint={ipucu}
                     required={soru.zorunlu}
                     error={hata}
                     value={typeof cevap === "string" ? cevap : ""}
@@ -324,6 +360,7 @@ export function FormDoldurClient({ formId }: { formId: string }) {
                     key={soru.id}
                     type="number"
                     label={soru.etiket}
+                    hint={ipucu}
                     required={soru.zorunlu}
                     error={hata}
                     value={typeof cevap === "string" || typeof cevap === "number" ? cevap : ""}
@@ -337,11 +374,110 @@ export function FormDoldurClient({ formId }: { formId: string }) {
                     key={soru.id}
                     type="date"
                     label={soru.etiket}
+                    hint={ipucu}
                     required={soru.zorunlu}
                     error={hata}
                     value={typeof cevap === "string" ? cevap : ""}
                     onChange={e => setCevap(soru.id, e.target.value)}
                   />
+                );
+
+              case "SAAT":
+                return (
+                  <Input
+                    key={soru.id}
+                    type="time"
+                    label={soru.etiket}
+                    hint={ipucu}
+                    required={soru.zorunlu}
+                    error={hata}
+                    value={typeof cevap === "string" ? cevap : ""}
+                    onChange={e => setCevap(soru.id, e.target.value)}
+                  />
+                );
+
+              case "TELEFON":
+                return (
+                  <Input
+                    key={soru.id}
+                    type="tel"
+                    label={soru.etiket}
+                    hint={ipucu}
+                    required={soru.zorunlu}
+                    error={hata}
+                    placeholder="05XX XXX XX XX"
+                    value={typeof cevap === "string" ? cevap : ""}
+                    onChange={e => setCevap(soru.id, e.target.value)}
+                    maxLength={20}
+                  />
+                );
+
+              case "EPOSTA":
+                return (
+                  <Input
+                    key={soru.id}
+                    type="email"
+                    label={soru.etiket}
+                    hint={ipucu}
+                    required={soru.zorunlu}
+                    error={hata}
+                    placeholder="ornek@eposta.com"
+                    value={typeof cevap === "string" ? cevap : ""}
+                    onChange={e => setCevap(soru.id, e.target.value)}
+                    maxLength={200}
+                  />
+                );
+
+              case "ACILIR_LISTE":
+                return (
+                  <Select
+                    key={soru.id}
+                    label={soru.etiket}
+                    hint={ipucu}
+                    required={soru.zorunlu}
+                    error={hata}
+                    value={typeof cevap === "string" ? cevap : ""}
+                    onChange={e => setCevap(soru.id, e.target.value)}
+                  >
+                    <option value="">— Seçin —</option>
+                    {soru.secenekler.map(o => <option key={o} value={o}>{o}</option>)}
+                  </Select>
+                );
+
+              case "EVET_HAYIR":
+                return (
+                  <fieldset key={soru.id}>
+                    <legend className="block text-[12px] font-bold uppercase tracking-wider text-muted mb-1.5">
+                      {soru.etiket}
+                      {soru.zorunlu && <span className="text-red-600 ml-0.5" aria-hidden="true">*</span>}
+                    </legend>
+                    {soru.aciklama && <p className="text-[12.5px] text-muted -mt-1 mb-2 whitespace-pre-wrap">{soru.aciklama}</p>}
+                    <div className="flex flex-wrap gap-2" role="radiogroup">
+                      {["Evet", "Hayır"].map(secenek => {
+                        const aktif = cevap === secenek;
+                        return (
+                          <label
+                            key={secenek}
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border cursor-pointer text-[13px] font-semibold transition"
+                            style={aktif
+                              ? { background: "var(--bg-active)", borderColor: "var(--accent)", color: "var(--accent)" }
+                              : { borderColor: "var(--border)", color: "var(--text-muted)" }}
+                          >
+                            <input
+                              type="radio"
+                              name={`soru-${soru.id}`}
+                              value={secenek}
+                              checked={aktif}
+                              onChange={() => setCevap(soru.id, secenek)}
+                              className="accent-[var(--accent-solid)]"
+                            />
+                            {secenek}
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <InlineHata mesaj={hata} />
+                  </fieldset>
                 );
 
               case "TEK_SECIM":
