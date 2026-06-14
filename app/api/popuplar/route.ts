@@ -18,7 +18,7 @@ export const GORSEL_TIPLERI: Record<string, string> = {
   "image/webp": "webp",
   "image/svg+xml": "svg",
 };
-export const MAX_GORSEL = 5 * 1024 * 1024; // 5 MB
+export const MAX_GORSEL = 10 * 1024 * 1024; // 10 MB
 export const GOSTERIMLER = ["TEK_SEFER", "HER_GIRIS", "SUREKLI", "TARIH_ARALIGI"];
 
 /** GET — tüm pop-up'lar (yönetici) */
@@ -60,10 +60,15 @@ export async function POST(req: NextRequest) {
   const file = form.get("gorsel");
   if (file instanceof File && file.size > 0) {
     if (!GORSEL_TIPLERI[file.type]) return NextResponse.json({ error: "Görsel PNG, JPG, WebP veya SVG olmalı." }, { status: 400 });
-    if (file.size > MAX_GORSEL) return NextResponse.json({ error: "Görsel 5 MB'tan büyük olamaz." }, { status: 400 });
-    const saved = await saveFile(Buffer.from(await file.arrayBuffer()), { fileName: file.name, contentType: file.type });
-    gorselKey = saved.storageKey;
-    gorselUrl = saved.url || null;
+    if (file.size > MAX_GORSEL) return NextResponse.json({ error: "Görsel 10 MB'tan büyük olamaz." }, { status: 400 });
+    try {
+      const saved = await saveFile(Buffer.from(await file.arrayBuffer()), { fileName: file.name, contentType: file.type });
+      gorselKey = saved.storageKey;
+      gorselUrl = saved.url || null;
+    } catch (e) {
+      console.error("Pop-up görseli kaydedilemedi:", e);
+      return NextResponse.json({ error: "Görsel kaydedilemedi. Depolama yapılandırması eksik olabilir (Blob)." }, { status: 500 });
+    }
   }
 
   const popup = await prisma.popup.create({

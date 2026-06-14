@@ -68,11 +68,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
   if (file instanceof File && file.size > 0) {
     if (!GORSEL_TIPLERI[file.type]) return NextResponse.json({ error: "Görsel PNG, JPG, WebP veya SVG olmalı." }, { status: 400 });
-    if (file.size > MAX_GORSEL) return NextResponse.json({ error: "Görsel 5 MB'tan büyük olamaz." }, { status: 400 });
+    if (file.size > MAX_GORSEL) return NextResponse.json({ error: "Görsel 10 MB'tan büyük olamaz." }, { status: 400 });
     if (mevcut.gorselKey) await deleteFile(mevcut.gorselKey);
-    const saved = await saveFile(Buffer.from(await file.arrayBuffer()), { fileName: file.name, contentType: file.type });
-    gorselKey = saved.storageKey;
-    gorselUrl = saved.url || `/api/popuplar/${id}/gorsel`;
+    try {
+      const saved = await saveFile(Buffer.from(await file.arrayBuffer()), { fileName: file.name, contentType: file.type });
+      gorselKey = saved.storageKey;
+      gorselUrl = saved.url || `/api/popuplar/${id}/gorsel`;
+    } catch (e) {
+      console.error("Pop-up görseli kaydedilemedi:", e);
+      return NextResponse.json({ error: "Görsel kaydedilemedi. Depolama yapılandırması eksik olabilir (Blob)." }, { status: 500 });
+    }
   }
 
   const popup = await prisma.popup.update({

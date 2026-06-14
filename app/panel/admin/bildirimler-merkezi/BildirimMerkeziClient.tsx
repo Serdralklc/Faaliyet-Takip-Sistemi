@@ -636,6 +636,44 @@ function popupDurum(p: Popup): { label: string; tone: "success" | "neutral" | "w
   return { label: "Aktif", tone: "success" };
 }
 
+/**
+ * Görseli yüklemeden önce tarayıcıda küçültüp JPEG'e çevirir.
+ * Büyük telefon fotoğraflarının boyut sınırına takılmasını ve desteklenmeyen
+ * formatların (HEIC vb.) reddedilmesini önler. SVG vektör olduğu için dokunulmaz.
+ * Çözülemezse (ör. Chrome'da HEIC) orijinali döndürür; sunucu yine doğrular.
+ */
+async function kucultGorsel(file: File): Promise<File> {
+  if (file.type === "image/svg+xml") return file;
+  const MAX_KENAR = 1600;
+  try {
+    const dataUrl: string = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result as string);
+      r.onerror = () => reject(new Error("okunamadı"));
+      r.readAsDataURL(file);
+    });
+    const img: HTMLImageElement = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = () => reject(new Error("açılamadı"));
+      i.src = dataUrl;
+    });
+    const olcek = Math.min(1, MAX_KENAR / Math.max(img.width, img.height));
+    const w = Math.max(1, Math.round(img.width * olcek));
+    const h = Math.max(1, Math.round(img.height * olcek));
+    const canvas = document.createElement("canvas");
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(img, 0, 0, w, h);
+    const blob: Blob | null = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/jpeg", 0.85));
+    if (!blob) return file;
+    return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+  } catch {
+    return file;
+  }
+}
+
 function PopupTab() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -700,7 +738,7 @@ function PopupTab() {
       fd.set("baslangic", new Date(form.baslangic).toISOString());
       fd.set("bitis", new Date(form.bitis).toISOString());
       fd.set("aktif", form.aktif ? "1" : "0");
-      if (gorselFile) fd.set("gorsel", gorselFile);
+      if (gorselFile) fd.set("gorsel", await kucultGorsel(gorselFile));
       if (editId && gorselSil) fd.set("gorselSil", "1");
       const res = await fetch(editId ? `/api/popuplar/${editId}` : "/api/popuplar", { method: editId ? "PATCH" : "POST", body: fd });
       const d = await res.json().catch(() => null);
@@ -750,7 +788,7 @@ function PopupTab() {
                 <img src={onizleme} alt="" className="h-20 w-32 object-cover rounded-lg border" style={{ borderColor: "var(--border)" }} />
               )}
               <input
-                type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                type="file" accept="image/*"
                 onChange={e => gorselSec(e.target.files?.[0] ?? null)}
                 className="text-[13px]"
               />
