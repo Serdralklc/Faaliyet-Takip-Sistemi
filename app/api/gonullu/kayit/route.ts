@@ -19,13 +19,15 @@ const schema = z
     bolum:       zKisaMetinOptional,
     okul:        zKisaMetinOptional,
     il:          zKisaMetinOptional,
+    // SerGenç ana rol — başvuruda seçilir
+    serGencRol:  z.enum(["UNIVERSITE", "LISE"]).optional().nullable(),
   });
 
 export async function POST(req: NextRequest) {
   try {
     const r = await parseJson(req, schema);
     if ("error" in r) return r.error;
-    const { adSoyad, telefon, email, sifre, ogrenim, ogrenimTuru, bolum, okul, il } = r.data;
+    const { adSoyad, telefon, email, sifre, ogrenim, ogrenimTuru, bolum, okul, il, serGencRol } = r.data;
 
     // Telefon tekrar kontrolü — zTelefon normalize ettiği için
     // "0555 123 45 67" ile "05551234567" artık aynı kayda çarpar
@@ -52,6 +54,7 @@ export async function POST(req: NextRequest) {
         bolum:       ogrenim === "UNIVERSITE" && bolum ? bolum : null,
         okul:        ogrenim === "UNIVERSITE" && okul ? okul : null,
         il:          il || null,
+        serGencRol:  serGencRol ?? null,
       },
       select: { id: true, adSoyad: true, telefon: true, email: true },
     });

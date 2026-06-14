@@ -32,7 +32,7 @@ export default function GonulluKayitPage() {
 
   const [form, setForm] = useState({
     adSoyad: "", telefon: "", email: "", sifre: "", sifreTekrar: "",
-    ogrenim: "", ogrenimTuru: "", bolum: "", okul: "", il: "",
+    ogrenim: "", ogrenimTuru: "", bolum: "", okul: "", il: "", serGencRol: "",
   });
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
@@ -59,6 +59,7 @@ export default function GonulluKayitPage() {
           bolum:       form.bolum       || undefined,
           okul:        form.okul        || undefined,
           il:          form.il          || undefined,
+          serGencRol:  form.serGencRol  || undefined,
         }),
       });
       const data = await res.json();
@@ -143,6 +144,18 @@ export default function GonulluKayitPage() {
                 <option value="ORTAOKUL">Ortaokul</option>
                 <option value="LISE">Lise</option>
                 <option value="UNIVERSITE">Üniversite</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={labelSt}>Gençlik Birimi (Ana Rol) *</label>
+              <select required style={{ ...inputSt, cursor: "pointer" }}
+                value={form.serGencRol} onChange={e => set("serGencRol", e.target.value)}
+                onFocus={e => (e.target.style.borderColor = BRAND.green)}
+                onBlur={e  => (e.target.style.borderColor = COLORS.br)}>
+                <option value="">Seçiniz...</option>
+                <option value="UNIVERSITE">Üniversite Gençlik</option>
+                <option value="LISE">Lise Gençlik</option>
               </select>
             </div>
 

@@ -19,10 +19,10 @@ interface Faaliyet {
 }
 
 const THIS_YEAR = new Date().getFullYear();
+// Lise Gençlik yalnızca 1. ve 2. dönemden oluşur (yaz dönemi yok)
 const DONEMLER: { value: string; label: string }[] = [
   { value: "DONEM_1", label: "1. Dönem" },
   { value: "DONEM_2", label: "2. Dönem" },
-  { value: "YAZ_DONEMI", label: "Yaz Dönemi" },
 ];
 
 function bugunStr() {
