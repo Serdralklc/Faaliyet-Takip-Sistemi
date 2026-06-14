@@ -134,15 +134,25 @@ export function TurkiyeHarita() {
     return m;
   }, [paths]);
 
+  // Tüm Türkiye'nin gerçek sınır kutusu (boş tuvali kırpıp haritayı büyütür)
+  const tumBBox = useMemo(() => {
+    if (!paths) return "0 0 1024 800";
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const k in paths) { const { xs, ys } = pathXY(paths[k]); for (const x of xs) { if (x < minX) minX = x; if (x > maxX) maxX = x; } for (const y of ys) { if (y < minY) minY = y; if (y > maxY) maxY = y; } }
+    if (!isFinite(minX)) return "0 0 1024 800";
+    const pad = 8;
+    return `${minX - pad} ${minY - pad} ${maxX - minX + pad * 2} ${maxY - minY + pad * 2}`;
+  }, [paths]);
+
   const viewBox = useMemo(() => {
-    if (seciliBolge == null || !paths) return "0 0 1024 800";
-    const kodlar = bolgeKodlari.get(seciliBolge); if (!kodlar?.size) return "0 0 1024 800";
+    if (seciliBolge == null || !paths) return tumBBox;
+    const kodlar = bolgeKodlari.get(seciliBolge); if (!kodlar?.size) return tumBBox;
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     for (const k of kodlar) { const d = paths[k]; if (!d) continue; const { xs, ys } = pathXY(d); minX = Math.min(minX, ...xs); maxX = Math.max(maxX, ...xs); minY = Math.min(minY, ...ys); maxY = Math.max(maxY, ...ys); }
-    if (!isFinite(minX)) return "0 0 1024 800";
+    if (!isFinite(minX)) return tumBBox;
     const pad = Math.max(maxX - minX, maxY - minY) * 0.12 + 15;
     return `${minX - pad} ${minY - pad} ${maxX - minX + pad * 2} ${maxY - minY + pad * 2}`;
-  }, [seciliBolge, bolgeKodlari, paths]);
+  }, [seciliBolge, bolgeKodlari, paths, tumBBox]);
 
   function ilFill(kod: string): string {
     const il = iller[kod];
@@ -251,7 +261,7 @@ export function TurkiyeHarita() {
           {!paths || !data ? (
             <p className="p-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>Harita yükleniyor…</p>
           ) : (
-            <svg viewBox={viewBox} className="w-full h-auto" style={{ maxHeight: "70vh", transition: "all 0.4s ease" }} role="img" aria-label="Lise Gençlik Türkiye haritası">
+            <svg viewBox={viewBox} className="w-full h-auto" style={{ maxHeight: "78vh", transition: "all 0.4s ease" }} role="img" aria-label="Lise Gençlik Türkiye haritası">
               <defs>
                 {[...bolgeYollari].map(([no, d]) => (
                   <mask key={`m-${no}`} id={`bolgemask-${no}`} maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="800">
@@ -286,7 +296,7 @@ export function TurkiyeHarita() {
                 if (!gorunur(kod)) return null;
                 const il = iller[kod]; const c = centroids[kod]; if (!c) return null;
                 const deg = etiketDeger(il);
-                const fs = seciliBolge != null ? 7 : 5.5;
+                const fs = seciliBolge != null ? 7 : 6.5;
                 return (
                   <g key={`l-${kod}`} pointerEvents="none">
                     <text x={c.x} y={c.y - (deg ? 4 : 0)} textAnchor="middle" dominantBaseline="central" style={{ fontSize: fs, fontWeight: 700, fill: "#0f172a" }}>{IL_BILGI[kod]?.ad ?? kod}</text>
