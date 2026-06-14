@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { zKisaMetin } from "./validation";
+import { rolSistemi } from "./constants";
 
 /** Dinamik form — paylaşılan şema ve görünürlük yardımcıları */
 
@@ -103,4 +104,51 @@ export function formWhere(user: { role: string; sistem?: string | null }) {
     { sistemEgitim: true };
 
   return { durum: "YAYINDA" as const, ...rolFiltre, ...sistemFiltre };
+}
+
+// ── Form Yönetimi rol bazlı yetki (Üni/Lise Gençlik ana rolleri) ───────
+// Üniversite/Lise Gençlik sorumlusu (rolSistemi != null): yalnız kendi sisteminin
+// formlarını görür; yalnız KENDİ oluşturduğu formu düzenler/siler; başkasının
+// (admin/içerik yön.) formunu yalnız görüntüler. Diğer yöneticiler tam yetkili.
+
+/** Form Yönetimi LİSTESİ için WHERE — sistem-kısıtlı sorumlu yalnız kendi sistemi
+ *  (yayınlanmış formlar + kendi oluşturdukları). Tam yetkili roller → null (hepsi). */
+export function formYonetimWhere(user: { id: string; role: string }) {
+  const sistem = rolSistemi(user.role);
+  if (!sistem) return null;
+  const sistemFiltre = sistem === "UNIVERSITE" ? { sistemUniversite: true } : { sistemLise: true };
+  return { ...sistemFiltre, OR: [{ durum: "YAYINDA" as const }, { createdById: user.id }] };
+}
+
+/** Sistem-kısıtlı sorumlunun form oluştururken/düzenlerken ZORLANAN sistem bayrakları
+ *  (kendi sistemi açık, diğerleri kapalı). Tam yetkili roller → null (serbest). */
+export function formSistemKisiti(user: { role: string }):
+  | { sistemEgitim: boolean; sistemUniversite: boolean; sistemLise: boolean }
+  | null {
+  const sistem = rolSistemi(user.role);
+  if (sistem === "UNIVERSITE") return { sistemEgitim: false, sistemUniversite: true, sistemLise: false };
+  if (sistem === "LISE") return { sistemEgitim: false, sistemUniversite: false, sistemLise: true };
+  return null;
+}
+
+/** Bir kullanıcı bir formu DÜZENLEYEBİLİR/SİLEBİLİR mi?
+ *  Tam yetkili roller → her form. Sistem-kısıtlı sorumlu → yalnız kendi oluşturduğu form. */
+export function formDuzenleyebilir(
+  user: { id: string; role: string },
+  form: { createdById: string },
+): boolean {
+  if (!rolSistemi(user.role)) return true;
+  return form.createdById === user.id;
+}
+
+/** Sistem-kısıtlı sorumlu bu formu (yönetim panelinde) GÖREBİLİR mi? */
+export function formGorebilir(
+  user: { id: string; role: string },
+  form: { createdById: string; durum: string; sistemUniversite: boolean; sistemLise: boolean },
+): boolean {
+  const sistem = rolSistemi(user.role);
+  if (!sistem) return true;
+  const sistemUygun = sistem === "UNIVERSITE" ? form.sistemUniversite : form.sistemLise;
+  if (!sistemUygun) return false;
+  return form.durum === "YAYINDA" || form.createdById === user.id;
 }

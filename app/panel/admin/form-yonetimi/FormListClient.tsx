@@ -9,7 +9,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, BarChart3, Trash2, FileText, Table2, LayoutTemplate, Archive, Power } from "lucide-react";
+import { Plus, Pencil, BarChart3, Trash2, FileText, Table2, LayoutTemplate, Archive, Power, Eye } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ConfirmDialog } from "@/components/ui/Modal";
@@ -35,6 +35,8 @@ interface FormOzet {
   sistemLise: boolean;
   createdByName: string;
   createdAt: string;
+  /** Üni/Lise Gençlik sorumlusu yalnız kendi formunu düzenleyebilir (API'den gelir) */
+  duzenlenebilir?: boolean;
   _count: { yanitlar: number; sorular: number };
 }
 
@@ -237,6 +239,7 @@ export function FormListClient() {
           ) : gosterilenFormlar.map(f => {
             const durum = DURUM_BADGE[f.durum];
             const busy = busyId === f.id;
+            const yetkili = f.duzenlenebilir !== false; // sistem sorumlusu başkasının formunu yalnız görüntüler
             return (
               <div key={f.id} className="sv-section p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -262,32 +265,31 @@ export function FormListClient() {
                   <div className="flex flex-wrap items-center gap-1.5 shrink-0">
                     <Link href={`/panel/admin/form-yonetimi/${f.id}`}>
                       <Button size="sm" variant="secondary">
-                        <Pencil size={13} />
-                        Düzenle
+                        {yetkili ? <><Pencil size={13} />Düzenle</> : <><Eye size={13} />Görüntüle</>}
                       </Button>
                     </Link>
-                    {f.durum === "TASLAK" && (
+                    {yetkili && f.durum === "TASLAK" && (
                       <Button size="sm" loading={busy} onClick={() => durumDegistir(f, "YAYINDA")}>
                         Yayınla
                       </Button>
                     )}
-                    {f.durum === "YAYINDA" && (
+                    {yetkili && f.durum === "YAYINDA" && (
                       <Button size="sm" variant="secondary" loading={busy} onClick={() => durumDegistir(f, "KAPALI")}>
                         Kapat
                       </Button>
                     )}
-                    {(f.durum === "KAPALI" || f.durum === "PASIF" || f.durum === "ARSIV") && (
+                    {yetkili && (f.durum === "KAPALI" || f.durum === "PASIF" || f.durum === "ARSIV") && (
                       <Button size="sm" variant="outline" loading={busy} onClick={() => durumDegistir(f, "YAYINDA")}>
                         <Power size={13} />
                         Aktifleştir
                       </Button>
                     )}
-                    {f.durum === "YAYINDA" && (
+                    {yetkili && f.durum === "YAYINDA" && (
                       <Button size="sm" variant="ghost" loading={busy} onClick={() => durumDegistir(f, "PASIF")}>
                         Pasife Al
                       </Button>
                     )}
-                    {f.durum !== "ARSIV" && (
+                    {yetkili && f.durum !== "ARSIV" && (
                       <Button size="sm" variant="ghost" loading={busy} onClick={() => durumDegistir(f, "ARSIV")} aria-label={`${f.baslik} formunu arşivle`}>
                         <Archive size={13} />
                       </Button>
@@ -298,9 +300,11 @@ export function FormListClient() {
                         Sonuçlar ({f._count.yanitlar})
                       </Button>
                     </Link>
-                    <Button size="sm" variant="ghost" onClick={() => setSilinecek(f)} aria-label={`${f.baslik} formunu sil`}>
-                      <Trash2 size={13} className="text-red-600" />
-                    </Button>
+                    {yetkili && (
+                      <Button size="sm" variant="ghost" onClick={() => setSilinecek(f)} aria-label={`${f.baslik} formunu sil`}>
+                        <Trash2 size={13} className="text-red-600" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>

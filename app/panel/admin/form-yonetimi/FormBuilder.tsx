@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, ArrowUp, ArrowDown, X, AlertTriangle, GitBranch, LayoutTemplate } from "lucide-react";
+import { Plus, ArrowUp, ArrowDown, X, AlertTriangle, GitBranch, LayoutTemplate, Lock } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Skeleton, SkeletonText } from "@/components/ui/Skeleton";
@@ -81,7 +81,12 @@ function CheckRow({
   );
 }
 
-export function FormBuilder({ formId, sablonId }: { formId?: string; sablonId?: string }) {
+export function FormBuilder({ formId, sablonId, kisitliSistem }: {
+  formId?: string;
+  sablonId?: string;
+  /** Üni/Lise Gençlik sorumlusu ise sistem seçimi buna kilitlenir */
+  kisitliSistem?: "UNIVERSITE" | "LISE" | null;
+}) {
   const router = useRouter();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -93,9 +98,10 @@ export function FormBuilder({ formId, sablonId }: { formId?: string; sablonId?: 
   const [aciklama, setAciklama] = useState("");
   const [hedefBolge, setHedefBolge] = useState(false);
   const [hedefIl, setHedefIl] = useState(false);
+  // Sistem-kısıtlı sorumlu (üni/lise) için yeni formda kendi sistemi önceden seçilir
   const [sistemEgitim, setSistemEgitim] = useState(false);
-  const [sistemUniversite, setSistemUniversite] = useState(false);
-  const [sistemLise, setSistemLise] = useState(false);
+  const [sistemUniversite, setSistemUniversite] = useState(kisitliSistem === "UNIVERSITE");
+  const [sistemLise, setSistemLise] = useState(kisitliSistem === "LISE");
   const [sorular, setSorular] = useState<SoruDraft[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -396,11 +402,19 @@ export function FormBuilder({ formId, sablonId }: { formId?: string; sablonId?: 
             <CheckRow checked={hedefBolge} onChange={setHedefBolge} label="Bölge Sorumluları" />
             <CheckRow checked={hedefIl} onChange={setHedefIl} label="İl Sorumluları" />
           </div>
-          <div className="flex flex-wrap gap-2">
-            <CheckRow checked={sistemEgitim} onChange={setSistemEgitim} label="Eğitim Sistemi" />
-            <CheckRow checked={sistemUniversite} onChange={setSistemUniversite} label="Üniversite Sistemi" />
-            <CheckRow checked={sistemLise} onChange={setSistemLise} label="Lise Sistemi" />
-          </div>
+          {kisitliSistem ? (
+            <div className="flex items-center gap-2 rounded-lg border px-3 py-2 text-[12.5px]"
+              style={{ background: "var(--bg-subtle)", borderColor: "var(--border)", color: "var(--text-secondary)" }}>
+              <Lock size={13} />
+              Sistem: <b>{kisitliSistem === "UNIVERSITE" ? "Üniversite Gençlik" : "Lise Gençlik"}</b> (rolünüze sabit)
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              <CheckRow checked={sistemEgitim} onChange={setSistemEgitim} label="Eğitim Sistemi" />
+              <CheckRow checked={sistemUniversite} onChange={setSistemUniversite} label="Üniversite Sistemi" />
+              <CheckRow checked={sistemLise} onChange={setSistemLise} label="Lise Sistemi" />
+            </div>
+          )}
         </div>
       </div>
 

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { parseJson } from "@/lib/validation";
-import { formSchema } from "@/lib/form-yonetimi";
+import { formSchema, formYonetimWhere, formSistemKisiti, formDuzenleyebilir } from "@/lib/form-yonetimi";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { YONETICI_ROLLERI } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
@@ -14,18 +14,22 @@ function isAdmin(role?: string) {
   return !!role && YONETICI_ROLLERI.includes(role as Role);
 }
 
-/** GET — tüm formlar (yönetici) */
+/** GET — formlar (yönetici). Üni/Lise Gençlik sorumlusu yalnız kendi sistemini görür. */
 export async function GET() {
   const session = await getSession();
   if (!session?.user || !isAdmin(session.user.role)) {
     return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
   }
 
+  const where = formYonetimWhere(session.user);
   const formlar = await prisma.dinamikForm.findMany({
+    where: where ?? undefined,
     orderBy: { createdAt: "desc" },
     include: { _count: { select: { yanitlar: true, sorular: true } } },
   });
-  return NextResponse.json(formlar);
+  // Her forma "düzenlenebilir" bayrağı (sahibi olmadığı formu sistem sorumlusu düzenleyemez)
+  const cevap = formlar.map((f) => ({ ...f, duzenlenebilir: formDuzenleyebilir(session.user, f) }));
+  return NextResponse.json(cevap);
 }
 
 /** POST — yeni form (taslak olarak oluşur) */
@@ -39,9 +43,13 @@ export async function POST(req: NextRequest) {
   if ("error" in r) return r.error;
   const { sorular, ...meta } = r.data;
 
+  // Üni/Lise Gençlik sorumlusu: sistem yalnız kendi sistemine zorlanır (diğerleri kapalı)
+  const kisit = formSistemKisiti(session.user);
+  const metaSon = kisit ? { ...meta, ...kisit } : meta;
+
   const form = await prisma.dinamikForm.create({
     data: {
-      ...meta,
+      ...metaSon,
       createdById: session.user.id,
       createdByName: `${session.user.ad} ${session.user.soyad}`,
       sorular: { create: sorular.map((s, i) => ({ ...s, sira: i })) },

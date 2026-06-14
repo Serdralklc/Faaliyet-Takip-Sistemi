@@ -6,7 +6,7 @@ import { parseJson } from "@/lib/validation";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { YONETICI_ROLLERI } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
-import { soruSchema } from "@/lib/form-yonetimi";
+import { soruSchema, formDuzenleyebilir, formGorebilir, formSistemKisiti } from "@/lib/form-yonetimi";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +37,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     include: { sorular: { orderBy: { sira: "asc" } }, _count: { select: { yanitlar: true } } },
   });
   if (!form) return NextResponse.json({ error: "Form bulunamadı." }, { status: 404 });
-  return NextResponse.json(form);
+  // Üni/Lise Gençlik sorumlusu yalnız kendi sistemindeki (yayında/kendi) formu görebilir
+  if (!formGorebilir(session.user, form)) {
+    return NextResponse.json({ error: "Bu formu görme yetkiniz yok." }, { status: 403 });
+  }
+  return NextResponse.json({ ...form, duzenlenebilir: formDuzenleyebilir(session.user, form) });
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -55,6 +59,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   });
   if (!mevcut) return NextResponse.json({ error: "Form bulunamadı." }, { status: 404 });
 
+  // Üni/Lise Gençlik sorumlusu yalnız KENDİ oluşturduğu formu düzenleyebilir
+  if (!formDuzenleyebilir(session.user, mevcut)) {
+    return NextResponse.json({ error: "Bu formu düzenleme yetkiniz yok (yalnız kendi oluşturduğunuz formlar)." }, { status: 403 });
+  }
+
   if (sorular && mevcut._count.yanitlar > 0) {
     return NextResponse.json(
       { error: "Yanıt alınmış bir formun soruları değiştirilemez. Yeni bir form oluşturun." },
@@ -62,10 +71,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     );
   }
 
+  // Sistem-kısıtlı sorumlu sistemi değiştiremez (kendi sistemine sabitlenir)
+  const kisit = formSistemKisiti(session.user);
+  const metaSon = kisit ? { ...meta, ...kisit } : meta;
+
   const form = await prisma.dinamikForm.update({
     where: { id },
     data: {
-      ...meta,
+      ...metaSon,
       ...(sorular
         ? { sorular: { deleteMany: {}, create: sorular.map((s, i) => ({ ...s, sira: i })) } }
         : {}),
@@ -92,8 +105,13 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   if (!session?.user || !isAdmin(session.user.role)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
 
   const { id } = await params;
-  const form = await prisma.dinamikForm.findUnique({ where: { id }, select: { baslik: true } });
+  const form = await prisma.dinamikForm.findUnique({ where: { id }, select: { baslik: true, createdById: true } });
   if (!form) return NextResponse.json({ error: "Form bulunamadı." }, { status: 404 });
+
+  // Üni/Lise Gençlik sorumlusu yalnız KENDİ oluşturduğu formu silebilir
+  if (!formDuzenleyebilir(session.user, form)) {
+    return NextResponse.json({ error: "Bu formu silme yetkiniz yok (yalnız kendi oluşturduğunuz formlar)." }, { status: 403 });
+  }
 
   await prisma.dinamikForm.delete({ where: { id } }); // sorular + yanıtlar cascade
 
