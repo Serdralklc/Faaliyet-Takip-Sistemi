@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatDateTR } from "@/lib/format";
+import { stripTags } from "@/lib/sanitize-html";
 import { ClipboardList, FileText } from "lucide-react";
 
 interface FormOzet {
@@ -76,7 +77,7 @@ export function FormlarimClient() {
               </div>
 
               {form.aciklama && (
-                <p className="mt-1.5 text-[13px] text-secondary leading-relaxed line-clamp-3">{form.aciklama}</p>
+                <p className="mt-1.5 text-[13px] text-secondary leading-relaxed line-clamp-3">{stripTags(form.aciklama)}</p>
               )}
 
               <div className="mt-3 flex items-center gap-2 text-[12px] text-muted">

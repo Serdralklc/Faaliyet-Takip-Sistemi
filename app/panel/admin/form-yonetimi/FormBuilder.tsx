@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Skeleton, SkeletonText } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import {
   TUM_SORU_TIPLERI, SORU_TIP_LABEL, seceneklimi, cevapsizTip, kosulKaynagiOlabilir,
   type SoruTip,
@@ -323,14 +324,15 @@ export function FormBuilder({ formId }: { formId?: string }) {
           placeholder="Örn: 2026 Bahar Dönemi Faaliyet Anketi"
           maxLength={200}
         />
-        <Textarea
-          label="Açıklama"
-          value={aciklama}
-          onChange={e => setAciklama(e.target.value)}
-          placeholder="Formun amacını kısaca açıklayın (isteğe bağlı)"
-          rows={3}
-          maxLength={2000}
-        />
+        <div>
+          <label className="block text-[12px] font-bold uppercase tracking-wider text-muted mb-1.5">Açıklama</label>
+          <RichTextEditor
+            value={aciklama}
+            onChange={setAciklama}
+            placeholder="Formun amacını açıklayın — kalın, başlık, liste, renk, görsel, tablo, bağlantı ekleyebilirsiniz (isteğe bağlı)"
+            ariaLabel="Form açıklaması"
+          />
+        </div>
       </div>
 
       {/* ── Görünürlük ── */}

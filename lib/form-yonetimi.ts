@@ -75,7 +75,7 @@ export const soruSchema = z.object({
 export const formSchema = z
   .object({
     baslik: zKisaMetin,
-    aciklama: z.string().trim().max(2000).optional(),
+    aciklama: z.string().trim().max(20000).optional(), // zengin metin (HTML) taşır
     hedefBolge: z.boolean().optional().default(false),
     hedefIl: z.boolean().optional().default(false),
     sistemEgitim: z.boolean().optional().default(false),

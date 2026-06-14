@@ -16,6 +16,7 @@ import { ConfirmDialog } from "@/components/ui/Modal";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { formatDateTR } from "@/lib/format";
+import { stripTags } from "@/lib/sanitize-html";
 
 type Durum = "TASLAK" | "YAYINDA" | "KAPALI";
 
@@ -199,7 +200,7 @@ export function FormListClient() {
                       <Badge tone={durum.tone}>{durum.label}</Badge>
                     </div>
                     {f.aciklama && (
-                      <p className="text-[13px] text-muted mt-1 line-clamp-2">{f.aciklama}</p>
+                      <p className="text-[13px] text-muted mt-1 line-clamp-2">{stripTags(f.aciklama)}</p>
                     )}
                     <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
                       <Badge tone="neutral">{f._count.sorular} soru</Badge>

@@ -17,6 +17,7 @@ import { useToast } from "@/components/ui/Toast";
 import { formatDateTR } from "@/lib/format";
 import { ArrowLeft, CheckCircle2, Download, Upload, X, AlertTriangle } from "lucide-react";
 import { type SoruTip, cevapsizTip, formSoruGorunur } from "@/lib/form-yonetimi";
+import { RichTextView } from "@/components/ui/RichTextView";
 
 interface Soru {
   id: string;
@@ -282,8 +283,12 @@ export function FormDoldurClient({ formId }: { formId: string }) {
 
       <div className="sv-page-header" style={{ marginBottom: 0 }}>
         <h1>{form.baslik}</h1>
-        {form.aciklama && <p>{form.aciklama}</p>}
       </div>
+      {form.aciklama && (
+        <div className="sv-section p-5">
+          <RichTextView html={form.aciklama} className="text-[13.5px] text-secondary" />
+        </div>
+      )}
 
       {/* ── Salt-okunur mod ── */}
       {yanit ? (
