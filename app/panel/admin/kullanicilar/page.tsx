@@ -215,8 +215,8 @@ function AnaRolHucre({ k, canRol, onChange }: { k: Kullanici; canRol: boolean; o
   );
 }
 
-// Yan rol açılır menüsü (9 yan rol, çoklu) — yalnızca admin
-function YanRolMenu({ k, onToggle }: { k: Kullanici; onToggle: (yanRol: string, deger: boolean) => void }) {
+// Yan rol açılır menüsü (çoklu). İçerik Yöneticisi yan rolü yalnızca Sistem Admini'nce değiştirilebilir.
+function YanRolMenu({ k, canIcerikRol, onToggle }: { k: Kullanici; canIcerikRol: boolean; onToggle: (yanRol: string, deger: boolean) => void }) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ top?: number; bottom?: number; left: number } | null>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -253,12 +253,17 @@ function YanRolMenu({ k, onToggle }: { k: Kullanici; onToggle: (yanRol: string, 
             className="fixed z-[101] w-72 rounded-xl border shadow-xl p-2 bg-card max-h-80 overflow-y-auto text-left"
             style={{ ...(pos.top != null ? { top: pos.top } : { bottom: pos.bottom }), left: pos.left, borderColor: "var(--border)" }}
           >
-            {YAN_ROLLER.map(y => (
-              <label key={y.kod} className="flex items-start gap-2 px-2 py-2 rounded-lg hover:bg-th cursor-pointer text-left">
-                <input type="checkbox" className="mt-0.5 shrink-0" checked={secili.has(y.kod)} onChange={e => onToggle(y.kod, e.target.checked)} />
-                <span className="text-sm text-heading leading-snug">{y.ad}</span>
-              </label>
-            ))}
+            {YAN_ROLLER.map(y => {
+              const kilitli = y.kod === "ICERIK_YONETICISI" && !canIcerikRol;
+              return (
+                <label key={y.kod}
+                  className={`flex items-start gap-2 px-2 py-2 rounded-lg text-left ${kilitli ? "opacity-50 cursor-not-allowed" : "hover:bg-th cursor-pointer"}`}
+                  title={kilitli ? "İçerik Yöneticisi yan rolünü yalnızca Sistem Admini değiştirebilir" : undefined}>
+                  <input type="checkbox" className="mt-0.5 shrink-0" disabled={kilitli} checked={secili.has(y.kod)} onChange={e => onToggle(y.kod, e.target.checked)} />
+                  <span className="text-sm text-heading leading-snug">{y.ad}</span>
+                </label>
+              );
+            })}
           </div>
         </>,
         document.body
@@ -814,8 +819,8 @@ export default function KullanicilarPage() {
             emptyText="Yetkili kullanıcı bulunamadı"
             rowActions={k => (
               <div className="flex gap-1.5 justify-end flex-wrap items-center">
-                {canIcerik && MERKEZ_TIER_ROLLER.includes(k.role) && (
-                  <YanRolMenu k={k} onToggle={(yr, d) => handleYanRol(k, yr, d)} />
+                {canRol && MERKEZ_TIER_ROLLER.includes(k.role) && (
+                  <YanRolMenu k={k} canIcerikRol={canIcerik} onToggle={(yr, d) => handleYanRol(k, yr, d)} />
                 )}
                 <Button size="sm" variant="secondary" onClick={() => { setShowSifreModal(k); setYeniSifre(""); }}>Şifre Ata</Button>
                 {canRol && k.role !== "SISTEM_ADMIN" && (
