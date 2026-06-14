@@ -248,6 +248,16 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
     ],
   };
 
+  // Bölge Eğitim — Barınma Yönetimi (ev/yurt başvuruları bu sekmenin altında)
+  const bolgeBarinmaGroup: NavGroupDef = {
+    label: "Barınma Yönetimi",
+    icon: Home,
+    items: [
+      { href: "/panel/bolge/barinma", label: "Ev / Apart / Yurt", icon: Home },
+      { href: "/panel/bolge/ek-kayit-basvurulari", label: "Ev / Yurt Başvuruları", icon: Building2 },
+    ],
+  };
+
   const roleLabel = gorevEtiket(user.role, user.sistem, user.merkezGorev);
 
   const locationLabel = user.activeIlAd
@@ -393,8 +403,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavGroupComp group={bolgeEgitimFaaliyet} />
             <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
             <NavItem href="/panel/bolge/iller" label="Eksik Veri Girişi – İller" icon={MapPin} />
-            <NavItem href="/panel/bolge/barinma" label="Barınma Yönetimi" icon={Home} />
-            <NavItem href="/panel/bolge/ek-kayit-basvurulari" label="Ev / Yurt Başvuruları" icon={Building2} />
+            <NavGroupComp group={bolgeBarinmaGroup} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />

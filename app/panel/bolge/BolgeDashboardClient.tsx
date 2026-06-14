@@ -3,10 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import {
-  BIRIMLER, BIRIM_ETIKET, durumEtiket,
-  type BirimDurum, type BirimKey,
-} from "@/lib/birimDurum";
+import { type BirimDurum, type BirimKey } from "@/lib/birimDurum";
 import { ANALIZ_SORULAR, ANALIZ_BIRIM_LABEL, type AnalizBirim } from "@/lib/analiz-sorular";
 
 const DONEM_LABEL: Record<string, string> = {
@@ -23,21 +20,6 @@ export interface IlDurum {
   tamam: boolean;
 }
 
-function DurumPill({ durum, birim }: { durum: BirimDurum; birim: BirimKey }) {
-  const stil =
-    durum === "girildi"
-      ? { background: "rgba(5,150,105,0.12)", color: "#047857", dot: "#10B981" }
-      : durum === "muaf"
-      ? { background: "rgba(120,113,108,0.12)", color: "#57534E", dot: "#A8A29E" }
-      : { background: "rgba(220,38,38,0.10)", color: "#DC2626", dot: "#EF4444" };
-  return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-bold whitespace-nowrap"
-      style={{ background: stil.background, color: stil.color }}>
-      <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: stil.dot }} />
-      {durumEtiket(durum, birim)}
-    </span>
-  );
-}
 
 export function BolgeDashboardClient({
   bolgeAd, iller, ilAnaliz, yil, donem, yillar,
@@ -134,56 +116,22 @@ export function BolgeDashboardClient({
         </div>
       </div>
 
-      {/* İl × birim durum tablosu */}
-      <div className="rounded-xl border overflow-hidden" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
-        <div className="px-5 py-3 border-b flex items-center justify-between" style={{ background: "var(--bg-th)", borderColor: "var(--border)" }}>
-          <h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>İl Durumları</h2>
-          <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>
-            {yil} / {DONEM_LABEL[donem]}
-          </span>
+      {/* İl bazlı veri durumu detayları "Eksik Veri Girişi – İller" sekmesinde */}
+      <button onClick={() => router.push("/panel/bolge/iller")}
+        className="w-full rounded-xl border p-5 flex items-center justify-between text-left transition hover:bg-[color:var(--bg-hover)]"
+        style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+        <div>
+          <h2 className="font-bold text-sm flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+            İl Veri Durumları (girildi / eksik)
+          </h2>
+          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+            {tamamSayi} il tamam · {eksikSayi} il eksik — il × birim detayları için tıklayın
+          </p>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead style={{ background: "var(--bg-th)" }}>
-              <tr className="border-b" style={{ borderColor: "var(--border)" }}>
-                {["İl", "İl Eğitimcisi", ...BIRIMLER.map(b => BIRIM_ETIKET[b])].map(h => (
-                  <th key={h} className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap"
-                    style={{ color: "var(--text-muted)" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {iller.map(il => (
-                <tr key={il.id} className="border-t hover:bg-[color:var(--bg-hover)] transition" style={{ borderColor: "var(--border)" }}>
-                  <td className="px-4 py-3 font-bold whitespace-nowrap" style={{ color: "var(--text-primary)" }}>{il.ad}</td>
-                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--text-secondary)" }}>
-                    {il.sorumlu ?? <span style={{ color: "var(--text-muted)" }}>—</span>}
-                  </td>
-                  {BIRIMLER.map(b => (
-                    <td key={b} className="px-4 py-3">
-                      <DurumPill durum={il.durumlar[b]} birim={b} />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-              {iller.length === 0 && (
-                <tr>
-                  <td colSpan={2 + BIRIMLER.length} className="px-4 py-8 text-center text-sm" style={{ color: "var(--text-muted)" }}>
-                    Bölgenize henüz il atanmamış.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <p className="text-xs mt-3" style={{ color: "var(--text-muted)" }}>
-        <strong>Girildi</strong>: il eğitimcisi o birime veri girmiş ·
-        {" "}<strong>Girilmedi</strong>: veri bekleniyor ·
-        {" "}<strong>Çalışma yok / Ev-apart-yurt yok</strong>: il eğitimcisi o birimi muaf işaretlemiş (faaliyet/birim yok).
-        {" "}Detay için <strong>İller</strong> sayfasına bakın.
-      </p>
+        <span className="text-sm font-bold px-3 py-1.5 rounded-lg" style={{ background: "var(--bg-th)", color: "var(--text-secondary)" }}>
+          Eksik Veri Girişi – İller →
+        </span>
+      </button>
     </div>
   );
 }
