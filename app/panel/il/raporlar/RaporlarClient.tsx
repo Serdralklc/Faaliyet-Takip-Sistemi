@@ -294,9 +294,9 @@ export default function RaporlarClient({
                           value={n(f.ik_elifBaOgrenci) + n(f.ik_kuranOgrenci)} bold />
                         <MetrikRow label="Kur'an'a Geçen" value={n(f.ik_gecisOgrenci)} />
                         <div className="mt-2">
-                          <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Kur'an'a Geçiş Başarısı</p>
+                          <p className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Kur'an'a Geçiş Başarısı (Geçen ÷ Elif Ba'dan Başlayan)</p>
                           <ProgressBar
-                            value={pct(n(f.ik_gecisOgrenci), n(f.ik_elifBaOgrenci) + n(f.ik_kuranOgrenci))}
+                            value={pct(n(f.ik_gecisOgrenci), n(f.ik_elifBaOgrenci))}
                             color="#006B3F"
                           />
                         </div>

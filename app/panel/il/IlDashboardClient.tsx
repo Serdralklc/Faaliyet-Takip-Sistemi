@@ -201,7 +201,9 @@ export default function IlDashboardClient({
   const ikPct  = aktifF ? pct(n(aktifF.ik_kursuYapilanDergah), n(aktifF.ik_toplamDergah)) : 0;
   const lsPct  = aktifF ? pct(n(aktifF.ls_ilimSohbetDergah),  n(aktifF.ls_toplamDergah))  : 0;
   const uniPct = aktifF ? pct(n(aktifF.uni_ilimSohbetDergah), n(aktifF.uni_toplamDergah)) : 0;
-  const ikGecis = aktifF ? pct(n(aktifF.ik_gecisOgrenci), n(aktifF.ik_elifBaOgrenci) + n(aktifF.ik_kuranOgrenci)) : 0;
+  // Geçiş başarısı = Elif Ba'dan Kur'an'a Geçen / Elif Ba'dan Başlayan (Kur'an'la başlayanlar hariç).
+  // 69 başlayan, 69 geçen → %100. (ik_kuranOgrenci doğrudan Kur'an'la başlayan, geçiş paydasına girmez.)
+  const ikGecis = aktifF ? pct(n(aktifF.ik_gecisOgrenci), n(aktifF.ik_elifBaOgrenci)) : 0;
 
   return (
     <div className="p-6 max-w-6xl space-y-7">
