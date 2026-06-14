@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { createAuditLog } from "@/lib/audit";
-import { saveFile, deleteFile } from "@/lib/storage";
+import { saveFile, deleteFile, isBlobConfigured } from "@/lib/storage";
 import { YONETICI_ROLLERI } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 import { GORSEL_TIPLERI, MAX_GORSEL, GOSTERIMLER } from "../route";
@@ -76,7 +76,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       gorselUrl = saved.url || `/api/popuplar/${id}/gorsel`;
     } catch (e) {
       console.error("Pop-up görseli kaydedilemedi:", e);
-      return NextResponse.json({ error: "Görsel kaydedilemedi. Depolama yapılandırması eksik olabilir (Blob)." }, { status: 500 });
+      const mesaj = isBlobConfigured
+        ? `Görsel depolanamadı: ${e instanceof Error ? e.message : String(e)}`
+        : "Dosya depolama yapılandırılmamış: sunucuda BLOB_READ_WRITE_TOKEN yok. Vercel'de Blob deposunu bağlayıp projeyi YENİDEN DEPLOY edin.";
+      return NextResponse.json({ error: mesaj }, { status: 500 });
     }
   }
 
