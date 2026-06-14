@@ -554,3 +554,60 @@ export async function universiteGenclikOzeti(args: { bolgeNo?: number; ilAdi?: s
     not: ozet.toplam === 0 ? "Bu kapsam/dönem için Üniversite Gençlik sistemine faaliyet girilmemiş." : undefined,
   };
 }
+
+// ── 8) Türkiye geneli eğitimci özeti (tüm bölgeler toplamı) ────────
+export async function turkiyeOzeti(args: { yil?: number; donem?: string | null }) {
+  const yil = args.yil ?? (await varsayilanYil());
+  const donem = donemNormalize(args.donem);
+  const activities = await prisma.activity.findMany({ where: { yil, ...(donem ? { donem } : {}) } });
+  const [ilSayisi, bolgeSayisi] = await Promise.all([prisma.il.count(), prisma.bolge.count()]);
+  const veriGirenIl = new Set(activities.map((a) => a.ilId)).size;
+  const lsTop = activities.reduce((s, a) => s + lsToplamFaaliyet(a), 0);
+  const uniTop = activities.reduce((s, a) => s + uniToplamFaaliyet(a), 0);
+  return {
+    sistem: "Eğitimci Kadrosu",
+    kapsam: "Türkiye geneli",
+    yil,
+    donem: donem ? DONEM_LABEL[donem] : "Tüm dönemler",
+    bolgeSayisi,
+    ilSayisi,
+    veriGirenIlSayisi: veriGirenIl,
+    ilkogretim: topla(activities, IK_ALANLAR),
+    lise: { ...topla(activities, LS_ALANLAR), "Toplam Lise Faaliyeti (6 tür)": lsTop },
+    universite: { ...topla(activities, UNI_ALANLAR), "Toplam Üniversite Faaliyeti (8 tür)": uniTop },
+    barinma: topla(activities, EAY_ALANLAR),
+    not: veriGirenIl === 0 ? "Bu yıl/dönem için hiçbir ile eğitimci verisi girilmemiş." : undefined,
+  };
+}
+
+// ── 9) Bölge karşılaştırma / sıralama (eğitimci manşet metrikleri) ──
+export async function bolgeKarsilastir(args: { yil?: number; donem?: string | null }) {
+  const yil = args.yil ?? (await varsayilanYil());
+  const donem = donemNormalize(args.donem);
+  const bolgeler = await prisma.bolge.findMany({
+    orderBy: { no: "asc" },
+    include: { iller: { include: { activities: { where: { yil, ...(donem ? { donem } : {}) } } } } },
+  });
+  const satirlar = bolgeler.map((b) => {
+    const acts = b.iller.flatMap((i) => i.activities);
+    return {
+      bolge: b.no,
+      ad: b.ad,
+      ilSayisi: b.iller.length,
+      veriGirenIl: b.iller.filter((i) => i.activities.length > 0).length,
+      toplamDergah: acts.reduce((s, a) => s + ((a as any).ik_toplamDergah ?? 0) + ((a as any).ls_toplamDergah ?? 0) + ((a as any).uni_toplamDergah ?? 0), 0),
+      yeniIntisap: acts.reduce((s, a) => s + ((a as any).ls_yeniIntisap ?? 0) + ((a as any).uni_yeniIntisap ?? 0), 0),
+      liseFaaliyet: acts.reduce((s, a) => s + lsToplamFaaliyet(a), 0),
+      universiteFaaliyet: acts.reduce((s, a) => s + uniToplamFaaliyet(a), 0),
+      toplamFaaliyet: acts.reduce((s, a) => s + lsToplamFaaliyet(a) + uniToplamFaaliyet(a), 0),
+    };
+  });
+  return {
+    sistem: "Eğitimci Kadrosu",
+    kapsam: "Türkiye — bölge karşılaştırması",
+    yil,
+    donem: donem ? DONEM_LABEL[donem] : "Tüm dönemler",
+    aciklama: "Her bölgenin manşet eğitimci metrikleri. İstenen metriğe göre sırala/kıyasla.",
+    bolgeler: satirlar,
+  };
+}

@@ -10,6 +10,8 @@ import {
   barinmaOgrencileri,
   liseGenclikOzeti,
   universiteGenclikOzeti,
+  turkiyeOzeti,
+  bolgeKarsilastir,
 } from "./veri";
 import type { AsistanSistem } from "./kapsam";
 
@@ -29,6 +31,8 @@ const ARAC_SISTEM: Record<string, "ORTAK" | AsistanSistem> = {
   bolgeDonemKiyas: "EGITIMCI",
   hedefGerceklesme: "EGITIMCI",
   barinmaOgrencileri: "EGITIMCI",
+  turkiyeOzeti: "EGITIMCI",
+  bolgeKarsilastir: "EGITIMCI",
   universiteGenclikOzeti: "UNIVERSITE",
   liseGenclikOzeti: "LISE",
 };
@@ -133,6 +137,28 @@ const TUM_DECLARATIONS = [
     },
   },
   {
+    name: "turkiyeOzeti",
+    description: "EĞİTİMCİ KADROSU sistemi: TÜM TÜRKİYE genelinin ilköğretim/lise/üniversite/barınma birim toplamı (tüm bölgeler). 'Türkiye geneli', 'toplam kaç dergah/öğrenci', 'genel durum' gibi bölge/il belirtmeyen sorularda kullan.",
+    parameters: {
+      type: "object",
+      properties: {
+        yil: { type: "integer", description: "Yıl. Belirtilmezse en güncel." },
+        donem: { type: "string", enum: ["DONEM_1", "DONEM_2", "YAZ_DONEMI"], description: "Dönem. Belirtilmezse tüm dönemler." },
+      },
+    },
+  },
+  {
+    name: "bolgeKarsilastir",
+    description: "EĞİTİMCİ KADROSU sistemi: tüm bölgelerin manşet metriklerini (veri giren il, toplam dergah, yeni intisap, lise/üniversite faaliyet sayısı) yan yana verir. 'en çok X olan bölge', 'bölgeleri kıyasla/sırala', 'hangi bölge en aktif/önde' sorularında kullan.",
+    parameters: {
+      type: "object",
+      properties: {
+        yil: { type: "integer", description: "Yıl. Belirtilmezse en güncel." },
+        donem: { type: "string", enum: ["DONEM_1", "DONEM_2", "YAZ_DONEMI"], description: "Dönem. Belirtilmezse tüm dönemler." },
+      },
+    },
+  },
+  {
     name: "universiteGenclikOzeti",
     description: "ÜNİVERSİTE GENÇLİK sistemi (ayrı, faaliyet-bazlı): bir bölgenin/ilin üniversite gençlik faaliyetlerinin kategori bazlı özeti (ilim/sohbet, kulüp, KYK, sosyal, kafile, namaz...). Bölge/il belirtilmezse Türkiye geneli.",
     parameters: { type: "object", properties: BOLGE_IL_PARAMS },
@@ -188,6 +214,10 @@ export async function aracCalistir(
         return await hedefGerceklesme(args as any);
       case "barinmaOgrencileri":
         return await barinmaOgrencileri(args as any);
+      case "turkiyeOzeti":
+        return await turkiyeOzeti(args as any);
+      case "bolgeKarsilastir":
+        return await bolgeKarsilastir(args as any);
       case "universiteGenclikOzeti":
         return await universiteGenclikOzeti(args as any);
       case "liseGenclikOzeti":
