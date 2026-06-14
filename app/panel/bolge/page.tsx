@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import type { Donem } from "@/app/generated/prisma/client";
 import { birimDurum, ilTamam, BIRIMLER, type BirimDurum, type BirimKey } from "@/lib/birimDurum";
 import { BolgeDashboardClient, type IlDurum } from "./BolgeDashboardClient";
+import { GenclikBolgeDashboard } from "./GenclikBolgeDashboard";
+import { bolgeGenclikFaaliyetler } from "@/lib/genclik-veri";
 import { ANALIZ_TUM_ALANLAR } from "@/lib/analiz-sorular";
 
 const DONEMLER: Donem[] = ["DONEM_1", "DONEM_2", "YAZ_DONEMI"];
@@ -17,12 +19,26 @@ export default async function BolgePanelPage({
   const session = await getSession();
   if (!session?.user) redirect("/giris");
   if (session.user.role !== "BOLGE_SORUMLUSU") redirect("/");
-  // Üni/Lise gençlik bölge sorumlusu eğitimci durum tablosunu değil kendi gençlik
-  // faaliyet görünümünü görür (anasayfa = kendi sisteminin verisi).
-  if (session.user.sistem === "UNIVERSITE" || session.user.sistem === "LISE") redirect("/panel/bolge/genclik-faaliyet");
 
   const bolgeId = session.user.activeBolgeId;
   if (!bolgeId) redirect("/panel/beklemede");
+
+  // Üni/Lise gençlik bölge sorumlusu: anasayfa = kendi sisteminin il-il + birim
+  // (faaliyet türü) bazlı analizleri (eğitimci durum tablosu değil).
+  const sistem = session.user.sistem;
+  if (sistem === "UNIVERSITE" || sistem === "LISE") {
+    const bolgeAd = (await prisma.bolge.findUnique({ where: { id: bolgeId }, select: { ad: true } }))?.ad ?? "Bölge";
+    const { faaliyetler } = await bolgeGenclikFaaliyetler(bolgeId, sistem);
+    return (
+      <GenclikBolgeDashboard
+        sistem={sistem}
+        baslik={bolgeAd}
+        altBaslik={`${sistem === "UNIVERSITE" ? "Üniversite" : "Lise"} Gençlik — bölge geneli faaliyet analizleri`}
+        faaliyetler={faaliyetler}
+        faaliyetHref="/panel/bolge/genclik-faaliyet"
+      />
+    );
+  }
 
   const sp = await searchParams;
 

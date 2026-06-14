@@ -217,11 +217,12 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
       label: "Faaliyet Takip Sistemi",
       icon: ClipboardList,
       items: [
-        { href: "/panel/il/faaliyet/ilkogretim", label: "İlköğretim", icon: BookOpen },
-        { href: "/panel/il/faaliyet/lise", label: "Lise", icon: School },
-        { href: "/panel/il/faaliyet/universite", label: "Üniversite", icon: GraduationCap },
-        { href: "/panel/il/faaliyet/ortak", label: "Ortak Faaliyetler", icon: Users },
-        { href: "/panel/il/genclik-faaliyet", label: "Üni/Lise Gençlik (Görüntüle)", icon: GraduationCap },
+        { href: "/panel/il/faaliyet/ilkogretim", label: "Eğitim — İlköğretim", icon: BookOpen },
+        { href: "/panel/il/faaliyet/lise", label: "Eğitim — Lise", icon: School },
+        { href: "/panel/il/faaliyet/universite", label: "Eğitim — Üniversite", icon: GraduationCap },
+        { href: "/panel/il/faaliyet/ortak", label: "Eğitim — Ortak Faaliyetler", icon: Users },
+        { href: "/panel/il/genclik-faaliyet?sistem=UNIVERSITE", label: "Üniversite Gençlik (Görüntüle)", icon: GraduationCap },
+        { href: "/panel/il/genclik-faaliyet?sistem=LISE", label: "Lise Gençlik (Görüntüle)", icon: School },
       ],
     },
     {
@@ -234,14 +235,18 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
         { href: "/panel/il/ek-kayit-basvurulari", label: "Ev / Yurt Başvuruları", icon: Building2 },
       ],
     },
-    {
-      label: "Raporlar",
-      icon: BarChart3,
-      items: [
-        { href: "/panel/il/raporlar", label: "İl Raporları", icon: BarChart3 },
-      ],
-    },
   ];
+
+  // Bölge Eğitim Sorumlusu — "Faaliyet Takip Sistemi" açılır penceresi (3 sistem, bölgeye kısıtlı)
+  const bolgeEgitimFaaliyet: NavGroupDef = {
+    label: "Faaliyet Takip Sistemi",
+    icon: ClipboardList,
+    items: [
+      { href: "/panel/bolge/iller", label: "Eğitim Birimi", icon: BookOpen },
+      { href: "/panel/bolge/genclik-faaliyet?sistem=UNIVERSITE", label: "Üniversite Gençlik", icon: GraduationCap },
+      { href: "/panel/bolge/genclik-faaliyet?sistem=LISE", label: "Lise Gençlik", icon: School },
+    ],
+  };
 
   const roleLabel = gorevEtiket(user.role, user.sistem, user.merkezGorev);
 
@@ -385,14 +390,14 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
               Eğitim Birimi
             </p>
             <NavItem href="/panel/bolge" label="Ana Sayfa" icon={LayoutDashboard} exact />
+            <NavGroupComp group={bolgeEgitimFaaliyet} />
             <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
-            <NavItem href="/panel/bolge/genclik-faaliyet" label="Gençlik Faaliyetleri" icon={GraduationCap} />
             <NavItem href="/panel/bolge/iller" label="Eksik Veri Girişi – İller" icon={MapPin} />
             <NavItem href="/panel/bolge/barinma" label="Barınma Yönetimi" icon={Home} />
             <NavItem href="/panel/bolge/ek-kayit-basvurulari" label="Ev / Yurt Başvuruları" icon={Building2} />
-            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
-            <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
+            <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
           </>
         )}
 
@@ -404,10 +409,12 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/bolge" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/bolge/genclik-faaliyet" label="Faaliyet Takip Sistemi" icon={ClipboardList} />
+            <NavItem href="/panel/bolge/genclik-rapor" label="Raporlar" icon={BarChart3} />
+            <NavItem href="/panel/bolge/genclik-iller" label="Eksik Veri Girişi – İller" icon={MapPin} />
             <NavItem href="/panel/bolge/barinma" label="Barınma Yönetimi" icon={Home} />
-            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
-            <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
+            <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
           </>
         )}
 
@@ -419,9 +426,11 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/bolge" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/bolge/genclik-faaliyet" label="Faaliyet Takip Sistemi" icon={ClipboardList} />
-            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
-            <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
+            <NavItem href="/panel/bolge/genclik-rapor" label="Raporlar" icon={BarChart3} />
+            <NavItem href="/panel/bolge/genclik-iller" label="Eksik Veri Girişi – İller" icon={MapPin} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
+            <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
           </>
         )}
 
@@ -433,9 +442,10 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/il" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/il/lise-faaliyet" label="Faaliyet Takip Sistemi" icon={ClipboardList} />
-            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
-            <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
+            <NavItem href="/panel/il/genclik-rapor" label="Raporlar" icon={BarChart3} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
+            <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
           </>
         )}
 
@@ -447,9 +457,11 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             </p>
             <NavItem href="/panel/il" label="Ana Sayfa" icon={LayoutDashboard} exact />
             <NavItem href="/panel/il/universite-faaliyet" label="Faaliyet Takip Sistemi" icon={ClipboardList} />
-            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
-            <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
+            <NavItem href="/panel/il/genclik-rapor" label="Raporlar" icon={BarChart3} />
+            <NavItem href="/panel/il/barinma-gorunum" label="Barınma Yönetimi" icon={Home} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
+            <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
           </>
         )}
 
@@ -460,10 +472,12 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
               Ana Menü
             </p>
             <NavItem href="/panel/il" label="Ana Sayfa" icon={LayoutDashboard} exact />
-            {ilGroups.map(g => <NavGroupComp key={g.label} group={g} />)}
-            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
-            <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />
+            <NavGroupComp group={ilGroups[0]} />
+            <NavItem href="/panel/il/raporlar" label="Raporlar" icon={BarChart3} />
+            {ilGroups.slice(1).map(g => <NavGroupComp key={g.label} group={g} />)}
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
+            <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />
+            <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
           </>
         )}
       </nav>

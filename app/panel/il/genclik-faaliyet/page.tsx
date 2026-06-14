@@ -7,7 +7,11 @@ import { IlFaaliyetClient } from "@/app/panel/admin/il-faaliyet/IlFaaliyetClient
 
 // İl Eğitim Sorumlusu: kendi ilindeki Üniversite & Lise Gençlik faaliyetlerini salt görüntüler.
 // (/api/*-faaliyetler IL_SORUMLUSU'yu kendi iline kısıtlar.)
-export default async function IlGenclikFaaliyetPage() {
+export default async function IlGenclikFaaliyetPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sistem?: string }>;
+}) {
   const session = await getSession();
   if (!session?.user) redirect("/giris");
   if (session.user.role !== "IL_SORUMLUSU") redirect("/");
@@ -17,5 +21,11 @@ export default async function IlGenclikFaaliyetPage() {
   const il = await prisma.il.findUnique({ where: { id: ilId }, select: { id: true, ad: true } });
   if (!il) redirect("/panel/beklemede");
 
-  return <IlFaaliyetClient sistemler={["UNIVERSITE", "LISE"] as ("UNIVERSITE" | "LISE")[]} sabitIller={[il]} />;
+  // ?sistem ile tek sisteme daraltılır (Faaliyet Takip açılırındaki Üni/Lise sekmeleri)
+  const sp = await searchParams;
+  const sistemler = (sp.sistem === "UNIVERSITE" || sp.sistem === "LISE"
+    ? [sp.sistem]
+    : ["UNIVERSITE", "LISE"]) as ("UNIVERSITE" | "LISE")[];
+
+  return <IlFaaliyetClient sistemler={sistemler} sabitIller={[il]} />;
 }
