@@ -11,7 +11,7 @@ import {
   LayoutDashboard, Users, MapPin, FileText, ClipboardList,
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
   GraduationCap, School, BookOpen, Home, Building2,
-  Hotel, BarChart3, Settings, UserCircle, TrendingUp, X,
+  Hotel, BarChart3, Settings, UserCircle, X,
   FolderOpen, Bell, Archive, PenSquare, MessagesSquare,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
@@ -214,7 +214,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
 
   const ilGroups: NavGroupDef[] = [
     {
-      label: "Faaliyet Yönetimi",
+      label: "Faaliyet Takip Sistemi",
       icon: ClipboardList,
       items: [
         { href: "/panel/il/faaliyet/ilkogretim", label: "İlköğretim", icon: BookOpen },
@@ -384,9 +384,8 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
               Ana Menü
             </p>
             <NavItem href="/panel/bolge" label="Ana Sayfa" icon={LayoutDashboard} exact />
-            <NavItem href="/panel/bolge/iller" label="İller" icon={MapPin} />
             <NavItem href="/panel/bolge/raporlar" label="Raporlar" icon={BarChart3} />
-            <NavItem href="/panel/bolge/performans" label="Performans Paneli" icon={TrendingUp} />
+            <NavItem href="/panel/bolge/iller" label="Eksik Veri Girişi – İller" icon={MapPin} />
             <NavItem href="/panel/bolge/ek-kayit-basvurulari" label="Ev / Yurt Başvuruları" icon={Building2} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={ClipboardList} />
@@ -401,7 +400,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
               Lise Gençlik
             </p>
             <NavItem href="/panel/il" label="Ana Sayfa" icon={LayoutDashboard} exact />
-            <NavItem href="/panel/il/lise-faaliyet" label="Faaliyet Yönetimi" icon={ClipboardList} />
+            <NavItem href="/panel/il/lise-faaliyet" label="Faaliyet Takip Sistemi" icon={ClipboardList} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
@@ -415,7 +414,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
               Üniversite Gençlik
             </p>
             <NavItem href="/panel/il" label="Ana Sayfa" icon={LayoutDashboard} exact />
-            <NavItem href="/panel/il/universite-faaliyet" label="Faaliyet Yönetimi" icon={ClipboardList} />
+            <NavItem href="/panel/il/universite-faaliyet" label="Faaliyet Takip Sistemi" icon={ClipboardList} />
             <NavItem href="/panel/istisare" label="İstişare Merkezi" icon={MessagesSquare} />
             <NavItem href="/panel/formlarim" label="Formlarım" icon={FileText} />
             <NavItem href="/panel/dokumanlar" label="Dokümanlar" icon={FolderOpen} />
