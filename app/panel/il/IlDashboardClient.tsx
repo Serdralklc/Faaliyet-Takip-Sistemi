@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -162,21 +162,30 @@ export default function IlDashboardClient({
 }) {
   const son = faaliyetler[0] ?? null;
 
-  /* Tüm dönemlerin toplamları */
-  const totals = useMemo(() => {
-    let ikOgrenci = 0, lsOgrenci = 0, uniOgrenci = 0;
-    let toplamIntisap = 0, toplamFaaliyet = 0, toplamKafile = 0, toplamSabah = 0;
-    for (const f of faaliyetler) {
-      ikOgrenci    += n(f.ik_elifBaOgrenci) + n(f.ik_kuranOgrenci);
-      lsOgrenci    += n(f.ls_ilimSohbetKatilim);
-      uniOgrenci   += n(f.uni_ilimSohbetKatilim);
-      toplamIntisap   += n(f.ls_yeniIntisap) + n(f.uni_yeniIntisap);
-      toplamFaaliyet  += lsToplamFaaliyet(f) + uniToplamFaaliyet(f);
-      toplamKafile    += n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi) + n(f.ortakKafileSayisi);
-      toplamSabah     += n(f.ls_namazSayisi) + n(f.uni_namazSayisi) + n(f.ortakSabahNamaziSayisi);
-    }
-    return { ikOgrenci, lsOgrenci, uniOgrenci, toplamIntisap, toplamFaaliyet, toplamKafile, toplamSabah };
-  }, [faaliyetler]);
+  /* Yıl + dönem seçimi — metrikler seçili döneme göre gösterilir */
+  const [aktifKey, setAktifKey] = useState(son ? `${son.yil}|${son.donem}` : "");
+  const aktifF = useMemo(() => faaliyetler.find(f => `${f.yil}|${f.donem}` === aktifKey) ?? son, [faaliyetler, aktifKey, son]);
+  const aktifLabel = aktifF ? `${aktifF.yil} / ${DONEM_LABEL[aktifF.donem]}` : "";
+  const donemSecenekleri = useMemo(
+    () => faaliyetler.map(f => ({ key: `${f.yil}|${f.donem}`, label: `${f.yil} / ${DONEM_LABEL[f.donem]}` })),
+    [faaliyetler],
+  );
+
+  /* Seçili döneme ait özetler (dönemlik) */
+  const donemlik = useMemo(() => {
+    const f = aktifF;
+    if (!f) return { ikOgrenci: 0, lsOgrenci: 0, uniOgrenci: 0, yeniIntisap: 0, kafile: 0, sabah: 0, sosyal: 0, sorumluluk: 0 };
+    return {
+      ikOgrenci:   n(f.ik_elifBaOgrenci) + n(f.ik_kuranOgrenci),
+      lsOgrenci:   n(f.ls_ilimSohbetKatilim),
+      uniOgrenci:  n(f.uni_ilimSohbetKatilim),
+      yeniIntisap: n(f.ls_yeniIntisap) + n(f.uni_yeniIntisap),
+      kafile:      n(f.ls_kafileSayisi) + n(f.uni_kafileSayisi) + n(f.ortakKafileSayisi),
+      sabah:       n(f.ls_namazSayisi) + n(f.uni_namazSayisi) + n(f.ortakSabahNamaziSayisi),
+      sosyal:      n(f.ls_sosyalSayisi) + n(f.uni_sosyalSayisi),
+      sorumluluk:  n(f.ls_sorumlulukSayisi) + n(f.uni_sorumlulukSayisi),
+    };
+  }, [aktifF]);
 
   /* Grafik verisi */
   const chartData = useMemo(() =>
@@ -188,12 +197,11 @@ export default function IlDashboardClient({
     }))
   , [faaliyetler]);
 
-  /* Son dönem hesapları */
-  const ikPct  = son ? pct(n(son.ik_kursuYapilanDergah),  n(son.ik_toplamDergah))  : 0;
-  const lsPct  = son ? pct(n(son.ls_ilimSohbetDergah),  n(son.ls_toplamDergah))  : 0;
-  const uniPct = son ? pct(n(son.uni_ilimSohbetDergah), n(son.uni_toplamDergah)) : 0;
-  const ikGecis = son ? pct(n(son.ik_gecisOgrenci), n(son.ik_elifBaOgrenci) + n(son.ik_kuranOgrenci)) : 0;
-  const sonLabel = son ? `${son.yil} / ${DONEM_LABEL[son.donem]}` : "";
+  /* Seçili dönem birim hesapları */
+  const ikPct  = aktifF ? pct(n(aktifF.ik_kursuYapilanDergah), n(aktifF.ik_toplamDergah)) : 0;
+  const lsPct  = aktifF ? pct(n(aktifF.ls_ilimSohbetDergah),  n(aktifF.ls_toplamDergah))  : 0;
+  const uniPct = aktifF ? pct(n(aktifF.uni_ilimSohbetDergah), n(aktifF.uni_toplamDergah)) : 0;
+  const ikGecis = aktifF ? pct(n(aktifF.ik_gecisOgrenci), n(aktifF.ik_elifBaOgrenci) + n(aktifF.ik_kuranOgrenci)) : 0;
 
   return (
     <div className="p-6 max-w-6xl space-y-7">
@@ -211,26 +219,27 @@ export default function IlDashboardClient({
         </Link>
       </div>
 
-      {/* ── Öğrenci Özeti ── */}
+      {/* ── Öğrenci Özeti (dönemlik) ── */}
       <div>
         <p className="text-[11px] font-bold uppercase tracking-widest mb-3"
-          style={{ color: "var(--text-muted)" }}>Öğrenci Özeti (Tüm Dönemler)</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <MiniCard label="İlköğretim Öğrenci"  value={totals.ikOgrenci}   icon={BookOpen}      color="#006B3F" href="/panel/il/faaliyet/ilkogretim" />
-          <MiniCard label="Lise Öğrenci"         value={totals.lsOgrenci}   icon={School}        color="#0369A1" href="/panel/il/faaliyet/lise" />
-          <MiniCard label="Üniversite Öğrenci"   value={totals.uniOgrenci}  icon={GraduationCap} color="#7C3AED" href="/panel/il/faaliyet/universite" />
+          style={{ color: "var(--text-muted)" }}>Öğrenci Özeti — {aktifLabel}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <MiniCard label="İlköğretim Öğrenci"  value={donemlik.ikOgrenci}   icon={BookOpen}      color="#006B3F" href="/panel/il/faaliyet/ilkogretim" />
+          <MiniCard label="Lise Öğrenci"         value={donemlik.lsOgrenci}   icon={School}        color="#0369A1" href="/panel/il/faaliyet/lise" />
+          <MiniCard label="Üniversite Öğrenci"   value={donemlik.uniOgrenci}  icon={GraduationCap} color="#7C3AED" href="/panel/il/faaliyet/universite" />
+          <MiniCard label="Yeni İntisap"         value={donemlik.yeniIntisap} icon={Heart}         color="#D9BC4B" />
         </div>
       </div>
 
-      {/* ── Faaliyet Özeti ── */}
+      {/* ── Ortak Faaliyet Özeti (dönemlik) ── */}
       <div>
         <p className="text-[11px] font-bold uppercase tracking-widest mb-3"
-          style={{ color: "var(--text-muted)" }}>Faaliyet Özeti (Tüm Dönemler)</p>
+          style={{ color: "var(--text-muted)" }}>Ortak Faaliyet Özeti — {aktifLabel}</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <MiniCard label="Yeni İntisap"    value={totals.toplamIntisap}  icon={Heart}     color="#D9BC4B" />
-          <MiniCard label="Sosyal Faaliyet" value={totals.toplamFaaliyet} icon={TrendingUp} color="#0369A1" />
-          <MiniCard label="Toplam Kafile"   value={totals.toplamKafile}   icon={Compass}   color="#7C3AED" />
-          <MiniCard label="Sabah Namazı"    value={totals.toplamSabah}    icon={Sun}       color="#EA580C" />
+          <MiniCard label="Toplam Kafile"        value={donemlik.kafile}     icon={Compass}    color="#7C3AED" />
+          <MiniCard label="Sabah Namazı Buluşma" value={donemlik.sabah}      icon={Sun}        color="#EA580C" />
+          <MiniCard label="Sosyal Faaliyet"      value={donemlik.sosyal}     icon={TrendingUp} color="#0369A1" />
+          <MiniCard label="Sosyal Sorumluluk"    value={donemlik.sorumluluk} icon={Heart}      color="#059669" />
         </div>
       </div>
 
@@ -248,14 +257,20 @@ export default function IlDashboardClient({
         </div>
       </div>
 
-      {/* ── Son dönem performans ── */}
-      {son && (
+      {/* ── Birim Performansı (seçili dönem) ── */}
+      {aktifF && (
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest mb-3"
-            style={{ color: "var(--text-muted)" }}>Son Dönem — {sonLabel}</p>
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <p className="text-[11px] font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>Birim Performansı — {aktifLabel}</p>
+            <select value={aktifKey} onChange={e => setAktifKey(e.target.value)}
+              aria-label="Yıl / Dönem seç"
+              className="rounded-lg border border-[var(--border-input)] bg-input text-heading text-[12px] px-2.5 py-1.5 cursor-pointer">
+              {donemSecenekleri.map(d => <option key={d.key} value={d.key}>{d.label}</option>)}
+            </select>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-            {/* İlköğretim */}
+            {/* İlköğretim — Elif Ba geçişi + dergâh ilim % */}
             <PerfCard birim="📚 İlköğretim" color="#006B3F">
               <div className="flex items-center gap-4 mb-2">
                 <div className="relative flex-shrink-0">
@@ -265,16 +280,16 @@ export default function IlDashboardClient({
                   </div>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase" style={{ color: "var(--text-muted)" }}>Kurs Yaygınlığı</p>
+                  <p className="text-[10px] font-bold uppercase" style={{ color: "var(--text-muted)" }}>Dergâhta İlim Faaliyeti</p>
                   <PctBadge value={ikPct} color="#006B3F" />
                 </div>
               </div>
-              <PerfRow label="Toplam Öğrenci" value={n(son.ik_elifBaOgrenci) + n(son.ik_kuranOgrenci)} />
-              <PerfRow label="Kur'an'a Geçen" value={n(son.ik_gecisOgrenci)} color="#006B3F" />
+              <PerfRow label="Elif Ba'dan Başlayan" value={n(aktifF.ik_elifBaOgrenci)} />
+              <PerfRow label="Kur'an'a Geçen" value={n(aktifF.ik_gecisOgrenci)} color="#006B3F" />
               <PerfRow label="Geçiş Başarısı" value={`%${ikGecis}`} color={ikGecis >= 70 ? "#059669" : "#D9BC4B"} />
             </PerfCard>
 
-            {/* Lise */}
+            {/* Lise — dergâh ilim % + faaliyet sayıları */}
             <PerfCard birim="🎓 Lise" color="#0369A1">
               <div className="flex items-center gap-4 mb-2">
                 <div className="relative flex-shrink-0">
@@ -284,16 +299,16 @@ export default function IlDashboardClient({
                   </div>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase" style={{ color: "var(--text-muted)" }}>İlim Yaygınlığı</p>
+                  <p className="text-[10px] font-bold uppercase" style={{ color: "var(--text-muted)" }}>Dergâhta İlim Faaliyeti</p>
                   <PctBadge value={lsPct} color="#0369A1" />
                 </div>
               </div>
-              <PerfRow label="İlim/Sohbet Katılım" value={n(son.ls_ilimSohbetKatilim)} />
-              <PerfRow label="Yeni İntisap" value={n(son.ls_yeniIntisap)} color="#059669" />
-              <PerfRow label="Toplam Faaliyet" value={lsToplamFaaliyet(son)} />
+              <PerfRow label="İlim Dersi Sayısı" value={n(aktifF.ls_ilimSohbetSayisi)} />
+              <PerfRow label="Sosyal Faaliyet" value={n(aktifF.ls_sosyalSayisi)} />
+              <PerfRow label="Sosyal Sorumluluk" value={n(aktifF.ls_sorumlulukSayisi)} />
             </PerfCard>
 
-            {/* Üniversite */}
+            {/* Üniversite — dergâh ilim % + faaliyet sayıları */}
             <PerfCard birim="🎯 Üniversite" color="#7C3AED">
               <div className="flex items-center gap-4 mb-2">
                 <div className="relative flex-shrink-0">
@@ -303,13 +318,13 @@ export default function IlDashboardClient({
                   </div>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase" style={{ color: "var(--text-muted)" }}>İlim Yaygınlığı</p>
+                  <p className="text-[10px] font-bold uppercase" style={{ color: "var(--text-muted)" }}>Dergâhta İlim Faaliyeti</p>
                   <PctBadge value={uniPct} color="#7C3AED" />
                 </div>
               </div>
-              <PerfRow label="İlim/Sohbet Katılım" value={n(son.uni_ilimSohbetKatilim)} />
-              <PerfRow label="Yeni İntisap" value={n(son.uni_yeniIntisap)} color="#059669" />
-              <PerfRow label="Toplam Faaliyet" value={uniToplamFaaliyet(son)} />
+              <PerfRow label="İlim Dersi Sayısı" value={n(aktifF.uni_ilimSohbetSayisi)} />
+              <PerfRow label="Sosyal Faaliyet" value={n(aktifF.uni_sosyalSayisi)} />
+              <PerfRow label="Sosyal Sorumluluk" value={n(aktifF.uni_sorumlulukSayisi)} />
             </PerfCard>
 
           </div>
