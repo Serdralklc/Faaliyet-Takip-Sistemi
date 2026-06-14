@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, ArrowUp, ArrowDown, X, AlertTriangle, GitBranch } from "lucide-react";
+import { Plus, ArrowUp, ArrowDown, X, AlertTriangle, GitBranch, LayoutTemplate } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Skeleton, SkeletonText } from "@/components/ui/Skeleton";
@@ -81,12 +81,13 @@ function CheckRow({
   );
 }
 
-export function FormBuilder({ formId }: { formId?: string }) {
+export function FormBuilder({ formId, sablonId }: { formId?: string; sablonId?: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const keyCounter = useRef(0);
   const nextKey = () => `soru-${++keyCounter.current}-${Date.now()}`;
+  const [sablonKaydediliyor, setSablonKaydediliyor] = useState(false);
 
   const [baslik, setBaslik] = useState("");
   const [aciklama, setAciklama] = useState("");
@@ -106,6 +107,17 @@ export function FormBuilder({ formId }: { formId?: string }) {
       return res.json();
     },
     enabled: !!formId,
+  });
+
+  // Şablondan başlat (yalnızca yeni form + ?sablon)
+  const { data: sablon } = useQuery({
+    queryKey: ["form-sablon", sablonId],
+    queryFn: async () => {
+      const res = await fetch(`/api/sablonlar/${sablonId}`);
+      if (!res.ok) throw new Error("Şablon yüklenemedi.");
+      return res.json();
+    },
+    enabled: !!sablonId && !formId,
   });
 
   // Mevcut form verisini state'e aktar — yalnızca ilk yüklemede
@@ -144,6 +156,26 @@ export function FormBuilder({ formId }: { formId?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form]);
 
+  // Şablon içeriğini state'e aktar (yeni form)
+  useEffect(() => {
+    if (!sablon || yuklendiMi.current) return;
+    yuklendiMi.current = true;
+    const ss: Array<{ etiket?: string; tip: SoruTip; zorunlu?: boolean; secenekler?: string[]; aciklama?: string | null; kosulSoruId?: string | null; kosulDeger?: string | null }> = sablon.icerik?.sorular ?? [];
+    const drafts: SoruDraft[] = ss.map(s => ({
+      key: nextKey(), etiket: s.etiket ?? "", tip: s.tip, zorunlu: !!s.zorunlu,
+      seceneklerText: (s.secenekler ?? []).join("\n"), aciklama: s.aciklama ?? "",
+      kosulKey: null, kosulDeger: s.kosulDeger ?? "",
+    }));
+    ss.forEach((s, i) => {
+      if (s.kosulSoruId != null && s.kosulSoruId !== "") {
+        const idx = Number(s.kosulSoruId);
+        if (Number.isInteger(idx) && idx >= 0 && idx < drafts.length && idx !== i) drafts[i].kosulKey = drafts[idx].key;
+      }
+    });
+    setSorular(drafts);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sablon]);
+
   const yanitSayisi = form?._count?.yanitlar ?? 0;
   const sorularKilitli = !!formId && yanitSayisi > 0;
 
@@ -171,6 +203,36 @@ export function FormBuilder({ formId }: { formId?: string }) {
       [next[index], next[hedef]] = [next[hedef], next[index]];
       return next;
     });
+  }
+
+  function soruPayloadOlustur() {
+    const keyToIndex = new Map(sorular.map((s, i) => [s.key, i] as const));
+    return sorular.map(s => ({
+      etiket: s.etiket.trim(),
+      tip: s.tip,
+      zorunlu: cevapsizTip(s.tip) ? false : s.zorunlu,
+      secenekler: seceneklimi(s.tip) ? s.seceneklerText.split("\n").map(x => x.trim()).filter(Boolean) : [],
+      aciklama: s.aciklama.trim() || null,
+      // Koşul: bağlı sorunun client key'i → SIRA index'i (kalıcı, ID değişiminden bağımsız)
+      kosulSoruId: s.kosulKey != null && keyToIndex.has(s.kosulKey) ? String(keyToIndex.get(s.kosulKey)) : null,
+      kosulDeger: s.kosulKey != null ? (s.kosulDeger.trim() || null) : null,
+    }));
+  }
+
+  async function handleSablonKaydet() {
+    if (sorular.length === 0) { toast({ type: "warning", title: "Önce soru ekleyin" }); return; }
+    const ad = window.prompt("Şablon adı:", baslik.trim() || "Yeni Form Şablonu");
+    if (!ad || !ad.trim()) return;
+    setSablonKaydediliyor(true);
+    try {
+      const res = await fetch("/api/sablonlar", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ad: ad.trim(), tur: "FORM", icerik: { sorular: soruPayloadOlustur() } }),
+      });
+      if (!res.ok) { const d = await res.json().catch(() => null); toast({ type: "error", title: "Şablon kaydedilemedi", message: d?.error }); return; }
+      queryClient.invalidateQueries({ queryKey: ["sablonlar"] });
+      toast({ type: "success", title: "Şablon kaydedildi", message: ad.trim() });
+    } catch { toast({ type: "error", title: "Bağlantı hatası" }); } finally { setSablonKaydediliyor(false); }
   }
 
   async function handleKaydet() {
@@ -206,19 +268,7 @@ export function FormBuilder({ formId }: { formId?: string }) {
       sistemUniversite,
       sistemLise,
     };
-    const keyToIndex = new Map(sorular.map((s, i) => [s.key, i] as const));
-    const soruPayload = sorular.map(s => ({
-      etiket: s.etiket.trim(),
-      tip: s.tip,
-      zorunlu: cevapsizTip(s.tip) ? false : s.zorunlu,
-      secenekler: seceneklimi(s.tip)
-        ? s.seceneklerText.split("\n").map(x => x.trim()).filter(Boolean)
-        : [],
-      aciklama: s.aciklama.trim() || null,
-      // Koşul: bağlı sorunun client key'i → SIRA index'ine çevrilir (kalıcı, ID değişiminden bağımsız)
-      kosulSoruId: s.kosulKey != null && keyToIndex.has(s.kosulKey) ? String(keyToIndex.get(s.kosulKey)) : null,
-      kosulDeger: s.kosulKey != null ? (s.kosulDeger.trim() || null) : null,
-    }));
+    const soruPayload = soruPayloadOlustur();
 
     setSaving(true);
     try {
@@ -526,13 +576,21 @@ export function FormBuilder({ formId }: { formId?: string }) {
       </div>
 
       {/* ── Kaydet ── */}
-      <div className="flex items-center justify-end gap-2">
-        <Link href="/panel/admin/form-yonetimi">
-          <Button variant="secondary" disabled={saving}>Vazgeç</Button>
-        </Link>
-        <Button onClick={handleKaydet} loading={saving}>
-          {formId ? "Değişiklikleri Kaydet" : "Formu Oluştur"}
-        </Button>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        {!sorularKilitli && sorular.length > 0 ? (
+          <Button variant="outline" onClick={handleSablonKaydet} loading={sablonKaydediliyor} disabled={saving}>
+            <LayoutTemplate size={15} />
+            Şablon Olarak Kaydet
+          </Button>
+        ) : <span />}
+        <div className="flex items-center gap-2">
+          <Link href="/panel/admin/form-yonetimi">
+            <Button variant="secondary" disabled={saving}>Vazgeç</Button>
+          </Link>
+          <Button onClick={handleKaydet} loading={saving}>
+            {formId ? "Değişiklikleri Kaydet" : "Formu Oluştur"}
+          </Button>
+        </div>
       </div>
     </div>
   );

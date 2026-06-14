@@ -6,10 +6,15 @@ import { YONETICI_ROLLERI } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 import { FormBuilder } from "../FormBuilder";
 
-export default async function YeniFormPage() {
+export default async function YeniFormPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sablon?: string }>;
+}) {
   const session = await getSession();
   if (!session?.user) redirect("/giris");
   if (!YONETICI_ROLLERI.includes(session.user.role as Role)) redirect("/");
 
-  return <FormBuilder />;
+  const { sablon } = await searchParams;
+  return <FormBuilder sablonId={sablon} />;
 }

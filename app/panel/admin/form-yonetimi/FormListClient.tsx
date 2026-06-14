@@ -18,6 +18,7 @@ import { useToast } from "@/components/ui/Toast";
 import { formatDateTR } from "@/lib/format";
 import { stripTags } from "@/lib/sanitize-html";
 import { VeriTabloListClient } from "./VeriTabloListClient";
+import { SablonListClient } from "./SablonListClient";
 
 type Durum = "TASLAK" | "YAYINDA" | "KAPALI";
 
@@ -255,16 +256,7 @@ export function FormListClient() {
 
       {tur === "VERI_TABLOSU" && <VeriTabloListClient />}
 
-      {tur === "SABLON" && (
-        <div className="sv-section px-6 py-16 text-center">
-          <LayoutTemplate size={32} className="mx-auto text-muted mb-3" aria-hidden="true" />
-          <p className="text-[14.5px] font-semibold text-heading">Şablonlar</p>
-          <p className="text-[13px] text-muted mt-1 max-w-md mx-auto">
-            Hazır veri toplama şablonları (Mezun Takip, Öğrenci Evi, Kafile Katılım…). Yeni içerik
-            oluştururken şablondan başlayabilirsiniz. Bu modül hazırlanıyor.
-          </p>
-        </div>
-      )}
+      {tur === "SABLON" && <SablonListClient />}
 
       <ConfirmDialog
         open={!!silinecek}

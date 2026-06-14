@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, ArrowUp, ArrowDown, X, AlertTriangle } from "lucide-react";
+import { Plus, ArrowUp, ArrowDown, X, AlertTriangle, LayoutTemplate } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Skeleton, SkeletonText } from "@/components/ui/Skeleton";
@@ -45,12 +45,13 @@ function CheckRow({ checked, onChange, label }: { checked: boolean; onChange: (v
   );
 }
 
-export function VeriTabloBuilder({ tabloId }: { tabloId?: string }) {
+export function VeriTabloBuilder({ tabloId, sablonId }: { tabloId?: string; sablonId?: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const keyCounter = useRef(0);
   const nextKey = () => `sutun-${++keyCounter.current}-${Date.now()}`;
+  const [sablonKaydediliyor, setSablonKaydediliyor] = useState(false);
 
   const [baslik, setBaslik] = useState("");
   const [aciklama, setAciklama] = useState("");
@@ -72,6 +73,16 @@ export function VeriTabloBuilder({ tabloId }: { tabloId?: string }) {
     enabled: !!tabloId,
   });
 
+  const { data: sablon } = useQuery({
+    queryKey: ["tablo-sablon", sablonId],
+    queryFn: async () => {
+      const res = await fetch(`/api/sablonlar/${sablonId}`);
+      if (!res.ok) throw new Error("Şablon yüklenemedi.");
+      return res.json();
+    },
+    enabled: !!sablonId && !tabloId,
+  });
+
   const yuklendiMi = useRef(false);
   useEffect(() => {
     if (!tablo || yuklendiMi.current) return;
@@ -85,6 +96,17 @@ export function VeriTabloBuilder({ tabloId }: { tabloId?: string }) {
     })));
   }, [tablo]);
 
+  // Şablon içeriğini state'e aktar (yeni tablo)
+  useEffect(() => {
+    if (!sablon || yuklendiMi.current) return;
+    yuklendiMi.current = true;
+    const ss: Array<{ baslik?: string; tip: SutunTip; zorunlu?: boolean; secenekler?: string[] }> = sablon.icerik?.sutunlar ?? [];
+    setSutunlar(ss.map(s => ({
+      key: nextKey(), baslik: s.baslik ?? "", tip: s.tip, zorunlu: !!s.zorunlu, seceneklerText: (s.secenekler ?? []).join("\n"),
+    })));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sablon]);
+
   const kayitSayisi = tablo?._count?.kayitlar ?? 0;
   const sutunlarKilitli = !!tabloId && kayitSayisi > 0;
 
@@ -97,6 +119,29 @@ export function VeriTabloBuilder({ tabloId }: { tabloId?: string }) {
     const n = [...prev]; [n[i], n[h]] = [n[h], n[i]]; return n;
   });
 
+  function sutunPayloadOlustur() {
+    return sutunlar.map(s => ({
+      baslik: s.baslik.trim(), tip: s.tip, zorunlu: s.zorunlu,
+      secenekler: s.tip === "SECIM" ? s.seceneklerText.split("\n").map(x => x.trim()).filter(Boolean) : [],
+    }));
+  }
+
+  async function handleSablonKaydet() {
+    if (sutunlar.length === 0) { toast({ type: "warning", title: "Önce sütun ekleyin" }); return; }
+    const ad = window.prompt("Şablon adı:", baslik.trim() || "Yeni Tablo Şablonu");
+    if (!ad || !ad.trim()) return;
+    setSablonKaydediliyor(true);
+    try {
+      const res = await fetch("/api/sablonlar", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ad: ad.trim(), tur: "VERI_TABLOSU", icerik: { sutunlar: sutunPayloadOlustur() } }),
+      });
+      if (!res.ok) { const d = await res.json().catch(() => null); toast({ type: "error", title: "Şablon kaydedilemedi", message: d?.error }); return; }
+      queryClient.invalidateQueries({ queryKey: ["sablonlar"] });
+      toast({ type: "success", title: "Şablon kaydedildi", message: ad.trim() });
+    } catch { toast({ type: "error", title: "Bağlantı hatası" }); } finally { setSablonKaydediliyor(false); }
+  }
+
   async function handleKaydet() {
     if (!baslik.trim()) { toast({ type: "warning", title: "Başlık gerekli" }); return; }
     if (!sutunlarKilitli) {
@@ -105,10 +150,7 @@ export function VeriTabloBuilder({ tabloId }: { tabloId?: string }) {
       if (eksik) { toast({ type: "warning", title: "Seçenek eksik", message: `"${eksik.baslik || "Seçim sütunu"}" için en az 1 seçenek girin.` }); return; }
     }
     const meta = { baslik: baslik.trim(), aciklama: aciklama.trim(), hedefBolge, hedefIl, sistemEgitim, sistemUniversite, sistemLise };
-    const sutunPayload = sutunlar.map(s => ({
-      baslik: s.baslik.trim(), tip: s.tip, zorunlu: s.zorunlu,
-      secenekler: s.tip === "SECIM" ? s.seceneklerText.split("\n").map(x => x.trim()).filter(Boolean) : [],
-    }));
+    const sutunPayload = sutunPayloadOlustur();
 
     setSaving(true);
     try {
@@ -209,9 +251,16 @@ export function VeriTabloBuilder({ tabloId }: { tabloId?: string }) {
         {!sutunlarKilitli && <Button variant="outline" onClick={ekle}><Plus size={15} />Sütun Ekle</Button>}
       </div>
 
-      <div className="flex items-center justify-end gap-2">
-        <Link href="/panel/admin/form-yonetimi"><Button variant="secondary" disabled={saving}>Vazgeç</Button></Link>
-        <Button onClick={handleKaydet} loading={saving}>{tabloId ? "Değişiklikleri Kaydet" : "Tabloyu Oluştur"}</Button>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        {!sutunlarKilitli && sutunlar.length > 0 ? (
+          <Button variant="outline" onClick={handleSablonKaydet} loading={sablonKaydediliyor} disabled={saving}>
+            <LayoutTemplate size={15} />Şablon Olarak Kaydet
+          </Button>
+        ) : <span />}
+        <div className="flex items-center gap-2">
+          <Link href="/panel/admin/form-yonetimi"><Button variant="secondary" disabled={saving}>Vazgeç</Button></Link>
+          <Button onClick={handleKaydet} loading={saving}>{tabloId ? "Değişiklikleri Kaydet" : "Tabloyu Oluştur"}</Button>
+        </div>
       </div>
     </div>
   );
