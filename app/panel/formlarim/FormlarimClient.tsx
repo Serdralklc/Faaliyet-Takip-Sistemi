@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatDateTR } from "@/lib/format";
 import { stripTags } from "@/lib/sanitize-html";
-import { ClipboardList, FileText } from "lucide-react";
+import { ClipboardList, FileText, Table2 } from "lucide-react";
 
 interface FormOzet {
   id: string;
@@ -22,6 +22,15 @@ interface FormOzet {
   createdAt: string;
   yanitlandi: boolean;
   yanitTarihi?: string | null;
+}
+
+interface VeriTabloOzet {
+  id: string;
+  baslik: string;
+  aciklama?: string | null;
+  sutunSayisi: number;
+  benimSatirSayim: number;
+  createdAt: string;
 }
 
 function FormKartIskeleti() {
@@ -47,11 +56,20 @@ export function FormlarimClient() {
     },
   });
 
+  const { data: veriTablolar = [] } = useQuery({
+    queryKey: ["veri-tablolarim"],
+    queryFn: async (): Promise<VeriTabloOzet[]> => {
+      const res = await fetch("/api/veri-tablolarim");
+      if (!res.ok) throw new Error("Veri tabloları yüklenemedi.");
+      return res.json();
+    },
+  });
+
   return (
     <div className="p-6 lg:p-8 space-y-5">
       <div className="sv-page-header">
         <h1>Formlarım</h1>
-        <p>Size yayınlanan formları görüntüleyin ve yanıtlayın</p>
+        <p>Size yayınlanan form ve veri tablolarını görüntüleyin, doldurun</p>
       </div>
 
       {isLoading ? (
@@ -108,6 +126,39 @@ export function FormlarimClient() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {veriTablolar.length > 0 && (
+        <div className="space-y-3 pt-2">
+          <h2 className="text-[15px] font-bold text-heading flex items-center gap-2">
+            <Table2 size={17} strokeWidth={2} /> Veri Tabloları
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {veriTablolar.map(t => (
+              <div key={t.id} className="sv-section p-5 flex flex-col">
+                <h3 className="text-[15px] font-bold text-heading leading-snug">{t.baslik}</h3>
+                {t.aciklama && (
+                  <p className="mt-1.5 text-[13px] text-secondary leading-relaxed line-clamp-3">{stripTags(t.aciklama)}</p>
+                )}
+                <div className="mt-3 flex items-center gap-2 text-[12px] text-muted">
+                  <Table2 size={13} strokeWidth={2} />
+                  <span>{t.sutunSayisi} sütun</span>
+                  <span aria-hidden="true">•</span>
+                  <span>{t.benimSatirSayim} satır girdiniz</span>
+                </div>
+                <div className="mt-4 pt-3 border-t border-border flex-1 flex items-end">
+                  <Button
+                    variant={t.benimSatirSayim > 0 ? "secondary" : "primary"}
+                    size="sm"
+                    onClick={() => router.push(`/panel/veri-tablolarim/${t.id}`)}
+                  >
+                    {t.benimSatirSayim > 0 ? "Düzenle / Satır Ekle" : "Satır Gir"}
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

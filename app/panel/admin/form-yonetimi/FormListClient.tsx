@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { formatDateTR } from "@/lib/format";
 import { stripTags } from "@/lib/sanitize-html";
+import { VeriTabloListClient } from "./VeriTabloListClient";
 
 type Durum = "TASLAK" | "YAYINDA" | "KAPALI";
 
@@ -252,16 +253,7 @@ export function FormListClient() {
         </div>
       ))}
 
-      {tur === "VERI_TABLOSU" && (
-        <div className="sv-section px-6 py-16 text-center">
-          <Table2 size={32} className="mx-auto text-muted mb-3" aria-hidden="true" />
-          <p className="text-[14.5px] font-semibold text-heading">Veri Tabloları</p>
-          <p className="text-[13px] text-muted mt-1 max-w-md mx-auto">
-            İl ve bölge sorumlularının değişken sayıda kayıt (sınırsız satır) girebildiği veri toplama
-            tabloları. Bu modül hazırlanıyor.
-          </p>
-        </div>
-      )}
+      {tur === "VERI_TABLOSU" && <VeriTabloListClient />}
 
       {tur === "SABLON" && (
         <div className="sv-section px-6 py-16 text-center">
