@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 const patchSchema = z.object({
   baslik: z.string().trim().min(1).max(200).optional(),
   aciklama: z.string().trim().max(20000).optional(), // zengin metin (HTML)
-  durum: z.enum(["TASLAK", "YAYINDA", "KAPALI"]).optional(),
+  durum: z.enum(["TASLAK", "YAYINDA", "KAPALI", "PASIF", "ARSIV"]).optional(),
   hedefBolge: z.boolean().optional(),
   hedefIl: z.boolean().optional(),
   sistemEgitim: z.boolean().optional(),

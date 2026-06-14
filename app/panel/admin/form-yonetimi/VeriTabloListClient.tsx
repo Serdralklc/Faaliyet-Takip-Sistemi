@@ -5,7 +5,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, BarChart3, Trash2, Table2 } from "lucide-react";
+import { Plus, Pencil, BarChart3, Trash2, Table2, Archive } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ConfirmDialog } from "@/components/ui/Modal";
@@ -36,12 +36,29 @@ const DURUM_BADGE: Record<Durum, { label: string; tone: "neutral" | "success" | 
   ARSIV: { label: "Arşiv", tone: "neutral" },
 };
 
+type DurumFiltre = "AKTIF" | "TASLAK" | "PASIF" | "ARSIV" | "HEPSI";
+const DURUM_FILTRELER: { key: DurumFiltre; label: string }[] = [
+  { key: "AKTIF",  label: "Aktif" },
+  { key: "TASLAK", label: "Taslak" },
+  { key: "PASIF",  label: "Pasif / Kapalı" },
+  { key: "ARSIV",  label: "Arşiv" },
+  { key: "HEPSI",  label: "Tümü" },
+];
+function durumFiltreUygula(durum: Durum, filtre: DurumFiltre): boolean {
+  if (filtre === "HEPSI") return true;
+  if (filtre === "AKTIF") return durum === "YAYINDA";
+  if (filtre === "TASLAK") return durum === "TASLAK";
+  if (filtre === "PASIF") return durum === "PASIF" || durum === "KAPALI";
+  return durum === "ARSIV";
+}
+
 export function VeriTabloListClient() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [silinecek, setSilinecek] = useState<TabloOzet | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [durumFiltre, setDurumFiltre] = useState<DurumFiltre>("AKTIF");
 
   const { data: tablolar = [], isLoading } = useQuery({
     queryKey: ["veri-tablolari"],
@@ -74,6 +91,8 @@ export function VeriTabloListClient() {
     } catch { toast({ type: "error", title: "Bağlantı hatası" }); } finally { setDeleting(false); }
   }
 
+  const gosterilenTablolar = tablolar.filter(t => durumFiltreUygula(t.durum, durumFiltre));
+
   return (
     <div className="space-y-3">
       <div className="flex justify-end">
@@ -92,7 +111,24 @@ export function VeriTabloListClient() {
           <Link href="/panel/admin/form-yonetimi/veri-tablosu/yeni"><Button><Plus size={15} />Yeni Veri Tablosu</Button></Link>
         </div>
       ) : (
-        tablolar.map(t => {
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {DURUM_FILTRELER.map(df => {
+              const aktif = durumFiltre === df.key;
+              return (
+                <button key={df.key} onClick={() => setDurumFiltre(df.key)}
+                  className="px-3 py-1.5 rounded-lg text-[12.5px] font-bold border transition"
+                  style={aktif
+                    ? { background: "var(--green-primary)", borderColor: "var(--green-primary)", color: "#fff" }
+                    : { background: "var(--bg-card)", borderColor: "var(--border)", color: "var(--text-muted)" }}>
+                  {df.label}
+                </button>
+              );
+            })}
+          </div>
+          {gosterilenTablolar.length === 0 ? (
+            <div className="sv-section px-6 py-10 text-center"><p className="text-[13px] text-muted">Bu filtreye uygun veri tablosu yok.</p></div>
+          ) : gosterilenTablolar.map(t => {
           const durum = DURUM_BADGE[t.durum];
           const busy = busyId === t.id;
           return (
@@ -114,14 +150,17 @@ export function VeriTabloListClient() {
                   <Link href={`/panel/admin/form-yonetimi/veri-tablosu/${t.id}`}><Button size="sm" variant="secondary"><Pencil size={13} />Düzenle</Button></Link>
                   {t.durum === "TASLAK" && <Button size="sm" loading={busy} onClick={() => durumDegistir(t, "YAYINDA")}>Yayınla</Button>}
                   {t.durum === "YAYINDA" && <Button size="sm" variant="secondary" loading={busy} onClick={() => durumDegistir(t, "KAPALI")}>Kapat</Button>}
-                  {(t.durum === "KAPALI" || t.durum === "PASIF" || t.durum === "ARSIV") && <Button size="sm" variant="outline" loading={busy} onClick={() => durumDegistir(t, "YAYINDA")}>Tekrar Yayınla</Button>}
+                  {(t.durum === "KAPALI" || t.durum === "PASIF" || t.durum === "ARSIV") && <Button size="sm" variant="outline" loading={busy} onClick={() => durumDegistir(t, "YAYINDA")}>Aktifleştir</Button>}
+                  {t.durum === "YAYINDA" && <Button size="sm" variant="ghost" loading={busy} onClick={() => durumDegistir(t, "PASIF")}>Pasife Al</Button>}
+                  {t.durum !== "ARSIV" && <Button size="sm" variant="ghost" loading={busy} onClick={() => durumDegistir(t, "ARSIV")} aria-label={`${t.baslik} arşivle`}><Archive size={13} /></Button>}
                   <Link href={`/panel/admin/form-yonetimi/veri-tablosu/${t.id}/sonuclar`}><Button size="sm" variant="secondary"><BarChart3 size={13} />Kayıtlar ({t._count.kayitlar})</Button></Link>
                   <Button size="sm" variant="ghost" onClick={() => setSilinecek(t)} aria-label={`${t.baslik} sil`}><Trash2 size={13} className="text-red-600" /></Button>
                 </div>
               </div>
             </div>
           );
-        })
+        })}
+        </div>
       )}
 
       <ConfirmDialog

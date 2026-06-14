@@ -9,7 +9,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, BarChart3, Trash2, FileText, Table2, LayoutTemplate } from "lucide-react";
+import { Plus, Pencil, BarChart3, Trash2, FileText, Table2, LayoutTemplate, Archive, Power } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ConfirmDialog } from "@/components/ui/Modal";
@@ -20,7 +20,8 @@ import { stripTags } from "@/lib/sanitize-html";
 import { VeriTabloListClient } from "./VeriTabloListClient";
 import { SablonListClient } from "./SablonListClient";
 
-type Durum = "TASLAK" | "YAYINDA" | "KAPALI";
+type Durum = "TASLAK" | "YAYINDA" | "KAPALI" | "PASIF" | "ARSIV";
+type DurumFiltre = "AKTIF" | "TASLAK" | "PASIF" | "ARSIV" | "HEPSI";
 
 interface FormOzet {
   id: string;
@@ -37,11 +38,29 @@ interface FormOzet {
   _count: { yanitlar: number; sorular: number };
 }
 
-const DURUM_BADGE: Record<Durum, { label: string; tone: "neutral" | "success" | "danger" }> = {
+const DURUM_BADGE: Record<Durum, { label: string; tone: "neutral" | "success" | "danger" | "warning" }> = {
   TASLAK:  { label: "Taslak",  tone: "neutral" },
   YAYINDA: { label: "Yayında", tone: "success" },
   KAPALI:  { label: "Kapalı",  tone: "danger" },
+  PASIF:   { label: "Pasif",   tone: "warning" },
+  ARSIV:   { label: "Arşiv",   tone: "neutral" },
 };
+
+const DURUM_FILTRELER: { key: DurumFiltre; label: string }[] = [
+  { key: "AKTIF",  label: "Aktif" },
+  { key: "TASLAK", label: "Taslak" },
+  { key: "PASIF",  label: "Pasif / Kapalı" },
+  { key: "ARSIV",  label: "Arşiv" },
+  { key: "HEPSI",  label: "Tümü" },
+];
+
+function durumFiltreUygula(f: FormOzet, filtre: DurumFiltre): boolean {
+  if (filtre === "HEPSI") return true;
+  if (filtre === "AKTIF") return f.durum === "YAYINDA";
+  if (filtre === "TASLAK") return f.durum === "TASLAK";
+  if (filtre === "PASIF") return f.durum === "PASIF" || f.durum === "KAPALI";
+  return f.durum === "ARSIV";
+}
 
 function hedefRozetleri(f: FormOzet): string[] {
   const roller =
@@ -67,6 +86,7 @@ export function FormListClient() {
   const [deleting, setDeleting] = useState(false);
   // İçerik türü sekmesi — Veri Toplama Merkezi geliştirmesi (Form mevcut akış; diğerleri sonraki fazlar)
   const [tur, setTur] = useState<"FORM" | "VERI_TABLOSU" | "SABLON">("FORM");
+  const [durumFiltre, setDurumFiltre] = useState<DurumFiltre>("AKTIF");
 
   const { data: formlar = [], isLoading } = useQuery({
     queryKey: ["formlar"],
@@ -92,7 +112,10 @@ export function FormListClient() {
       }
       toast({
         type: "success",
-        title: durum === "YAYINDA" ? "Form yayınlandı" : "Form kapatıldı",
+        title:
+          durum === "YAYINDA" ? "Form yayınlandı" :
+          durum === "PASIF" ? "Form pasife alındı" :
+          durum === "ARSIV" ? "Form arşivlendi" : "Form kapatıldı",
         message: f.baslik,
       });
       queryClient.invalidateQueries({ queryKey: ["formlar"] });
@@ -122,6 +145,8 @@ export function FormListClient() {
       setDeleting(false);
     }
   }
+
+  const gosterilenFormlar = formlar.filter(f => durumFiltreUygula(f, durumFiltre));
 
   return (
     <div className="p-6 lg:p-8 space-y-5">
@@ -190,7 +215,26 @@ export function FormListClient() {
         </div>
       ) : (
         <div className="space-y-3">
-          {formlar.map(f => {
+          {/* Durum filtresi (Aktif / Taslak / Pasif / Arşiv) */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {DURUM_FILTRELER.map(df => {
+              const aktif = durumFiltre === df.key;
+              return (
+                <button key={df.key} onClick={() => setDurumFiltre(df.key)}
+                  className="px-3 py-1.5 rounded-lg text-[12.5px] font-bold border transition"
+                  style={aktif
+                    ? { background: "var(--green-primary)", borderColor: "var(--green-primary)", color: "#fff" }
+                    : { background: "var(--bg-card)", borderColor: "var(--border)", color: "var(--text-muted)" }}>
+                  {df.label}
+                </button>
+              );
+            })}
+          </div>
+          {gosterilenFormlar.length === 0 ? (
+            <div className="sv-section px-6 py-10 text-center">
+              <p className="text-[13px] text-muted">Bu filtreye uygun form yok.</p>
+            </div>
+          ) : gosterilenFormlar.map(f => {
             const durum = DURUM_BADGE[f.durum];
             const busy = busyId === f.id;
             return (
@@ -232,9 +276,20 @@ export function FormListClient() {
                         Kapat
                       </Button>
                     )}
-                    {f.durum === "KAPALI" && (
+                    {(f.durum === "KAPALI" || f.durum === "PASIF" || f.durum === "ARSIV") && (
                       <Button size="sm" variant="outline" loading={busy} onClick={() => durumDegistir(f, "YAYINDA")}>
-                        Tekrar Yayınla
+                        <Power size={13} />
+                        Aktifleştir
+                      </Button>
+                    )}
+                    {f.durum === "YAYINDA" && (
+                      <Button size="sm" variant="ghost" loading={busy} onClick={() => durumDegistir(f, "PASIF")}>
+                        Pasife Al
+                      </Button>
+                    )}
+                    {f.durum !== "ARSIV" && (
+                      <Button size="sm" variant="ghost" loading={busy} onClick={() => durumDegistir(f, "ARSIV")} aria-label={`${f.baslik} formunu arşivle`}>
+                        <Archive size={13} />
                       </Button>
                     )}
                     <Link href={`/panel/admin/form-yonetimi/${f.id}/sonuclar`}>
