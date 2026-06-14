@@ -21,8 +21,22 @@ export function BarinmaGorunumClient({ sabitIller }: { sabitIller?: Il[] } = {})
   const [units, setUnits] = useState<Unit[]>([]);
   const [acikUnit, setAcikUnit] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
+  const [barinmaliIller, setBarinmaliIller] = useState<Set<string>>(new Set());
+  const [sadeceBarinmali, setSadeceBarinmali] = useState(false);
 
   useEffect(() => { if (sabitIller) return; fetch("/api/bolgeler").then(r => r.json()).then(setBolgeler).catch(() => {}); }, [sabitIller]);
+  useEffect(() => {
+    if (sabitIller) return;
+    fetch("/api/housing-units/iller").then(r => (r.ok ? r.json() : [])).then((ids: string[]) => setBarinmaliIller(new Set(ids))).catch(() => {});
+  }, [sabitIller]);
+
+  // "Barınması olan iller" filtresi: yalnızca barınma kaydı olan illeri/bölgeleri göster
+  const gosterilenBolgeler = useMemo(() => {
+    if (!sadeceBarinmali) return bolgeler;
+    return bolgeler
+      .map(b => ({ ...b, iller: b.iller.filter(il => barinmaliIller.has(il.id)) }))
+      .filter(b => b.iller.length > 0);
+  }, [bolgeler, sadeceBarinmali, barinmaliIller]);
 
   const yukle = useCallback(async () => {
     if (!seciliIl) { setUnits([]); return; }
@@ -58,7 +72,17 @@ export function BarinmaGorunumClient({ sabitIller }: { sabitIller?: Il[] } = {})
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
         {/* Bölge / il ağacı */}
         <div className="sv-section overflow-hidden self-start">
-          <div className="sv-section-header"><h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>{sabitIller ? "İller" : "Bölgeler"}</h2></div>
+          <div className="sv-section-header flex items-center justify-between gap-2">
+            <h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>{sabitIller ? "İller" : "Bölgeler"}</h2>
+            {!sabitIller && (
+              <button onClick={() => setSadeceBarinmali(v => !v)}
+                title="Yalnızca barınma kaydı olan iller"
+                className="text-[11px] font-bold px-2 py-1 rounded-lg border transition shrink-0"
+                style={sadeceBarinmali ? { background: RENK, color: "#fff", borderColor: RENK } : { color: "var(--text-muted)", borderColor: "var(--border)" }}>
+                Barınması Olanlar
+              </button>
+            )}
+          </div>
           <div className="max-h-[70vh] overflow-y-auto p-2">
             {sabitIller ? (
               sabitIller.map(il => (
@@ -69,7 +93,7 @@ export function BarinmaGorunumClient({ sabitIller }: { sabitIller?: Il[] } = {})
                 </button>
               ))
             ) : (<>
-            {bolgeler.map(b => (
+            {gosterilenBolgeler.map(b => (
               <div key={b.id}>
                 <button onClick={() => toggleBolge(b.id)}
                   className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-sm font-semibold hover:bg-th text-left"
@@ -92,6 +116,9 @@ export function BarinmaGorunumClient({ sabitIller }: { sabitIller?: Il[] } = {})
               </div>
             ))}
             {!bolgeler.length && <p className="px-3 py-4 text-xs" style={{ color: "var(--text-muted)" }}>Yükleniyor…</p>}
+            {!!bolgeler.length && sadeceBarinmali && !gosterilenBolgeler.length && (
+              <p className="px-3 py-4 text-xs" style={{ color: "var(--text-muted)" }}>Barınma kaydı olan il bulunamadı.</p>
+            )}
             </>)}
           </div>
         </div>

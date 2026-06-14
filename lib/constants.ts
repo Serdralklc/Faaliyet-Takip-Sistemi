@@ -149,8 +149,8 @@ export function yanRolVar(yanRoller: string[] | undefined | null, ...kods: strin
 export function formYonetimiYanRol(yanRoller?: string[] | null): boolean { return yanRolVar(yanRoller, ...FORM_ISTISARE_YAN); }
 export function istisareYanRol(yanRoller?: string[] | null): boolean { return yanRolVar(yanRoller, ...FORM_ISTISARE_YAN); }
 export function icerikYanRol(yanRoller?: string[] | null): boolean { return yanRolVar(yanRoller, "ICERIK_YONETICISI"); }
-export function barinmaGorunumYanRol(yanRoller?: string[] | null): boolean { return yanRolVar(yanRoller, "MERKEZ_UNI", "MERKEZ_UNI_GENCLIK"); }
-export function ilFaaliyetTakipYanRol(yanRoller?: string[] | null): boolean { return yanRolVar(yanRoller, "MERKEZ_UNI", "MERKEZ_UNI_GENCLIK", "MERKEZ_LISE_GENCLIK"); }
+export function barinmaGorunumYanRol(yanRoller?: string[] | null): boolean { return yanRolVar(yanRoller, "MERKEZ_UNI", "MERKEZ_UNI_GENCLIK", "TR_EGITIM", "TR_EGITIM_YRD"); }
+export function ilFaaliyetTakipYanRol(yanRoller?: string[] | null): boolean { return yanRolVar(yanRoller, "MERKEZ_UNI", "MERKEZ_UNI_GENCLIK", "MERKEZ_LISE_GENCLIK", "MERKEZ_LISE", "TR_EGITIM", "TR_EGITIM_YRD"); }
 
 /** Sistem-kısıtlı sorumlunun bağlı olduğu sistem (UNIVERSITE/LISE); değilse null (tam erişim). */
 export function rolSistemi(role: string): "UNIVERSITE" | "LISE" | null {
