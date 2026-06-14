@@ -242,7 +242,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
     label: "Faaliyet Takip Sistemi",
     icon: ClipboardList,
     items: [
-      { href: "/panel/bolge/iller", label: "Eğitim Birimi", icon: BookOpen },
+      { href: "/panel/bolge/egitim-rapor", label: "Eğitim Birimi", icon: BookOpen },
       { href: "/panel/bolge/genclik-faaliyet?sistem=UNIVERSITE", label: "Üniversite Gençlik", icon: GraduationCap },
       { href: "/panel/bolge/genclik-faaliyet?sistem=LISE", label: "Lise Gençlik", icon: School },
     ],
