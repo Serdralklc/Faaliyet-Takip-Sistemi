@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
         if (!p) { p = { ad: IL_BILGI[kod]?.ad ?? kod, ...bosAgg() }; iller[kod] = p; }
         ekle(p, a);
       }
-      return { ilId: il.id, ad: il.ad, kod, toplam: a.toplam, katilimci: a.katilimci, ilkKez: a.ilkKez, yeniIntisap: a.yeniIntisap };
+      return { ilId: il.id, ad: il.ad, kod, toplam: a.toplam, katilimci: a.katilimci, ilkKez: a.ilkKez, yeniIntisap: a.yeniIntisap, kategori: a.kategori };
     });
     return { no: b.no, ad: b.ad, birimler };
   });

@@ -12,7 +12,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { IL_BILGI } from "@/lib/turkiye-iller";
 
-interface Birim { ilId: string; ad: string; kod: string | null; toplam: number; katilimci: number; ilkKez: number; yeniIntisap: number }
+interface Birim { ilId: string; ad: string; kod: string | null; toplam: number; katilimci: number; ilkKez: number; yeniIntisap: number; kategori: Record<string, number> }
 interface IlAgg { ad: string; toplam: number; katilimci: number; ilkKez: number; yeniIntisap: number; kategori: Record<string, number> }
 interface HaritaVeri { yillar: number[]; iller: Record<string, IlAgg>; bolgeler: { no: number; ad: string; birimler: Birim[] }[] }
 interface Faaliyet { id: string; tarih: string; kategori: string; faaliyetAdi: string; katilimci: number; ilkKezKatilan: number; yeniIntisap: number }
@@ -71,7 +71,13 @@ export function TurkiyeHarita() {
   const [metrik, setMetrik] = useState<MetrikKey>("bolge");
   const [hoverKod, setHoverKod] = useState<string | null>(null);
   const [seciliKod, setSeciliKod] = useState<string | null>(null);
+  const [seciliBirim, setSeciliBirim] = useState<Birim | null>(null);
   const [seciliBolge, setSeciliBolge] = useState<number | null>(null);
+
+  // İl (coğrafi) ve birim (org il/ilçe) seçimi karşılıklı dışlar
+  const ilSec = (kod: string) => { setSeciliBirim(null); setSeciliKod(k => (k === kod ? null : kod)); };
+  const birimSec = (u: Birim) => { setSeciliKod(null); setSeciliBirim(b => (b?.ilId === u.ilId ? null : u)); };
+  const temizle = () => { setSeciliBolge(null); setSeciliKod(null); setSeciliBirim(null); };
 
   const { data: paths } = useQuery({
     queryKey: ["tr-paths"],
@@ -87,14 +93,16 @@ export function TurkiyeHarita() {
     },
     staleTime: 60_000,
   });
+  // Detay kaynağı: önce birim (ilId), yoksa coğrafi il (kod)
+  const detaySrc = seciliBirim ? { tip: "ilId", val: seciliBirim.ilId } : seciliKod ? { tip: "kod", val: seciliKod } : null;
   const { data: sonFaal } = useQuery({
-    queryKey: ["lise-harita-faal", seciliKod, yil, donem, kategori],
+    queryKey: ["lise-harita-faal", detaySrc?.tip, detaySrc?.val, yil, donem, kategori],
     queryFn: async (): Promise<Faaliyet[]> => {
-      const q = new URLSearchParams({ kod: seciliKod! });
+      const q = new URLSearchParams({ [detaySrc!.tip]: detaySrc!.val });
       if (yil) q.set("yil", yil); if (donem) q.set("donem", donem); if (kategori) q.set("kategori", kategori);
       const r = await fetch(`/api/lise-harita/faaliyetler?${q.toString()}`); if (!r.ok) return []; return r.json();
     },
-    enabled: !!seciliKod, staleTime: 60_000,
+    enabled: !!detaySrc, staleTime: 60_000,
   });
 
   const iller = data?.iller ?? {};
@@ -138,8 +146,13 @@ export function TurkiyeHarita() {
   function gorunur(kod: string): boolean { return seciliBolge == null || (bolgeKodlari.get(seciliBolge)?.has(kod) ?? false); }
 
   const aktifKod = seciliKod ?? hoverKod;
-  const aktifIl = aktifKod ? iller[aktifKod] : undefined;
   const seciliBolgeObj = seciliBolge != null ? data?.bolgeler.find(b => b.no === seciliBolge) : undefined;
+  // Detay panelinde gösterilen seçili varlık (önce birim/ilçe, yoksa coğrafi il)
+  const detay = seciliBirim ?? (seciliKod ? iller[seciliKod] : undefined);
+  // Bölge seçiliyse soldaki liste = bölgenin birimleri (il/ilçe); değilse coğrafi iller
+  const birimListe = seciliBolgeObj
+    ? [...seciliBolgeObj.birimler].sort((a, b) => (metrik === "bolge" ? b.toplam - a.toplam : metrikDeger(b, metrik) - metrikDeger(a, metrik)))
+    : [];
 
   const tabloIller = useMemo(() => {
     const arr = Object.entries(iller).map(([kod, il]) => ({ kod, il, deger: metrik === "bolge" ? il.toplam : metrikDeger(il, metrik) }));
@@ -171,7 +184,7 @@ export function TurkiyeHarita() {
           </div>
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--text-muted)" }}>Bölge</p>
-            <select value={seciliBolge ?? ""} onChange={e => { setSeciliBolge(e.target.value ? Number(e.target.value) : null); setSeciliKod(null); }} className="w-full rounded-lg border px-3 py-1.5 text-sm font-semibold" style={selS}>
+            <select value={seciliBolge ?? ""} onChange={e => { setSeciliBolge(e.target.value ? Number(e.target.value) : null); setSeciliKod(null); setSeciliBirim(null); }} className="w-full rounded-lg border px-3 py-1.5 text-sm font-semibold" style={selS}>
               <option value="">Türkiye Geneli</option>{(data?.bolgeler ?? []).map(b => <option key={b.no} value={b.no}>{b.no}. Bölge — {b.ad}</option>)}
             </select>
           </div>
@@ -195,17 +208,29 @@ export function TurkiyeHarita() {
         </div>
 
         <div className="sv-section overflow-hidden">
-          <div className="px-3 py-2 border-b" style={{ borderColor: "var(--border)" }}><p className="text-[12px] font-bold" style={{ color: "var(--text-primary)" }}>İller {seciliBolgeObj ? `· ${seciliBolgeObj.no}. Bölge` : "(sıralı)"}</p></div>
+          <div className="px-3 py-2 border-b" style={{ borderColor: "var(--border)" }}><p className="text-[12px] font-bold" style={{ color: "var(--text-primary)" }}>{seciliBolgeObj ? `Birimler · ${seciliBolgeObj.no}. Bölge` : "İller (sıralı)"}</p></div>
           <div className="max-h-[280px] overflow-y-auto">
-            {tabloIller.slice(0, 81).map(({ kod, deger }) => (
-              <button key={kod} onClick={() => setSeciliKod(kod === seciliKod ? null : kod)}
-                className="w-full flex items-center justify-between px-3 py-1.5 text-left hover:bg-th transition"
-                style={seciliKod === kod ? { background: "var(--bg-active)" } : undefined}>
-                <span className="text-[12.5px] font-semibold truncate" style={{ color: "var(--text-primary)" }}>{IL_BILGI[kod]?.ad ?? kod}</span>
-                <span className="text-[12px] font-bold tabular-nums ml-2 shrink-0" style={{ color: "#7C3AED" }}>{deger}</span>
-              </button>
-            ))}
-            {!tabloIller.length && <p className="px-3 py-6 text-center text-[12px]" style={{ color: "var(--text-muted)" }}>Veri yok.</p>}
+            {seciliBolgeObj ? (
+              birimListe.map(u => (
+                <button key={u.ilId} onClick={() => birimSec(u)}
+                  className="w-full flex items-center justify-between px-3 py-1.5 text-left hover:bg-th transition"
+                  style={seciliBirim?.ilId === u.ilId ? { background: "var(--bg-active)" } : undefined}>
+                  <span className="text-[12.5px] font-semibold truncate" style={{ color: "var(--text-primary)" }}>{u.ad}</span>
+                  <span className="text-[12px] font-bold tabular-nums ml-2 shrink-0" style={{ color: "#7C3AED" }}>{metrik === "bolge" ? u.toplam : metrikDeger(u, metrik)}</span>
+                </button>
+              ))
+            ) : (
+              tabloIller.slice(0, 81).map(({ kod, deger }) => (
+                <button key={kod} onClick={() => ilSec(kod)}
+                  className="w-full flex items-center justify-between px-3 py-1.5 text-left hover:bg-th transition"
+                  style={seciliKod === kod ? { background: "var(--bg-active)" } : undefined}>
+                  <span className="text-[12.5px] font-semibold truncate" style={{ color: "var(--text-primary)" }}>{IL_BILGI[kod]?.ad ?? kod}</span>
+                  <span className="text-[12px] font-bold tabular-nums ml-2 shrink-0" style={{ color: "#7C3AED" }}>{deger}</span>
+                </button>
+              ))
+            )}
+            {seciliBolgeObj && !birimListe.length && <p className="px-3 py-6 text-center text-[12px]" style={{ color: "var(--text-muted)" }}>Birim yok.</p>}
+            {!seciliBolgeObj && !tabloIller.length && <p className="px-3 py-6 text-center text-[12px]" style={{ color: "var(--text-muted)" }}>Veri yok.</p>}
           </div>
         </div>
       </div>
@@ -213,8 +238,8 @@ export function TurkiyeHarita() {
       {/* ── Harita + detay ── */}
       <div className="space-y-4">
         <div className="sv-section p-3 overflow-hidden">
-          {(seciliBolge != null || seciliKod) && (
-            <button onClick={() => { setSeciliBolge(null); setSeciliKod(null); }} className="text-[12px] font-bold underline mb-1" style={{ color: "var(--text-muted)" }}>← Türkiye geneline dön</button>
+          {(seciliBolge != null || detay) && (
+            <button onClick={temizle} className="text-[12px] font-bold underline mb-1" style={{ color: "var(--text-muted)" }}>← Türkiye geneline dön</button>
           )}
           {!paths || !data ? (
             <p className="p-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>Harita yükleniyor…</p>
@@ -228,7 +253,7 @@ export function TurkiyeHarita() {
                     stroke={aktif ? "#0f172a" : "#ffffff"} strokeWidth={aktif ? 2 : 0.6}
                     style={{ cursor: "pointer", transition: "fill 0.2s, fill-opacity 0.2s" }}
                     onMouseEnter={() => setHoverKod(kod)} onMouseLeave={() => setHoverKod(null)}
-                    onClick={() => setSeciliKod(kod === seciliKod ? null : kod)}>
+                    onClick={() => ilSec(kod)}>
                     <title>{IL_BILGI[kod]?.ad ?? kod}: {iller[kod]?.toplam ?? 0} faaliyet</title>
                   </path>
                 );
@@ -249,14 +274,14 @@ export function TurkiyeHarita() {
           )}
         </div>
 
-        {seciliKod && aktifIl && (
+        {detay && (
           <div className="sv-section p-4">
             <div className="flex items-baseline justify-between flex-wrap gap-2">
-              <p className="text-[18px] font-black" style={{ color: "var(--text-primary)" }}>{aktifIl.ad}</p>
+              <p className="text-[18px] font-black" style={{ color: "var(--text-primary)" }}>{detay.ad}</p>
               <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Lise Gençlik faaliyet özeti</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
-              {([["Toplam Faaliyet", aktifIl.toplam], ["Toplam Katılımcı", aktifIl.katilimci], ["İlk Kez Katılan", aktifIl.ilkKez], ["Yeni İntisap", aktifIl.yeniIntisap]] as const).map(([l, v]) => (
+              {([["Toplam Faaliyet", detay.toplam], ["Toplam Katılımcı", detay.katilimci], ["İlk Kez Katılan", detay.ilkKez], ["Yeni İntisap", detay.yeniIntisap]] as const).map(([l, v]) => (
                 <div key={l} className="rounded-lg px-3 py-2.5" style={{ background: "var(--bg-th)" }}>
                   <p className="text-[20px] font-black" style={{ color: "var(--text-primary)" }}>{v.toLocaleString("tr-TR")}</p>
                   <p className="text-[10.5px]" style={{ color: "var(--text-muted)" }}>{l}</p>
@@ -267,7 +292,7 @@ export function TurkiyeHarita() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {KAT_SIRA.map(k => (
                 <div key={k} className="rounded-lg px-2.5 py-2 text-center" style={{ background: "var(--bg-th)" }}>
-                  <p className="text-[15px] font-black" style={{ color: "#7C3AED" }}>{aktifIl.kategori[k] ?? 0}</p>
+                  <p className="text-[15px] font-black" style={{ color: "#7C3AED" }}>{detay.kategori[k] ?? 0}</p>
                   <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>{KAT_AD[k]}</p>
                 </div>
               ))}
@@ -275,16 +300,16 @@ export function TurkiyeHarita() {
           </div>
         )}
 
-        {!seciliKod && seciliBolgeObj && (
+        {!detay && seciliBolgeObj && (
           <div className="sv-section p-4">
             <p className="text-[16px] font-black" style={{ color: "var(--text-primary)" }}>{seciliBolgeObj.no}. Bölge <span className="text-[13px] font-semibold" style={{ color: "var(--text-muted)" }}>· {seciliBolgeObj.ad}</span></p>
-            <p className="text-[12px] mt-1" style={{ color: "var(--text-muted)" }}>Birimler (il/ilçe) — bir il seçmek için haritaya veya soldaki listeye tıklayın.</p>
+            <p className="text-[12px] mt-1" style={{ color: "var(--text-muted)" }}>Soldaki <b>Birimler</b> listesinden bir il/ilçe seçin → ayrıntılı faaliyetleri burada görünür.</p>
           </div>
         )}
 
-        {seciliKod && (
+        {detay && (
           <div className="sv-section overflow-hidden">
-            <div className="sv-section-header"><h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>Son Faaliyetler — {aktifIl?.ad}</h2></div>
+            <div className="sv-section-header"><h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>Son Faaliyetler — {detay.ad}</h2></div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead><tr style={{ background: "var(--bg-th)" }}>{["Tarih", "Kategori", "Faaliyet", "Katılımcı", "İlk Kez", "Y. İntisap"].map(h => <th key={h} className="text-left px-3 py-2 text-[11px] font-bold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>{h}</th>)}</tr></thead>
