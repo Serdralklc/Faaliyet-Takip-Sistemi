@@ -26,6 +26,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if ("error" in r) return r.error;
   const { anaRol } = r.data;
 
+  // Admin rolü arayüzden/API'den ATANAMAZ — yalnızca veritabanından verilebilir.
+  if (anaRol === "ADMIN") {
+    return NextResponse.json({ error: "Admin rolü buradan atanamaz." }, { status: 403 });
+  }
+
   const kullanici = await prisma.user.findUnique({
     where: { id },
     select: { role: true, ad: true, soyad: true, anaRol: { select: { kod: true } } },

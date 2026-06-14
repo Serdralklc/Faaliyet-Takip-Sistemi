@@ -17,6 +17,11 @@ export async function POST(
 
   const { ilId, bolgeId, role } = await req.json();
 
+  // Admin rolü hiçbir şekilde atanamaz (yalnızca veritabanından).
+  if (role === "SISTEM_ADMIN") {
+    return NextResponse.json({ error: "Admin rolü atanamaz." }, { status: 403 });
+  }
+
   await prisma.$transaction(async (tx) => {
     const mevcutAtama = await tx.roleAssignment.findFirst({
       where: {

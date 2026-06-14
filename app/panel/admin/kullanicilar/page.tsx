@@ -208,7 +208,7 @@ function AnaRolHucre({ k, canRol, onChange }: { k: Kullanici; canRol: boolean; o
         title="Ana rolü değiştir"
         className="text-xs border-2 border-purple-200 rounded-lg px-2 py-1 bg-card text-heading font-semibold focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer">
         {cur === "" && <option value="" disabled>Ana rol seçin</option>}
-        {ANA_ROLLER.map(o => <option key={o.kod} value={o.kod}>{o.ad}</option>)}
+        {ANA_ROLLER.filter(o => o.kod !== "ADMIN").map(o => <option key={o.kod} value={o.kod}>{o.ad}</option>)}
       </select>
       <YanRolRozetleri k={k} />
     </div>

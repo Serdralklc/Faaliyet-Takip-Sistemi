@@ -27,6 +27,11 @@ export async function POST(
 
   const { action, ilId, bolgeId, role, sistem } = await req.json();
 
+  // Admin rolü onaylama yoluyla atanamaz (yalnızca veritabanından).
+  if (role === "SISTEM_ADMIN") {
+    return NextResponse.json({ error: "Admin rolü atanamaz." }, { status: 403 });
+  }
+
   if (action === "reddet") {
     await prisma.user.update({ where: { id }, data: { status: "PASIF" } });
     await createAuditLog({

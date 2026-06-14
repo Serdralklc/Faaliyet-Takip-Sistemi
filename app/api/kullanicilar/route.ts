@@ -158,6 +158,11 @@ export async function POST(req: NextRequest) {
   if ("error" in r) return r.error;
   const { ad, soyad, email, telefon, userRole, bolgeId, ilId, sistem } = r.data;
 
+  // Admin rolü davetle atanamaz (yalnızca veritabanından).
+  if (userRole === "SISTEM_ADMIN") {
+    return NextResponse.json({ error: "Admin rolü atanamaz." }, { status: 403 });
+  }
+
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     return NextResponse.json({ error: "Bu e-posta zaten kayıtlı" }, { status: 400 });
