@@ -10,7 +10,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { DataTable, type DataTableColumn } from "@/components/ui/DataTable";
-import { SonucGorunumlu } from "@/components/ui/SonucGorunumlu";
+import { SonucGorunumlu, gorunumeGoreSirala, gorunumEtiket, type GorunumTipi } from "@/components/ui/SonucGorunumlu";
 import { ExportButtons } from "@/components/ui/ExportButtons";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton, SkeletonTable } from "@/components/ui/Skeleton";
@@ -79,6 +79,7 @@ function tarihTR(value: string): string {
 
 export function SonuclarClient({ formId }: { formId: string }) {
   const [sekme, setSekme] = useState<"yanitlayan" | "yanitlamayan">("yanitlayan");
+  const [gorunum, setGorunum] = useState<GorunumTipi>("turkiye");
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["form-sonuclar", formId],
@@ -149,10 +150,11 @@ export function SonuclarClient({ formId }: { formId: string }) {
   ], [sorular]);
 
   function getSpec(): ExportSpec {
+    const siraliRows = gorunumeGoreSirala(yanitlar, gorunum);
     return {
       title: `Form Sonuçları — ${data?.baslik ?? ""}`,
-      subtitle: `${yanitlar.length} yanıt`,
-      fileName: `form-sonuclari-${formId}`,
+      subtitle: `${yanitlar.length} yanıt · ${gorunumEtiket(gorunum)}`,
+      fileName: `form-sonuclari-${formId}-${gorunum}`,
       columns: [
         { header: "Yanıtlayan", key: "userName" },
         { header: "Bölge", key: "bolge" },
@@ -160,7 +162,7 @@ export function SonuclarClient({ formId }: { formId: string }) {
         { header: "Tarih", key: "createdAt" },
         ...gosterilenSorular.map(s => ({ header: s.etiket, key: s.id })),
       ],
-      rows: yanitlar.map(y => {
+      rows: siraliRows.map(y => {
         const row: Record<string, string | number | null | undefined> = {
           userName: y.userName,
           bolge: y.konum.bolgeNo ? `${y.konum.bolgeNo}. Bölge` : "—",
@@ -303,6 +305,8 @@ export function SonuclarClient({ formId }: { formId: string }) {
           rows={yanitlar}
           columns={columns}
           rowKey={y => y.id}
+          gorunum={gorunum}
+          onGorunum={setGorunum}
           searchText={y => `${y.userName} ${y.konum.ilAd} ${gosterilenSorular.map(s => cevapToText(y.cevaplar?.[s.id])).join(" ")}`}
           searchPlaceholder="Yanıtlayan, il veya cevap ara..."
           emptyText="Bu forma henüz yanıt verilmemiş."

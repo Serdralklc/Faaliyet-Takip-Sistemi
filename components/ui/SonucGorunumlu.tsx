@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { DataTable, type DataTableColumn } from "./DataTable";
 import { Badge } from "./Badge";
 
@@ -16,12 +16,20 @@ export interface KonumlananSatir {
   userName?: string;
 }
 
-const GORUNUM_OPTS: { key: GorunumTipi; label: string }[] = [
+export const GORUNUM_OPTS: { key: GorunumTipi; label: string }[] = [
   { key: "turkiye", label: "Tüm Türkiye" },
   { key: "bolge", label: "Bölge Bazlı" },
   { key: "il", label: "İl Bazlı" },
   { key: "kullanici", label: "Kullanıcı Bazlı" },
 ];
+
+export const gorunumEtiket = (g: GorunumTipi) => GORUNUM_OPTS.find(o => o.key === g)?.label ?? "Tüm Türkiye";
+
+/** Satırları görünüm boyutuna (bölge/il/kullanıcı) göre sıralı düz dizi olarak döner — dışa aktarım için. */
+export function gorunumeGoreSirala<T extends KonumlananSatir>(rows: T[], gorunum: GorunumTipi): T[] {
+  if (gorunum === "turkiye") return rows;
+  return grupla(rows, gorunum).flatMap(g => g.satirlar);
+}
 
 interface Grup<T> { anahtar: string; baslik: string; sira: number; satirlar: T[] }
 
@@ -49,7 +57,7 @@ function grupla<T extends KonumlananSatir>(rows: T[], gorunum: GorunumTipi): Gru
 }
 
 export function SonucGorunumlu<T extends KonumlananSatir>({
-  rows, columns, rowKey, searchText, searchPlaceholder, emptyText, idBase,
+  rows, columns, rowKey, searchText, searchPlaceholder, emptyText, idBase, gorunum, onGorunum,
 }: {
   rows: T[];
   columns: DataTableColumn<T>[];
@@ -58,8 +66,9 @@ export function SonucGorunumlu<T extends KonumlananSatir>({
   searchPlaceholder?: string;
   emptyText?: string;
   idBase: string;
+  gorunum: GorunumTipi;
+  onGorunum: (g: GorunumTipi) => void;
 }) {
-  const [gorunum, setGorunum] = useState<GorunumTipi>("turkiye");
   const gruplar = useMemo(() => (gorunum === "turkiye" ? [] : grupla(rows, gorunum)), [rows, gorunum]);
 
   return (
@@ -70,7 +79,7 @@ export function SonucGorunumlu<T extends KonumlananSatir>({
         {GORUNUM_OPTS.map(o => {
           const aktif = gorunum === o.key;
           return (
-            <button key={o.key} onClick={() => setGorunum(o.key)}
+            <button key={o.key} onClick={() => onGorunum(o.key)}
               className="px-3 py-1.5 rounded-lg text-[12.5px] font-bold border transition"
               style={aktif
                 ? { background: "var(--green-primary)", borderColor: "var(--green-primary)", color: "#fff" }

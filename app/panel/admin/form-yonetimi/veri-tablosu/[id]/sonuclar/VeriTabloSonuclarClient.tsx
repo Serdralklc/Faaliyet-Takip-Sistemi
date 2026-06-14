@@ -2,11 +2,11 @@
 
 /** Veri tablosu kayıtları (yönetici). Tüm il/bölgelerin girdiği satırları tek tabloda gösterir + dışa aktarır. */
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { type DataTableColumn } from "@/components/ui/DataTable";
-import { SonucGorunumlu } from "@/components/ui/SonucGorunumlu";
+import { SonucGorunumlu, gorunumeGoreSirala, gorunumEtiket, type GorunumTipi } from "@/components/ui/SonucGorunumlu";
 import { ExportButtons } from "@/components/ui/ExportButtons";
 import { Skeleton, SkeletonTable } from "@/components/ui/Skeleton";
 import type { ExportSpec } from "@/lib/export/corporate";
@@ -43,6 +43,7 @@ export function VeriTabloSonuclarClient({ tabloId }: { tabloId: string }) {
 
   const sutunlar = useMemo(() => data?.sutunlar ?? [], [data]);
   const kayitlar = useMemo(() => data?.kayitlar ?? [], [data]);
+  const [gorunum, setGorunum] = useState<GorunumTipi>("turkiye");
 
   const columns = useMemo<DataTableColumn<Kayit>[]>(() => [
     { key: "userName", header: "Giren", mobile: true, render: k => <span className="font-semibold text-heading text-sm">{k.userName}</span> },
@@ -64,10 +65,11 @@ export function VeriTabloSonuclarClient({ tabloId }: { tabloId: string }) {
   ], [sutunlar]);
 
   function getSpec(): ExportSpec {
+    const siraliKayitlar = gorunumeGoreSirala(kayitlar, gorunum);
     return {
       title: `Veri Tablosu — ${data?.baslik ?? ""}`,
-      subtitle: `${kayitlar.length} kayıt`,
-      fileName: `veri-tablosu-${tabloId}`,
+      subtitle: `${kayitlar.length} kayıt · ${gorunumEtiket(gorunum)}`,
+      fileName: `veri-tablosu-${tabloId}-${gorunum}`,
       columns: [
         { header: "Giren", key: "userName" },
         { header: "Bölge", key: "bolge" },
@@ -75,7 +77,7 @@ export function VeriTabloSonuclarClient({ tabloId }: { tabloId: string }) {
         ...sutunlar.map(s => ({ header: s.baslik, key: s.id })),
         { header: "Tarih", key: "createdAt" },
       ],
-      rows: kayitlar.map(k => {
+      rows: siraliKayitlar.map(k => {
         const row: Record<string, string | number | null | undefined> = {
           userName: k.userName,
           bolge: k.konum.bolgeNo ? `${k.konum.bolgeNo}. Bölge` : "—",
@@ -108,6 +110,8 @@ export function VeriTabloSonuclarClient({ tabloId }: { tabloId: string }) {
         rows={kayitlar}
         columns={columns}
         rowKey={k => k.id}
+        gorunum={gorunum}
+        onGorunum={setGorunum}
         searchText={k => `${k.userName} ${k.konum.ilAd} ${sutunlar.map(s => hucreText(k.degerler?.[s.id])).join(" ")}`}
         searchPlaceholder="Giren, il veya hücre ara..."
         emptyText="Bu tabloya henüz kayıt girilmemiş."
