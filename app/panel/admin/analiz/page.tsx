@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { YONETICI_ROLLERI } from "@/lib/constants";
+import { YONETICI_ROLLERI, yanRolVar } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 import { AnalizClient } from "./AnalizClient";
 import { ANALIZ_TUM_ALANLAR } from "@/lib/analiz-sorular";
@@ -52,6 +52,12 @@ export default async function AnalizPage({ searchParams }: { searchParams: Promi
   const session = await getSession();
   if (!session?.user) redirect("/giris");
   if (!YONETICI_ROLLERI.includes(session.user.role as Role)) redirect("/");
+
+  // Lise Gençlik bağlamı: Genel Bakış yalnız Lise verisi gösterir, birim seçici gizlenir
+  const liseModu =
+    session.user.anaRol === "LISE_GENCLIK" ||
+    session.user.role === "TURKIYE_LISE_SORUMLUSU" ||
+    yanRolVar(session.user.yanRoller, "MERKEZ_LISE", "MERKEZ_LISE_GENCLIK");
 
   const sp = await searchParams;
 
@@ -170,5 +176,43 @@ export default async function AnalizPage({ searchParams }: { searchParams: Promi
     })),
   };
 
-  return <AnalizClient data={data} />;
+  // Lise Gençlik Genel Bakış verisi (yalnız liseModu)
+  let liseData = null;
+  if (liseModu) {
+    const [liseFaal, liseFaalOnceki] = await Promise.all([
+      prisma.liseFaaliyet.findMany({ where: { yil }, select: { ilId: true, donem: true, kategori: true, katilimci: true, ilkKezKatilan: true, yeniIntisap: true } }),
+      prisma.liseFaaliyet.findMany({ where: { yil: oncekiYil }, select: { donem: true } }),
+    ]);
+    const LKAT: { kod: string; ad: string }[] = [
+      { kod: "ILIM_SOHBET", ad: "İlim / Sohbet" }, { kod: "SOSYAL", ad: "Sosyal" },
+      { kod: "SOSYAL_SORUMLULUK", ad: "Sosyal Sorumluluk" }, { kod: "MUHABBET", ad: "Muhabbet" },
+      { kod: "NAMAZ", ad: "Namaz" }, { kod: "KAFILE", ad: "Kafile" }, { kod: "DIGER", ad: "Diğer" },
+    ];
+    type LB = { toplam: number; katilimci: number; ilkKez: number; yeniIntisap: number };
+    const lBolge = new Map<string, LB>();
+    for (const b of bolgeler) lBolge.set(b.ad, { toplam: 0, katilimci: 0, ilkKez: 0, yeniIntisap: 0 });
+    const lTop: LB = { toplam: 0, katilimci: 0, ilkKez: 0, yeniIntisap: 0 };
+    const lKat = new Map<string, number>();
+    const lDonem = new Map<string, number>();
+    for (const f of liseFaal) {
+      const ba = ilToBolge.get(f.ilId);
+      if (ba && lBolge.has(ba)) { const t = lBolge.get(ba)!; t.toplam++; t.katilimci += f.katilimci; t.ilkKez += f.ilkKezKatilan; t.yeniIntisap += f.yeniIntisap; }
+      lTop.toplam++; lTop.katilimci += f.katilimci; lTop.ilkKez += f.ilkKezKatilan; lTop.yeniIntisap += f.yeniIntisap;
+      lKat.set(f.kategori, (lKat.get(f.kategori) ?? 0) + 1);
+      lDonem.set(f.donem, (lDonem.get(f.donem) ?? 0) + 1);
+    }
+    const lOncekiDonem = new Map<string, number>();
+    let lOncekiToplam = 0;
+    for (const f of liseFaalOnceki) { lOncekiToplam++; lOncekiDonem.set(f.donem, (lOncekiDonem.get(f.donem) ?? 0) + 1); }
+    const DON = [["DONEM_1", "1. Dönem"], ["DONEM_2", "2. Dönem"], ["YAZ_DONEMI", "Yaz"]] as const;
+    liseData = {
+      toplam: lTop,
+      oncekiToplam: { toplam: lOncekiToplam },
+      bolgeSerisi: bolgeler.map(b => ({ bolge: `${b.no}. Bölge`, bolgeTam: b.ad, ...(lBolge.get(b.ad) ?? { toplam: 0, katilimci: 0, ilkKez: 0, yeniIntisap: 0 }) })),
+      donemSerisi: DON.map(([k, a]) => ({ donem: a, [String(yil)]: lDonem.get(k) ?? 0, [String(oncekiYil)]: lOncekiDonem.get(k) ?? 0 })),
+      kategori: LKAT.map(k => ({ ad: k.ad, deger: lKat.get(k.kod) ?? 0 })),
+    };
+  }
+
+  return <AnalizClient data={data} liseModu={liseModu} liseData={liseData} />;
 }
