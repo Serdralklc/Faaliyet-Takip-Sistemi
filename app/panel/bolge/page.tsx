@@ -17,6 +17,9 @@ export default async function BolgePanelPage({
   const session = await getSession();
   if (!session?.user) redirect("/giris");
   if (session.user.role !== "BOLGE_SORUMLUSU") redirect("/");
+  // Üni/Lise gençlik bölge sorumlusu eğitimci durum tablosunu değil kendi gençlik
+  // faaliyet görünümünü görür (anasayfa = kendi sisteminin verisi).
+  if (session.user.sistem === "UNIVERSITE" || session.user.sistem === "LISE") redirect("/panel/bolge/genclik-faaliyet");
 
   const bolgeId = session.user.activeBolgeId;
   if (!bolgeId) redirect("/panel/beklemede");
