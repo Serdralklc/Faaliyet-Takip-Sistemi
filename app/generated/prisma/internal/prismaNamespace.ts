@@ -3678,6 +3678,8 @@ export const VolunteerScalarFieldEnum = {
   bolum: 'bolum',
   okul: 'okul',
   il: 'il',
+  serGencRol: 'serGencRol',
+  barinma: 'barinma',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

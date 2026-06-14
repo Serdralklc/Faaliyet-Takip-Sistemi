@@ -36,6 +36,8 @@ export type VolunteerMinAggregateOutputType = {
   bolum: string | null
   okul: string | null
   il: string | null
+  serGencRol: string | null
+  barinma: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,6 +54,8 @@ export type VolunteerMaxAggregateOutputType = {
   bolum: string | null
   okul: string | null
   il: string | null
+  serGencRol: string | null
+  barinma: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -68,6 +72,8 @@ export type VolunteerCountAggregateOutputType = {
   bolum: number
   okul: number
   il: number
+  serGencRol: number
+  barinma: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -86,6 +92,8 @@ export type VolunteerMinAggregateInputType = {
   bolum?: true
   okul?: true
   il?: true
+  serGencRol?: true
+  barinma?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -102,6 +110,8 @@ export type VolunteerMaxAggregateInputType = {
   bolum?: true
   okul?: true
   il?: true
+  serGencRol?: true
+  barinma?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -118,6 +128,8 @@ export type VolunteerCountAggregateInputType = {
   bolum?: true
   okul?: true
   il?: true
+  serGencRol?: true
+  barinma?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -207,6 +219,8 @@ export type VolunteerGroupByOutputType = {
   bolum: string | null
   okul: string | null
   il: string | null
+  serGencRol: string | null
+  barinma: boolean
   createdAt: Date
   updatedAt: Date
   _count: VolunteerCountAggregateOutputType | null
@@ -244,6 +258,8 @@ export type VolunteerWhereInput = {
   bolum?: Prisma.StringNullableFilter<"Volunteer"> | string | null
   okul?: Prisma.StringNullableFilter<"Volunteer"> | string | null
   il?: Prisma.StringNullableFilter<"Volunteer"> | string | null
+  serGencRol?: Prisma.StringNullableFilter<"Volunteer"> | string | null
+  barinma?: Prisma.BoolFilter<"Volunteer"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Volunteer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Volunteer"> | Date | string
   bursBasvurulari?: Prisma.BursBasvuruListRelationFilter
@@ -263,6 +279,8 @@ export type VolunteerOrderByWithRelationInput = {
   bolum?: Prisma.SortOrderInput | Prisma.SortOrder
   okul?: Prisma.SortOrderInput | Prisma.SortOrder
   il?: Prisma.SortOrderInput | Prisma.SortOrder
+  serGencRol?: Prisma.SortOrderInput | Prisma.SortOrder
+  barinma?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   bursBasvurulari?: Prisma.BursBasvuruOrderByRelationAggregateInput
@@ -285,6 +303,8 @@ export type VolunteerWhereUniqueInput = Prisma.AtLeast<{
   bolum?: Prisma.StringNullableFilter<"Volunteer"> | string | null
   okul?: Prisma.StringNullableFilter<"Volunteer"> | string | null
   il?: Prisma.StringNullableFilter<"Volunteer"> | string | null
+  serGencRol?: Prisma.StringNullableFilter<"Volunteer"> | string | null
+  barinma?: Prisma.BoolFilter<"Volunteer"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Volunteer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Volunteer"> | Date | string
   bursBasvurulari?: Prisma.BursBasvuruListRelationFilter
@@ -304,6 +324,8 @@ export type VolunteerOrderByWithAggregationInput = {
   bolum?: Prisma.SortOrderInput | Prisma.SortOrder
   okul?: Prisma.SortOrderInput | Prisma.SortOrder
   il?: Prisma.SortOrderInput | Prisma.SortOrder
+  serGencRol?: Prisma.SortOrderInput | Prisma.SortOrder
+  barinma?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.VolunteerCountOrderByAggregateInput
@@ -326,6 +348,8 @@ export type VolunteerScalarWhereWithAggregatesInput = {
   bolum?: Prisma.StringNullableWithAggregatesFilter<"Volunteer"> | string | null
   okul?: Prisma.StringNullableWithAggregatesFilter<"Volunteer"> | string | null
   il?: Prisma.StringNullableWithAggregatesFilter<"Volunteer"> | string | null
+  serGencRol?: Prisma.StringNullableWithAggregatesFilter<"Volunteer"> | string | null
+  barinma?: Prisma.BoolWithAggregatesFilter<"Volunteer"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Volunteer"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Volunteer"> | Date | string
 }
@@ -342,6 +366,8 @@ export type VolunteerCreateInput = {
   bolum?: string | null
   okul?: string | null
   il?: string | null
+  serGencRol?: string | null
+  barinma?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   bursBasvurulari?: Prisma.BursBasvuruCreateNestedManyWithoutVolunteerInput
@@ -361,6 +387,8 @@ export type VolunteerUncheckedCreateInput = {
   bolum?: string | null
   okul?: string | null
   il?: string | null
+  serGencRol?: string | null
+  barinma?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   bursBasvurulari?: Prisma.BursBasvuruUncheckedCreateNestedManyWithoutVolunteerInput
@@ -380,6 +408,8 @@ export type VolunteerUpdateInput = {
   bolum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okul?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serGencRol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bursBasvurulari?: Prisma.BursBasvuruUpdateManyWithoutVolunteerNestedInput
@@ -399,6 +429,8 @@ export type VolunteerUncheckedUpdateInput = {
   bolum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okul?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serGencRol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bursBasvurulari?: Prisma.BursBasvuruUncheckedUpdateManyWithoutVolunteerNestedInput
@@ -418,6 +450,8 @@ export type VolunteerCreateManyInput = {
   bolum?: string | null
   okul?: string | null
   il?: string | null
+  serGencRol?: string | null
+  barinma?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -434,6 +468,8 @@ export type VolunteerUpdateManyMutationInput = {
   bolum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okul?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serGencRol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -450,6 +486,8 @@ export type VolunteerUncheckedUpdateManyInput = {
   bolum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okul?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serGencRol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -466,6 +504,8 @@ export type VolunteerCountOrderByAggregateInput = {
   bolum?: Prisma.SortOrder
   okul?: Prisma.SortOrder
   il?: Prisma.SortOrder
+  serGencRol?: Prisma.SortOrder
+  barinma?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -482,6 +522,8 @@ export type VolunteerMaxOrderByAggregateInput = {
   bolum?: Prisma.SortOrder
   okul?: Prisma.SortOrder
   il?: Prisma.SortOrder
+  serGencRol?: Prisma.SortOrder
+  barinma?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -498,6 +540,8 @@ export type VolunteerMinOrderByAggregateInput = {
   bolum?: Prisma.SortOrder
   okul?: Prisma.SortOrder
   il?: Prisma.SortOrder
+  serGencRol?: Prisma.SortOrder
+  barinma?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -569,6 +613,8 @@ export type VolunteerCreateWithoutBursBasvurulariInput = {
   bolum?: string | null
   okul?: string | null
   il?: string | null
+  serGencRol?: string | null
+  barinma?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ekKayitBasvurulari?: Prisma.EkKayitBasvuruCreateNestedManyWithoutVolunteerInput
@@ -587,6 +633,8 @@ export type VolunteerUncheckedCreateWithoutBursBasvurulariInput = {
   bolum?: string | null
   okul?: string | null
   il?: string | null
+  serGencRol?: string | null
+  barinma?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   ekKayitBasvurulari?: Prisma.EkKayitBasvuruUncheckedCreateNestedManyWithoutVolunteerInput
@@ -621,6 +669,8 @@ export type VolunteerUpdateWithoutBursBasvurulariInput = {
   bolum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okul?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serGencRol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ekKayitBasvurulari?: Prisma.EkKayitBasvuruUpdateManyWithoutVolunteerNestedInput
@@ -639,6 +689,8 @@ export type VolunteerUncheckedUpdateWithoutBursBasvurulariInput = {
   bolum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okul?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serGencRol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ekKayitBasvurulari?: Prisma.EkKayitBasvuruUncheckedUpdateManyWithoutVolunteerNestedInput
@@ -657,6 +709,8 @@ export type VolunteerCreateWithoutEkKayitBasvurulariInput = {
   bolum?: string | null
   okul?: string | null
   il?: string | null
+  serGencRol?: string | null
+  barinma?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   bursBasvurulari?: Prisma.BursBasvuruCreateNestedManyWithoutVolunteerInput
@@ -675,6 +729,8 @@ export type VolunteerUncheckedCreateWithoutEkKayitBasvurulariInput = {
   bolum?: string | null
   okul?: string | null
   il?: string | null
+  serGencRol?: string | null
+  barinma?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   bursBasvurulari?: Prisma.BursBasvuruUncheckedCreateNestedManyWithoutVolunteerInput
@@ -709,6 +765,8 @@ export type VolunteerUpdateWithoutEkKayitBasvurulariInput = {
   bolum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okul?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serGencRol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bursBasvurulari?: Prisma.BursBasvuruUpdateManyWithoutVolunteerNestedInput
@@ -727,6 +785,8 @@ export type VolunteerUncheckedUpdateWithoutEkKayitBasvurulariInput = {
   bolum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okul?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serGencRol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bursBasvurulari?: Prisma.BursBasvuruUncheckedUpdateManyWithoutVolunteerNestedInput
@@ -745,6 +805,8 @@ export type VolunteerCreateWithoutGeriBildirimlerInput = {
   bolum?: string | null
   okul?: string | null
   il?: string | null
+  serGencRol?: string | null
+  barinma?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   bursBasvurulari?: Prisma.BursBasvuruCreateNestedManyWithoutVolunteerInput
@@ -763,6 +825,8 @@ export type VolunteerUncheckedCreateWithoutGeriBildirimlerInput = {
   bolum?: string | null
   okul?: string | null
   il?: string | null
+  serGencRol?: string | null
+  barinma?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   bursBasvurulari?: Prisma.BursBasvuruUncheckedCreateNestedManyWithoutVolunteerInput
@@ -797,6 +861,8 @@ export type VolunteerUpdateWithoutGeriBildirimlerInput = {
   bolum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okul?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serGencRol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bursBasvurulari?: Prisma.BursBasvuruUpdateManyWithoutVolunteerNestedInput
@@ -815,6 +881,8 @@ export type VolunteerUncheckedUpdateWithoutGeriBildirimlerInput = {
   bolum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okul?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   il?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serGencRol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  barinma?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bursBasvurulari?: Prisma.BursBasvuruUncheckedUpdateManyWithoutVolunteerNestedInput
@@ -882,6 +950,8 @@ export type VolunteerSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   bolum?: boolean
   okul?: boolean
   il?: boolean
+  serGencRol?: boolean
+  barinma?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   bursBasvurulari?: boolean | Prisma.Volunteer$bursBasvurulariArgs<ExtArgs>
@@ -902,6 +972,8 @@ export type VolunteerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   bolum?: boolean
   okul?: boolean
   il?: boolean
+  serGencRol?: boolean
+  barinma?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["volunteer"]>
@@ -918,6 +990,8 @@ export type VolunteerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   bolum?: boolean
   okul?: boolean
   il?: boolean
+  serGencRol?: boolean
+  barinma?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["volunteer"]>
@@ -934,11 +1008,13 @@ export type VolunteerSelectScalar = {
   bolum?: boolean
   okul?: boolean
   il?: boolean
+  serGencRol?: boolean
+  barinma?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type VolunteerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "adSoyad" | "telefon" | "email" | "emailVerified" | "passwordHash" | "ogrenim" | "ogrenimTuru" | "bolum" | "okul" | "il" | "createdAt" | "updatedAt", ExtArgs["result"]["volunteer"]>
+export type VolunteerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "adSoyad" | "telefon" | "email" | "emailVerified" | "passwordHash" | "ogrenim" | "ogrenimTuru" | "bolum" | "okul" | "il" | "serGencRol" | "barinma" | "createdAt" | "updatedAt", ExtArgs["result"]["volunteer"]>
 export type VolunteerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bursBasvurulari?: boolean | Prisma.Volunteer$bursBasvurulariArgs<ExtArgs>
   ekKayitBasvurulari?: boolean | Prisma.Volunteer$ekKayitBasvurulariArgs<ExtArgs>
@@ -967,6 +1043,8 @@ export type $VolunteerPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     bolum: string | null
     okul: string | null
     il: string | null
+    serGencRol: string | null
+    barinma: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["volunteer"]>
@@ -1406,6 +1484,8 @@ export interface VolunteerFieldRefs {
   readonly bolum: Prisma.FieldRef<"Volunteer", 'String'>
   readonly okul: Prisma.FieldRef<"Volunteer", 'String'>
   readonly il: Prisma.FieldRef<"Volunteer", 'String'>
+  readonly serGencRol: Prisma.FieldRef<"Volunteer", 'String'>
+  readonly barinma: Prisma.FieldRef<"Volunteer", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Volunteer", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Volunteer", 'DateTime'>
 }

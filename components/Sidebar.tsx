@@ -177,7 +177,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
     label: "Gönüllü Sistemi",
     icon: Users,
     items: [
-      { href: "/panel/admin/gonulluler",            label: "Gönüllüler",              icon: Users },
+      { href: "/panel/admin/gonulluler",            label: "SerGenç",                 icon: Users },
       { href: "/panel/admin/burs-basvurulari",      label: "Nezir Burs Başvuruları",  icon: FileText },
       { href: "/panel/admin/ek-kayit-basvurulari",  label: "Ev / Yurt Başvuruları",   icon: Building2 },
     ],

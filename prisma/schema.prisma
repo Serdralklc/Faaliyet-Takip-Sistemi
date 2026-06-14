@@ -628,6 +628,10 @@ model Volunteer {
   bolum         String?
   okul          String?
   il            String?
+  // SerGenç ana rol (başvuruda seçilir): "UNIVERSITE" | "LISE"
+  serGencRol    String?
+  // Yan rol: Barınma — evlerimizde/yurtlarımızda kalan öğrenci (yetkili işaretler)
+  barinma       Boolean      @default(false)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
