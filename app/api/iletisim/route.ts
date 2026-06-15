@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendContactMessage } from "@/lib/mail";
+import { rateLimit, clientIp, tooManyRequests } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const rl = rateLimit(`iletisim:${clientIp(req)}`, 5, 60);
+  if (!rl.ok) return tooManyRequests(rl.retryAfterSec);
+
   let body: { adSoyad?: string; eposta?: string; telefon?: string; mesaj?: string };
   try {
     body = await req.json();

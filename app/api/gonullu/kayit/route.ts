@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { parseJson, zAdSoyad, zTelefon, zEmail, zPassword, zKisaMetinOptional } from "@/lib/validation";
 import { createAuthToken } from "@/lib/auth-tokens";
 import { sendEmailVerification } from "@/lib/mail";
+import { rateLimit, clientIp, tooManyRequests } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,9 @@ const schema = z
   });
 
 export async function POST(req: NextRequest) {
+  const rl = rateLimit(`gonullu-kayit:${clientIp(req)}`, 5, 300);
+  if (!rl.ok) return tooManyRequests(rl.retryAfterSec);
+
   try {
     const r = await parseJson(req, schema);
     if ("error" in r) return r.error;

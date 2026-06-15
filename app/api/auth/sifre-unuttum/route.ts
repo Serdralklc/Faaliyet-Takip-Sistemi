@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { parseJson, zEmail } from "@/lib/validation";
 import { createAuthToken } from "@/lib/auth-tokens";
 import { sendPasswordResetEmail } from "@/lib/mail";
+import { rateLimit, clientIp, tooManyRequests } from "@/lib/rate-limit";
 
 const schema = z.object({
   email: zEmail,
@@ -15,6 +16,9 @@ const schema = z.object({
  * Hesabın var olup olmadığını sızdırmamak için her durumda aynı yanıt döner.
  */
 export async function POST(req: NextRequest) {
+  const rl = rateLimit(`sifre-unuttum:${clientIp(req)}`, 3, 300);
+  if (!rl.ok) return tooManyRequests(rl.retryAfterSec);
+
   const r = await parseJson(req, schema);
   if ("error" in r) return r.error;
   const { email, tip } = r.data;

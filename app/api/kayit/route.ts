@@ -12,6 +12,7 @@ import {
   zPassword,
   zTelefonOptional,
 } from "@/lib/validation";
+import { rateLimit, clientIp, tooManyRequests } from "@/lib/rate-limit";
 
 const VALID_SISTEM: Sistem[] = ["EGITIMCI", "UNIVERSITE", "LISE"];
 
@@ -29,6 +30,9 @@ const kayitSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  const rl = rateLimit(`kayit:${clientIp(req)}`, 5, 300);
+  if (!rl.ok) return tooManyRequests(rl.retryAfterSec);
+
   const r = await parseJson(req, kayitSchema);
   if ("error" in r) return r.error;
   const { ad, soyad, email, telefon, sifre, gorev, bolgeId, ilId, sistem } = r.data;
