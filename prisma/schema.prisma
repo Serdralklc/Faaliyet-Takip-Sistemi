@@ -178,6 +178,8 @@ model Il {
   genclikHedefler GenclikIlHedef[]
   liseFaaliyetler LiseFaaliyet[]
   universiteFaaliyetler UniversiteFaaliyet[]
+
+  @@index([bolgeId])
 }
 
 model RoleAssignment {
@@ -214,6 +216,9 @@ model Invitation {
   createdAt   DateTime  @default(now())
 
   invitedBy User @relation("InvitedBy", fields: [invitedById], references: [id])
+
+  @@index([email])
+  @@index([expiresAt])
 }
 
 model Activity {
@@ -386,7 +391,7 @@ model LiseFaaliyet {
 
   il Il @relation(fields: [ilId], references: [id])
 
-  @@index([ilId, yil])
+  @@index([ilId, yil, donem])
   @@index([ilId, tarih])
   @@index([kategori])
 }
@@ -436,7 +441,7 @@ model UniversiteFaaliyet {
 
   il Il @relation(fields: [ilId], references: [id])
 
-  @@index([ilId, yil])
+  @@index([ilId, yil, donem])
   @@index([ilId, tarih])
   @@index([kategori])
 }
@@ -1117,6 +1122,7 @@ model AuthToken {
 
   @@index([userId, type])
   @@index([volunteerId, type])
+  @@index([expiresAt])
 }
 
 model AuditLog {
@@ -1157,6 +1163,7 @@ model Talep {
   @@index([birim])
   @@index([olusturanId])
   @@index([sonMesajAt])
+  @@index([sistem])
 }
 
 model TalepMesaj {
