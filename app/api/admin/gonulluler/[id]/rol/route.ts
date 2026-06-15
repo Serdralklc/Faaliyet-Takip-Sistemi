@@ -4,8 +4,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { parseJson } from "@/lib/validation";
-
-const YETKILI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"];
+import { SUPER_ADMIN_ROLLERI } from "@/lib/constants";
 
 const bodySchema = z.object({
   serGencRol: z.enum(["UNIVERSITE", "LISE"]).nullable().optional(),
@@ -17,7 +16,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-  if (!YETKILI.includes(session.user.role)) {
+  if (!SUPER_ADMIN_ROLLERI.includes(session.user.role)) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
 

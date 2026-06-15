@@ -3,6 +3,29 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canAccessIl, canAccessHousingUnit } from "@/lib/housing-access";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
+import { z } from "zod";
+import { parseJson, zId } from "@/lib/validation";
+
+const studentPostSchema = z.object({
+  housingUnitId: zId,
+  adSoyad: z.string().trim().min(1, "Ad soyad gerekli.").max(120),
+  bolum: z.string().trim().max(200).nullish(),
+  sinif: z.string().trim().max(100).nullish(),
+  bursMu: z.boolean().optional(),
+  disiplinSayisi: z.coerce.number().int().min(0).max(100000).optional(),
+  iliskiKesme: z.boolean().optional(),
+  notlar: z.string().trim().max(5000).nullish(),
+});
+const studentPutSchema = z.object({
+  id: zId,
+  adSoyad: z.string().trim().min(1).max(120).optional(),
+  bolum: z.string().trim().max(200).nullish(),
+  sinif: z.string().trim().max(100).nullish(),
+  bursMu: z.boolean().optional(),
+  disiplinSayisi: z.coerce.number().int().min(0).max(100000).optional(),
+  iliskiKesme: z.boolean().optional(),
+  notlar: z.string().trim().max(5000).nullish(),
+});
 
 /** Öğrencinin bağlı olduğu birimin iline erişim kontrolü; öğrenci yoksa null */
 async function canAccessStudent(user: { role: string; activeIlId?: string | null; activeBolgeId?: string | null }, studentId: string) {
@@ -18,10 +41,9 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
-  const body = await req.json();
-  const { housingUnitId, adSoyad, bolum, sinif, bursMu, disiplinSayisi, iliskiKesme, notlar } = body;
-
-  if (!housingUnitId || !adSoyad) return NextResponse.json({ error: "Eksik alan" }, { status: 400 });
+  const r = await parseJson(req, studentPostSchema);
+  if ("error" in r) return r.error;
+  const { housingUnitId, adSoyad, bolum, sinif, bursMu, disiplinSayisi, iliskiKesme, notlar } = r.data;
 
   const access = await canAccessHousingUnit(session.user, housingUnitId);
   if (access === null) return NextResponse.json({ error: "Birim bulunamadı." }, { status: 404 });
@@ -47,9 +69,9 @@ export async function PUT(req: NextRequest) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
-  const body = await req.json();
-  const { id, adSoyad, bolum, sinif, bursMu, disiplinSayisi, iliskiKesme, notlar } = body;
-  if (!id) return NextResponse.json({ error: "ID gerekli" }, { status: 400 });
+  const r = await parseJson(req, studentPutSchema);
+  if ("error" in r) return r.error;
+  const { id, adSoyad, bolum, sinif, bursMu, disiplinSayisi, iliskiKesme, notlar } = r.data;
 
   const access = await canAccessStudent(session.user, id);
   if (access === null) return NextResponse.json({ error: "Öğrenci bulunamadı." }, { status: 404 });

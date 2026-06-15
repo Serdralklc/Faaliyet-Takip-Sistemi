@@ -3,6 +3,15 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canAccessIl, canAccessHousingUnit } from "@/lib/housing-access";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
+import { z } from "zod";
+import { parseJson, zId } from "@/lib/validation";
+
+const visitPostSchema = z.object({
+  housingUnitId: zId,
+  tarih: z.coerce.date(),
+  ziyaretEden: z.string().trim().min(1, "Ziyaret eden gerekli.").max(120),
+  notlar: z.string().trim().max(5000).nullish(),
+});
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -26,12 +35,9 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
-  const body = await req.json();
-  const { housingUnitId, tarih, ziyaretEden, notlar } = body;
-
-  if (!housingUnitId || !tarih || !ziyaretEden) {
-    return NextResponse.json({ error: "Eksik alan" }, { status: 400 });
-  }
+  const r = await parseJson(req, visitPostSchema);
+  if ("error" in r) return r.error;
+  const { housingUnitId, tarih, ziyaretEden, notlar } = r.data;
 
   const access = await canAccessHousingUnit(session.user, housingUnitId);
   if (access === null) return NextResponse.json({ error: "Birim bulunamadı." }, { status: 404 });
@@ -40,7 +46,7 @@ export async function POST(req: NextRequest) {
   const visit = await prisma.housingVisit.create({
     data: {
       housingUnitId,
-      tarih: new Date(tarih),
+      tarih,
       ziyaretEden,
       notlar: notlar || null,
     },

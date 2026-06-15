@@ -4,8 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { parseJson, zId, zYil, zPozitifSayi } from "@/lib/validation";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
-
-const ADMIN_ROLES = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+import { YONETICI_ROLLERI } from "@/lib/constants";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -16,7 +15,7 @@ export async function GET(req: NextRequest) {
   const yil = searchParams.get("yil");
   const donem = searchParams.get("donem");
 
-  const where: any = {};
+  const where: Record<string, unknown> = {};
   if (bolgeId) where.bolgeId = bolgeId;
   if (yil) where.yil = parseInt(yil);
   if (donem) where.donem = donem;
@@ -48,7 +47,7 @@ const postSchema = z.object({
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
-  if (!session?.user || !ADMIN_ROLES.includes(session.user.role))
+  if (!session?.user || !YONETICI_ROLLERI.includes(session.user.role))
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
   const r = await parseJson(req, postSchema);
@@ -75,7 +74,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const session = await getSession();
-  if (!session?.user || !ADMIN_ROLES.includes(session.user.role))
+  if (!session?.user || !YONETICI_ROLLERI.includes(session.user.role))
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
   const { searchParams } = new URL(req.url);

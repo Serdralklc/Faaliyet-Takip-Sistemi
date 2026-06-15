@@ -4,9 +4,8 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { sendInvitationEmail } from "@/lib/mail";
-import bcrypt from "bcryptjs";
 import { Role, Sistem } from "@/app/generated/prisma/client";
-import { rolAtayabilir } from "@/lib/constants";
+import { rolAtayabilir, YONETICI_ROLLERI, SUPER_ADMIN_ROLLERI, SISTEM_KISITLI_ROLLERI } from "@/lib/constants";
 import {
   parseJson,
   readPagination,
@@ -22,8 +21,7 @@ export async function GET(req: NextRequest) {
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
   const { role, sistem: userSistem } = session.user;
-  const YETKILI = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
-  if (!YETKILI.includes(role)) {
+  if (!YONETICI_ROLLERI.includes(role)) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
 
@@ -32,16 +30,14 @@ export async function GET(req: NextRequest) {
   const rolFilter = searchParams.get("role") as Role | null;
   const sistemParam = searchParams.get("sistem") as Sistem | null;
 
-  const isSuperAdmin = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU"].includes(role);
+  const isSuperAdmin = SUPER_ADMIN_ROLLERI.includes(role);
 
-  const SISTEM_KISITLI = ["TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
   // Sistem kısıtlı roller yalnızca kendi sistemini sorgulayabilir
-  const effectiveSistem = SISTEM_KISITLI.includes(role)
+  const effectiveSistem = SISTEM_KISITLI_ROLLERI.includes(role)
     ? (userSistem as Sistem)
     : sistemParam;
 
-  // YONETICI sekmesi: admin rollere sahip kullanıcılar (sistem filtresi yok)
-  const YONETICI_ROLLERI: Role[] = ["SISTEM_ADMIN", "GENEL_MERKEZ", "TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
+  // YONETICI sekmesi başvuru görevleri (özel set — basvuruGorev değerleri, sabitle eşleşmez)
   const YONETICI_BASVURU_GOREVLER = ["TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "GENEL_MERKEZ"];
 
   let whereClause: Record<string, unknown> = {};

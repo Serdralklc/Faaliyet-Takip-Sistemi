@@ -3,6 +3,21 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canAccessIl, canAccessHousingUnit } from "@/lib/housing-access";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
+import { z } from "zod";
+import { parseJson, zId, zKisaMetin } from "@/lib/validation";
+
+const unitPostSchema = z.object({
+  ilId: zId,
+  tip: z.enum(["EV", "APART", "YURT"]),
+  ad: zKisaMetin,
+  konum: z.string().trim().max(200).nullish(),
+});
+const unitPutSchema = z.object({
+  id: zId,
+  ad: zKisaMetin.optional(),
+  konum: z.string().trim().max(200).nullish(),
+  aktif: z.boolean().optional(),
+});
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -29,10 +44,10 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
-  const body = await req.json();
-  const { ilId, tip, ad, konum } = body;
+  const r = await parseJson(req, unitPostSchema);
+  if ("error" in r) return r.error;
+  const { ilId, tip, ad, konum } = r.data;
 
-  if (!ilId || !tip || !ad) return NextResponse.json({ error: "Eksik alan" }, { status: 400 });
   if (!(await canAccessIl(session.user, ilId))) {
     return NextResponse.json({ error: "Bu ile erişim yetkiniz yok." }, { status: 403 });
   }
@@ -48,9 +63,9 @@ export async function PUT(req: NextRequest) {
   const session = await getSession();
   if (!session?.user) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
-  const body = await req.json();
-  const { id, ad, konum, aktif } = body;
-  if (!id) return NextResponse.json({ error: "ID gerekli" }, { status: 400 });
+  const r = await parseJson(req, unitPutSchema);
+  if ("error" in r) return r.error;
+  const { id, ad, konum, aktif } = r.data;
 
   const access = await canAccessHousingUnit(session.user, id);
   if (access === null) return NextResponse.json({ error: "Birim bulunamadı." }, { status: 404 });
