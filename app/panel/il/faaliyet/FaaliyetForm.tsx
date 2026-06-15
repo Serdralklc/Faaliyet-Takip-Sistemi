@@ -186,8 +186,19 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
   const [muaf, setMuaf] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [loaded, setLoaded] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  // Faaliyet Yapılandırma Merkezi: alan görünürlük/zorunluluk + dönem kilidi
+  const [ayarlar, setAyarlar] = useState<Record<string, { gorunur: boolean; zorunlu: boolean; aktif: boolean }>>({});
+  const [donemAcik, setDonemAcik] = useState(true);
+  const [donemSebep, setDonemSebep] = useState<string | null>(null);
 
-  const fields = FIELDS[activeTab];
+  const tumAlanlar = FIELDS[activeTab];
+  // Gizli (görünür=false) veya pasif (aktif=false) alanlar formda gösterilmez/gönderilmez
+  const fields = tumAlanlar.filter(f => {
+    const a = ayarlar[f.key];
+    return !a || (a.gorunur && a.aktif);
+  });
+  const zorunluMu = (key: string) => ayarlar[key]?.zorunlu ?? false;
   const donemler = DONEMLER[activeTab];
   const header = HEADER[activeTab];
   const muafDef = MUAF[activeTab];
@@ -213,6 +224,19 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
       });
   }, [session?.user?.activeIlId, yil, donem, activeTab]);
 
+  // Dönem kilidi + alan ayarlarını yükle (Faaliyet Yapılandırma Merkezi)
+  useEffect(() => {
+    fetch(`/api/faaliyet-yapilandirma/durum?sistem=EGITIMCI&yil=${yil}&donem=${donem}`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!d) return;
+        setAyarlar(d.alanlar ?? {});
+        setDonemAcik(d.donemAcik !== false);
+        setDonemSebep(d.donemSebep ?? null);
+      })
+      .catch(() => {});
+  }, [yil, donem, activeTab]);
+
   function handleChange(key: string, val: number) {
     setForm(prev => ({ ...prev, [key]: val }));
   }
@@ -220,17 +244,34 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!session?.user?.activeIlId) return;
+    if (!donemAcik) {
+      setErrorMsg(donemSebep ?? "Bu dönemde veri girişi kapalı.");
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 5000);
+      return;
+    }
     setStatus("loading");
+    setErrorMsg(null);
+    // Yalnızca görünür alanları gönder (gizli/pasif alanların mevcut değeri korunur)
+    const payload: Record<string, number> = {};
+    fields.forEach(f => { payload[f.key] = form[f.key] ?? 0; });
     const res = await fetch("/api/faaliyetler", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        ilId: session.user.activeIlId, yil, donem, ...form,
+        ilId: session.user.activeIlId, yil, donem, ...payload,
         ...(muafDef ? { [muafDef.key]: muaf } : {}),
       }),
     });
-    setStatus(res.ok ? "success" : "error");
-    setTimeout(() => setStatus("idle"), 3000);
+    if (res.ok) {
+      setStatus("success");
+      setTimeout(() => setStatus("idle"), 3000);
+    } else {
+      const j = await res.json().catch(() => ({}));
+      setErrorMsg(j.error ?? "Kayıt sırasında hata oluştu.");
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 5000);
+    }
   }
 
   return (
@@ -239,6 +280,19 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
         <h1>{header.label}</h1>
         <p>{header.desc}</p>
       </div>
+
+      {!donemAcik && (
+        <div className="mb-5 flex items-start gap-3 p-4 rounded-xl border"
+          style={{ background: "#FEF2F2", borderColor: "#FCA5A5" }}>
+          <span className="text-xl mt-0.5">🔒</span>
+          <div>
+            <p className="text-sm font-bold" style={{ color: "#991B1B" }}>Bu dönemde veri girişi kapalı</p>
+            <p className="text-xs mt-0.5" style={{ color: "#B91C1C" }}>
+              {donemSebep ?? "Seçili yıl/dönem için giriş yönetim tarafından kapatılmıştır."} Değişiklik için yöneticinizle iletişime geçin.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Dönem seçici */}
       <div className="flex flex-wrap gap-4 mb-6 p-4 rounded-2xl border"
@@ -365,7 +419,7 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
                     {g.items.map(f => (
                       <NumberInput
                         key={f.key}
-                        label={f.label}
+                        label={zorunluMu(f.key) ? `${f.label} *` : f.label}
                         suffix={f.suffix}
                         value={form[f.key] ?? 0}
                         onChange={v => handleChange(f.key, v)}
@@ -381,7 +435,7 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
               {fields.map(f => (
                 <NumberInput
                   key={f.key}
-                  label={f.label}
+                  label={zorunluMu(f.key) ? `${f.label} *` : f.label}
                   suffix={f.suffix}
                   value={form[f.key] ?? 0}
                   onChange={v => handleChange(f.key, v)}
@@ -393,7 +447,7 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
         </div>
 
         <div className="flex items-center gap-4">
-          <button type="submit" disabled={status === "loading"}
+          <button type="submit" disabled={status === "loading" || !donemAcik}
             className="flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm transition shadow-sm text-white"
             style={{
               background: status === "success" ? "#059669"
@@ -416,7 +470,7 @@ export function FaaliyetForm({ activeTab }: { activeTab: Tab }) {
             <p className="text-sm font-semibold" style={{ color: "#059669" }}>Veriler başarıyla kaydedildi.</p>
           )}
           {status === "error" && (
-            <p className="text-sm font-semibold text-red-600">Kayıt sırasında hata oluştu, tekrar deneyin.</p>
+            <p className="text-sm font-semibold text-red-600">{errorMsg ?? "Kayıt sırasında hata oluştu, tekrar deneyin."}</p>
           )}
         </div>
       </form>

@@ -239,18 +239,124 @@ function DonemTab() {
   );
 }
 
+interface AlanItem {
+  alanKodu: string; label: string; grup: string | null;
+  gorunur: boolean; zorunlu: boolean; aktif: boolean;
+}
+interface AlanGrup { kod: string; ad: string; alanlar: AlanItem[] }
+interface AlanResponse { sistem: string; sistemAd: string; gruplar: AlanGrup[] }
+type AlanDeger = { gorunur: boolean; zorunlu: boolean; aktif: boolean };
+
 function AlanTab() {
+  const { toast } = useToast();
+  const [data, setData] = useState<AlanResponse | null>(null);
+  const [items, setItems] = useState<Record<string, AlanDeger>>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/admin/faaliyet-yapilandirma/alan");
+        if (!res.ok) throw new Error();
+        const json: AlanResponse = await res.json();
+        setData(json);
+        const m: Record<string, AlanDeger> = {};
+        json.gruplar.forEach(g => g.alanlar.forEach(a => {
+          m[a.alanKodu] = { gorunur: a.gorunur, zorunlu: a.zorunlu, aktif: a.aktif };
+        }));
+        setItems(m);
+        setDirty(false);
+      } catch {
+        toast({ type: "error", title: "Alanlar yüklenemedi." });
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [toast]);
+
+  const setField = (kod: string, patch: Partial<AlanDeger>) => {
+    setItems(p => ({ ...p, [kod]: { ...p[kod], ...patch } }));
+    setDirty(true);
+  };
+
+  const kaydet = async () => {
+    setSaving(true);
+    try {
+      const alanlar = Object.entries(items).map(([alanKodu, v]) => ({ alanKodu, ...v }));
+      const res = await fetch("/api/admin/faaliyet-yapilandirma/alan", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sistem: "EGITIMCI", alanlar }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || "Kaydedilemedi.");
+      }
+      toast({ type: "success", title: "Alan ayarları kaydedildi" });
+      setDirty(false);
+    } catch (e) {
+      toast({ type: "error", title: "Hata", message: e instanceof Error ? e.message : "Kaydedilemedi." });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const COLS = "1fr 64px 64px 56px";
+
   return (
-    <div className="rounded-xl border border-border bg-card px-5 py-8 text-center">
-      <h2 className="text-[15px] font-bold text-heading">Alan Yönetimi</h2>
-      <p className="text-[13px] text-secondary mt-2 max-w-xl mx-auto leading-relaxed">
-        Hangi alanların görünür / zorunlu / aktif olacağı buradan yönetilecek. Bu sekme,
-        il giriş formlarına güvenli biçimde bağlanmak üzere bir sonraki adımda (Faz 1b) açılacaktır.
-      </p>
-      <span className="inline-block mt-3 text-[12px] px-3 py-1 rounded-full"
-        style={{ background: "var(--bg-hover)", color: "var(--text-muted)" }}>
-        Hazırlanıyor
-      </span>
+    <div>
+      <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
+        <div>
+          <h2 className="text-[15px] font-bold text-heading">Alan Yönetimi — Eğitim Birimi</h2>
+          <p className="text-[12.5px] text-secondary mt-0.5 max-w-2xl leading-relaxed">
+            İl eğitimcisinin hangi alanları <b>göreceği / zorunlu</b> olacağı buradan yönetilir.
+            <b> Gizli</b> veya <b>pasif</b> alanlar giriş formunda görünmez ve gönderilmez — mevcut verisi
+            ve raporlar korunur. Ayar yoksa alan görünür + opsiyonel + aktiftir.
+          </p>
+        </div>
+        <Button loading={saving} disabled={!dirty} onClick={kaydet}>Değişiklikleri kaydet</Button>
+      </div>
+
+      {loading ? (
+        <p className="text-secondary text-sm py-8 text-center">Yükleniyor…</p>
+      ) : (
+        <div className="space-y-4">
+          {data?.gruplar.map(g => (
+            <div key={g.kod} className="rounded-xl border border-border bg-card overflow-hidden">
+              <div className="px-4 py-2.5 border-b border-border flex items-center justify-between gap-2"
+                style={{ background: "var(--bg-hover)" }}>
+                <span className="text-[14px] font-bold text-heading">{g.ad}</span>
+                <div className="hidden sm:grid text-[11px] font-semibold text-muted text-center"
+                  style={{ gridTemplateColumns: "64px 64px 56px", gap: 0 }}>
+                  <span>Görünür</span><span>Zorunlu</span><span>Aktif</span>
+                </div>
+              </div>
+              <div>
+                {g.alanlar.map(a => {
+                  const v = items[a.alanKodu];
+                  if (!v) return null;
+                  const pasif = !v.gorunur || !v.aktif;
+                  return (
+                    <div key={a.alanKodu} className="grid items-center gap-2 px-4 py-2.5"
+                      style={{ gridTemplateColumns: COLS, borderTop: "0.5px solid var(--border)", opacity: pasif ? 0.6 : 1 }}>
+                      <div className="min-w-0">
+                        <div className="text-[13.5px] font-semibold text-heading truncate">{a.label}</div>
+                        <code className="text-[11px] text-muted">{a.alanKodu}</code>
+                      </div>
+                      <div className="flex justify-center"><Toggle on={v.gorunur} onChange={() => setField(a.alanKodu, { gorunur: !v.gorunur })} /></div>
+                      <div className="flex justify-center"><Toggle on={v.zorunlu} onChange={() => setField(a.alanKodu, { zorunlu: !v.zorunlu })} /></div>
+                      <div className="flex justify-center"><Toggle on={v.aktif} onChange={() => setField(a.alanKodu, { aktif: !v.aktif })} /></div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
