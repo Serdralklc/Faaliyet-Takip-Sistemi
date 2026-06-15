@@ -280,6 +280,109 @@ export function GenclikBolgeDashboard({
         </div>
       )}
 
+      {/* ── ANA SAYFA EK ANALİZLER (raporMod=false) ── */}
+      {!raporMod && (
+        <>
+          {/* İl bazlı katılımcı + İntisap */}
+          {cokIl && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div className="rounded-xl border p-5" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+                <h2 className="font-bold text-sm mb-4" style={{ color: "var(--text-primary)" }}>İl Bazlı Toplam Katılımcı</h2>
+                <div style={{ width: "100%", height: Math.max(200, ilKatilimciData.length * 34) }}>
+                  <ResponsiveContainer>
+                    <BarChart data={ilKatilimciData} layout="vertical" margin={{ left: 10, right: 30 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                      <XAxis type="number" tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
+                      <YAxis type="category" dataKey="il" width={100} tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
+                      <Tooltip formatter={(v) => [Number(v ?? 0).toLocaleString("tr-TR"), "Katılımcı"]}
+                        contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 12 }} />
+                      <Bar dataKey="katilimci" fill="#0369A1" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+              <div className="rounded-xl border p-5" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+                <h2 className="font-bold text-sm mb-4" style={{ color: "var(--text-primary)" }}>İl Bazlı İntisap & İlk Kez Katılan</h2>
+                {ilIntisapData.length === 0 ? (
+                  <p className="text-sm py-10 text-center" style={{ color: "var(--text-muted)" }}>Bu filtrede veri yok.</p>
+                ) : (
+                  <div style={{ width: "100%", height: Math.max(200, ilIntisapData.length * 34) }}>
+                    <ResponsiveContainer>
+                      <BarChart data={ilIntisapData} layout="vertical" margin={{ left: 10, right: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                        <XAxis type="number" tick={{ fontSize: 11, fill: "var(--text-muted)" }} allowDecimals={false} />
+                        <YAxis type="category" dataKey="il" width={100} tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
+                        <Tooltip contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 12 }} />
+                        <Legend wrapperStyle={{ fontSize: 11 }} />
+                        <Bar dataKey="intisap" name="Yeni İntisap" fill="var(--accent)" radius={[0, 3, 3, 0]} />
+                        <Bar dataKey="ilkKez" name="İlk Kez Katılan" fill="#B45309" radius={[0, 3, 3, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Türe Göre Ortalama Katılımcı */}
+          {katData.length > 0 && (
+            <div className="rounded-xl border p-5 mb-6" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+              <h2 className="font-bold text-sm mb-1" style={{ color: "var(--text-primary)" }}>Türe Göre Ortalama Katılımcı</h2>
+              <p className="text-[11px] mb-4" style={{ color: "var(--text-muted)" }}>Her faaliyet türü için katılımcı / faaliyet oranı</p>
+              <div style={{ width: "100%", height: 260 }}>
+                <ResponsiveContainer>
+                  <BarChart data={katData} margin={{ left: -10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="kisa" tick={{ fontSize: 10, fill: "var(--text-muted)" }} interval={0} angle={-25} textAnchor="end" height={56} />
+                    <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
+                    <Tooltip formatter={(v, _n, p) => [`${Number(v ?? 0).toLocaleString("tr-TR")} kişi`, (p?.payload?.ad as string) ?? "Ort. Katılımcı"]}
+                      contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 12 }} />
+                    <Bar dataKey="ort" radius={[4, 4, 0, 0]}>
+                      {katData.map((d, i) => <Cell key={i} fill={d.renk} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
+          {/* Son Faaliyetler */}
+          {filt.length > 0 && (
+            <div className="rounded-xl border p-5 mb-6" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+              <h2 className="font-bold text-sm mb-4" style={{ color: "var(--text-primary)" }}>Son Faaliyetler</h2>
+              <div className="overflow-x-auto">
+                <table className="text-[12px] w-full">
+                  <thead>
+                    <tr className="border-b" style={{ borderColor: "var(--border)" }}>
+                      {["Tarih", "İl", "Faaliyet", "Tür", "Katılımcı", "İlk Kez", "İntisap"].map(h => (
+                        <th key={h} className="text-left py-2 pr-4 font-semibold" style={{ color: "var(--text-muted)" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...filt].sort((a, b) => b.tarih.localeCompare(a.tarih)).slice(0, 10).map(f => (
+                      <tr key={f.id} className="border-b last:border-0" style={{ borderColor: "var(--border)" }}>
+                        <td className="py-2 pr-4 whitespace-nowrap" style={{ color: "var(--text-secondary)" }}>{new Date(f.tarih).toLocaleDateString("tr-TR")}</td>
+                        <td className="py-2 pr-4 font-semibold" style={{ color: "var(--text-primary)" }}>{f.il}</td>
+                        <td className="py-2 pr-4 max-w-[160px] truncate" style={{ color: "var(--text-primary)" }} title={f.faaliyetAdi}>{f.faaliyetAdi}</td>
+                        <td className="py-2 pr-4">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white" style={{ background: katRenk(f.kategori) }}>
+                            {katLabel(f.kategori).split(" ")[0]}
+                          </span>
+                        </td>
+                        <td className="py-2 pr-4 font-bold" style={{ color: "#0369A1" }}>{f.katilimci}</td>
+                        <td className="py-2 pr-4" style={{ color: "#B45309" }}>{f.ilkKezKatilan || "—"}</td>
+                        <td className="py-2 pr-4 font-bold" style={{ color: "var(--accent)" }}>{f.yeniIntisap || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
       {/* ── SADECE RAPOR MODU ── */}
       {raporMod && (
         <>
