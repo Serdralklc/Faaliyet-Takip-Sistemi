@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { readPagination } from "@/lib/validation";
+import { donemGirisDurum, egitimYazAlaniMi } from "@/lib/faaliyet-yapilandirma";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -104,6 +105,20 @@ export async function POST(req: NextRequest) {
       { error: "Bu dönem arşivlenmiş ve salt-okunurdur. Düzenlemek için önce arşivden çıkarılmalıdır." },
       { status: 409 }
     );
+  }
+
+  // Dönem kilidi: il eğitimcisi kapalı dönemde giremez/değiştiremez (admin/merkez muaf).
+  if (session.user.role === "IL_SORUMLUSU") {
+    const durum = await donemGirisDurum("EGITIMCI", Number(yil), donem);
+    if (!durum.acik) {
+      return NextResponse.json({ error: durum.sebep ?? "Bu dönemde veri girişi kapalıdır." }, { status: 403 });
+    }
+    // Yaz dönemi: Eğitim Birimi'nde yalnız İlköğretim alanları yazılır (diğerleri yok sayılır).
+    if (donem === "YAZ_DONEMI") {
+      for (const k of Object.keys(data)) {
+        if (!egitimYazAlaniMi(k)) delete (data as Record<string, unknown>)[k];
+      }
+    }
   }
 
   const user = session.user;

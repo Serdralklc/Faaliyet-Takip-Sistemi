@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { saveFile, IZINLI_TIPLER, MAX_DOSYA_BOYUTU } from "@/lib/storage";
 import { gecerliUniKategori } from "@/lib/universite-faaliyet";
+import { donemGecerli, donemGirisDurum } from "@/lib/faaliyet-yapilandirma";
 import type { Role } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -79,6 +80,16 @@ export async function POST(req: NextRequest) {
   const tarih = new Date(String(form.get("tarih") ?? ""));
   if (isNaN(tarih.getTime())) return NextResponse.json({ error: "Geçerli bir tarih girin." }, { status: 400 });
 
+  const donem = gecerliDonem(form.get("donem"));
+  if (!donemGecerli("UNIVERSITE", donem)) {
+    return NextResponse.json({ error: "Üniversite Gençlik sisteminde bu dönem bulunmuyor." }, { status: 400 });
+  }
+  // Dönem kilidi: il sorumlusu kapalı dönemde giremez (admin muaf).
+  if (session.user.role === "IL_SORUMLUSU") {
+    const durum = await donemGirisDurum("UNIVERSITE", tarih.getFullYear(), donem);
+    if (!durum.acik) return NextResponse.json({ error: durum.sebep ?? "Bu dönemde veri girişi kapalıdır." }, { status: 403 });
+  }
+
   const sayi = (k: string) => Math.max(0, Math.floor(Number(form.get(k)) || 0));
 
   let foto, dosya;
@@ -91,7 +102,7 @@ export async function POST(req: NextRequest) {
 
   const f = await prisma.universiteFaaliyet.create({
     data: {
-      ilId, tarih, yil: tarih.getFullYear(), donem: gecerliDonem(form.get("donem")), kategori, faaliyetAdi,
+      ilId, tarih, yil: tarih.getFullYear(), donem, kategori, faaliyetAdi,
       aciklama: String(form.get("aciklama") ?? "").trim() || null,
       yer: String(form.get("yer") ?? "").trim() || null,
       katilimci: sayi("katilimci"), ilkKezKatilan: sayi("ilkKezKatilan"), yeniIntisap: sayi("yeniIntisap"),

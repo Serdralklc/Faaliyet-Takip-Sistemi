@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { saveFile, IZINLI_TIPLER, MAX_DOSYA_BOYUTU } from "@/lib/storage";
 import { gecerliKategori } from "@/lib/lise-faaliyet";
+import { donemGecerli, donemGirisDurum } from "@/lib/faaliyet-yapilandirma";
 import type { Role } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -88,6 +89,16 @@ export async function POST(req: NextRequest) {
   const tarih = new Date(tarihStr);
   if (isNaN(tarih.getTime())) return NextResponse.json({ error: "Geçerli bir tarih girin." }, { status: 400 });
 
+  const donem = gecerliDonem(form.get("donem"));
+  if (!donemGecerli("LISE", donem)) {
+    return NextResponse.json({ error: "Lise Gençlik sisteminde bu dönem bulunmuyor." }, { status: 400 });
+  }
+  // Dönem kilidi: il sorumlusu kapalı dönemde giremez (admin muaf).
+  if (session.user.role === "IL_SORUMLUSU") {
+    const durum = await donemGirisDurum("LISE", tarih.getFullYear(), donem);
+    if (!durum.acik) return NextResponse.json({ error: durum.sebep ?? "Bu dönemde veri girişi kapalıdır." }, { status: 403 });
+  }
+
   const sayi = (k: string) => Math.max(0, Math.floor(Number(form.get(k)) || 0));
 
   let foto, dosya;
@@ -103,7 +114,7 @@ export async function POST(req: NextRequest) {
       ilId,
       tarih,
       yil: tarih.getFullYear(),
-      donem: gecerliDonem(form.get("donem")),
+      donem,
       kategori,
       faaliyetAdi,
       aciklama: String(form.get("aciklama") ?? "").trim() || null,

@@ -309,6 +309,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             {canBarinma && <NavItem href="/panel/admin/barinma-gorunum" label="Barınma Yönetimi" icon={Home} />}
             <NavGroupComp group={gonulluGroup} />
             <NavItem href="/panel/admin/analiz" label="Rapor ve Analiz Merkezi" icon={BarChart3} />
+            <NavItem href="/panel/admin/faaliyet-yapilandirma" label="Faaliyet Yapılandırma" icon={Settings} />
             <NavItem href="/panel/admin/form-yonetimi" label="Form Yönetimi" icon={FileText} />
             <NavItem href="/panel/admin/bildirimler-merkezi" label="Bildirim Merkezi" icon={Bell} />
             <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />
@@ -335,6 +336,7 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
             <NavItem href="/panel/admin/bolgeler" label="Eksik Veri Takip" icon={MapPin} />
             <NavItem href="/panel/admin/dokumanlar" label="Doküman Merkezi" icon={FolderOpen} />
             {/* Yan rol kapıları */}
+            {canIcerikTabs && <NavItem href="/panel/admin/faaliyet-yapilandirma" label="Faaliyet Yapılandırma" icon={Settings} />}
             {canFormYon && <NavItem href="/panel/admin/form-yonetimi" label="Form Yönetimi" icon={FileText} />}
             {canIcerikTabs && <NavItem href="/panel/admin/kullanicilar" label="Kullanıcı Yönetimi" icon={UserCircle} />}
             {canIcerikTabs && <NavItem href="/panel/admin/bildirimler-merkezi" label="Bildirim Merkezi" icon={Bell} />}

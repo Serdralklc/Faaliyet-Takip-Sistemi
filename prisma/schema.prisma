@@ -446,6 +446,51 @@ model UniversiteFaaliyet {
   @@index([kategori])
 }
 
+// ── Faaliyet Yapılandırma Merkezi (Faz 1) ──────────────────────
+// Koddan bağımsız yönetim. Eklemeli: mevcut Activity/LiseFaaliyet/UniversiteFaaliyet
+// ve raporlar DEĞİŞMEZ. Kayıt yoksa varsayılan = açık/görünür → mevcut davranış korunur.
+
+/** Bir (sistem, yıl, dönem) için veri girişi kilidi. Satır yoksa giriş AÇIKtır. */
+model DonemAyar {
+  id             String    @id @default(cuid())
+  sistem         Sistem
+  yil            Int
+  donem          Donem
+  veriGirisiAcik Boolean   @default(true)
+  baslangic      DateTime?
+  bitis          DateTime?
+  aciklama       String?
+
+  guncelleyenId String?
+  guncelleyenAd String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([sistem, yil, donem])
+  @@index([sistem, yil])
+}
+
+/** Bir sistemdeki bir alanın görünürlük/zorunluluk ayarı.
+ *  alanKodu = Activity kolon adı (ör. "ls_yeniIntisap") — değişmez sistem kimliği.
+ *  Satır yoksa alan: görünür + opsiyonel + aktif (mevcut davranış). */
+model AlanAyar {
+  id       String  @id @default(cuid())
+  sistem   Sistem
+  alanKodu String
+  gorunur  Boolean @default(true)
+  zorunlu  Boolean @default(false)
+  aktif    Boolean @default(true)
+  sira     Int     @default(0)
+
+  guncelleyenId String?
+  guncelleyenAd String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([sistem, alanKodu])
+  @@index([sistem])
+}
+
 // ── Barınma Birimleri ──────────────────────────────────────────
 model HousingUnit {
   id        String   @id @default(cuid())
