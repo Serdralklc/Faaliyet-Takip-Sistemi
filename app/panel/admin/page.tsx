@@ -59,7 +59,8 @@ async function getUyeOzet(excludeId: string) {
   ];
 }
 
-async function getStats(userRole: string, userSistem: string | null | undefined) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function getStats(userRole: string, userSistem: string | null | undefined, anaRol: string | null | undefined) {
   const SISTEM_KISITLI = ["TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU"];
   const isSistemKisitli = SISTEM_KISITLI.includes(userRole);
   const YONETICI_BASVURU_GOREVLER = ["TURKIYE_EGITIM_SORUMLUSU", "TURKIYE_UNIVERSITE_SORUMLUSU", "TURKIYE_LISE_SORUMLUSU", "GENEL_MERKEZ"];
@@ -81,12 +82,8 @@ async function getStats(userRole: string, userSistem: string | null | undefined)
     evOgrenci,
     apartOgrenci,
     yurtOgrenci,
-    // Bölge bazlı veri girişi (Eğitimci sistemi)
-    bolgeStats,
     // Tüm veri girilen iller (3 birimde en az birer kayıt)
     tamVeriGirenIller,
-    // Son sistem hareketleri (sistem bağımsız)
-    sonLogs,
     // Bekleyen başvurular (tüm sistemler)
     sonBasvurular,
     toplamBekleyen,
@@ -107,22 +104,6 @@ async function getStats(userRole: string, userSistem: string | null | undefined)
     prisma.housingStudent.count({ where: { housingUnit: { aktif: true, tip: "EV"    } } }),
     prisma.housingStudent.count({ where: { housingUnit: { aktif: true, tip: "APART" } } }),
     prisma.housingStudent.count({ where: { housingUnit: { aktif: true, tip: "YURT"  } } }),
-
-    // Bölge bazlı: kaç il bu yıl veri girmiş (EGITIMCI sistemi)
-    prisma.bolge.findMany({
-      orderBy: { no: "asc" },
-      include: {
-        iller: {
-          include: {
-            activities: {
-              where: { yil: thisYear, createdBy: { sistem: "EGITIMCI" } },
-              take: 1,
-              select: { id: true },
-            },
-          },
-        },
-      },
-    }),
 
     // Tüm 3 birimi dolan iller: ls + uni + eay hepsinde veri var
     prisma.il.findMany({
@@ -150,13 +131,6 @@ async function getStats(userRole: string, userSistem: string | null | undefined)
       select: { id: true },
     }),
 
-    // Son sistem hareketleri (tüm sistemler)
-    prisma.auditLog.findMany({
-      take: 7,
-      orderBy: { createdAt: "desc" },
-      include: { user: { select: { ad: true, soyad: true } } },
-    }),
-
     // Bekleyen başvurular (sistem kısıtlı rollere göre filtreli)
     prisma.user.findMany({
       where: bekleyenFilter,
@@ -171,11 +145,83 @@ async function getStats(userRole: string, userSistem: string | null | undefined)
     prisma.user.count({ where: bekleyenFilter }),
   ]);
 
-  const bolgeChartData = bolgeStats.map(b => ({
-    name:   `${b.no}. Bölge`,
-    veri:   b.iller.filter(i => i.activities.length > 0).length,
-    toplam: b.iller.length,
-  }));
+  // Bölge bazlı veri girişi — sistem kısıtlı rollere göre conditional
+  let bolgeChartData: { name: string; veri: number; toplam: number }[];
+  if (isSistemKisitli && userSistem === "LISE") {
+    const bolgeStats = await prisma.bolge.findMany({
+      orderBy: { no: "asc" },
+      include: {
+        iller: {
+          include: {
+            liseFaaliyetler: {
+              where: { yil: thisYear },
+              take: 1,
+              select: { id: true },
+            },
+          },
+        },
+      },
+    });
+    bolgeChartData = bolgeStats.map(b => ({
+      name:   `${b.no}. Bölge`,
+      veri:   b.iller.filter(i => i.liseFaaliyetler.length > 0).length,
+      toplam: b.iller.length,
+    }));
+  } else if (isSistemKisitli && userSistem === "UNIVERSITE") {
+    const bolgeStats = await prisma.bolge.findMany({
+      orderBy: { no: "asc" },
+      include: {
+        iller: {
+          include: {
+            universiteFaaliyetler: {
+              where: { yil: thisYear },
+              take: 1,
+              select: { id: true },
+            },
+          },
+        },
+      },
+    });
+    bolgeChartData = bolgeStats.map(b => ({
+      name:   `${b.no}. Bölge`,
+      veri:   b.iller.filter(i => i.universiteFaaliyetler.length > 0).length,
+      toplam: b.iller.length,
+    }));
+  } else {
+    const bolgeStats = await prisma.bolge.findMany({
+      orderBy: { no: "asc" },
+      include: {
+        iller: {
+          include: {
+            activities: {
+              where: { yil: thisYear, createdBy: { sistem: "EGITIMCI" } },
+              take: 1,
+              select: { id: true },
+            },
+          },
+        },
+      },
+    });
+    bolgeChartData = bolgeStats.map(b => ({
+      name:   `${b.no}. Bölge`,
+      veri:   b.iller.filter(i => i.activities.length > 0).length,
+      toplam: b.iller.length,
+    }));
+  }
+
+  // Son sistem hareketleri — sistem kısıtlı rollere göre filtreli
+  const sonLogsBase = { take: 7, orderBy: { createdAt: "desc" }, include: { user: { select: { ad: true, soyad: true } } } } as const;
+  const sonLogs = isSistemKisitli && userSistem === "LISE"
+    ? await prisma.auditLog.findMany({ ...sonLogsBase, where: { user: { OR: [{ sistem: "LISE" }, { role: "TURKIYE_LISE_SORUMLUSU" }] } } })
+    : isSistemKisitli && userSistem === "UNIVERSITE"
+      ? await prisma.auditLog.findMany({ ...sonLogsBase, where: { user: { OR: [{ sistem: "UNIVERSITE" }, { role: "TURKIYE_UNIVERSITE_SORUMLUSU" }] } } })
+      : await prisma.auditLog.findMany(sonLogsBase);
+
+  const bolgeGrafikLabel = userSistem === "LISE"
+    ? "Lise Gençlik sistemi · Bu yıl"
+    : userSistem === "UNIVERSITE"
+      ? "Üniversite Gençlik sistemi · Bu yıl"
+      : "Eğitimci faaliyet takip sistemi · Bu yıl";
 
   return {
     toplamBolge,
@@ -189,6 +235,7 @@ async function getStats(userRole: string, userSistem: string | null | undefined)
     yurtSayisi:    yurtlar,
     yurtOgrenci,
     bolgeChartData,
+    bolgeGrafikLabel,
     toplamBekleyen,
     sonLogs: sonLogs.map(l => ({
       id:          l.id,
@@ -227,8 +274,8 @@ export default async function AdminPage() {
   }
 
   const [stats, uyeOzet] = await Promise.all([
-    getStats(session.user.role, session.user.sistem),
+    getStats(session.user.role, session.user.sistem, session.user.anaRol),
     getUyeOzet(session.user.id),
   ]);
-  return <AdminDashboardClient stats={stats} uyeOzet={uyeOzet} />;
+  return <AdminDashboardClient stats={stats} uyeOzet={uyeOzet} anaRol={session.user.anaRol} />;
 }

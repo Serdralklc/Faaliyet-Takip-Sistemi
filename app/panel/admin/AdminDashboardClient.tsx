@@ -31,6 +31,7 @@ interface Stats {
   yurtSayisi: number;
   yurtOgrenci: number;
   bolgeChartData: { name: string; veri: number; toplam: number }[];
+  bolgeGrafikLabel: string;
   toplamBekleyen: number;
   sonLogs: { id: string; action: string; description: string | null; createdAt: string; userName: string }[];
   sonBasvurular: { id: string; ad: string; soyad: string; email: string; createdAt: string; sistem: string | null; basvuruGorev: string | null }[];
@@ -61,7 +62,11 @@ const GOREV_LABEL: Record<string, string> = {
   GENEL_MERKEZ:      "Merkez Ekibi",
 };
 
-export function AdminDashboardClient({ stats, uyeOzet }: { stats: Stats; uyeOzet: SistemUye[] }) {
+export function AdminDashboardClient({ stats, uyeOzet, anaRol }: { stats: Stats; uyeOzet: SistemUye[]; anaRol?: string | null }) {
+  const liseModu = anaRol === "LISE_GENCLIK";
+  const uniModu  = anaRol === "UNIVERSITE_GENCLIK";
+  const sistemKisitli = liseModu || uniModu;
+
   // Yönetim merkezi hariç 3 sistemdeki (Eğitimci + Üniversite + Lise) onaylı hizmetlilerin toplamı
   const toplamHizmetli = uyeOzet
     .filter(s => ["egitim", "universite", "lise"].includes(s.key))
@@ -99,7 +104,7 @@ export function AdminDashboardClient({ stats, uyeOzet }: { stats: Stats; uyeOzet
       )}
 
       {/* ── Satır 1: Coğrafi + Veri Girişi + Kullanıcılar ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className={`grid grid-cols-2 sm:grid-cols-3 ${sistemKisitli ? "lg:grid-cols-4" : "lg:grid-cols-5"} gap-4`}>
 
         {/* Toplam Bölge → Türkiye Haritası sekmesi */}
         <Link href="/panel/admin/analiz?sekme=harita" className="block transition hover:opacity-90" title="Türkiye haritasında görüntüle">
@@ -151,29 +156,31 @@ export function AdminDashboardClient({ stats, uyeOzet }: { stats: Stats; uyeOzet
               <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
           }
-          label="Toplam Hizmetli"
-          value={toplamHizmetli}
-          sublabel="3 sistemin toplamı"
+          label={liseModu ? "Lise Gençlik Hizmetlisi" : uniModu ? "Üniversite Gençlik Hizmetlisi" : "Toplam Hizmetli"}
+          value={liseModu ? (uyeOzet.find(s => s.key === "lise")?.toplam ?? 0) : uniModu ? (uyeOzet.find(s => s.key === "universite")?.toplam ?? 0) : toplamHizmetli}
+          sublabel={sistemKisitli ? "İl + Bölge sorumluları" : "3 sistemin toplamı"}
           color="#7C3AED"
           link="/panel/admin/kullanicilar"
         />
 
-        {/* SerGenç Üyeleri */}
-        <MiniStatCard
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3z"/>
-              <path d="M8 11c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3z"/>
-              <path d="M8 13c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-              <path d="M16 13c-.29 0-.62.02-.97.05C16.19 13.89 17 15.02 17 17v2h7v-2c0-2.66-5.33-4-8-4z"/>
-            </svg>
-          }
-          label="SerGenç Üyesi"
-          value={toplamSerGenc}
-          sublabel="Kayıtlı gönüllü"
-          color="#B45309"
-          link="/panel/admin/kullanicilar?sistem=GONULLU"
-        />
+        {/* SerGenç Üyeleri — sistem kısıtlı rollerde gizlenir */}
+        {!sistemKisitli && (
+          <MiniStatCard
+            icon={
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3z"/>
+                <path d="M8 11c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3z"/>
+                <path d="M8 13c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                <path d="M16 13c-.29 0-.62.02-.97.05C16.19 13.89 17 15.02 17 17v2h7v-2c0-2.66-5.33-4-8-4z"/>
+              </svg>
+            }
+            label="SerGenç Üyesi"
+            value={toplamSerGenc}
+            sublabel="Kayıtlı gönüllü"
+            color="#B45309"
+            link="/panel/admin/kullanicilar?sistem=GONULLU"
+          />
+        )}
       </div>
 
       {/* ── Satır 2: Barınma kartları ── */}
@@ -218,7 +225,7 @@ export function AdminDashboardClient({ stats, uyeOzet }: { stats: Stats; uyeOzet
                 Bölgelere Göre Veri Girişi
               </h2>
               <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-                Eğitimci faaliyet takip sistemi · Bu yıl
+                {stats.bolgeGrafikLabel}
               </p>
             </div>
             <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
@@ -266,7 +273,7 @@ export function AdminDashboardClient({ stats, uyeOzet }: { stats: Stats; uyeOzet
         </div>
 
         {/* Sistem üyeleri — seçilebilir */}
-        <SistemUyeKart uyeOzet={uyeOzet} />
+        <SistemUyeKart uyeOzet={liseModu ? uyeOzet.filter(u => u.key === "lise") : uniModu ? uyeOzet.filter(u => u.key === "universite") : uyeOzet} />
       </div>
 
       {/* ── Satır 4: Son Hareketler + Bekleyen Başvurular ── */}
