@@ -22,14 +22,16 @@ const YON_ROL_LABEL: Record<string, string> = {
  * + son 15 dakikada aktif olanlar (anlık aktif) + rol kırılımı.
  * SerGenç gönüllüde aktiflik takibi yok → online null.
  */
-async function getUyeOzet() {
+async function getUyeOzet(excludeId: string) {
   const esik = new Date(Date.now() - 15 * 60 * 1000);
   const [users, volToplam] = await Promise.all([
-    prisma.user.findMany({ where: { status: "AKTIF" }, select: { role: true, sistem: true, sonAktif: true } }),
+    prisma.user.findMany({ where: { status: "AKTIF" }, select: { id: true, role: true, sistem: true, sonAktif: true } }),
     prisma.volunteer.count(),
   ]);
 
-  const cevrimici = (u: { sonAktif: Date | null }) => !!u.sonAktif && u.sonAktif >= esik;
+  // Kendi oturumu aktif sayıma dahil edilmez
+  const cevrimici = (u: { id: string; sonAktif: Date | null }) =>
+    u.id !== excludeId && !!u.sonAktif && u.sonAktif >= esik;
 
   const yon = users.filter(u => YONETICI_ROLLERI.includes(u.role));
   const yonRoller = Object.keys(YON_ROL_LABEL)
@@ -226,7 +228,7 @@ export default async function AdminPage() {
 
   const [stats, uyeOzet] = await Promise.all([
     getStats(session.user.role, session.user.sistem),
-    getUyeOzet(),
+    getUyeOzet(session.user.id),
   ]);
   return <AdminDashboardClient stats={stats} uyeOzet={uyeOzet} />;
 }

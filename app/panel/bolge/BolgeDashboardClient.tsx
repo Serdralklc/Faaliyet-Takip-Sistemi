@@ -61,10 +61,29 @@ function radarVerisi(ilAnaliz: Record<string, string | number>[]) {
   });
 }
 
+interface IlAktiflik {
+  ad: string;
+  sorumlu: string | null;
+  sonAktif: string | null;
+}
+
+function aktiflikEtiketi(sonAktif: string | null): { metin: string; renk: string } {
+  if (!sonAktif) return { metin: "Hiç giriş yok", renk: "var(--text-muted)" };
+  const fark = Date.now() - new Date(sonAktif).getTime();
+  const dk = Math.floor(fark / 60000);
+  if (dk < 15) return { metin: "Şu an aktif", renk: "#16a34a" };
+  if (dk < 60) return { metin: `${dk} dk önce`, renk: "#ca8a04" };
+  const saat = Math.floor(dk / 60);
+  if (saat < 24) return { metin: `${saat} saat önce`, renk: "var(--text-secondary)" };
+  const gun = Math.floor(saat / 24);
+  if (gun < 7) return { metin: `${gun} gün önce`, renk: "var(--text-muted)" };
+  return { metin: new Date(sonAktif).toLocaleDateString("tr-TR"), renk: "var(--text-muted)" };
+}
+
 export function BolgeDashboardClient({
-  bolgeAd, iller, ilAnaliz, yil, donem, yillar,
+  bolgeAd, iller, ilAnaliz, yil, donem, yillar, ilAktiflik,
 }: {
-  bolgeAd: string; iller: IlDurum[]; ilAnaliz: Record<string, string | number>[]; yil: number; donem: string; yillar: number[];
+  bolgeAd: string; iller: IlDurum[]; ilAnaliz: Record<string, string | number>[]; yil: number; donem: string; yillar: number[]; ilAktiflik: IlAktiflik[];
 }) {
   const router = useRouter();
   const [soruBirim, setSoruBirim] = useState<AnalizBirim>("ILKOGRETIM");
@@ -305,6 +324,45 @@ export function BolgeDashboardClient({
               />
             </BarChart>
           </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* 4. İl Sorumlusu Aktiflik Tablosu */}
+      <div className="rounded-xl border p-5 mb-6" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+        <h2 className="font-bold text-sm mb-4" style={{ color: "var(--text-primary)" }}>İl Sorumluları — Son Aktiflik</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-[13px]">
+            <thead>
+              <tr className="border-b" style={{ borderColor: "var(--border)" }}>
+                <th className="text-left py-2 pr-4 font-semibold" style={{ color: "var(--text-muted)" }}>İl</th>
+                <th className="text-left py-2 pr-4 font-semibold" style={{ color: "var(--text-muted)" }}>Sorumlu</th>
+                <th className="text-right py-2 font-semibold" style={{ color: "var(--text-muted)" }}>Son Aktiflik</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...ilAktiflik]
+                .sort((a, b) => {
+                  if (!a.sonAktif && !b.sonAktif) return 0;
+                  if (!a.sonAktif) return 1;
+                  if (!b.sonAktif) return -1;
+                  return new Date(b.sonAktif).getTime() - new Date(a.sonAktif).getTime();
+                })
+                .map(il => {
+                  const { metin, renk } = aktiflikEtiketi(il.sonAktif);
+                  return (
+                    <tr key={il.ad} className="border-b last:border-0" style={{ borderColor: "var(--border)" }}>
+                      <td className="py-2.5 pr-4 font-semibold" style={{ color: "var(--text-primary)" }}>{il.ad}</td>
+                      <td className="py-2.5 pr-4" style={{ color: "var(--text-secondary)" }}>
+                        {il.sorumlu ?? <span style={{ color: "var(--text-muted)" }}>Atanmamış</span>}
+                      </td>
+                      <td className="py-2.5 text-right font-semibold text-[12px]" style={{ color: renk }}>
+                        {metin}
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
         </div>
       </div>
 

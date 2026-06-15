@@ -111,6 +111,28 @@ export default async function BolgePanelPage({
     return row;
   });
 
+  // İl sorumlularının son aktiflik zamanı
+  const ilAktiflik = await prisma.il.findMany({
+    where: { bolgeId },
+    orderBy: { ad: "asc" },
+    select: {
+      ad: true,
+      assignments: {
+        where: { status: "AKTIF", role: "IL_SORUMLUSU", user: { sistem: "EGITIMCI" } },
+        take: 1,
+        select: { user: { select: { ad: true, soyad: true, sonAktif: true } } },
+      },
+    },
+  });
+
+  const ilAktiflikData = ilAktiflik.map(il => ({
+    ad: il.ad,
+    sorumlu: il.assignments[0]?.user
+      ? `${il.assignments[0].user.ad} ${il.assignments[0].user.soyad}`
+      : null,
+    sonAktif: il.assignments[0]?.user?.sonAktif?.toISOString() ?? null,
+  }));
+
   return (
     <BolgeDashboardClient
       bolgeAd={bolge?.ad ?? "Bölge"}
@@ -119,6 +141,7 @@ export default async function BolgePanelPage({
       yil={yil}
       donem={donem}
       yillar={yillar}
+      ilAktiflik={ilAktiflikData}
     />
   );
 }
