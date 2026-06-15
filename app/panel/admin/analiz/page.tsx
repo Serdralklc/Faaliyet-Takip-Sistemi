@@ -23,7 +23,9 @@ function metrikler(a: Record<string, number>) {
     yeniIntisap:    (a.ls_yeniIntisap ?? 0) + (a.uni_yeniIntisap ?? 0),
     kafile:         (a.ls_kafileSayisi ?? 0) + (a.uni_kafileSayisi ?? 0) + (a.ortakKafileSayisi ?? 0),
     sabahNamazi:    (a.ls_namazSayisi ?? 0) + (a.uni_namazSayisi ?? 0) + (a.ortakSabahNamaziSayisi ?? 0),
-    ilimDersi:      (a.ls_ilimSohbetSayisi ?? 0) + (a.uni_ilimSohbetSayisi ?? 0),
+    // İlim Dersi hedefi "katılım" olarak tanımlanır (bkz. il/hedefler "İlim Dersi Katılım");
+    // gerçekleşen de katılım sayısıyla karşılaştırılmalı (etkinlik sayısı değil).
+    ilimDersi:      (a.ls_ilimSohbetKatilim ?? 0) + (a.uni_ilimSohbetKatilim ?? 0),
     kykBulusma:     a.uni_kykBulusmaSayisi ?? 0,
     ziyaret:        a.eay_toplamZiyaret ?? 0,
   };
@@ -31,9 +33,9 @@ function metrikler(a: Record<string, number>) {
 
 const ACT_SELECT = {
   yil: true, donem: true, ilId: true,
-  ls_ilimSohbetSayisi: true, ls_sosyalSayisi: true, ls_sorumlulukSayisi: true,
+  ls_ilimSohbetSayisi: true, ls_ilimSohbetKatilim: true, ls_sosyalSayisi: true, ls_sorumlulukSayisi: true,
   ls_muhabbetSayisi: true, ls_namazSayisi: true,
-  uni_ilimSohbetSayisi: true, uni_kulupSayisi: true, uni_sosyalSayisi: true,
+  uni_ilimSohbetSayisi: true, uni_ilimSohbetKatilim: true, uni_kulupSayisi: true, uni_sosyalSayisi: true,
   uni_sorumlulukSayisi: true, uni_muhabbetSayisi: true, uni_namazSayisi: true,
   ls_yeniIntisap: true, uni_yeniIntisap: true,
   ls_kafileSayisi: true, uni_kafileSayisi: true, ortakKafileSayisi: true,

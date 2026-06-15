@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { readLocalFile } from "@/lib/storage";
+import { talepKarsilayanMi } from "@/lib/istisare";
+import type { TalepBirim } from "@/lib/istisare";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +24,27 @@ export async function GET(req: NextRequest) {
   const key = searchParams.get("key");
   const ad = searchParams.get("ad") ?? "dosya";
   if (!key) return NextResponse.json({ error: "Anahtar gerekli" }, { status: 400 });
+
+  // Talep izolasyonu: bu dosya anahtarı yalnızca ilgili talebin tarafları (oluşturan
+  // veya karşılayan birim) tarafından indirilebilir. dosyalar[] içinde URL'ler key'i
+  // encode edilmiş olarak saklar; literal alt-dize araması (strpos) ile sahip talebi bul.
+  const encodedKey = encodeURIComponent(key);
+  const rows = await prisma.$queryRaw<{ olusturanId: string; birim: string }[]>`
+    SELECT t."olusturanId", t."birim"::text AS birim
+    FROM "TalepMesaj" m
+    JOIN "Talep" t ON t.id = m."talepId"
+    WHERE EXISTS (
+      SELECT 1 FROM unnest(m."dosyalar") AS d WHERE strpos(d, ${encodedKey}) > 0
+    )
+    LIMIT 1
+  `;
+  if (rows.length === 0) return NextResponse.json({ error: "Dosya bulunamadı" }, { status: 404 });
+
+  const { olusturanId, birim } = rows[0];
+  const erisim =
+    olusturanId === session.user.id ||
+    talepKarsilayanMi(birim as TalepBirim, session.user.role, session.user.yanRoller);
+  if (!erisim) return NextResponse.json({ error: "Bu dosyaya erişiminiz yok" }, { status: 403 });
 
   const buf = await readLocalFile(key);
   if (!buf) return NextResponse.json({ error: "Dosya bulunamadı" }, { status: 404 });

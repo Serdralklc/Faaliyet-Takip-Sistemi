@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { readLocalFile } from "@/lib/storage";
+import { getSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,9 @@ function mimeFromKey(key: string): string {
 
 /** GET — yerel sürücüdeki pop-up görselini servis eder (Blob'da gorselUrl mutlaktır, bu route kullanılmaz) */
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession();
+  if (!session?.user) return new NextResponse("Yetkisiz", { status: 401 });
+
   const { id } = await params;
   const popup = await prisma.popup.findUnique({ where: { id }, select: { gorselKey: true } });
   if (!popup?.gorselKey) return new NextResponse("Bulunamadı", { status: 404 });

@@ -24,6 +24,11 @@ export async function POST(
   const { token } = await params;
   const { password } = await req.json();
 
+  // Şifre politikası (istemci tarafıyla aynı): en az 8 karakter, zorunlu string
+  if (typeof password !== "string" || password.length < 8) {
+    return NextResponse.json({ error: "Şifre en az 8 karakter olmalıdır." }, { status: 400 });
+  }
+
   const inv = await prisma.invitation.findUnique({ where: { token } });
 
   if (!inv || inv.usedAt || inv.expiresAt < new Date()) {

@@ -16,10 +16,17 @@ function isAdmin(role?: string) {
   return !!role && YONETICI_ROLLERI.includes(role as Role);
 }
 
+/** Bildirim Merkezi erişimi — sayfa gating'i ile birebir: Merkez Ekip yalnız İçerik Yöneticisi yetkisiyle. */
+function bildirimYetkili(user: { role: string; icerikYoneticisi: boolean }) {
+  if (!isAdmin(user.role)) return false;
+  if (user.role === "GENEL_MERKEZ" && !user.icerikYoneticisi) return false;
+  return true;
+}
+
 /** GET — gönderilen bildirimler + görülme istatistiği (yönetici) */
 export async function GET() {
   const session = await getSession();
-  if (!session?.user || !isAdmin(session.user.role)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
+  if (!session?.user || !bildirimYetkili(session.user)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
 
   const bildirimler = await prisma.bildirim.findMany({
     orderBy: { createdAt: "desc" },
@@ -61,7 +68,7 @@ const schema = z
 /** POST — bildirim oluştur + alıcılara dağıt (+ opsiyonel e-posta) */
 export async function POST(req: NextRequest) {
   const session = await getSession();
-  if (!session?.user || !isAdmin(session.user.role)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
+  if (!session?.user || !bildirimYetkili(session.user)) return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
 
   const r = await parseJson(req, schema);
   if ("error" in r) return r.error;

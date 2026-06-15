@@ -5,7 +5,7 @@ import { getSession } from "@/lib/auth";
 import { parseJson } from "@/lib/validation";
 import { formSchema, formYonetimWhere, formSistemKisiti, formDuzenleyebilir } from "@/lib/form-yonetimi";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
-import { YONETICI_ROLLERI } from "@/lib/constants";
+import { YONETICI_ROLLERI, formYonetimiYanRol } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -14,10 +14,17 @@ function isAdmin(role?: string) {
   return !!role && YONETICI_ROLLERI.includes(role as Role);
 }
 
+/** Form Yönetimi erişimi — sayfa gating'i ile birebir: Merkez Ekip yalnız Form yan rolüyle. */
+function formYetkili(user: { role: string; yanRoller: string[] }) {
+  if (!isAdmin(user.role)) return false;
+  if (user.role === "GENEL_MERKEZ" && !formYonetimiYanRol(user.yanRoller)) return false;
+  return true;
+}
+
 /** GET — formlar (yönetici). Üni/Lise Gençlik sorumlusu yalnız kendi sistemini görür. */
 export async function GET() {
   const session = await getSession();
-  if (!session?.user || !isAdmin(session.user.role)) {
+  if (!session?.user || !formYetkili(session.user)) {
     return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
   }
 
@@ -35,7 +42,7 @@ export async function GET() {
 /** POST — yeni form (taslak olarak oluşur) */
 export async function POST(req: NextRequest) {
   const session = await getSession();
-  if (!session?.user || !isAdmin(session.user.role)) {
+  if (!session?.user || !formYetkili(session.user)) {
     return NextResponse.json({ error: "Yetkisiz." }, { status: 403 });
   }
 
