@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
+import { canAccessIl } from "@/lib/housing-access";
 
 /** İlin barınma muafiyeti (ilimizde ev/apart/yurt yoktur) — il-bazlı kalıcı bayrak */
 
@@ -12,8 +13,8 @@ export async function GET(req: NextRequest) {
   const ilId = new URL(req.url).searchParams.get("ilId");
   if (!ilId) return NextResponse.json({ error: "ilId gerekli" }, { status: 400 });
 
-  // İl sorumlusu yalnızca kendi ilini sorgular
-  if (session.user.role === "IL_SORUMLUSU" && session.user.activeIlId !== ilId) {
+  // Erişim kapsamı: yönetici tümü, il sorumlusu kendi ili, bölge sorumlusu kendi bölgesi
+  if (!(await canAccessIl(session.user, ilId))) {
     return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
   }
 

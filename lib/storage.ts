@@ -104,7 +104,8 @@ export const IZINLI_TIPLER: Record<string, string> = {
   "image/png": "png",
   "image/jpeg": "jpg",
   "image/webp": "webp",
-  "image/svg+xml": "svg",
+  // NOT: image/svg+xml bilinçli olarak kaldırıldı — SVG, gömülü script ile stored XSS
+  // taşıyabilir (inline servis edildiğinde). Bu domain'de SVG belge/görsel gereksiz.
 };
 
 export const MAX_DOSYA_BOYUTU = 20 * 1024 * 1024; // 20 MB

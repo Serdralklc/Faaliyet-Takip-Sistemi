@@ -134,6 +134,7 @@ export async function POST(req: NextRequest) {
       ...users.map(u => ({ bildirimId: bildirim.id, userId: u.id, aliciAd: `${u.ad} ${u.soyad}` })),
       ...volunteers.map(v => ({ bildirimId: bildirim.id, volunteerId: v.id, aliciAd: v.adSoyad })),
     ],
+    skipDuplicates: true,
   });
 
   // E-posta kanalı — başarısızlık gönderimi engellemez

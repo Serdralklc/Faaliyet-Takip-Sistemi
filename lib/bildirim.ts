@@ -71,6 +71,7 @@ export async function bildirimDagit(opts: {
         ...users.map(u => ({ bildirimId: bildirim.id, userId: u.id, aliciAd: `${u.ad} ${u.soyad}` })),
         ...volunteers.map(v => ({ bildirimId: bildirim.id, volunteerId: v.id, aliciAd: v.adSoyad })),
       ],
+      skipDuplicates: true,
     });
   }
 
@@ -116,6 +117,7 @@ export async function bildirimKullanicilara(opts: {
   });
   await prisma.bildirimAlim.createMany({
     data: users.map(u => ({ bildirimId: bildirim.id, userId: u.id, aliciAd: `${u.ad} ${u.soyad}` })),
+    skipDuplicates: true,
   });
 }
 
