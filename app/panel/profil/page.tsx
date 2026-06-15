@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { ROLE_LABELS } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
-import { User, Lock, CheckCircle, AlertCircle } from "lucide-react";
+import { User, Lock, CheckCircle, AlertCircle, Phone } from "lucide-react";
 
 const inputCls = "w-full border-2 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
 
@@ -17,13 +17,38 @@ export default function ProfilPage() {
   const [sifreMsg, setSifreMsg] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [telefon, setTelefon] = useState("");
+  const [telefonEdit, setTelefonEdit] = useState("");
+  const [telefonStatus, setTelefonStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [telefonMsg, setTelefonMsg] = useState("");
 
   useEffect(() => {
     fetch("/api/profil")
       .then(r => (r.ok ? r.json() : null))
-      .then(d => { if (d?.telefon) setTelefon(d.telefon); })
+      .then(d => {
+        if (d?.telefon) { setTelefon(d.telefon); setTelefonEdit(d.telefon); }
+      })
       .catch(() => {});
   }, []);
+
+  async function handleTelefonKaydet(e: React.FormEvent) {
+    e.preventDefault();
+    setTelefonStatus("loading");
+    const res = await fetch("/api/profil", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ telefon: telefonEdit }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setTelefon(telefonEdit);
+      setTelefonStatus("success");
+      setTelefonMsg("Telefon numarası güncellendi.");
+    } else {
+      setTelefonStatus("error");
+      setTelefonMsg(data.error || "Hata oluştu.");
+    }
+    setTimeout(() => { setTelefonStatus("idle"); setTelefonMsg(""); }, 4000);
+  }
 
   async function handleSifreDegistir(e: React.FormEvent) {
     e.preventDefault();
@@ -106,6 +131,49 @@ export default function ProfilPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Telefon güncelle */}
+      <div className="rounded-xl border overflow-hidden mb-6" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+        <div className="px-5 py-4 border-b flex items-center gap-3" style={{ borderColor: "var(--border)", background: "var(--bg-th)" }}>
+          <Phone size={18} className="text-green-600" />
+          <h2 className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>Telefon Numarası</h2>
+        </div>
+        <form onSubmit={handleTelefonKaydet} className="p-6 space-y-4">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wide mb-1.5" style={{ color: "var(--text-muted)" }}>
+              Telefon Numarası
+            </label>
+            <input
+              type="tel"
+              value={telefonEdit}
+              onChange={e => setTelefonEdit(e.target.value)}
+              className={inputCls}
+              placeholder="05XX XXX XX XX"
+              style={{ background: "var(--bg-input)", borderColor: "var(--border-input)", color: "var(--text-primary)" }}
+            />
+          </div>
+
+          {telefonMsg && (
+            <div className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold ${
+              telefonStatus === "success" ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"
+            }`}>
+              {telefonStatus === "success" ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+              {telefonMsg}
+            </div>
+          )}
+
+          <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
+            Telefon numaranızı değiştirdiğinizde sistem yöneticisine bildirim gönderilir.
+          </p>
+
+          <button type="submit" disabled={telefonStatus === "loading"}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white transition bg-green-600 hover:bg-green-700 disabled:opacity-50 shadow-sm">
+            {telefonStatus === "loading" ? (
+              <><svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>Kaydediliyor...</>
+            ) : "Kaydet"}
+          </button>
+        </form>
       </div>
 
       {/* Şifre değiştir */}
