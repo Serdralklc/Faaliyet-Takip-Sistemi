@@ -97,7 +97,7 @@ export function EgitimBirimiHarita() {
     staleTime: 60_000,
   });
 
-  const iller = data?.iller ?? {};
+  const iller = useMemo(() => data?.iller ?? {}, [data]);
   const maxDeger = useMemo(() => {
     if (metrik === "bolge" || metrik === "veriGiris") return 1;
     return Math.max(1, ...Object.values(iller).map(il => metrikDeger(il, metrik)));
