@@ -234,49 +234,51 @@ export function GenclikBolgeDashboard({
         </div>
       )}
 
-      {/* Kategori dağılımı + Dönem dağılımı — her zaman */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="rounded-xl border p-5" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
-          <h2 className="font-bold text-sm mb-4" style={{ color: "var(--text-primary)" }}>Faaliyet Türü Dağılımı</h2>
-          {katData.length === 0 ? (
-            <p className="text-sm py-10 text-center" style={{ color: "var(--text-muted)" }}>Bu filtrede veri yok.</p>
-          ) : (
-            <div style={{ width: "100%", height: 280 }}>
-              <ResponsiveContainer>
-                <BarChart data={katData} margin={{ left: -10 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="kisa" tick={{ fontSize: 10, fill: "var(--text-muted)" }} interval={0} angle={-25} textAnchor="end" height={56} />
-                  <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} allowDecimals={false} />
-                  <Tooltip formatter={(v, _n, p) => [Number(v ?? 0).toLocaleString("tr-TR"), (p?.payload?.ad as string) ?? "Faaliyet"]}
-                    contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 12 }} />
-                  <Bar dataKey="sayi" radius={[4, 4, 0, 0]}>
-                    {katData.map((d, i) => <Cell key={i} fill={d.renk} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
+      {/* Kategori dağılımı + Dönem dağılımı — yalnız bölge görünümünde (raporMod=false) */}
+      {!raporMod && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div className="rounded-xl border p-5" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+            <h2 className="font-bold text-sm mb-4" style={{ color: "var(--text-primary)" }}>Faaliyet Türü Dağılımı</h2>
+            {katData.length === 0 ? (
+              <p className="text-sm py-10 text-center" style={{ color: "var(--text-muted)" }}>Bu filtrede veri yok.</p>
+            ) : (
+              <div style={{ width: "100%", height: 280 }}>
+                <ResponsiveContainer>
+                  <BarChart data={katData} margin={{ left: -10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="kisa" tick={{ fontSize: 10, fill: "var(--text-muted)" }} interval={0} angle={-25} textAnchor="end" height={56} />
+                    <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} allowDecimals={false} />
+                    <Tooltip formatter={(v, _n, p) => [Number(v ?? 0).toLocaleString("tr-TR"), (p?.payload?.ad as string) ?? "Faaliyet"]}
+                      contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 12 }} />
+                    <Bar dataKey="sayi" radius={[4, 4, 0, 0]}>
+                      {katData.map((d, i) => <Cell key={i} fill={d.renk} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
 
-        <div className="rounded-xl border p-5" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
-          <h2 className="font-bold text-sm mb-4" style={{ color: "var(--text-primary)" }}>Dönem Dağılımı</h2>
-          {donemData.length === 0 ? (
-            <p className="text-sm py-10 text-center" style={{ color: "var(--text-muted)" }}>Bu yıl için veri yok.</p>
-          ) : (
-            <div style={{ width: "100%", height: 280 }}>
-              <ResponsiveContainer>
-                <BarChart data={donemData} margin={{ left: -10 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="donem" tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
-                  <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} allowDecimals={false} />
-                  <Tooltip contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 12 }} />
-                  <Bar dataKey="faaliyet" name="Faaliyet" fill={renk} radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+          <div className="rounded-xl border p-5" style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}>
+            <h2 className="font-bold text-sm mb-4" style={{ color: "var(--text-primary)" }}>Dönem Dağılımı</h2>
+            {donemData.length === 0 ? (
+              <p className="text-sm py-10 text-center" style={{ color: "var(--text-muted)" }}>Bu yıl için veri yok.</p>
+            ) : (
+              <div style={{ width: "100%", height: 280 }}>
+                <ResponsiveContainer>
+                  <BarChart data={donemData} margin={{ left: -10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="donem" tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
+                    <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} allowDecimals={false} />
+                    <Tooltip contentStyle={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 12 }} />
+                    <Bar dataKey="faaliyet" name="Faaliyet" fill={renk} radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── SADECE RAPOR MODU ── */}
       {raporMod && (
