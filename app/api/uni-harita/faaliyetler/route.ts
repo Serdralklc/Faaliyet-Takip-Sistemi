@@ -7,7 +7,6 @@ import { ilAdindanKod } from "@/lib/turkiye-iller";
 
 export const dynamic = "force-dynamic";
 
-/** GET — bir il (kod) veya tek birim (ilId) için son Lise faaliyetleri */
 export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session?.user || !YONETICI_ROLLERI.includes(session.user.role as Role)) {
@@ -41,13 +40,13 @@ export async function GET(req: NextRequest) {
   }
 
   const DONEMLER = ["DONEM_1", "DONEM_2", "YAZ_DONEMI"];
-  const KATEGORILER = ["ILIM_SOHBET", "SOSYAL", "SOSYAL_SORUMLULUK", "MUHABBET", "NAMAZ", "KAFILE", "DIGER"];
+  const KATEGORILER = ["ILIM_SOHBET", "KULUP", "SOSYAL", "SOSYAL_SORUMLULUK", "MUHABBET", "NAMAZ", "KAFILE", "KYK", "DIGER"];
   const where: Record<string, unknown> = { ilId: { in: ilIdler } };
   if (yil && !isNaN(yil)) where.yil = yil;
   if (donem && DONEMLER.includes(donem)) where.donem = donem;
   if (kategori && KATEGORILER.includes(kategori)) where.kategori = kategori;
 
-  const faaliyetler = await prisma.liseFaaliyet.findMany({
+  const faaliyetler = await prisma.universiteFaaliyet.findMany({
     where,
     orderBy: { tarih: "desc" },
     take: bolgeNo ? 50 : 20,

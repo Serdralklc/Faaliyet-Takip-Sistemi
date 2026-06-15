@@ -214,5 +214,5 @@ export default async function AnalizPage({ searchParams }: { searchParams: Promi
     };
   }
 
-  return <AnalizClient data={data} liseModu={liseModu} liseData={liseData} />;
+  return <AnalizClient data={data} liseModu={liseModu} liseData={liseData} anaRol={session.user.anaRol} />;
 }

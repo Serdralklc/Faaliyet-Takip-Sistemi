@@ -62,6 +62,12 @@ const GOREV_LABEL: Record<string, string> = {
 };
 
 export function AdminDashboardClient({ stats, uyeOzet }: { stats: Stats; uyeOzet: SistemUye[] }) {
+  // Yönetim merkezi hariç 3 sistemdeki (Eğitimci + Üniversite + Lise) onaylı hizmetlilerin toplamı
+  const toplamHizmetli = uyeOzet
+    .filter(s => ["egitim", "universite", "lise"].includes(s.key))
+    .reduce((sum, s) => sum + s.toplam, 0);
+  const toplamSerGenc = uyeOzet.find(s => s.key === "sergenc")?.toplam ?? 0;
+
   return (
     <div className="p-6 space-y-6 max-w-[1400px]">
 
@@ -92,8 +98,8 @@ export function AdminDashboardClient({ stats, uyeOzet }: { stats: Stats; uyeOzet
         </Link>
       )}
 
-      {/* ── Satır 1: Coğrafi + Veri Girişi + Kullanıcı ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {/* ── Satır 1: Coğrafi + Veri Girişi + Kullanıcılar ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
 
         {/* Toplam Bölge → Türkiye Haritası sekmesi */}
         <Link href="/panel/admin/analiz?sekme=harita" className="block transition hover:opacity-90" title="Türkiye haritasında görüntüle">
@@ -135,7 +141,7 @@ export function AdminDashboardClient({ stats, uyeOzet }: { stats: Stats; uyeOzet
           sublabel={`/ ${stats.toplamIl} il`}
         />
 
-        {/* Aktif kullanıcı */}
+        {/* Toplam Hizmetli (3 sistem, yönetim merkezi hariç) */}
         <MiniStatCard
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
@@ -145,11 +151,28 @@ export function AdminDashboardClient({ stats, uyeOzet }: { stats: Stats; uyeOzet
               <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
           }
-          label="Aktif Kullanıcı"
-          value={stats.aktifKullanici}
-          sublabel="Eğitimci sistemi"
+          label="Toplam Hizmetli"
+          value={toplamHizmetli}
+          sublabel="3 sistemin toplamı"
           color="#7C3AED"
-          link="/panel/admin/kullanicilar?sistem=EGITIMCI"
+          link="/panel/admin/kullanicilar"
+        />
+
+        {/* SerGenç Üyeleri */}
+        <MiniStatCard
+          icon={
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3z"/>
+              <path d="M8 11c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3z"/>
+              <path d="M8 13c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+              <path d="M16 13c-.29 0-.62.02-.97.05C16.19 13.89 17 15.02 17 17v2h7v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          }
+          label="SerGenç Üyesi"
+          value={toplamSerGenc}
+          sublabel="Kayıtlı gönüllü"
+          color="#B45309"
+          link="/panel/admin/kullanicilar?sistem=GONULLU"
         />
       </div>
 

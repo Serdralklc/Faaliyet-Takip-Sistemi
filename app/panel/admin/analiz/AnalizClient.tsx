@@ -6,6 +6,7 @@ import { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { TurkiyeHarita } from "./TurkiyeHarita";
+import { UniversiteHarita } from "./UniversiteHarita";
 import { ANALIZ_SORULAR, ANALIZ_BIRIM_LABEL, type AnalizBirim } from "@/lib/analiz-sorular";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
@@ -156,11 +157,23 @@ function LiseGenelBakis({ data, yil, oncekiYil }: { data: LiseData; yil: number;
   );
 }
 
-export function AnalizClient({ data, liseModu, liseData }: { data: AnalizData; liseModu?: boolean; liseData?: LiseData | null }) {
+type HaritaSistem = "egitim" | "uni" | "lise";
+
+function haritaBaslangic(anaRol: string | null | undefined): HaritaSistem {
+  if (anaRol === "LISE_GENCLIK") return "lise";
+  if (anaRol === "UNIVERSITE_GENCLIK") return "uni";
+  return "egitim";
+}
+
+export function AnalizClient({ data, liseModu, liseData, anaRol }: { data: AnalizData; liseModu?: boolean; liseData?: LiseData | null; anaRol?: string | null }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<"genel" | "harita">(searchParams.get("sekme") === "harita" ? "harita" : "genel");
+  const [haritaSistem, setHaritaSistem] = useState<HaritaSistem>(() => haritaBaslangic(anaRol));
   const [bolgeMetrik, setBolgeMetrik] = useState("yeniIntisap");
+
+  // Admin ve Merkez rolleri tüm 3 sistemi görebilir; diğer roller yalnız kendi sistemlerini
+  const cokluHarita = anaRol === "ADMIN" || anaRol === "MERKEZ";
 
   // Soru bazlı bölge karşılaştırması (birim → soru → dönem)
   const [soruBirim, setSoruBirim] = useState<AnalizBirim>("ILKOGRETIM");
@@ -232,7 +245,35 @@ export function AnalizClient({ data, liseModu, liseData }: { data: AnalizData; l
         ))}
       </div>
 
-      {tab === "harita" && <TurkiyeHarita />}
+      {tab === "harita" && (
+        <div className="space-y-4">
+          {cokluHarita && (
+            <div className="flex flex-wrap gap-2">
+              {([
+                { k: "egitim" as HaritaSistem, ad: "Eğitim Birimi", renk: "#0B6B3A" },
+                { k: "uni"    as HaritaSistem, ad: "Üniversite Gençlik", renk: "#1D4ED8" },
+                { k: "lise"  as HaritaSistem, ad: "Lise Gençlik", renk: "#7C3AED" },
+              ]).map(({ k, ad, renk }) => (
+                <button key={k} onClick={() => setHaritaSistem(k)}
+                  className="px-4 py-2 rounded-xl text-[13px] font-bold border transition-all"
+                  style={haritaSistem === k
+                    ? { background: renk, color: "#fff", borderColor: renk }
+                    : { background: "var(--bg-card)", color: "var(--text-secondary)", borderColor: "var(--border)" }}>
+                  {ad}
+                </button>
+              ))}
+            </div>
+          )}
+          {haritaSistem === "lise"   && <TurkiyeHarita />}
+          {haritaSistem === "uni"    && <UniversiteHarita />}
+          {haritaSistem === "egitim" && (
+            <div className="sv-section p-12 text-center space-y-2">
+              <p className="text-[16px] font-black" style={{ color: "var(--text-primary)" }}>Eğitim Birimi Haritası</p>
+              <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>Bu bölüm yakında kullanıma açılacaktır.</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Lise Gençlik bağlamı: Genel Bakış yalnız Lise verisi */}
       {tab === "genel" && liseModu && liseData && <LiseGenelBakis data={liseData} yil={data.yil} oncekiYil={data.oncekiYil} />}

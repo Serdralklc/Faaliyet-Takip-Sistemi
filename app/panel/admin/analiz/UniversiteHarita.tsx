@@ -1,16 +1,5 @@
 "use client";
 
-/**
- * 🗺️ Lise Gençlik Türkiye Haritası (Rapor ve Analiz → Türkiye Haritası sekmesi).
- * Yalnız LiseFaaliyet verisi. Bizim bölge/il yapımız (İstanbul ilçeleri il sayılır).
- * Yan filtreler (Yıl/Dönem/Bölge/Kategori) + Renklendirme metriği (ısı haritası) +
- * il etiketleri + bölge zoom + il detay + son faaliyetler.
- * Türkiye → Bölge → İl → Faaliyet Detayı.
- *
- * İstanbul özel: birden fazla bölgede (örn. 16-20) iller olabilir.
- * İstanbul'a tıklanınca o ildeki bölgeler liste olarak sunulur.
- */
-
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { IL_BILGI } from "@/lib/turkiye-iller";
@@ -21,10 +10,11 @@ interface HaritaVeri { yillar: number[]; iller: Record<string, IlAgg>; bolgeler:
 interface Faaliyet { id: string; tarih: string; kategori: string; faaliyetAdi: string; katilimci: number; ilkKezKatilan: number; yeniIntisap: number }
 
 const KAT_AD: Record<string, string> = {
-  ILIM_SOHBET: "İlim / Sohbet", SOSYAL: "Sosyal", SOSYAL_SORUMLULUK: "Sosyal Sorumluluk",
-  MUHABBET: "Muhabbet", NAMAZ: "Namaz", KAFILE: "Kafile", DIGER: "Diğer",
+  ILIM_SOHBET: "İlim / Sohbet", KULUP: "Kulüp", SOSYAL: "Sosyal",
+  SOSYAL_SORUMLULUK: "Sosyal Sorumluluk", MUHABBET: "Muhabbet",
+  NAMAZ: "Namaz", KAFILE: "Kafile", KYK: "KYK Buluşması", DIGER: "Diğer",
 };
-const KAT_SIRA = ["ILIM_SOHBET", "SOSYAL", "SOSYAL_SORUMLULUK", "MUHABBET", "NAMAZ", "KAFILE", "DIGER"];
+const KAT_SIRA = ["ILIM_SOHBET", "KULUP", "SOSYAL", "SOSYAL_SORUMLULUK", "MUHABBET", "NAMAZ", "KAFILE", "KYK", "DIGER"];
 const DONEM_OPT = [{ k: "DONEM_1", a: "1. Dönem" }, { k: "DONEM_2", a: "2. Dönem" }, { k: "YAZ_DONEMI", a: "Yaz" }];
 
 const METRIK = [
@@ -67,7 +57,7 @@ function isiRenk(oran: number): string {
   return `hsl(${hue}, 70%, 50%)`;
 }
 
-export function TurkiyeHarita() {
+export function UniversiteHarita() {
   const [yil, setYil] = useState("");
   const [donem, setDonem] = useState("");
   const [kategori, setKategori] = useState("");
@@ -76,16 +66,8 @@ export function TurkiyeHarita() {
   const [seciliKod, setSeciliKod] = useState<string | null>(null);
   const [seciliBirim, setSeciliBirim] = useState<Birim | null>(null);
   const [seciliBolge, setSeciliBolge] = useState<number | null>(null);
-  // Birden fazla bölgeye ait il tıklandığında (İstanbul gibi) bölge seçici
   const [cokBolgeKod, setCokBolgeKod] = useState<string | null>(null);
 
-  const ilSec = (kod: string) => {
-    // Çok-bölgeli il mi kontrol et — kodBolgeListesi useMemo'dan sonra kullanılacak
-    // Bu fonksiyon haritanın altında tekrar override ediliyor (kodBolgeListesi bağımlılığı için)
-    setSeciliBirim(null);
-    setSeciliKod(k => (k === kod ? null : kod));
-    setCokBolgeKod(null);
-  };
   const birimSec = (u: Birim) => { setSeciliKod(null); setCokBolgeKod(null); setSeciliBirim(b => (b?.ilId === u.ilId ? null : u)); };
   const temizle = () => { setSeciliBolge(null); setSeciliKod(null); setSeciliBirim(null); setCokBolgeKod(null); };
 
@@ -95,16 +77,15 @@ export function TurkiyeHarita() {
     staleTime: Infinity,
   });
   const { data } = useQuery({
-    queryKey: ["lise-harita", yil, donem, kategori],
+    queryKey: ["uni-harita", yil, donem, kategori],
     queryFn: async (): Promise<HaritaVeri> => {
       const q = new URLSearchParams();
       if (yil) q.set("yil", yil); if (donem) q.set("donem", donem); if (kategori) q.set("kategori", kategori);
-      const r = await fetch(`/api/lise-harita?${q.toString()}`); if (!r.ok) throw new Error(); return r.json();
+      const r = await fetch(`/api/uni-harita?${q.toString()}`); if (!r.ok) throw new Error(); return r.json();
     },
     staleTime: 60_000,
   });
 
-  // detaySrc: bölge seçiliyse bolgeNo, birim/il seçiliyse ilId/kod
   const detaySrc = seciliBolge != null
     ? { tip: "bolgeNo", val: String(seciliBolge) }
     : seciliBirim
@@ -114,11 +95,11 @@ export function TurkiyeHarita() {
         : null;
 
   const { data: sonFaal } = useQuery({
-    queryKey: ["lise-harita-faal", detaySrc?.tip, detaySrc?.val, yil, donem, kategori],
+    queryKey: ["uni-harita-faal", detaySrc?.tip, detaySrc?.val, yil, donem, kategori],
     queryFn: async (): Promise<Faaliyet[]> => {
       const q = new URLSearchParams({ [detaySrc!.tip]: detaySrc!.val });
       if (yil) q.set("yil", yil); if (donem) q.set("donem", donem); if (kategori) q.set("kategori", kategori);
-      const r = await fetch(`/api/lise-harita/faaliyetler?${q.toString()}`); if (!r.ok) return []; return r.json();
+      const r = await fetch(`/api/uni-harita/faaliyetler?${q.toString()}`); if (!r.ok) return []; return r.json();
     },
     enabled: !!detaySrc, staleTime: 60_000,
   });
@@ -134,28 +115,22 @@ export function TurkiyeHarita() {
     for (const b of data?.bolgeler ?? []) { const s = new Set<string>(); for (const u of b.birimler) if (u.kod) s.add(u.kod); m.set(b.no, s); }
     return m;
   }, [data]);
-
   const kodBolge = useMemo(() => {
     const m: Record<string, number> = {};
     for (const [no, s] of bolgeKodlari) for (const k of s) if (!(k in m)) m[k] = no;
     return m;
   }, [bolgeKodlari]);
-
-  // Her il koduna ait TÜM bölgeler (İstanbul gibi çok-bölgeli iller için)
   const kodBolgeListesi = useMemo(() => {
     const m: Record<string, number[]> = {};
     for (const [no, s] of bolgeKodlari) for (const k of s) { if (!m[k]) m[k] = []; m[k].push(no); }
     return m;
   }, [bolgeKodlari]);
-
-  // Bölge silüeti
   const bolgeYollari = useMemo(() => {
     const m = new Map<number, string>();
     if (!paths) return m;
     for (const kod in kodBolge) { const d = paths[kod]; if (!d) continue; const no = kodBolge[kod]; m.set(no, (m.get(no) ?? "") + " " + d); }
     return m;
   }, [paths, kodBolge]);
-
   const centroids = useMemo(() => {
     const m: Record<string, { x: number; y: number }> = {};
     if (paths) for (const k in paths) { const { xs, ys } = pathXY(paths[k]); m[k] = { x: ort(xs), y: ort(ys) }; }
@@ -181,7 +156,14 @@ export function TurkiyeHarita() {
     return `${minX - pad} ${minY - pad} ${maxX - minX + pad * 2} ${maxY - minY + pad * 2}`;
   }, [seciliBolge, bolgeKodlari, paths, tumBBox]);
 
-  // İl tıklama: çok-bölgeli ise seçici aç, tek-bölgeli ise doğrudan seç
+  function ilFill(kod: string): string {
+    const il = iller[kod];
+    if (metrik === "bolge") { const no = kodBolge[kod]; return no ? bolgeRenk(no) : "var(--bg-th)"; }
+    if (metrik === "veriGiris") return (il?.toplam ?? 0) > 0 ? "hsl(140,65%,45%)" : "hsl(0,70%,55%)";
+    return isiRenk(metrikDeger(il, metrik) / maxDeger);
+  }
+  function gorunur(kod: string): boolean { return seciliBolge == null || (bolgeKodlari.get(seciliBolge)?.has(kod) ?? false); }
+
   function haritaIlSec(kod: string) {
     setSeciliBirim(null);
     const bolgeler = kodBolgeListesi[kod] ?? [];
@@ -194,18 +176,12 @@ export function TurkiyeHarita() {
     setSeciliKod(k => (k === kod ? null : kod));
   }
 
-  function ilFill(kod: string): string {
-    const il = iller[kod];
-    if (metrik === "bolge") { const no = kodBolge[kod]; return no ? bolgeRenk(no) : "var(--bg-th)"; }
-    if (metrik === "veriGiris") return (il?.toplam ?? 0) > 0 ? "hsl(140,65%,45%)" : "hsl(0,70%,55%)";
-    return isiRenk(metrikDeger(il, metrik) / maxDeger);
-  }
-  function gorunur(kod: string): boolean { return seciliBolge == null || (bolgeKodlari.get(seciliBolge)?.has(kod) ?? false); }
-
   const aktifKod = seciliKod ?? hoverKod ?? cokBolgeKod;
   const seciliBolgeObj = seciliBolge != null ? data?.bolgeler.find(b => b.no === seciliBolge) : undefined;
+  const birimListe = seciliBolgeObj
+    ? [...seciliBolgeObj.birimler].sort((a, b) => (metrik === "bolge" ? b.toplam - a.toplam : metrikDeger(b, metrik) - metrikDeger(a, metrik)))
+    : [];
 
-  // Bölge seçiliyse tüm birimlerden aggregate yap → detay panelinde bölge özeti
   const bolgeAgg: IlAgg | undefined = useMemo(() => {
     if (!seciliBolgeObj) return undefined;
     const birimler = seciliBolgeObj.birimler;
@@ -219,12 +195,13 @@ export function TurkiyeHarita() {
     return { ad: `${seciliBolgeObj.no}. Bölge · ${seciliBolgeObj.ad}`, toplam, katilimci, ilkKez, yeniIntisap, kategori: kat };
   }, [seciliBolgeObj]);
 
-  // Detay: bölge seçiliyse → bölge toplamı; değilse birim/il
   const detay = seciliBolge != null ? bolgeAgg : (seciliBirim ?? (seciliKod ? iller[seciliKod] : undefined));
 
-  const birimListe = seciliBolgeObj
-    ? [...seciliBolgeObj.birimler].sort((a, b) => (metrik === "bolge" ? b.toplam - a.toplam : metrikDeger(b, metrik) - metrikDeger(a, metrik)))
-    : [];
+  const cokBolgeListe = useMemo(() => {
+    if (!cokBolgeKod || !data) return [];
+    const nos = kodBolgeListesi[cokBolgeKod] ?? [];
+    return nos.map(no => data.bolgeler.find(b => b.no === no)).filter(Boolean) as typeof data.bolgeler;
+  }, [cokBolgeKod, kodBolgeListesi, data]);
 
   const tabloIller = useMemo(() => {
     const arr = Object.entries(iller).map(([kod, il]) => ({ kod, il, deger: metrik === "bolge" ? il.toplam : metrikDeger(il, metrik) }));
@@ -232,20 +209,13 @@ export function TurkiyeHarita() {
     return arr.sort((a, b) => b.deger - a.deger);
   }, [iller, metrik, seciliBolge, bolgeKodlari]);
 
-  // Çok-bölgeli il için bölge bilgileri (örn. İstanbul 16-20)
-  const cokBolgeListe = useMemo(() => {
-    if (!cokBolgeKod || !data) return [];
-    const nos = kodBolgeListesi[cokBolgeKod] ?? [];
-    return nos.map(no => data.bolgeler.find(b => b.no === no)).filter(Boolean) as typeof data.bolgeler;
-  }, [cokBolgeKod, kodBolgeListesi, data]);
-
   const selS = { borderColor: "var(--border-input)", background: "var(--bg-input)", color: "var(--text-primary)" } as const;
   const chip = (a: boolean) => a ? { background: "var(--accent-solid)", color: "#fff", borderColor: "var(--accent-solid)" } : { background: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border)" };
   const etiketDeger = (il: IlAgg | undefined) => (metrik === "bolge" || metrik === "veriGiris") ? "" : String(metrikDeger(il, metrik));
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
-      {/* ── Yan filtreler ── */}
+      {/* Yan filtreler */}
       <div className="space-y-3">
         <div className="sv-section p-4 space-y-3">
           <div>
@@ -268,7 +238,7 @@ export function TurkiyeHarita() {
             </select>
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--text-muted)" }}>Lise Kategorisi</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--text-muted)" }}>Üniversite Kategorisi</p>
             <select value={kategori} onChange={e => setKategori(e.target.value)} className="w-full rounded-lg border px-3 py-1.5 text-sm font-semibold" style={selS}>
               <option value="">Tüm Kategoriler</option>{KAT_SIRA.map(k => <option key={k} value={k}>{KAT_AD[k]}</option>)}
             </select>
@@ -295,16 +265,16 @@ export function TurkiyeHarita() {
                   className="w-full flex items-center justify-between px-3 py-1.5 text-left hover:bg-th transition"
                   style={seciliBirim?.ilId === u.ilId ? { background: "var(--bg-active)" } : undefined}>
                   <span className="text-[12.5px] font-semibold truncate" style={{ color: "var(--text-primary)" }}>{u.ad}</span>
-                  <span className="text-[12px] font-bold tabular-nums ml-2 shrink-0" style={{ color: "#7C3AED" }}>{metrik === "bolge" ? u.toplam : metrikDeger(u, metrik)}</span>
+                  <span className="text-[12px] font-bold tabular-nums ml-2 shrink-0" style={{ color: "#1D4ED8" }}>{metrik === "bolge" ? u.toplam : metrikDeger(u, metrik)}</span>
                 </button>
               ))
             ) : (
               tabloIller.slice(0, 81).map(({ kod, deger }) => (
-                <button key={kod} onClick={() => ilSec(kod)}
+                <button key={kod} onClick={() => { setSeciliBirim(null); setSeciliKod(k => k === kod ? null : kod); setCokBolgeKod(null); }}
                   className="w-full flex items-center justify-between px-3 py-1.5 text-left hover:bg-th transition"
                   style={seciliKod === kod ? { background: "var(--bg-active)" } : undefined}>
                   <span className="text-[12.5px] font-semibold truncate" style={{ color: "var(--text-primary)" }}>{IL_BILGI[kod]?.ad ?? kod}</span>
-                  <span className="text-[12px] font-bold tabular-nums ml-2 shrink-0" style={{ color: "#7C3AED" }}>{deger}</span>
+                  <span className="text-[12px] font-bold tabular-nums ml-2 shrink-0" style={{ color: "#1D4ED8" }}>{deger}</span>
                 </button>
               ))
             )}
@@ -314,7 +284,7 @@ export function TurkiyeHarita() {
         </div>
       </div>
 
-      {/* ── Harita + detay ── */}
+      {/* Harita + detay */}
       <div className="space-y-4">
         <div className="sv-section p-3 overflow-hidden">
           {(seciliBolge != null || detay || cokBolgeKod) && (
@@ -323,10 +293,10 @@ export function TurkiyeHarita() {
           {!paths || !data ? (
             <p className="p-12 text-center text-sm" style={{ color: "var(--text-muted)" }}>Harita yükleniyor…</p>
           ) : (
-            <svg viewBox={viewBox} className="w-full h-auto" style={{ maxHeight: "78vh", transition: "all 0.4s ease" }} role="img" aria-label="Lise Gençlik Türkiye haritası">
+            <svg viewBox={viewBox} className="w-full h-auto" style={{ maxHeight: "78vh", transition: "all 0.4s ease" }} role="img" aria-label="Üniversite Gençlik Türkiye haritası">
               <defs>
                 {[...bolgeYollari].map(([no, d]) => (
-                  <mask key={`m-${no}`} id={`bolgemask-${no}`} maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="800">
+                  <mask key={`m-${no}`} id={`unimask-${no}`} maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="800">
                     <rect x="0" y="0" width="1024" height="800" fill="white" />
                     <path d={d} fill="black" />
                   </mask>
@@ -335,15 +305,13 @@ export function TurkiyeHarita() {
               {Object.entries(paths).map(([kod, d]) => {
                 const g = gorunur(kod);
                 const aktif = kod === aktifKod;
-                const cokBolge = (kodBolgeListesi[kod]?.length ?? 0) > 1;
                 return (
                   <path key={kod} d={d} fill={g ? ilFill(kod) : "var(--bg-th)"} fillOpacity={g ? 1 : 0.15}
-                    stroke={aktif ? "#0f172a" : cokBolge ? "#6366f1" : "#ffffff"}
-                    strokeWidth={aktif ? 2 : cokBolge ? 1.2 : 0.6}
+                    stroke={aktif ? "#0f172a" : "#ffffff"} strokeWidth={aktif ? 2 : 0.6}
                     style={{ cursor: "pointer", transition: "fill 0.2s, fill-opacity 0.2s" }}
                     onMouseEnter={() => setHoverKod(kod)} onMouseLeave={() => setHoverKod(null)}
                     onClick={() => haritaIlSec(kod)}>
-                    <title>{IL_BILGI[kod]?.ad ?? kod}: {iller[kod]?.toplam ?? 0} faaliyet{cokBolge ? " (birden fazla bölge)" : ""}</title>
+                    <title>{IL_BILGI[kod]?.ad ?? kod}: {iller[kod]?.toplam ?? 0} faaliyet</title>
                   </path>
                 );
               })}
@@ -352,7 +320,7 @@ export function TurkiyeHarita() {
                 return (
                   <path key={`b-${no}`} d={d} fill="none" stroke="#0b1324"
                     strokeWidth={seciliBolge != null ? 2.4 : 3.4} strokeOpacity={0.92}
-                    strokeLinejoin="round" strokeLinecap="round" mask={`url(#bolgemask-${no})`} pointerEvents="none" />
+                    strokeLinejoin="round" strokeLinecap="round" mask={`url(#unimask-${no})`} pointerEvents="none" />
                 );
               })}
               {Object.keys(paths).map(kod => {
@@ -371,40 +339,11 @@ export function TurkiyeHarita() {
           )}
         </div>
 
-        {/* ── Çok-bölge seçici (örn. İstanbul 5 bölge) ── */}
-        {cokBolgeKod && cokBolgeListe.length > 0 && (
-          <div className="sv-section p-4">
-            <p className="text-[13px] font-bold mb-3" style={{ color: "var(--text-primary)" }}>
-              {IL_BILGI[cokBolgeKod]?.ad ?? cokBolgeKod} — {cokBolgeListe.length} bölge içeriyor. Bir bölge seçin:
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {cokBolgeListe.map(b => {
-                const bAgg = (() => {
-                  let t = 0, kat = 0, ik = 0, yi = 0;
-                  for (const u of b.birimler) { t += u.toplam; kat += u.katilimci; ik += u.ilkKez; yi += u.yeniIntisap; }
-                  return { toplam: t, katilimci: kat, ilkKez: ik, yeniIntisap: yi };
-                })();
-                return (
-                  <button key={b.no}
-                    onClick={() => { setSeciliBolge(bn => bn === b.no ? null : b.no); setCokBolgeKod(null); setSeciliKod(null); setSeciliBirim(null); }}
-                    className="flex flex-col items-start px-4 py-3 rounded-xl border text-left transition-all hover:border-violet-400"
-                    style={{ background: "var(--bg-th)", borderColor: "var(--border)", minWidth: 130 }}>
-                    <span className="text-[13px] font-black" style={{ color: "var(--text-primary)" }}>{b.no}. Bölge</span>
-                    <span className="text-[11px]" style={{ color: "var(--text-muted)" }}>{b.ad}</span>
-                    <span className="text-[12px] font-bold mt-1" style={{ color: "#7C3AED" }}>{bAgg.toplam} faaliyet</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* ── Bölge / il detay özeti ── */}
         {detay && (
           <div className="sv-section p-4">
             <div className="flex items-baseline justify-between flex-wrap gap-2">
               <p className="text-[18px] font-black" style={{ color: "var(--text-primary)" }}>{detay.ad}</p>
-              <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Lise Gençlik faaliyet özeti</p>
+              <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Üniversite Gençlik faaliyet özeti</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
               {([["Toplam Faaliyet", detay.toplam], ["Toplam Katılımcı", detay.katilimci], ["İlk Kez Katılan", detay.ilkKez], ["Yeni İntisap", detay.yeniIntisap]] as const).map(([l, v]) => (
@@ -415,13 +354,37 @@ export function TurkiyeHarita() {
               ))}
             </div>
             <p className="text-[11px] font-bold uppercase tracking-wider mt-4 mb-2" style={{ color: "var(--text-muted)" }}>Faaliyet Dağılımı</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {KAT_SIRA.map(k => (
                 <div key={k} className="rounded-lg px-2.5 py-2 text-center" style={{ background: "var(--bg-th)" }}>
-                  <p className="text-[15px] font-black" style={{ color: "#7C3AED" }}>{detay.kategori[k] ?? 0}</p>
+                  <p className="text-[15px] font-black" style={{ color: "#1D4ED8" }}>{detay.kategori[k] ?? 0}</p>
                   <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>{KAT_AD[k]}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Çok-bölge seçici (örn. İstanbul) */}
+        {cokBolgeKod && cokBolgeListe.length > 0 && (
+          <div className="sv-section p-4">
+            <p className="text-[13px] font-bold mb-3" style={{ color: "var(--text-primary)" }}>
+              {IL_BILGI[cokBolgeKod]?.ad ?? cokBolgeKod} — {cokBolgeListe.length} bölge içeriyor. Bir bölge seçin:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {cokBolgeListe.map(b => {
+                const bAgg = (() => { let t = 0; for (const u of b.birimler) t += u.toplam; return t; })();
+                return (
+                  <button key={b.no}
+                    onClick={() => { setSeciliBolge(bn => bn === b.no ? null : b.no); setCokBolgeKod(null); setSeciliKod(null); setSeciliBirim(null); }}
+                    className="flex flex-col items-start px-4 py-3 rounded-xl border text-left transition-all hover:border-blue-400"
+                    style={{ background: "var(--bg-th)", borderColor: "var(--border)", minWidth: 130 }}>
+                    <span className="text-[13px] font-black" style={{ color: "var(--text-primary)" }}>{b.no}. Bölge</span>
+                    <span className="text-[11px]" style={{ color: "var(--text-muted)" }}>{b.ad}</span>
+                    <span className="text-[12px] font-bold mt-1" style={{ color: "#1D4ED8" }}>{bAgg} faaliyet</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -433,7 +396,6 @@ export function TurkiyeHarita() {
           </div>
         )}
 
-        {/* ── Son faaliyetler (bölge, il veya birim seçilince) ── */}
         {detaySrc && (
           <div className="sv-section overflow-hidden">
             <div className="sv-section-header">
