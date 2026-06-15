@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
+import { ExportButtons } from "@/components/ui/ExportButtons";
 import type { Donem } from "@/app/generated/prisma/client";
 
 export type SistemKey = "EGITIMCI" | "UNIVERSITE" | "LISE";
@@ -80,14 +81,16 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
   const [aktifSistem, setAktifSistem] = useState<SistemKey>(kilitliSistem ?? "EGITIMCI");
   const [egitimciAlt, setEgitimciAlt] = useState<EgitimciAlt>("GENEL");
   const [menuAcik, setMenuAcik] = useState(false);
+  const [bolgeMenuAcik, setBolgeMenuAcik] = useState(false);
   const [acikBolgeler, setAcikBolgeler] = useState<Set<string>>(new Set());
+  const [secilenBolgeler, setSecilenBolgeler] = useState<Set<string>>(new Set());
   const [arama, setArama] = useState("");
   const [sadeceEksik, setSadeceEksik] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const bolgeMenuRef = useRef<HTMLDivElement>(null);
   const kapatTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Hover menüsü: girince hemen aç, ayrılınca kısa gecikmeyle kapat
-  // (fare buton↔menü boşluğunda gezerken menü kapanmasın)
   const acMenu = () => { if (kapatTimer.current) clearTimeout(kapatTimer.current); setMenuAcik(true); };
   const kapatMenuGecikmeli = () => {
     if (kapatTimer.current) clearTimeout(kapatTimer.current);
@@ -105,6 +108,16 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
     document.addEventListener("keydown", onKey);
     return () => { document.removeEventListener("mousedown", onClick); document.removeEventListener("keydown", onKey); };
   }, [menuAcik]);
+
+  // Bölge filtre menüsü: dışarı tıkla kapat
+  useEffect(() => {
+    if (!bolgeMenuAcik) return;
+    const onClick = (e: MouseEvent) => {
+      if (bolgeMenuRef.current && !bolgeMenuRef.current.contains(e.target as Node)) setBolgeMenuAcik(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [bolgeMenuAcik]);
 
   const durumOf = (ilId: string): SistemDurum => sistemDurum[ilId] ?? BOS;
 
@@ -143,6 +156,14 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
     setMenuAcik(false);
   }
 
+  function toggleBolgeFiltre(id: string) {
+    setSecilenBolgeler(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
   const yilSecenekleri = useMemo(
     () => (yillar.includes(yil) ? yillar : [yil, ...yillar]),
     [yillar, yil]
@@ -150,9 +171,11 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
 
   const aramaNorm = arama.trim().toLocaleLowerCase("tr");
   const filtreAktif = aramaNorm !== "" || sadeceEksik;
+  const bolgeFiltresiAktif = secilenBolgeler.size > 0;
 
   const gorunurBolgeler = useMemo(() => {
     return bolgeler
+      .filter(b => !bolgeFiltresiAktif || secilenBolgeler.has(b.id))
       .map(b => ({
         ...b,
         gorunurIller: b.iller.filter(il => {
@@ -163,7 +186,7 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
       }))
       .filter(b => !filtreAktif || b.gorunurIller.length > 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bolgeler, aramaNorm, sadeceEksik, aktifSistem, egitimciAlt, sistemDurum]);
+  }, [bolgeler, aramaNorm, sadeceEksik, aktifSistem, egitimciAlt, sistemDurum, secilenBolgeler, bolgeFiltresiAktif]);
 
   const tumIller = useMemo(() => bolgeler.flatMap(b => b.iller), [bolgeler]);
   const tamamSayisi = tumIller.filter(il => ilTamam(il.id)).length;
@@ -182,6 +205,92 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
     aktif
       ? { background: "var(--accent-solid)", color: "#fff" }
       : { color: "var(--text-muted)" };
+
+  // Export için seçili görünümün flat satırlarını üretir
+  function buildExportSpec() {
+    const satırlar: Record<string, string>[] = [];
+    const filtreliBolgeler = gorunurBolgeler;
+
+    for (const bolge of filtreliBolgeler) {
+      const iller = sadeceEksik
+        ? bolge.gorunurIller.filter(il => !ilTamam(il.id))
+        : bolge.gorunurIller;
+
+      for (const il of iller) {
+        const durum = durumOf(il.id);
+        if (birimRozetGoster) {
+          const e = durum.EGITIMCI;
+          satırlar.push({
+            bolge:      bolge.ad,
+            il:         il.ad,
+            ilkogretim: e?.ILKOGRETIM ? "Girildi" : "Eksik",
+            lise:       e?.LISE       ? "Girildi" : "Eksik",
+            universite: e?.UNIVERSITE ? "Girildi" : "Eksik",
+            genel:      (e?.ILKOGRETIM && e.LISE && e.UNIVERSITE) ? "Tamam" : "Eksik",
+          });
+        } else if (aktifSistem === "UNIVERSITE" || aktifSistem === "LISE") {
+          const sayi = (aktifSistem === "LISE" ? durum.LISE : durum.UNIVERSITE) ?? 0;
+          satırlar.push({
+            bolge:    bolge.ad,
+            il:       il.ad,
+            faaliyet: String(sayi),
+            durum:    sayi > 0 ? "Girildi" : "Eksik",
+          });
+        } else {
+          satırlar.push({
+            bolge: bolge.ad,
+            il:    il.ad,
+            durum: ilTamam(il.id) ? "Tamam" : "Eksik",
+          });
+        }
+      }
+    }
+
+    const baslik = `Eksik Veri Takip — ${aktifLabel} · ${yil} / ${DONEM_LABELS[donem]}`;
+
+    if (birimRozetGoster) {
+      return {
+        title:   baslik,
+        columns: [
+          { header: "Bölge",       key: "bolge" },
+          { header: "İl",          key: "il" },
+          { header: "İlköğretim",  key: "ilkogretim" },
+          { header: "Lise",        key: "lise" },
+          { header: "Üniversite",  key: "universite" },
+          { header: "Genel Durum", key: "genel" },
+        ],
+        rows: satırlar,
+      };
+    }
+    if (aktifSistem === "UNIVERSITE" || aktifSistem === "LISE") {
+      return {
+        title:   baslik,
+        columns: [
+          { header: "Bölge",         key: "bolge" },
+          { header: "İl",            key: "il" },
+          { header: "Faaliyet Sayısı", key: "faaliyet" },
+          { header: "Durum",         key: "durum" },
+        ],
+        rows: satırlar,
+      };
+    }
+    return {
+      title:   baslik,
+      columns: [
+        { header: "Bölge", key: "bolge" },
+        { header: "İl",    key: "il" },
+        { header: "Durum", key: "durum" },
+      ],
+      rows: satırlar,
+    };
+  }
+
+  // Bölge filtresi için etiket
+  const bolgeFiltrEtiket = bolgeFiltresiAktif
+    ? secilenBolgeler.size === 1
+      ? `${bolgeler.find(b => secilenBolgeler.has(b.id))?.ad ?? "1 Bölge"}`
+      : `${secilenBolgeler.size} Bölge`
+    : "Tüm Bölgeler";
 
   return (
     <div className="p-6 space-y-6 max-w-[1400px]">
@@ -248,8 +357,6 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
             </button>
 
             {menuAcik && (
-              /* Dış katman butona bitişik (top-full) + üst padding görünmez köprü:
-                 fare buton↔menü arası boşlukta gezerken menü kapanmaz */
               <div className="absolute left-0 top-full pt-1.5 z-30 w-60">
                 <div
                   role="menu"
@@ -260,7 +367,6 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
                 </p>
                 {EGITIMCI_ALT.map(alt => {
                   const aktif = aktifSistem === "EGITIMCI" && egitimciAlt === alt.key;
-                  // o birimde eksik il sayısı
                   const eksik = tumIller.filter(il => {
                     const e = durumOf(il.id).EGITIMCI;
                     if (!e) return true;
@@ -295,7 +401,7 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
             )}
           </div>
 
-          {/* Üniversite Gençlik — tıklamalı */}
+          {/* Üniversite Gençlik */}
           <button
             onClick={() => setAktifSistem("UNIVERSITE")}
             className="px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5"
@@ -305,7 +411,7 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
             <SekmeEksikRozet aktif={aktifSistem === "UNIVERSITE"} sayi={tumIller.filter(il => (durumOf(il.id).UNIVERSITE ?? 0) === 0).length} />
           </button>
 
-          {/* Lise Gençlik — tıklamalı */}
+          {/* Lise Gençlik */}
           <button
             onClick={() => setAktifSistem("LISE")}
             className="px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5"
@@ -334,12 +440,86 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
         ))}
       </div>
 
-      {/* Arama + sadece eksikler */}
+      {/* Filtreler + Export */}
       <div className="flex flex-wrap items-center gap-2.5">
+        {/* İl arama */}
         <input
           type="text" value={arama} onChange={e => setArama(e.target.value)} placeholder="İl ara…"
-          className="rounded-xl border border-[var(--border-input)] bg-input text-heading text-[13px] px-3 py-2 w-56 focus:border-[var(--accent)] transition"
+          className="rounded-xl border border-[var(--border-input)] bg-input text-heading text-[13px] px-3 py-2 w-52 focus:border-[var(--accent)] transition"
         />
+
+        {/* Bölge filtresi */}
+        <div ref={bolgeMenuRef} className="relative">
+          <button
+            onClick={() => setBolgeMenuAcik(v => !v)}
+            className="px-3 py-2 rounded-xl text-[12.5px] font-semibold border transition flex items-center gap-1.5"
+            style={bolgeFiltresiAktif
+              ? { background: "var(--bg-active)", color: "var(--accent)", borderColor: "var(--accent)" }
+              : { background: "var(--bg-th)", color: "var(--text-muted)", borderColor: "var(--border)" }}>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+            {bolgeFiltrEtiket}
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d={bolgeMenuAcik ? "M2 8l4-4 4 4" : "M2 4l4 4 4-4"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          {bolgeMenuAcik && (
+            <div className="absolute left-0 top-full mt-1.5 z-30 w-60 rounded-xl border border-border bg-card shadow-xl py-1.5">
+              <p className="px-3.5 pt-1 pb-1.5 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                Bölge Filtresi
+              </p>
+              {/* Tümünü seç / temizle */}
+              <button
+                onClick={() => setSecilenBolgeler(new Set())}
+                className="w-full flex items-center gap-2 px-3.5 py-2 text-left transition hover:bg-[var(--bg-hover)]"
+                style={!bolgeFiltresiAktif ? { background: "var(--bg-active)" } : undefined}
+              >
+                <span className="w-4 h-4 rounded border flex items-center justify-center shrink-0"
+                  style={!bolgeFiltresiAktif
+                    ? { background: "var(--accent-solid)", borderColor: "var(--accent-solid)" }
+                    : { borderColor: "var(--border)" }}>
+                  {!bolgeFiltresiAktif && <svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                </span>
+                <span className="text-[13px] font-semibold" style={{ color: "var(--text-primary)" }}>Tüm Bölgeler</span>
+              </button>
+              <div className="my-1 border-t" style={{ borderColor: "var(--border)" }} />
+              {bolgeler.map(b => {
+                const secili = secilenBolgeler.has(b.id);
+                const eksikIl = b.iller.filter(il => !ilTamam(il.id)).length;
+                return (
+                  <button
+                    key={b.id}
+                    onClick={() => toggleBolgeFiltre(b.id)}
+                    className="w-full flex items-center justify-between gap-2 px-3.5 py-2 text-left transition hover:bg-[var(--bg-hover)]"
+                    style={secili ? { background: "var(--bg-active)" } : undefined}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 rounded border flex items-center justify-center shrink-0"
+                        style={secili
+                          ? { background: "var(--accent-solid)", borderColor: "var(--accent-solid)" }
+                          : { borderColor: "var(--border)" }}>
+                        {secili && <svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                      </span>
+                      <span className="text-[13px] font-semibold" style={{ color: secili ? "var(--accent)" : "var(--text-primary)" }}>
+                        {b.no}. {b.ad}
+                      </span>
+                    </span>
+                    {eksikIl > 0 && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                        style={{ background: EKSIK_ZEMIN, color: EKSIK_RENK }}>
+                        {eksikIl} eksik
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Sadece eksikler */}
         <button
           onClick={() => setSadeceEksik(v => !v)}
           className="px-3 py-2 rounded-xl text-[12.5px] font-semibold border transition"
@@ -348,12 +528,19 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
             : { background: "var(--bg-th)", color: "var(--text-muted)", borderColor: "var(--border)" }}>
           {sadeceEksik ? "✗ " : ""}Sadece eksikleri göster
         </button>
-        {filtreAktif && (
-          <button onClick={() => { setArama(""); setSadeceEksik(false); }}
+
+        {/* Filtreleri temizle */}
+        {(filtreAktif || bolgeFiltresiAktif) && (
+          <button onClick={() => { setArama(""); setSadeceEksik(false); setSecilenBolgeler(new Set()); }}
             className="px-3 py-2 rounded-xl text-[12.5px] font-semibold transition" style={{ color: "var(--text-muted)" }}>
             Temizle
           </button>
         )}
+
+        {/* Export butonları */}
+        <div className="ml-auto">
+          <ExportButtons getSpec={buildExportSpec} />
+        </div>
       </div>
 
       {/* Bölge akordeonları */}
@@ -365,7 +552,7 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
         )}
 
         {gorunurBolgeler.map(bolge => {
-          const acik = acikBolgeler.has(bolge.id) || filtreAktif;
+          const acik = acikBolgeler.has(bolge.id) || filtreAktif || bolgeFiltresiAktif;
           const bolgeTamam = bolge.iller.filter(il => ilTamam(il.id)).length;
           const hepsiTamam = bolgeTamam === bolge.iller.length && bolge.iller.length > 0;
 
@@ -382,7 +569,7 @@ export function BolgelerClient({ bolgeler, sistemDurum, yil, donem, yillar, kili
                   <Badge tone={hepsiTamam ? "brand" : "danger"}>{bolgeTamam}/{bolge.iller.length} il tamam</Badge>
                 </div>
                 <div className="flex items-center gap-4 text-xs" style={{ color: "var(--text-muted)" }}>
-                  {filtreAktif && <span>{bolge.gorunurIller.length} eşleşme</span>}
+                  {(filtreAktif || bolgeFiltresiAktif) && <span>{bolge.gorunurIller.length} eşleşme</span>}
                   <span className="ml-2 text-lg">{acik ? "▲" : "▼"}</span>
                 </div>
               </button>
