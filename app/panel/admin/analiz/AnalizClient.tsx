@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { TurkiyeHarita } from "./TurkiyeHarita";
 import { UniversiteHarita } from "./UniversiteHarita";
+import { EgitimBirimiHarita } from "./EgitimBirimiHarita";
 import { ANALIZ_SORULAR, ANALIZ_BIRIM_LABEL, type AnalizBirim } from "@/lib/analiz-sorular";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
@@ -266,12 +267,7 @@ export function AnalizClient({ data, liseModu, liseData, anaRol }: { data: Anali
           )}
           {haritaSistem === "lise"   && <TurkiyeHarita />}
           {haritaSistem === "uni"    && <UniversiteHarita />}
-          {haritaSistem === "egitim" && (
-            <div className="sv-section p-12 text-center space-y-2">
-              <p className="text-[16px] font-black" style={{ color: "var(--text-primary)" }}>Eğitim Birimi Haritası</p>
-              <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>Bu bölüm yakında kullanıma açılacaktır.</p>
-            </div>
-          )}
+          {haritaSistem === "egitim" && <EgitimBirimiHarita />}
         </div>
       )}
 
