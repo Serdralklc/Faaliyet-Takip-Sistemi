@@ -6,7 +6,7 @@ import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import type { Role } from "@/lib/constants";
-import { gorevEtiket, icerikYanRol, formYonetimiYanRol, istisareYanRol, barinmaGorunumYanRol, ilFaaliyetTakipYanRol } from "@/lib/constants";
+import { gorevEtiket, rolEtiket, icerikYanRol, formYonetimiYanRol, istisareYanRol, barinmaGorunumYanRol, ilFaaliyetTakipYanRol } from "@/lib/constants";
 import {
   LayoutDashboard, Users, MapPin, FileText, ClipboardList,
   LogOut, Sun, Moon, ChevronDown, ChevronRight,
@@ -259,9 +259,9 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
   const roleLabel = gorevEtiket(user.role, user.sistem, user.merkezGorev);
 
   const locationLabel = user.activeIlAd
-    ? `${user.activeIlAd} İl Sorumlusu`
+    ? `${user.activeIlAd} ${rolEtiket("IL_SORUMLUSU", user.sistem)}`
     : user.activeBolgeAd
-    ? `${user.activeBolgeAd} Bölge Sorumlusu`
+    ? `${user.activeBolgeAd} ${rolEtiket("BOLGE_SORUMLUSU", user.sistem)}`
     : roleLabel;
 
   const initials = `${user.ad[0] ?? ""}${user.soyad[0] ?? ""}`.toUpperCase();
