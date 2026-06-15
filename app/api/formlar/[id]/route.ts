@@ -6,7 +6,8 @@ import { parseJson } from "@/lib/validation";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { YONETICI_ROLLERI } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
-import { soruSchema, formDuzenleyebilir, formGorebilir, formSistemKisiti } from "@/lib/form-yonetimi";
+import { soruSchema, formDuzenleyebilir, formGorebilir, formSistemKisiti, formYanitDosyaIdleri } from "@/lib/form-yonetimi";
+import { deleteFile } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -111,6 +112,20 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   // Üni/Lise Gençlik sorumlusu yalnız KENDİ oluşturduğu formu silebilir
   if (!formDuzenleyebilir(session.user, form)) {
     return NextResponse.json({ error: "Bu formu silme yetkiniz yok (yalnız kendi oluşturduğunuz formlar)." }, { status: 403 });
+  }
+
+  // Yanıtlardaki yüklenen dosyaları temizle: FormYanitDosya'nın FormYanit'e FK'sı
+  // yok (cevaplar JSON'unda dosyaId ile bağlı), bu yüzden cascade kapsamaz —
+  // kayıt + blob'ları elle sil, yoksa orphan kalır.
+  const yanitlar = await prisma.formYanit.findMany({ where: { formId: id }, select: { cevaplar: true } });
+  const dosyaIdler = formYanitDosyaIdleri(yanitlar.map(y => y.cevaplar));
+  if (dosyaIdler.length) {
+    const dosyalar = await prisma.formYanitDosya.findMany({
+      where: { id: { in: dosyaIdler } },
+      select: { id: true, storageKey: true },
+    });
+    await Promise.allSettled(dosyalar.map(d => deleteFile(d.storageKey)));
+    await prisma.formYanitDosya.deleteMany({ where: { id: { in: dosyalar.map(d => d.id) } } });
   }
 
   await prisma.dinamikForm.delete({ where: { id } }); // sorular + yanıtlar cascade

@@ -4,6 +4,24 @@ import { rolSistemi } from "./constants";
 
 /** Dinamik form — paylaşılan şema ve görünürlük yardımcıları */
 
+/**
+ * Form yanıtlarının cevaplar JSON'larından yüklenen dosya id'lerini toplar.
+ * Dosya cevabı { dosyaId, ad, url } biçimindedir; iç içe/dizi değerler de taranır.
+ * Form silinirken ilgili FormYanitDosya kayıtları + blob'ları temizlemek için kullanılır.
+ */
+export function formYanitDosyaIdleri(cevaplarListesi: unknown[]): string[] {
+  const ids = new Set<string>();
+  const tara = (v: unknown): void => {
+    if (!v || typeof v !== "object") return;
+    if (Array.isArray(v)) { v.forEach(tara); return; }
+    const o = v as Record<string, unknown>;
+    if (typeof o.dosyaId === "string" && o.dosyaId) ids.add(o.dosyaId);
+    for (const k in o) tara(o[k]);
+  };
+  for (const c of cevaplarListesi) tara(c);
+  return [...ids];
+}
+
 /** Tüm soru tipleri (mevcut 7 + Veri Toplama Merkezi geliştirmesi 6) */
 export const TUM_SORU_TIPLERI = [
   "KISA_METIN", "UZUN_METIN", "SAYI", "TARIH", "TEK_SECIM", "COKLU_SECIM", "DOSYA",
