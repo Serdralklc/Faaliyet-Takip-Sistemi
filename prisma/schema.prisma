@@ -491,6 +491,44 @@ model AlanAyar {
   @@index([sistem])
 }
 
+// ── Faaliyet Yapılandırma: Gençlik kategori & faaliyet türü (Faz 2) ──
+// Eklemeli: LiseKategori/UniversiteKategori enum'ları ve raporlar/hedefler DEĞİŞMEZ.
+// KategoriAyar = enum kategorilerin görüntü katmanı (ad/aktif/sıra — yalnız giriş UI'sı).
+// FaaliyetTuru = kategoriye bağlı faaliyet adı önerileri (giriş formundaki "adlar").
+// Kayıt yoksa sabit varsayılanlar kullanılır → mevcut davranış birebir korunur.
+
+model KategoriAyar {
+  id           String  @id @default(cuid())
+  sistem       Sistem // UNIVERSITE | LISE
+  kategoriKodu String // enum değeri (ör. "ILIM_SOHBET")
+  ad           String?
+  aktif        Boolean @default(true)
+  sira         Int     @default(0)
+
+  guncelleyenId String?
+  guncelleyenAd String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([sistem, kategoriKodu])
+  @@index([sistem])
+}
+
+model FaaliyetTuru {
+  id           String  @id @default(cuid())
+  sistem       Sistem
+  kategoriKodu String
+  ad           String
+  aktif        Boolean @default(true)
+  sira         Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sistem, kategoriKodu, ad])
+  @@index([sistem, kategoriKodu])
+}
+
 // ── Barınma Birimleri ──────────────────────────────────────────
 model HousingUnit {
   id        String   @id @default(cuid())

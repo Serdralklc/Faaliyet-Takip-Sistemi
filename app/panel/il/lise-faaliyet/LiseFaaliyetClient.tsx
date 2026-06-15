@@ -8,7 +8,9 @@ import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { useToast } from "@/components/ui/Toast";
 import { Plus, Pencil, Trash2, Image as ImageIcon, Paperclip } from "lucide-react";
-import { LISE_KATEGORILER, KATEGORI_LABEL, KATEGORI_RENK, type LiseKategoriKey } from "@/lib/lise-faaliyet";
+import { LISE_KATEGORILER, type LiseKategoriKey } from "@/lib/lise-faaliyet";
+
+type KatItem = { key: string; label: string; adlar: string[]; renk: string; aktif?: boolean };
 
 interface Faaliyet {
   id: string; ilId: string; tarih: string; yil: number; donem: string;
@@ -56,6 +58,16 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
   const [saving, setSaving] = useState(false);
   const [silId, setSilId] = useState<string | null>(null);
   const [siliniyor, setSiliniyor] = useState(false);
+  // Faaliyet Yapılandırma Merkezi: dinamik kategori + faaliyet türleri (fallback: sabit liste)
+  const [kategoriler, setKategoriler] = useState<KatItem[]>(LISE_KATEGORILER);
+  useEffect(() => {
+    fetch(`/api/genclik-kategori?sistem=LISE`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (d?.kategoriler?.length) setKategoriler(d.kategoriler as KatItem[]); })
+      .catch(() => {});
+  }, []);
+  const katLabel = useMemo(() => Object.fromEntries(kategoriler.map(k => [k.key, k.label])), [kategoriler]);
+  const katRenk = useMemo(() => Object.fromEntries(kategoriler.map(k => [k.key, k.renk])), [kategoriler]);
 
   function load() {
     setLoading(true);
@@ -84,13 +96,18 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
     return { perKat, toplamKatilimci, toplamIlkKez, toplamIntisap, toplam: list.length };
   }, [list]);
 
-  const kategoriDef = LISE_KATEGORILER.find(k => k.key === form.kategori)!;
+  const kategoriDef = kategoriler.find(k => k.key === form.kategori) ?? kategoriler[0];
   const hasAdlar = kategoriDef.adlar.length > 0;
   const manuelGerek = !hasAdlar || form.adSecim === "Diğer";
 
-  function openNew() { setEditing(null); setForm(bosForm(donem)); setModalOpen(true); }
+  function openNew() {
+    setEditing(null);
+    const def = kategoriler.find(k => k.aktif !== false) ?? kategoriler[0];
+    setForm({ ...bosForm(donem), kategori: def.key as LiseKategoriKey, adSecim: def.adlar[0] ?? "" });
+    setModalOpen(true);
+  }
   function openEdit(f: Faaliyet) {
-    const def = LISE_KATEGORILER.find(k => k.key === f.kategori)!;
+    const def = kategoriler.find(k => k.key === f.kategori) ?? { adlar: [] as string[] };
     const adVar = def.adlar.includes(f.faaliyetAdi);
     setEditing(f);
     setForm({
@@ -105,7 +122,7 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
   }
 
   function setKategori(k: LiseKategoriKey) {
-    const def = LISE_KATEGORILER.find(x => x.key === k)!;
+    const def = kategoriler.find(x => x.key === k) ?? { adlar: [] as string[] };
     setForm(f => ({ ...f, kategori: k, adSecim: def.adlar[0] ?? "", manuelAd: "" }));
   }
 
@@ -160,7 +177,7 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
     { key: "tarih", header: "Tarih", mobile: true, sortValue: f => f.tarih, render: f => <span className="font-semibold text-heading whitespace-nowrap">{trTarih(f.tarih)}</span> },
     {
       key: "kategori", header: "Kategori", mobile: true, sortValue: f => f.kategori,
-      render: f => <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: `${KATEGORI_RENK[f.kategori]}1a`, color: KATEGORI_RENK[f.kategori] }}>{KATEGORI_LABEL[f.kategori]}</span>,
+      render: f => <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ background: `${katRenk[f.kategori] ?? "#888"}1a`, color: katRenk[f.kategori] ?? "#888" }}>{katLabel[f.kategori] ?? f.kategori}</span>,
     },
     { key: "faaliyetAdi", header: "Faaliyet", mobile: true, render: f => <span className="font-semibold text-secondary">{f.faaliyetAdi}</span> },
     { key: "yer", header: "Yer", render: f => f.yer ? <span className="text-sm text-muted">{f.yer}</span> : <span className="text-muted">—</span> },
@@ -223,7 +240,7 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
       {/* Kategori bazlı kırılım */}
       {ozet.toplam > 0 && (
         <div className="flex flex-wrap gap-2">
-          {LISE_KATEGORILER.filter(k => ozet.perKat[k.key]?.sayi).map(k => (
+          {kategoriler.filter(k => ozet.perKat[k.key]?.sayi).map(k => (
             <span key={k.key} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold"
               style={{ background: `${k.renk}14`, color: k.renk }}>
               {k.label}: <strong>{ozet.perKat[k.key].sayi}</strong> · {ozet.perKat[k.key].katilimci} katılımcı
@@ -240,7 +257,7 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
           data={list}
           columns={columns}
           rowKey={f => f.id}
-          searchText={f => `${f.faaliyetAdi} ${KATEGORI_LABEL[f.kategori]} ${f.yer ?? ""}`}
+          searchText={f => `${f.faaliyetAdi} ${katLabel[f.kategori] ?? f.kategori} ${f.yer ?? ""}`}
           searchPlaceholder="Faaliyet, kategori veya yer ara…"
           emptyText="Bu yıl için henüz faaliyet kaydı yok. “Faaliyet Ekle” ile başlayın."
           onRowClick={openEdit}
@@ -269,7 +286,7 @@ export function LiseFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string; ilAd
               {DONEMLER.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
             </Select>
             <Select label="Kategori" required value={form.kategori} onChange={e => setKategori(e.target.value as LiseKategoriKey)}>
-              {LISE_KATEGORILER.map(k => <option key={k.key} value={k.key}>{k.label}</option>)}
+              {kategoriler.filter(k => k.aktif !== false || k.key === form.kategori).map(k => <option key={k.key} value={k.key}>{k.label}</option>)}
             </Select>
           </div>
 

@@ -36,7 +36,7 @@ interface RowState {
   saving: boolean;
 }
 
-type Tab = "donem" | "alan";
+type Tab = "donem" | "alan" | "kategori";
 
 function Toggle({ on, onChange, disabled }: { on: boolean; onChange: () => void; disabled?: boolean }) {
   return (
@@ -361,6 +361,134 @@ function AlanTab() {
   );
 }
 
+interface KatYonetim { kodu: string; varsayilanAd: string; ad: string; aktif: boolean; renk: string; turler: string[] }
+interface KatResponse { sistem: string; sistemAd: string; kategoriler: KatYonetim[] }
+type KatEdit = { ad: string; aktif: boolean; turlerText: string };
+
+function KategoriTurTab() {
+  const { toast } = useToast();
+  const [sistem, setSistem] = useState<"UNIVERSITE" | "LISE">("UNIVERSITE");
+  const [data, setData] = useState<KatResponse | null>(null);
+  const [edits, setEdits] = useState<Record<string, KatEdit>>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async (s: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/faaliyet-yapilandirma/kategori?sistem=${s}`);
+      if (!res.ok) throw new Error();
+      const json: KatResponse = await res.json();
+      setData(json);
+      const e: Record<string, KatEdit> = {};
+      json.kategoriler.forEach(k => { e[k.kodu] = { ad: k.ad, aktif: k.aktif, turlerText: k.turler.join("\n") }; });
+      setEdits(e);
+    } catch {
+      toast({ type: "error", title: "Kategoriler yüklenemedi." });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => { load(sistem); }, [sistem, load]);
+
+  const setKat = (kodu: string, patch: Partial<KatEdit>) =>
+    setEdits(p => ({ ...p, [kodu]: { ...p[kodu], ...patch } }));
+
+  const kaydet = async () => {
+    if (!data) return;
+    setSaving(true);
+    try {
+      const kategoriler = data.kategoriler.map(k => {
+        const e = edits[k.kodu];
+        return {
+          kodu: k.kodu,
+          ad: e.ad,
+          aktif: e.aktif,
+          turler: e.turlerText.split("\n").map(s => s.trim()).filter(Boolean),
+        };
+      });
+      const res = await fetch("/api/admin/faaliyet-yapilandirma/kategori", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sistem, kategoriler }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || "Kaydedilemedi.");
+      }
+      toast({ type: "success", title: "Kategori ve türler kaydedildi" });
+    } catch (e) {
+      toast({ type: "error", title: "Hata", message: e instanceof Error ? e.message : "Kaydedilemedi." });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
+        <div>
+          <h2 className="text-[15px] font-bold text-heading">Kategori & Faaliyet Türü</h2>
+          <p className="text-[12.5px] text-secondary mt-0.5 max-w-2xl leading-relaxed">
+            Gençlik giriş formundaki kategori adlarını, sırasını (aktif/pasif) ve her kategori altındaki
+            <b> faaliyet türü</b> önerilerini buradan yönetin. <b>“Diğer”</b> seçeneği her zaman otomatik eklenir
+            (manuel giriş için). Ayar yoksa sabit varsayılanlar geçerlidir — raporlar ve mevcut kayıtlar etkilenmez.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <select value={sistem} onChange={e => setSistem(e.target.value as "UNIVERSITE" | "LISE")}
+            className="px-3 py-1.5 rounded-lg border border-border bg-card text-[13px] font-semibold">
+            <option value="UNIVERSITE">Üniversite Gençlik</option>
+            <option value="LISE">Lise Gençlik</option>
+          </select>
+          <Button loading={saving} onClick={kaydet}>Kaydet</Button>
+        </div>
+      </div>
+
+      {loading ? (
+        <p className="text-secondary text-sm py-8 text-center">Yükleniyor…</p>
+      ) : (
+        <div className="space-y-3">
+          {data?.kategoriler.map(k => {
+            const e = edits[k.kodu];
+            if (!e) return null;
+            return (
+              <div key={k.kodu} className="rounded-xl border border-border bg-card overflow-hidden"
+                style={{ opacity: e.aktif ? 1 : 0.6 }}>
+                <div className="px-4 py-2.5 border-b border-border flex items-center gap-3"
+                  style={{ background: "var(--bg-hover)" }}>
+                  <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: k.renk }} />
+                  <span className="font-bold text-heading flex-1">{e.ad || k.varsayilanAd}</span>
+                  <span className="flex items-center gap-2 text-[12px] text-muted">
+                    {e.aktif ? "Aktif" : "Pasif"}
+                    <Toggle on={e.aktif} onChange={() => setKat(k.kodu, { aktif: !e.aktif })} />
+                  </span>
+                </div>
+                <div className="p-4 grid sm:grid-cols-2 gap-4">
+                  <label className="flex flex-col gap-1 text-[11.5px] font-semibold text-muted">
+                    Görünen ad (boş = varsayılan: {k.varsayilanAd})
+                    <input type="text" value={e.ad} maxLength={80} placeholder={k.varsayilanAd}
+                      onChange={ev => setKat(k.kodu, { ad: ev.target.value })}
+                      className="px-2.5 py-1.5 rounded-lg border border-border bg-card text-[13px]" />
+                  </label>
+                  <label className="flex flex-col gap-1 text-[11.5px] font-semibold text-muted">
+                    Faaliyet türleri (her satır bir tür)
+                    <textarea value={e.turlerText} rows={5}
+                      onChange={ev => setKat(k.kodu, { turlerText: ev.target.value })}
+                      className="px-2.5 py-1.5 rounded-lg border border-border bg-card text-[13px] font-normal resize-y"
+                      placeholder={"İlim Dersi\nSohbet\n…"} />
+                  </label>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function FaaliyetYapilandirmaClient() {
   const [tab, setTab] = useState<Tab>("donem");
 
@@ -395,9 +523,10 @@ export function FaaliyetYapilandirmaClient() {
       <div className="flex gap-2 my-4 p-1 rounded-xl w-fit" style={{ background: "var(--bg-hover)" }}>
         {tabBtn("donem", "Yıl & Dönem")}
         {tabBtn("alan", "Alan Yönetimi")}
+        {tabBtn("kategori", "Kategori & Tür")}
       </div>
 
-      {tab === "donem" ? <DonemTab /> : <AlanTab />}
+      {tab === "donem" ? <DonemTab /> : tab === "alan" ? <AlanTab /> : <KategoriTurTab />}
     </div>
   );
 }
