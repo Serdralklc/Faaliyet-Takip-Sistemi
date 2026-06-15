@@ -257,6 +257,35 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
+      // Saha rolleri (İl/Bölge sorumlusu): aktif atama + rol/sistem her istekte DB'den
+      // tazelenir — görev/il değişikliği ya da yetki kaldırma ANINDA etkili olur. Aksi
+      // halde activeIlId girişte donar ve eski ile yazma çıkışa kadar (30 güne dek) sürebilir.
+      const SAHA_TIER = ["IL_SORUMLUSU", "BOLGE_SORUMLUSU"];
+      if (token?.id && SAHA_TIER.includes(token.role as string)) {
+        const fresh = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: {
+            role: true,
+            sistem: true,
+            assignments: {
+              where: { status: "AKTIF" },
+              orderBy: { startedAt: "desc" },
+              take: 1,
+              include: { il: true, bolge: true },
+            },
+          },
+        });
+        if (fresh) {
+          token.role = fresh.role;
+          token.sistem = fresh.sistem;
+          const a = fresh.assignments[0];
+          token.activeIlId = a?.ilId ?? null;
+          token.activeBolgeId = a?.bolgeId ?? null;
+          token.activeIlAd = a?.il?.ad ?? null;
+          token.activeBolgeAd = a?.bolge?.ad ?? null;
+        }
+      }
+
       return token;
     },
 
