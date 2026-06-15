@@ -5,9 +5,10 @@ import { prisma } from "@/lib/prisma";
 import { parseJson, zId, zYil } from "@/lib/validation";
 import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { temizleHedefler, type GenclikSistem } from "@/lib/genclik-hedef";
-import type { Sistem } from "@/app/generated/prisma/client";
+import type { Sistem, Donem } from "@/app/generated/prisma/client";
 
 const SISTEMLER = ["UNIVERSITE", "LISE"] as const;
+const DONEMLER = ["DONEM_1", "DONEM_2", "YAZ_DONEMI"];
 
 // Sistem kısıtlı yönetim rolleri yalnızca kendi sistemine hedef girer
 const ROL_SISTEM: Record<string, GenclikSistem> = {
@@ -34,8 +35,8 @@ export async function GET(req: NextRequest) {
   const sis = sistem as Sistem;
 
   if (scope === "il") {
-    const where: { sistem: Sistem; yil: number; donem?: string; il?: { bolgeId: string } } = { sistem: sis, yil };
-    if (donem) where.donem = donem;
+    const where: { sistem: Sistem; yil: number; donem?: Donem; il?: { bolgeId: string } } = { sistem: sis, yil };
+    if (donem && DONEMLER.includes(donem)) where.donem = donem as Donem;
     if (bolgeId) where.il = { bolgeId };
     const hedefler = await prisma.genclikIlHedef.findMany({
       where,
@@ -45,8 +46,8 @@ export async function GET(req: NextRequest) {
   }
 
   // scope=bolge (varsayılan)
-  const where: { sistem: Sistem; yil: number; donem?: string } = { sistem: sis, yil };
-  if (donem) where.donem = donem;
+  const where: { sistem: Sistem; yil: number; donem?: Donem } = { sistem: sis, yil };
+  if (donem && DONEMLER.includes(donem)) where.donem = donem as Donem;
   const hedefler = await prisma.genclikBolgeHedef.findMany({
     where,
     include: { bolge: { select: { id: true, no: true, ad: true } } },

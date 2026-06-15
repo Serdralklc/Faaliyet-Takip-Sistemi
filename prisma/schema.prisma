@@ -502,7 +502,7 @@ model BolgeHedef {
   id      String @id @default(cuid())
   bolgeId String
   yil     Int
-  donem   String // DONEM_1 | DONEM_2 | YAZ_DONEMI
+  donem   Donem
 
   yeniIntisap    Int @default(0)
   sosyalFaaliyet Int @default(0)
@@ -528,7 +528,7 @@ model IlHedef {
   ilId         String
   bolgeHedefId String
   yil          Int
-  donem        String
+  donem        Donem
 
   yeniIntisap    Int @default(0)
   sosyalFaaliyet Int @default(0)
@@ -556,7 +556,7 @@ model GenclikBolgeHedef {
   sistem    Sistem   // UNIVERSITE | LISE
   bolgeId   String
   yil       Int
-  donem     String
+  donem     Donem
   hedefler  Json     @default("{}")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -572,7 +572,7 @@ model GenclikIlHedef {
   sistem    Sistem   // UNIVERSITE | LISE
   ilId      String
   yil       Int
-  donem     String
+  donem     Donem
   hedefler  Json     @default("{}")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
