@@ -36,7 +36,7 @@ interface RowState {
   saving: boolean;
 }
 
-type Tab = "donem" | "alan" | "kategori";
+type Tab = "donem" | "alan" | "kategori" | "ozel";
 
 function Toggle({ on, onChange, disabled }: { on: boolean; onChange: () => void; disabled?: boolean }) {
   return (
@@ -489,6 +489,131 @@ function KategoriTurTab() {
   );
 }
 
+interface OzelTipOpt { kod: string; ad: string; secenekli?: boolean }
+interface KatOpt { kodu: string; ad: string }
+type OzelRow = { kod?: string; ad: string; tip: string; kategoriKodu: string; zorunlu: boolean; secenekler: string; aktif: boolean };
+
+function OzelAlanTab() {
+  const { toast } = useToast();
+  const [sistem, setSistem] = useState<"UNIVERSITE" | "LISE">("UNIVERSITE");
+  const [tipOpsiyon, setTipOpsiyon] = useState<OzelTipOpt[]>([]);
+  const [kategoriOpsiyon, setKategoriOpsiyon] = useState<KatOpt[]>([]);
+  const [rows, setRows] = useState<OzelRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async (s: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/faaliyet-yapilandirma/ozel-alan?sistem=${s}`);
+      if (!res.ok) throw new Error();
+      const j = await res.json();
+      setTipOpsiyon(j.tipOpsiyon ?? []);
+      setKategoriOpsiyon(j.kategoriOpsiyon ?? []);
+      setRows((j.alanlar ?? []).map((a: { kod: string; ad: string; tip: string; kategoriKodu: string; zorunlu: boolean; secenekler: string[]; aktif: boolean }) => ({
+        kod: a.kod, ad: a.ad, tip: a.tip, kategoriKodu: a.kategoriKodu, zorunlu: a.zorunlu,
+        secenekler: (a.secenekler ?? []).join(", "), aktif: a.aktif,
+      })));
+    } catch {
+      toast({ type: "error", title: "Özel alanlar yüklenemedi." });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+  useEffect(() => { load(sistem); }, [sistem, load]);
+
+  const setRow = (i: number, patch: Partial<OzelRow>) => setRows(p => p.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
+  const addRow = () => setRows(p => [...p, { ad: "", tip: "METIN", kategoriKodu: "", zorunlu: false, secenekler: "", aktif: true }]);
+  const delRow = (i: number) => setRows(p => p.filter((_, idx) => idx !== i));
+
+  const kaydet = async () => {
+    if (rows.some(r => !r.ad.trim())) { toast({ type: "warning", title: "Her alanın bir adı olmalı" }); return; }
+    setSaving(true);
+    try {
+      const alanlar = rows.map((r, i) => ({
+        kod: r.kod, ad: r.ad.trim(), tip: r.tip, kategoriKodu: r.kategoriKodu, zorunlu: r.zorunlu, sira: i,
+        secenekler: r.tip === "TEK_SECIM" ? r.secenekler.split(/[,\n]/).map(s => s.trim()).filter(Boolean) : [],
+        aktif: r.aktif,
+      }));
+      const res = await fetch("/api/admin/faaliyet-yapilandirma/ozel-alan", {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sistem, alanlar }),
+      });
+      if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || "Kaydedilemedi."); }
+      toast({ type: "success", title: "Özel alanlar kaydedildi" });
+      load(sistem);
+    } catch (e) {
+      toast({ type: "error", title: "Hata", message: e instanceof Error ? e.message : "Kaydedilemedi." });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
+        <div>
+          <h2 className="text-[15px] font-bold text-heading">Özel Alanlar</h2>
+          <p className="text-[12.5px] text-secondary mt-0.5 max-w-2xl leading-relaxed">
+            Gençlik faaliyet formuna <b>kategoriye bağlı</b> ek alanlar ekleyin (ör. Kafile → Gidilen Şehir, Araç Türü).
+            Kategori seçilirse alan yalnız o kategoride çıkar; <b>Tüm kategoriler</b> dersen her zaman görünür.
+            Mevcut kayıtlar ve raporlar etkilenmez.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <select value={sistem} onChange={e => setSistem(e.target.value as "UNIVERSITE" | "LISE")}
+            className="px-3 py-1.5 rounded-lg border border-border bg-card text-[13px] font-semibold">
+            <option value="UNIVERSITE">Üniversite Gençlik</option>
+            <option value="LISE">Lise Gençlik</option>
+          </select>
+          <Button loading={saving} onClick={kaydet}>Kaydet</Button>
+        </div>
+      </div>
+
+      {loading ? (
+        <p className="text-secondary text-sm py-8 text-center">Yükleniyor…</p>
+      ) : (
+        <div className="space-y-3">
+          {rows.length === 0 && (
+            <p className="text-secondary text-sm py-6 text-center rounded-xl border border-dashed border-border">
+              Henüz özel alan yok. “Alan ekle” ile başlayın.
+            </p>
+          )}
+          {rows.map((r, i) => (
+            <div key={i} className="rounded-xl border border-border bg-card p-3 space-y-2" style={{ opacity: r.aktif ? 1 : 0.6 }}>
+              <div className="grid gap-2" style={{ gridTemplateColumns: "1fr 150px 170px" }}>
+                <input type="text" value={r.ad} placeholder="Alan adı (ör. Gidilen Şehir)" maxLength={80}
+                  onChange={e => setRow(i, { ad: e.target.value })}
+                  className="px-2.5 py-1.5 rounded-lg border border-border bg-card text-[13px]" />
+                <select value={r.tip} onChange={e => setRow(i, { tip: e.target.value })}
+                  className="px-2 py-1.5 rounded-lg border border-border bg-card text-[13px]">
+                  {tipOpsiyon.map(t => <option key={t.kod} value={t.kod}>{t.ad}</option>)}
+                </select>
+                <select value={r.kategoriKodu} onChange={e => setRow(i, { kategoriKodu: e.target.value })}
+                  className="px-2 py-1.5 rounded-lg border border-border bg-card text-[13px]">
+                  <option value="">Tüm kategoriler</option>
+                  {kategoriOpsiyon.map(k => <option key={k.kodu} value={k.kodu}>{k.ad}</option>)}
+                </select>
+              </div>
+              {r.tip === "TEK_SECIM" && (
+                <input type="text" value={r.secenekler} placeholder="Seçenekler (virgülle): Otobüs, Minibüs, Uçak"
+                  onChange={e => setRow(i, { secenekler: e.target.value })}
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-border bg-card text-[13px]" />
+              )}
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-2 text-[12px] text-muted">Zorunlu <Toggle on={r.zorunlu} onChange={() => setRow(i, { zorunlu: !r.zorunlu })} /></span>
+                <span className="flex items-center gap-2 text-[12px] text-muted">Aktif <Toggle on={r.aktif} onChange={() => setRow(i, { aktif: !r.aktif })} /></span>
+                <button type="button" onClick={() => delRow(i)} className="ml-auto text-[12px] font-semibold text-red-500">Sil</button>
+              </div>
+            </div>
+          ))}
+          <Button variant="secondary" onClick={addRow}>+ Alan ekle</Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function FaaliyetYapilandirmaClient() {
   const [tab, setTab] = useState<Tab>("donem");
 
@@ -524,9 +649,10 @@ export function FaaliyetYapilandirmaClient() {
         {tabBtn("donem", "Yıl & Dönem")}
         {tabBtn("alan", "Alan Yönetimi")}
         {tabBtn("kategori", "Kategori & Tür")}
+        {tabBtn("ozel", "Özel Alanlar")}
       </div>
 
-      {tab === "donem" ? <DonemTab /> : tab === "alan" ? <AlanTab /> : <KategoriTurTab />}
+      {tab === "donem" ? <DonemTab /> : tab === "alan" ? <AlanTab /> : tab === "kategori" ? <KategoriTurTab /> : <OzelAlanTab />}
     </div>
   );
 }

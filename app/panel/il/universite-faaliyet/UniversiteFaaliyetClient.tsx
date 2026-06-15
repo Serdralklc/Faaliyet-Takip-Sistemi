@@ -8,6 +8,7 @@ import { Input, Textarea, Select } from "@/components/ui/Input";
 import { useToast } from "@/components/ui/Toast";
 import { Plus, Pencil, Trash2, Image as ImageIcon, Paperclip } from "lucide-react";
 import { UNI_KATEGORILER, type UniKategoriKey } from "@/lib/universite-faaliyet";
+import { OzelAlanlarGirisi, type OzelAlanDefUI } from "@/components/OzelAlanlarGirisi";
 
 type KatItem = { key: string; label: string; adlar: string[]; renk: string; aktif?: boolean };
 
@@ -15,6 +16,7 @@ interface Faaliyet {
   id: string; ilId: string; tarih: string; yil: number; donem: string;
   kategori: UniKategoriKey; faaliyetAdi: string; aciklama: string | null; yer: string | null;
   katilimci: number; ilkKezKatilan: number; yeniIntisap: number;
+  ozelAlanlar?: Record<string, unknown> | null;
   fotoKey: string | null; dosyaKey: string | null; dosyaAd: string | null;
   createdByName: string;
 }
@@ -66,6 +68,15 @@ export function UniversiteFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string
   }, []);
   const katLabel = useMemo(() => Object.fromEntries(kategoriler.map(k => [k.key, k.label])), [kategoriler]);
   const katRenk = useMemo(() => Object.fromEntries(kategoriler.map(k => [k.key, k.renk])), [kategoriler]);
+  // Faaliyet Yapılandırma (Faz 3): kategoriye bağlı özel alanlar
+  const [ozelDefs, setOzelDefs] = useState<OzelAlanDefUI[]>([]);
+  const [ozelDegerler, setOzelDegerler] = useState<Record<string, unknown>>({});
+  useEffect(() => {
+    fetch(`/api/genclik-ozel-alan?sistem=UNIVERSITE`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (Array.isArray(d?.alanlar)) setOzelDefs(d.alanlar as OzelAlanDefUI[]); })
+      .catch(() => {});
+  }, []);
 
   function load() {
     setLoading(true);
@@ -95,12 +106,14 @@ export function UniversiteFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string
 
   const kategoriDef = kategoriler.find(k => k.key === form.kategori) ?? kategoriler[0];
   const hasAdlar = kategoriDef.adlar.length > 0;
+  const ozelGorunen = ozelDefs.filter(d => !d.kategoriKodu || d.kategoriKodu === form.kategori);
   const manuelGerek = !hasAdlar || form.adSecim === "Diğer";
 
   function openNew() {
     setEditing(null);
     const def = kategoriler.find(k => k.aktif !== false) ?? kategoriler[0];
     setForm({ ...bosForm(donem), kategori: def.key as UniKategoriKey, adSecim: def.adlar[0] ?? "" });
+    setOzelDegerler({});
     setModalOpen(true);
   }
   function openEdit(f: Faaliyet) {
@@ -115,6 +128,7 @@ export function UniversiteFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string
       katilimci: String(f.katilimci || ""), ilkKezKatilan: String(f.ilkKezKatilan || ""), yeniIntisap: String(f.yeniIntisap || ""),
       fotoFile: null, dosyaFile: null, fotoSil: false, dosyaSil: false,
     });
+    setOzelDegerler((f.ozelAlanlar as Record<string, unknown>) ?? {});
     setModalOpen(true);
   }
 
@@ -130,6 +144,8 @@ export function UniversiteFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string
     if (!form.yer.trim()) { toast({ type: "warning", title: "Faaliyetin yapıldığı yer gerekli" }); return; }
     if (!form.aciklama.trim()) { toast({ type: "warning", title: "Faaliyet açıklaması gerekli" }); return; }
     if (!form.katilimci.trim() || Number(form.katilimci) < 1) { toast({ type: "warning", title: "Katılımcı sayısı gerekli (en az 1)" }); return; }
+    const eksikOzel = ozelGorunen.find(d => d.zorunlu && !String(ozelDegerler[d.kod] ?? "").trim());
+    if (eksikOzel) { toast({ type: "warning", title: `${eksikOzel.ad} gerekli` }); return; }
 
     setSaving(true);
     const fd = new FormData();
@@ -143,6 +159,7 @@ export function UniversiteFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string
     fd.append("katilimci", form.katilimci || "0");
     fd.append("ilkKezKatilan", form.ilkKezKatilan || "0");
     fd.append("yeniIntisap", form.yeniIntisap || "0");
+    fd.append("ozelAlanlar", JSON.stringify(ozelDegerler));
     if (form.fotoFile) fd.append("foto", form.fotoFile);
     if (form.dosyaFile) fd.append("dosya", form.dosyaFile);
     if (form.fotoSil) fd.append("fotoSil", "1");
@@ -304,6 +321,8 @@ export function UniversiteFaaliyetClient({ ilId, ilAd, bolgeAd }: { ilId: string
             <Input label="İlk Kez Katılan" type="number" min={0} value={form.ilkKezKatilan} onChange={e => setForm(f => ({ ...f, ilkKezKatilan: e.target.value }))} />
             <Input label="Yeni İntisap" type="number" min={0} value={form.yeniIntisap} onChange={e => setForm(f => ({ ...f, yeniIntisap: e.target.value }))} />
           </div>
+
+          <OzelAlanlarGirisi defs={ozelGorunen} values={ozelDegerler} onChange={(kod, v) => setOzelDegerler(p => ({ ...p, [kod]: v }))} />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

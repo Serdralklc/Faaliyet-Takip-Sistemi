@@ -69,6 +69,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (dosya) { data.dosyaKey = dosya.key; data.dosyaUrl = dosya.url; data.dosyaMime = dosya.mime; data.dosyaAd = dosya.ad; data.dosyaBoyut = dosya.boyut; }
   else if (dosyaSil) { data.dosyaKey = null; data.dosyaUrl = null; data.dosyaMime = null; data.dosyaAd = null; data.dosyaBoyut = null; }
 
+  const ozelRaw = form.get("ozelAlanlar");
+  if (typeof ozelRaw === "string" && ozelRaw.trim()) {
+    try { data.ozelAlanlar = JSON.parse(ozelRaw); } catch { /* geçersiz JSON: yok say */ }
+  }
+
   const f = await prisma.universiteFaaliyet.update({ where: { id }, data });
 
   if ((foto || fotoSil) && mevcut.fotoKey) await deleteFile(mevcut.fotoKey);

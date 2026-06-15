@@ -373,6 +373,9 @@ model LiseFaaliyet {
   ilkKezKatilan Int          @default(0)
   yeniIntisap   Int          @default(0)
 
+  // Faaliyet Yapılandırma (Faz 3): kategoriye bağlı özel alanların cevapları { [kod]: değer }
+  ozelAlanlar Json?
+
   // Opsiyonel foto + dosya eki (lib/storage; /api/lise-dosya/{id} ile servis)
   // url: blob mutlak URL (yerelde boş, key ile stream edilir)
   fotoKey    String?
@@ -424,6 +427,9 @@ model UniversiteFaaliyet {
   katilimci     Int                @default(0)
   ilkKezKatilan Int                @default(0)
   yeniIntisap   Int                @default(0)
+
+  // Faaliyet Yapılandırma (Faz 3): kategoriye bağlı özel alanların cevapları { [kod]: değer }
+  ozelAlanlar Json?
 
   fotoKey    String?
   fotoUrl    String?
@@ -527,6 +533,28 @@ model FaaliyetTuru {
 
   @@unique([sistem, kategoriKodu, ad])
   @@index([sistem, kategoriKodu])
+}
+
+// Gençlik faaliyetlerine kategoriye bağlı özel alan tanımı (Faz 3 — dinamik form tasarımcısı).
+// Cevaplar LiseFaaliyet/UniversiteFaaliyet.ozelAlanlar JSON'unda { [kod]: değer } olarak saklanır.
+// kategoriKodu boş ("") = tüm kategorilerde görünür; doluysa yalnız o kategori seçilince (koşullu).
+model OzelAlan {
+  id           String   @id @default(cuid())
+  sistem       Sistem // UNIVERSITE | LISE
+  kategoriKodu String   @default("")
+  kod          String // değişmez sistem kodu (JSON anahtarı)
+  ad           String
+  tip          String // METIN | UZUN_METIN | SAYI | TARIH | TEK_SECIM | EVET_HAYIR
+  zorunlu      Boolean  @default(false)
+  sira         Int      @default(0)
+  secenekler   String[]
+  aktif        Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sistem, kod])
+  @@index([sistem])
 }
 
 // ── Barınma Birimleri ──────────────────────────────────────────

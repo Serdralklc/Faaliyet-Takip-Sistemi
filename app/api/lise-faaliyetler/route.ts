@@ -5,7 +5,16 @@ import { createAuditLog, ACTIONS } from "@/lib/audit";
 import { saveFile, IZINLI_TIPLER, MAX_DOSYA_BOYUTU } from "@/lib/storage";
 import { gecerliKategori } from "@/lib/lise-faaliyet";
 import { donemGecerli, donemGirisDurum } from "@/lib/faaliyet-yapilandirma";
+import { Prisma } from "@/app/generated/prisma/client";
 import type { Role } from "@/lib/constants";
+
+function ozelAlanlariOku(form: FormData): Prisma.InputJsonValue | undefined {
+  const raw = form.get("ozelAlanlar");
+  if (typeof raw === "string" && raw.trim()) {
+    try { return JSON.parse(raw); } catch { return undefined; }
+  }
+  return undefined;
+}
 
 export const dynamic = "force-dynamic";
 
@@ -122,6 +131,7 @@ export async function POST(req: NextRequest) {
       katilimci: sayi("katilimci"),
       ilkKezKatilan: sayi("ilkKezKatilan"),
       yeniIntisap: sayi("yeniIntisap"),
+      ozelAlanlar: ozelAlanlariOku(form),
       fotoKey: foto?.key ?? null, fotoUrl: foto?.url ?? null, fotoMime: foto?.mime ?? null,
       dosyaKey: dosya?.key ?? null, dosyaUrl: dosya?.url ?? null, dosyaMime: dosya?.mime ?? null,
       dosyaAd: dosya?.ad ?? null, dosyaBoyut: dosya?.boyut ?? null,
