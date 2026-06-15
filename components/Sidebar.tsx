@@ -221,8 +221,6 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
         { href: "/panel/il/faaliyet/lise", label: "Eğitim — Lise", icon: School },
         { href: "/panel/il/faaliyet/universite", label: "Eğitim — Üniversite", icon: GraduationCap },
         { href: "/panel/il/faaliyet/ortak", label: "Eğitim — Ortak Faaliyetler", icon: Users },
-        { href: "/panel/il/genclik-faaliyet?sistem=UNIVERSITE", label: "Üniversite Gençlik (Görüntüle)", icon: GraduationCap },
-        { href: "/panel/il/genclik-faaliyet?sistem=LISE", label: "Lise Gençlik (Görüntüle)", icon: School },
       ],
     },
     {
