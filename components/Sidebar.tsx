@@ -217,10 +217,10 @@ export function Sidebar({ user, aktifGorunum = "merkez", onClose }: {
       label: "Faaliyet Takip Sistemi",
       icon: ClipboardList,
       items: [
-        { href: "/panel/il/faaliyet/ilkogretim", label: "Eğitim — İlköğretim", icon: BookOpen },
-        { href: "/panel/il/faaliyet/lise", label: "Eğitim — Lise", icon: School },
-        { href: "/panel/il/faaliyet/universite", label: "Eğitim — Üniversite", icon: GraduationCap },
-        { href: "/panel/il/faaliyet/ortak", label: "Eğitim — Ortak Faaliyetler", icon: Users },
+        { href: "/panel/il/faaliyet/ilkogretim", label: "İlköğretim", icon: BookOpen },
+        { href: "/panel/il/faaliyet/lise", label: "Lise", icon: School },
+        { href: "/panel/il/faaliyet/universite", label: "Üniversite", icon: GraduationCap },
+        { href: "/panel/il/faaliyet/ortak", label: "Ortak Faaliyetler", icon: Users },
       ],
     },
     {
